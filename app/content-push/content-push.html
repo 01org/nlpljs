@@ -36,7 +36,7 @@
     </style>
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
-      <core-splitter direction="right"></core-splitter>
+      <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
         <div id="content_from_iframe"></div>
         <core-xhr id="google_images"></core-xhr>
@@ -118,7 +118,15 @@
           }
         }
 
-      }
+      },
+
+      downAction: function() {
+        this.$.iframe.style.pointerEvents = 'none';
+      },
+      upAction: function() {
+        this.$.iframe.style.pointerEvents = '';
+      },   
+
     });
   </script>
 </polymer-element>
