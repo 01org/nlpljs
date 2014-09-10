@@ -1,0 +1,66 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-splitter/core-splitter.html">
+
+<polymer-element name="content-push" attributes="iframeurl">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: cyan;
+      }
+
+      #container {
+        height: 100%;
+      }
+
+      #iframe {
+        display: inline-block;
+        background-color: red;
+        height: 100%;
+      }
+
+      #content_push_panel {
+        display: inline-block;
+        background-color: blue;
+        height: 100%;
+      }
+    </style>
+    <div id="container" horizontal layout>
+      <iframe id="iframe" flex></iframe>
+      <core-splitter direction="right"></core-splitter>
+      <div id="content_push_panel">
+        <div id="content_from_iframe"></div>
+        <img></img>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      created: function() {
+        this.iframeurl="";
+      },
+      iframeurlChanged: function(oldValue,newValue) {
+        console.log("CP:new iframeurl:",newValue);
+        self.$.iframe.src=newValue;
+      },
+      ready: function() {
+        self=this;
+        console.log("CP:iframeurl:",self.iframeurl);
+        self.$.iframe.src=self.iframeurl;
+        //self.url=location.search.slice(1);
+        self.$.iframe.onload=function() {
+          console.log("MAXMAXMAX iframe onload");
+          // demonstrate stuff can be copied from the iframe document
+          self.$.content_from_iframe.innerText=self.$.iframe.contentDocument.querySelector(".kix-page-content-wrapper").innerText;
+        };
+
+        /*
+        self.$.iframe.src=
+          "https://docs.google.com/a/intel.com/document/d/13_B9nTy2uIeOEH8W_YEc8BokyZVug7nayCXI94q9HhA/edit";
+        */
+      }
+    });
+  </script>
+</polymer-element>
