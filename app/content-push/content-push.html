@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
+<link rel="import" href="../bower_components/core-component-page/core-component-page.html">
 
 <polymer-element name="content-push" attributes="iframeurl">
   <template>
@@ -27,13 +28,19 @@
         height: 100%;
         max-width: 25%;
       }
+
+      img {
+        max-width: 50%;
+        height: auto;
+      }
     </style>
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
       <core-splitter direction="right"></core-splitter>
       <div id="content_push_panel">
         <div id="content_from_iframe"></div>
-        <img></img>
+        <core-xhr id="google_images"></core-xhr>
+        <div id="images"></div>
       </div>
     </div>
   </template>
@@ -41,11 +48,21 @@
     Polymer({
       created: function() {
         this.iframeurl="";
+
+        // from https://console.developers.google.com/project
+        this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
+
+        // from https://www.google.com/cse/manage/all
+        this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
+
+        this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
       },
+
       iframeurlChanged: function(oldValue,newValue) {
         console.log("CP:new iframeurl:",newValue);
         self.$.iframe.src=newValue;
       },
+
       ready: function() {
         self=this;
         console.log("CP:iframeurl:",self.iframeurl);
@@ -64,6 +81,43 @@
 
           self.$.content_from_iframe.innerText=textToAdd;
         };
+
+        this.search();
+      },
+
+      search: function (query) {
+        // TODO pass this to the function rather than hard-coding
+        query = 'intel';
+
+        var handler = this.handleGoogleImagesResponse.bind(this);
+
+        var searchParams = {
+          searchType: 'image',
+          key: this.googleImages_key,
+          cx: this.googleImages_cseId,
+          q: query
+        };
+
+        this.$.google_images.request({
+          url: this.googleImages_baseUrl,
+          params: searchParams,
+          responseType: 'json',
+          callback: handler
+        });
+      },
+
+      handleGoogleImagesResponse: function (response) {
+        if (response.error) {
+          console.log("CP:error from Google:",response.error.message);
+        } else {
+          var img;
+          for (var i = 0; i < response.items.length; i++) {
+            img = document.createElement('img');
+            img.src = response.items[i].link;
+            this.$.images.appendChild(img);
+          }
+        }
+
       }
     });
   </script>
