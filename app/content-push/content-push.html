@@ -25,6 +25,7 @@
         display: inline-block;
         background-color: blue;
         height: 100%;
+        max-width: 25%;
       }
     </style>
     <div id="container" horizontal layout>
@@ -49,17 +50,20 @@
         self=this;
         console.log("CP:iframeurl:",self.iframeurl);
         self.$.iframe.src=self.iframeurl;
-        //self.url=location.search.slice(1);
-        self.$.iframe.onload=function() {
-          console.log("MAXMAXMAX iframe onload");
-          // demonstrate stuff can be copied from the iframe document
-          self.$.content_from_iframe.innerText=self.$.iframe.contentDocument.querySelector(".kix-page-content-wrapper").innerText;
-        };
 
-        /*
-        self.$.iframe.src=
-          "https://docs.google.com/a/intel.com/document/d/13_B9nTy2uIeOEH8W_YEc8BokyZVug7nayCXI94q9HhA/edit";
-        */
+        self.$.iframe.onload=function() {
+          console.log("CP:iframe onload");
+          // demonstrate stuff can be copied from the iframe document
+          var totalLinesToAdd=5;
+          var textToAdd = "";
+          var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
+          for( var i=0; i<totalLinesToAdd; ++i) {
+            var text=lines[i].innerText;
+            textToAdd+=text;
+          }
+
+          self.$.content_from_iframe.innerText=textToAdd;
+        };
       }
     });
   </script>
