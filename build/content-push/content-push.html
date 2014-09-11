@@ -1,0 +1,132 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-splitter/core-splitter.html">
+<link rel="import" href="../bower_components/core-component-page/core-component-page.html">
+
+<polymer-element name="content-push" attributes="iframeurl">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: cyan;
+      }
+
+      #container {
+        height: 100%;
+      }
+
+      #iframe {
+        display: inline-block;
+        background-color: red;
+        height: 100%;
+      }
+
+      #content_push_panel {
+        display: inline-block;
+        background-color: blue;
+        height: 100%;
+        max-width: 25%;
+      }
+
+      img {
+        max-width: 50%;
+        height: auto;
+      }
+    </style>
+    <div id="container" horizontal layout>
+      <iframe id="iframe" flex></iframe>
+      <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+      <div id="content_push_panel">
+        <div id="content_from_iframe"></div>
+        <core-xhr id="google_images"></core-xhr>
+        <div id="images"></div>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      created: function() {
+        this.iframeurl="";
+
+        // from https://console.developers.google.com/project
+        this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
+
+        // from https://www.google.com/cse/manage/all
+        this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
+
+        this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
+      },
+
+      iframeurlChanged: function(oldValue,newValue) {
+        console.log("CP:new iframeurl:",newValue);
+        self.$.iframe.src=newValue;
+      },
+
+      ready: function() {
+        self=this;
+        console.log("CP:iframeurl:",self.iframeurl);
+        self.$.iframe.src=self.iframeurl;
+
+        self.$.iframe.onload=function() {
+          console.log("CP:iframe onload");
+          // demonstrate stuff can be copied from the iframe document
+          var totalLinesToAdd=5;
+          var textToAdd = "";
+          var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
+          for( var i=0; i<totalLinesToAdd; ++i) {
+            var text=lines[i].innerText;
+            textToAdd+=text;
+          }
+
+          self.$.content_from_iframe.innerText=textToAdd;
+        };
+
+        this.search();
+      },
+
+      search: function (query) {
+        // TODO pass this to the function rather than hard-coding
+        query = 'intel';
+
+        var handler = this.handleGoogleImagesResponse.bind(this);
+
+        var searchParams = {
+          searchType: 'image',
+          key: this.googleImages_key,
+          cx: this.googleImages_cseId,
+          q: query
+        };
+
+        this.$.google_images.request({
+          url: this.googleImages_baseUrl,
+          params: searchParams,
+          responseType: 'json',
+          callback: handler
+        });
+      },
+
+      handleGoogleImagesResponse: function (response) {
+        if (response.error) {
+          console.log("CP:error from Google:",response.error.message);
+        } else {
+          var img;
+          for (var i = 0; i < response.items.length; i++) {
+            img = document.createElement('img');
+            img.src = response.items[i].link;
+            this.$.images.appendChild(img);
+          }
+        }
+
+      },
+
+      downAction: function() {
+        this.$.iframe.style.pointerEvents = 'none';
+      },
+      upAction: function() {
+        this.$.iframe.style.pointerEvents = '';
+      },   
+
+    });
+  </script>
+</polymer-element>
