@@ -84,7 +84,6 @@
                 if (thisNode) {
                   var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
                   if (lineview) {
-                    console.log("CP:observeDocumentChanges:",lineview.innerText);
                     callBack(lineview.innerText);
                   }
                 }

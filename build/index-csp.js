@@ -153,7 +153,6 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
                 if (thisNode) {
                   var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
                   if (lineview) {
-                    console.log("CP:observeDocumentChanges:",lineview.innerText);
                     callBack(lineview.innerText);
                   }
                 }
