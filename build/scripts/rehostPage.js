@@ -31,7 +31,7 @@
     link.href = indexUrl;
     link.onload = function(e) {
       // copy head and body from import into main document
-      console.log("got link load");
+      //console.log("got link load");
       var link = document.querySelector('link[rel="import"]');
       var content = link.import;
 

@@ -202,11 +202,10 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
       },
       closePanel: function() {
         this.$.content_push_panel.style.display = 'none';
+        this.open = false;
       },
       togglePanel: function() {
-        console.log('in toggle');
         if (this.open) {
-          console.log('in open');
           this.$.content_push_panel.style.display = 'none';
           this.open = false;
         } else {
