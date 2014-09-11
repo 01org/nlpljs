@@ -114,87 +114,153 @@ Polymer("core-doc-toc",{searchAction:function(){this.$.searchBar.style.opacity=1
 Polymer("core-doc-viewer",{classes:[],sources:[],ready:function(){window.addEventListener("hashchange",this.parseLocationHash.bind(this));this.parseLocationHash()},parseLocationHash:function(){this.route=window.location.hash.slice(1)},routeChanged:function(){this.validateRoute()},validateRoute:function(){if(this.route){this.classes.some(function(c){if(c.name===this.route){this.data=c;this.route="";return}},this)}},selectedChanged:function(){this.data=this.classes[this.selected]},parserDataReady:function(event){this.assimilateData(event.target.data)},assimilateData:function(data){this.classes=this.classes.concat(data.classes);this.classes.sort(function(a,b){var na=a&&a.name.toLowerCase(),nb=b&&b.name.toLowerCase();return na<nb?-1:na==nb?0:1});if(!this.data&&!this.route&&this.classes.length){this.data=this.classes[0]}if(this.classes.length>1){this.$.toc.style.display="block"}this.validateRoute()}});;
 Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.moduleName=this.moduleName||this.findModuleName()},moduleNameChanged:function(){document.title=this.moduleName;this.url=!this.sources.length&&this.moduleName?this.moduleName+".html":""},findModuleName:function(){var path=location.pathname.split("/");var name=path.pop()||path.pop();if(name.indexOf(".html")>=0){name=path.pop()}return name||""}});;
 
-    Polymer('content-push',{
-      created: function() {
-        this.iframeurl="";
+    (function() {
+      // private properties
 
-        // from https://console.developers.google.com/project
-        this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
+      // find ancestor of node that has className
+      // for finding the ancestor with .kix-lineview of whatever line has changed
+      var findAncestor = function(node,className) {
+        var retVal=null;
 
-        // from https://www.google.com/cse/manage/all
-        this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
+        var thisNode=node;
+        var cssSelectorNotFound=true;
 
-        this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
-      },
-
-      iframeurlChanged: function(oldValue,newValue) {
-        console.log("CP:new iframeurl:",newValue);
-        self.$.iframe.src=newValue;
-      },
-
-      ready: function() {
-        self=this;
-        console.log("CP:iframeurl:",self.iframeurl);
-        self.$.iframe.src=self.iframeurl;
-
-        self.$.iframe.onload=function() {
-          console.log("CP:iframe onload");
-          // demonstrate stuff can be copied from the iframe document
-          var totalLinesToAdd=5;
-          var textToAdd = "";
-          var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
-          for( var i=0; i<totalLinesToAdd; ++i) {
-            var text=lines[i].innerText;
-            textToAdd+=text;
-          }
-
-          self.$.content_from_iframe.innerText=textToAdd;
-        };
-
-        this.search();
-      },
-
-      search: function (query) {
-        // TODO pass this to the function rather than hard-coding
-        query = 'intel';
-
-        var handler = this.handleGoogleImagesResponse.bind(this);
-
-        var searchParams = {
-          searchType: 'image',
-          key: this.googleImages_key,
-          cx: this.googleImages_cseId,
-          q: query
-        };
-
-        this.$.google_images.request({
-          url: this.googleImages_baseUrl,
-          params: searchParams,
-          responseType: 'json',
-          callback: handler
-        });
-      },
-
-      handleGoogleImagesResponse: function (response) {
-        if (response.error) {
-          console.log("CP:error from Google:",response.error.message);
-        } else {
-          var img;
-          for (var i = 0; i < response.items.length; i++) {
-            img = document.createElement('img');
-            img.src = response.items[i].link;
-            this.$.images.appendChild(img);
+        while (cssSelectorNotFound && thisNode && thisNode.nodeName!="BODY") {
+          cssSelectorNotFound=!thisNode.classList.contains(className);
+          if (cssSelectorNotFound) {
+            // move into parent node
+            thisNode=thisNode.parentNode;
+          } else {
+            // finished
+            retVal=thisNode;
           }
         }
 
-      },
+        return retVal;
+      };
 
-      downAction: function() {
-        this.$.iframe.style.pointerEvents = 'none';
-      },
-      upAction: function() {
-        this.$.iframe.style.pointerEvents = '';
-      },   
+      var observeDocumentChanges = function(iframe,callBack) {
+        var docsContainerSelector = ".kix-paginateddocumentplugin";
+        var docsFilterSelector = ".kix-lineview";
 
-    });
+        // Create an observer instance
+        var observer = new MutationObserver(function(mutations,observerInstance) {
+          mutations.forEach(function(mutation) {
+            var newNodes = mutation.addedNodes; // DOM NodeList
+            if (newNodes !== null) { // If there are new nodes added
+              for (var i=0;i<newNodes.length;++i) {
+                var thisNode=newNodes[i];
+                if (thisNode) {
+                  var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
+                  if (lineview) {
+                    console.log("CP:observeDocumentChanges:",lineview.innerText);
+                    callBack(lineview.innerText);
+                  }
+                }
+              }
+            }
+          });
+        });
+
+        // Configuration of the observer:
+        var config = {
+          attributes: true,
+          childList: true,
+          subtree: true,
+          characterData: true
+        };
+
+        // Pass in the target node, as well as the observer options
+        var node=iframe.contentDocument.querySelector(docsContainerSelector);
+        observer.observe(node, config);
+      };
+
+      // contruct polymer element
+      Polymer('content-push',{
+        created: function() {
+          this.iframeurl="";
+
+          // from https://console.developers.google.com/project
+          this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
+
+          // from https://www.google.com/cse/manage/all
+          this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
+
+          this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
+        },
+
+        iframeurlChanged: function(oldValue,newValue) {
+          console.log("CP:new iframeurl:",newValue);
+          self.$.iframe.src=newValue;
+        },
+
+        ready: function() {
+          self=this;
+          console.log("CP:iframeurl:",self.iframeurl);
+          self.$.iframe.src=self.iframeurl;
+
+          self.$.iframe.onload=function() {
+            console.log("CP:iframe onload");
+            // demonstrate stuff can be copied from the iframe document
+            //var totalLinesToAdd=5;
+            //var textToAdd = "";
+            //var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
+            //for( var i=0; i<totalLinesToAdd; ++i) {
+              //var text=lines[i].innerText;
+              //textToAdd+=text;
+            //}
+
+            //self.$.content_from_iframe.innerText=textToAdd;
+
+            observeDocumentChanges(self.$.iframe, function(text) {
+              self.$.content_from_iframe.innerText=text;
+            });
+          };
+
+          //this.search();
+        },
+
+        search: function (query) {
+          // TODO pass this to the function rather than hard-coding
+          query = 'intel';
+
+          var handler = this.handleGoogleImagesResponse.bind(this);
+
+          var searchParams = {
+            searchType: 'image',
+            key: this.googleImages_key,
+            cx: this.googleImages_cseId,
+            q: query
+          };
+
+          this.$.google_images.request({
+            url: this.googleImages_baseUrl,
+            params: searchParams,
+            responseType: 'json',
+            callback: handler
+          });
+        },
+
+        handleGoogleImagesResponse: function (response) {
+          if (response.error) {
+            console.log("CP:error from Google:",response.error.message);
+          } else {
+            var img;
+            for (var i = 0; i < response.items.length; i++) {
+              img = document.createElement('img');
+              img.src = response.items[i].link;
+              this.$.images.appendChild(img);
+            }
+          }
+
+        },
+
+        downAction: function() {
+          this.$.iframe.style.pointerEvents = 'none';
+        },
+        upAction: function() {
+          this.$.iframe.style.pointerEvents = '';
+        },   
+      });
+    })();
   
