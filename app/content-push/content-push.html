@@ -1,34 +1,58 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
 <link rel="import" href="../bower_components/core-component-page/core-component-page.html">
-
-<polymer-element name="content-push" attributes="iframeurl">
+<polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
     <style>
       :host {
         display: block;
         width: 100%;
         height: 100%;
-        background-color: cyan;
+        background-color: #F0F0F0;
       }
 
       #container {
         height: 100%;
       }
-
+      #splitter {
+        background-color: #202020;
+        box-shadow:none;
+        width:8px;
+      }
       #iframe {
         display: inline-block;
-        background-color: red;
+        background-color: #F0F0F0;
         height: 100%;
       }
 
       #content_push_panel {
         display: inline-block;
-        background-color: blue;
+        background-color: #F0F0F0;
         height: 100%;
+        width:300px;
         max-width: 25%;
+        min-width:300px;
       }
-
+      #panel{
+        height:100%;
+        margin:0;
+        padding:0;
+      }
+      #toolbar{
+        display: block;
+        background-color: #202020;
+        margin:0;
+        padding:0;
+      }
+      #toolbartext {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+      #toolbaraction {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+      
       img {
         max-width: 50%;
         height: auto;
@@ -36,16 +60,26 @@
     </style>
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
-      <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+
+      <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+
       <div id="content_push_panel">
-        <div id="content_from_iframe"></div>
-        <core-xhr id="google_images"></core-xhr>
-        <div id="images"></div>
+        <core-header-panel id="panel" flex>
+          <core-toolbar id="toolbar">
+            <div id="toolbartext" flex>Content Push</div>
+            <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+          </core-toolbar>
+          <div id="content_from_iframe"></div>
+          <core-xhr id="google_images"></core-xhr>
+          <div id="images"></div>
+        </core-header-panel>
       </div>
+  
     </div>
   </template>
   <script>
     Polymer({
+      open:true,
       created: function() {
         this.iframeurl="";
 
@@ -59,17 +93,21 @@
       },
 
       iframeurlChanged: function(oldValue,newValue) {
-        console.log("CP:new iframeurl:",newValue);
+        //console.log("CP:new iframeurl:",newValue);
         self.$.iframe.src=newValue;
+      },
+      
+      toggleChanged: function(oldValue,newValue) {
+        this.togglePanel();
       },
 
       ready: function() {
         self=this;
-        console.log("CP:iframeurl:",self.iframeurl);
+        //console.log("CP:iframeurl:",self.iframeurl);
         self.$.iframe.src=self.iframeurl;
 
         self.$.iframe.onload=function() {
-          console.log("CP:iframe onload");
+          //console.log("CP:iframe onload");
           // demonstrate stuff can be copied from the iframe document
           var totalLinesToAdd=5;
           var textToAdd = "";
@@ -108,7 +146,7 @@
 
       handleGoogleImagesResponse: function (response) {
         if (response.error) {
-          console.log("CP:error from Google:",response.error.message);
+          //console.log("CP:error from Google:",response.error.message);
         } else {
           var img;
           for (var i = 0; i < response.items.length; i++) {
@@ -125,8 +163,20 @@
       },
       upAction: function() {
         this.$.iframe.style.pointerEvents = '';
-      },   
-
+      },
+      closePanel: function() {
+        this.$.content_push_panel.style.display = 'none';
+        this.open = false;
+      },
+      togglePanel: function() {
+        if (this.open) {
+          this.$.content_push_panel.style.display = 'none';
+          this.open = false;
+        } else {
+          this.$.content_push_panel.style.display = 'inline-block';
+          this.open = true;
+        }
+      }
     });
   </script>
 </polymer-element>

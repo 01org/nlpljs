@@ -115,6 +115,7 @@ Polymer("core-doc-viewer",{classes:[],sources:[],ready:function(){window.addEven
 Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.moduleName=this.moduleName||this.findModuleName()},moduleNameChanged:function(){document.title=this.moduleName;this.url=!this.sources.length&&this.moduleName?this.moduleName+".html":""},findModuleName:function(){var path=location.pathname.split("/");var name=path.pop()||path.pop();if(name.indexOf(".html")>=0){name=path.pop()}return name||""}});;
 
     Polymer('content-push',{
+      open:true,
       created: function() {
         this.iframeurl="";
 
@@ -128,17 +129,21 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
       },
 
       iframeurlChanged: function(oldValue,newValue) {
-        console.log("CP:new iframeurl:",newValue);
+        //console.log("CP:new iframeurl:",newValue);
         self.$.iframe.src=newValue;
+      },
+      
+      toggleChanged: function(oldValue,newValue) {
+        this.togglePanel();
       },
 
       ready: function() {
         self=this;
-        console.log("CP:iframeurl:",self.iframeurl);
+        //console.log("CP:iframeurl:",self.iframeurl);
         self.$.iframe.src=self.iframeurl;
 
         self.$.iframe.onload=function() {
-          console.log("CP:iframe onload");
+          //console.log("CP:iframe onload");
           // demonstrate stuff can be copied from the iframe document
           var totalLinesToAdd=5;
           var textToAdd = "";
@@ -177,7 +182,7 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
 
       handleGoogleImagesResponse: function (response) {
         if (response.error) {
-          console.log("CP:error from Google:",response.error.message);
+          //console.log("CP:error from Google:",response.error.message);
         } else {
           var img;
           for (var i = 0; i < response.items.length; i++) {
@@ -194,7 +199,20 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
       },
       upAction: function() {
         this.$.iframe.style.pointerEvents = '';
-      },   
-
+      },
+      closePanel: function() {
+        this.$.content_push_panel.style.display = 'none';
+      },
+      togglePanel: function() {
+        console.log('in toggle');
+        if (this.open) {
+          console.log('in open');
+          this.$.content_push_panel.style.display = 'none';
+          this.open = false;
+        } else {
+          this.$.content_push_panel.style.display = 'inline-block';
+          this.open = true;
+        }
+      }
     });
   

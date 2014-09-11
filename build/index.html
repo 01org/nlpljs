@@ -440,34 +440,58 @@ Note: `<core-component-page>` sets the page title automatically.
 
 <polymer-element name="core-component-page" attributes="moduleName sources" layout="" vertical="" assetpath="../core-component-page-dev/"><template><style>:host{font-family:Arial,sans-serif;height:100vh}h2{display:inline-block;margin:8px 6px;vertical-align:middle}.choiceB,.choiceC,.choiceD{color:#fff;font-size:12px;font-weight:700;text-decoration:none;background-color:#4285F4;box-shadow:0 1px 2px 0 rgba(0,0,0,.1);box-shadow:0 0 1px 0 rgba(0,0,0,.1);border-radius:2px;cursor:pointer;display:inline-block;padding:4px 12px 5px 12px;margin:4px 0}.appbar{background-color:#E91E63;color:#fff}</style><core-toolbar class="appbar"><span>{{moduleName}}</span><a class="choiceC" target="_blank" href="../{{moduleName}}/demo.html">demo</a></core-toolbar><core-doc-viewer flex="" url="{{url}}" sources="{{sources}}"></core-doc-viewer></template></polymer-element>
 
-
-<polymer-element name="content-push" attributes="iframeurl" assetpath="content-push/">
+<polymer-element name="content-push" attributes="iframeurl toggle" assetpath="content-push/">
   <template>
     <style>
       :host {
         display: block;
         width: 100%;
         height: 100%;
-        background-color: cyan;
+        background-color: #F0F0F0;
       }
 
       #container {
         height: 100%;
       }
-
+      #splitter {
+        background-color: #202020;
+        box-shadow:none;
+        width:8px;
+      }
       #iframe {
         display: inline-block;
-        background-color: red;
+        background-color: #F0F0F0;
         height: 100%;
       }
 
       #content_push_panel {
         display: inline-block;
-        background-color: blue;
+        background-color: #F0F0F0;
         height: 100%;
+        width:300px;
         max-width: 25%;
+        min-width:300px;
       }
-
+      #panel{
+        height:100%;
+        margin:0;
+        padding:0;
+      }
+      #toolbar{
+        display: block;
+        background-color: #202020;
+        margin:0;
+        padding:0;
+      }
+      #toolbartext {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+      #toolbaraction {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+      
       img {
         max-width: 50%;
         height: auto;
@@ -475,12 +499,21 @@ Note: `<core-component-page>` sets the page title automatically.
     </style>
     <div id="container" horizontal="" layout="">
       <iframe id="iframe" flex=""></iframe>
-      <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+
+      <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+
       <div id="content_push_panel">
-        <div id="content_from_iframe"></div>
-        <core-xhr id="google_images"></core-xhr>
-        <div id="images"></div>
+        <core-header-panel id="panel" flex="">
+          <core-toolbar id="toolbar">
+            <div id="toolbartext" flex="">Content Push</div>
+            <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+          </core-toolbar>
+          <div id="content_from_iframe"></div>
+          <core-xhr id="google_images"></core-xhr>
+          <div id="images"></div>
+        </core-header-panel>
       </div>
+  
     </div>
   </template>
   

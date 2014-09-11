@@ -18,9 +18,9 @@ chrome.runtime.onInstalled.addListener(function() {
 
 chrome.pageAction.onClicked.addListener(function(tab) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    console.log("BG:sending rehost message to CS");
+    //console.log("BG:sending rehost message to CS");
     chrome.tabs.sendMessage(tabs[0].id, {message: "rehost"}, function(response) {
-      console.log("BG:received response",response);
+      //console.log("BG:received response",response);
     });
   });
 });
