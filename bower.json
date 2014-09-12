@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "dependencies": {
     "polymer": "Polymer/polymer#~0.4.0",
-    "core-splitter": "Polymer/core-splitter#~0.4.0"
+    "core-splitter": "Polymer/core-splitter#~0.4.0",
+    "paper-button": "Polymer/paper-button#~0.4.0"
   },
   "devDependencies": {}
 }

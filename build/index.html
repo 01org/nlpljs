@@ -440,6 +440,7 @@ Note: `<core-component-page>` sets the page title automatically.
 
 <polymer-element name="core-component-page" attributes="moduleName sources" layout="" vertical="" assetpath="../core-component-page-dev/"><template><style>:host{font-family:Arial,sans-serif;height:100vh}h2{display:inline-block;margin:8px 6px;vertical-align:middle}.choiceB,.choiceC,.choiceD{color:#fff;font-size:12px;font-weight:700;text-decoration:none;background-color:#4285F4;box-shadow:0 1px 2px 0 rgba(0,0,0,.1);box-shadow:0 0 1px 0 rgba(0,0,0,.1);border-radius:2px;cursor:pointer;display:inline-block;padding:4px 12px 5px 12px;margin:4px 0}.appbar{background-color:#E91E63;color:#fff}</style><core-toolbar class="appbar"><span>{{moduleName}}</span><a class="choiceC" target="_blank" href="../{{moduleName}}/demo.html">demo</a></core-toolbar><core-doc-viewer flex="" url="{{url}}" sources="{{sources}}"></core-doc-viewer></template></polymer-element>
 
+<!--link rel="import" href="../bower_components/paper-button/paper-button.html"-->
 
 <polymer-element name="content-push" attributes="iframeurl" assetpath="content-push/">
   <template>
@@ -478,10 +479,13 @@ Note: `<core-component-page>` sets the page title automatically.
       <iframe id="iframe" flex=""></iframe>
       <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
-        <h5>Multiple lines on frame load</h5>
+        <h4>Multiple lines on frame load</h4>
         <p id="multiple_lines"></p>
-        <h5>Updated when text is change</h5>
-        <p id="changed_text"></p>
+        <h4>Updated when text is changed</h4>
+        <p id="changed_text">(nothing changed yet)</p>
+        <h4>Get images for changed text.</h4>
+        <button id="image_button" on-click="{{getImages}}">Go!</button>
+        <h4>Images</h4>
         <core-xhr id="google_images"></core-xhr>
         <div id="images"></div>
       </div>
