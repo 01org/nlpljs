@@ -11,6 +11,8 @@ This is the repository for the Content Push application.
 
 Then open a document and click on the browser action button. This should cause the doc to reload with a panel to the right of it.
 
+If you don't want to do your own build, a recent build is available in the `dist/` directory. This includes a `version.json` file which contains information about the application version, build date and time, and the git commit ID used for the build.
+
 ## Developers discussion
 
 The app files are in `app/`.
