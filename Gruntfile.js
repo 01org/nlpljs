@@ -7,8 +7,27 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-module.exports = function (grunt) {
+var path = require('path');
+var fs = require('fs');
+var exec = require('child_process').exec;
 
+// get the latest commit ID as an 8-character string;
+// if not a git repo, returns '' and logs an error;
+// receiver is a function with the signature receiver(err, result),
+// where err is null if no error occurred and result is the commit ID
+var gitCommitId = function (receiver) {
+  exec('git log -n1 --format=format:\'%h\'', function (err, stdout) {
+    if (err) {
+      receiver(err);
+    }
+    else {
+      var commitId = stdout.replace(/'/g, '');
+      receiver(null, commitId);
+    }
+  });
+};
+
+module.exports = function (grunt) {
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
 
@@ -20,8 +39,12 @@ module.exports = function (grunt) {
         app: 'app',
         build: 'build',
         dist: 'dist',
-        tasks: grunt.cli.tasks
+        tasks: grunt.cli.tasks,
+        packageInfo: grunt.file.readJSON('package.json')
     };
+
+    // path to the version.json file generated as part of the dist task
+    config.versionFilePath = path.join(config.dist, 'version.json');
 
     // Define the configuration for all the tasks
     grunt.initConfig({
@@ -305,8 +328,8 @@ module.exports = function (grunt) {
                 dest: 'build/index.html',
             },
 
-            // Copies remaining files to places other tasks can use
-            dist: {
+            // Copies remaining files to places other tasks can use; broken
+            broken_dist: {
                 files: [{
                     expand: true,
                     dot: true,
@@ -321,6 +344,19 @@ module.exports = function (grunt) {
                     ]
                 }]
             },
+
+            dist: {
+              files: [{
+                  expand: true,
+                  dot: true,
+                  cwd: '<%= config.build %>',
+                  dest: '<%= config.dist %>',
+                  src: [
+                      '**'
+                  ]
+              }]
+            },
+
             styles: {
                 expand: true,
                 dot: true,
@@ -439,9 +475,13 @@ module.exports = function (grunt) {
         'remove:vulcanized', // rm index-csp.html
     ]);
 
-    grunt.registerTask('dist', [
+    // This is the original dist task added when the gruntfile was
+    // generated; it's maintained here as a reminder of the sequence
+    // of steps required for a full build, in case we decide we ever
+    // need to fix it (it is broken right now)
+    grunt.registerTask('broken_dist', [
         'clean:dist',
-        'copy:dist',
+        'copy:broken_dist',
         'chromeManifest:dist',
         'useminPrepare',
         'concurrent:dist',
@@ -453,6 +493,34 @@ module.exports = function (grunt) {
         'htmlmin',
         'compress'
     ]);
+
+    // creates a file <build.dist>/version.json with information about
+    // the date and time of the build, git commit ID, and package.json version
+    grunt.registerTask('dist-version', function () {
+      var done = this.async();
+
+      var meta = {
+        version: config.packageInfo.version,
+        gitCommit: null,
+        buildDate: new Date()
+      };
+
+      gitCommitId(function (err, result) {
+        if (err) {
+          done(err);
+        }
+        else {
+          meta.gitCommit = result;
+
+          fs.writeFileSync(config.versionFilePath, JSON.stringify(meta));
+
+          done();
+        }
+      });
+    });
+
+    // simplified dist with no minification
+    grunt.registerTask('dist', ['build', 'copy:dist', 'dist-version']);
 
     grunt.registerTask('default', [
         'newer:jshint',

@@ -114,6 +114,46 @@ Polymer("core-doc-toc",{searchAction:function(){this.$.searchBar.style.opacity=1
 Polymer("core-doc-viewer",{classes:[],sources:[],ready:function(){window.addEventListener("hashchange",this.parseLocationHash.bind(this));this.parseLocationHash()},parseLocationHash:function(){this.route=window.location.hash.slice(1)},routeChanged:function(){this.validateRoute()},validateRoute:function(){if(this.route){this.classes.some(function(c){if(c.name===this.route){this.data=c;this.route="";return}},this)}},selectedChanged:function(){this.data=this.classes[this.selected]},parserDataReady:function(event){this.assimilateData(event.target.data)},assimilateData:function(data){this.classes=this.classes.concat(data.classes);this.classes.sort(function(a,b){var na=a&&a.name.toLowerCase(),nb=b&&b.name.toLowerCase();return na<nb?-1:na==nb?0:1});if(!this.data&&!this.route&&this.classes.length){this.data=this.classes[0]}if(this.classes.length>1){this.$.toc.style.display="block"}this.validateRoute()}});;
 Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.moduleName=this.moduleName||this.findModuleName()},moduleNameChanged:function(){document.title=this.moduleName;this.url=!this.sources.length&&this.moduleName?this.moduleName+".html":""},findModuleName:function(){var path=location.pathname.split("/");var name=path.pop()||path.pop();if(name.indexOf(".html")>=0){name=path.pop()}return name||""}});;
 
+    Polymer('search-google-images',{
+      // TODO put in config; these are townxelliot's personal
+      // API key and custom search engine
+      key: "AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg",
+      cx: "009009366889943162389:qxyeiz__u68",
+
+      // only one type of licence can be specified at a time
+      // (I discovered this through trial and error)...
+      rights: "cc_publicdomain",
+
+      // setting this property triggers a new search
+      query: "",
+
+      queryChanged: function () {
+        this.$.core_ajax.go();
+      },
+
+      // fires a 'searchResults' event when a search returns;
+      // the data for that event is an array of image objects:
+      // [{url: <img src url>}, ...]
+      handleResponse: function (e) {
+        var imgs = [];
+
+        var response = e.detail.response;
+
+        if (response.error) {
+          console.error("CP:error from Google images:", response.error.message);
+        }
+        else {
+          var img;
+          for (var i = 0; i < response.items.length; i++) {
+            imgs.push({url: response.items[i].link});
+          }
+        }
+
+        this.fire("searchResults", imgs);
+      }
+    });
+  ;
+
     (function contentPushApp() {
       // private properties
 
@@ -180,21 +220,13 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
 
         created: function() {
           this.iframeurl="";
-
-          // from https://console.developers.google.com/project
-          this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
-
-          // from https://www.google.com/cse/manage/all
-          this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
-
-          this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
         },
 
         iframeurlChanged: function(oldValue,newValue) {
           //console.log("CP:new iframeurl:",newValue);
           self.$.iframe.src=newValue;
         },
-      
+
         toggleChanged: function(oldValue,newValue) {
           this.togglePanel();
         },
@@ -222,36 +254,29 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
               self.$.changed_text.appendChild(textNode);
             });
           };
+
+          // bind event handlers to search components
+          var handler = this.handleSearchResults.bind(this);
+          this.$.search_google_images.addEventListener("searchResults", handler);
         },
 
         search: function (query) {
-          var handler = this.handleGoogleImagesResponse.bind(this);
-
-          var searchParams = {
-            searchType: 'image',
-            key: this.googleImages_key,
-            cx: this.googleImages_cseId,
-            q: query
-          };
-
-          this.$.google_images.request({
-            url: this.googleImages_baseUrl,
-            params: searchParams,
-            responseType: 'json',
-            callback: handler
-          });
+          this.$.search_google_images.query = query;
         },
 
-        handleGoogleImagesResponse: function (response) {
-          if (response.error) {
-            console.log("CP:error from Google:",response.error.message);
-          } else {
-            var img;
-            for (var i = 0; i < response.items.length; i++) {
-              img = document.createElement('img');
-              img.src = response.items[i].link;
-              this.$.images.appendChild(img);
-            }
+        handleSearchResults: function (e) {
+          var self = this;
+
+          var images = e.detail;
+
+          for (var i = 0; i < images.length; i++) {
+            var img = document.createElement("img");
+            img.src = images[i].url;
+
+            // only add images to the display if they load correctly
+            img.addEventListener("load", function () {
+              self.$.images.appendChild(this);
+            });
           }
         },
 
@@ -262,6 +287,7 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         downAction: function() {
           this.$.iframe.style.pointerEvents = 'none';
         },
+
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
         },
