@@ -39,7 +39,10 @@
       <iframe id="iframe" flex></iframe>
       <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
-        <div id="content_from_iframe"></div>
+        <h5>Multiple lines on frame load</h5>
+        <p id="multiple_lines"></p>
+        <h5>Updated when text is change</h5>
+        <p id="changed_text"></p>
         <core-xhr id="google_images"></core-xhr>
         <div id="images"></div>
       </div>
@@ -71,6 +74,7 @@
         return retVal;
       };
 
+      // NOTE: doesn't handle removed lines
       var observeDocumentChanges = function(iframe,callBack) {
         var docsContainerSelector = ".kix-paginateddocumentplugin";
         var docsFilterSelector = ".kix-lineview";
@@ -85,7 +89,7 @@
                 if (thisNode) {
                   var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
                   if (lineview) {
-                    callBack(lineview.innerText);
+                    callBack(lineview.textContent);
                   }
                 }
               }
@@ -133,18 +137,21 @@
           self.$.iframe.onload=function() {
             console.log("CP:iframe onload");
             // demonstrate stuff can be copied from the iframe document
-            //var totalLinesToAdd=5;
-            //var textToAdd = "";
-            //var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
-            //for( var i=0; i<totalLinesToAdd; ++i) {
-              //var text=lines[i].innerText;
-              //textToAdd+=text;
-            //}
+            var totalLinesToAdd=5;
+            var textToAdd = "";
+            var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
+            for( var i=0; i<totalLinesToAdd; ++i) {
+              var text=lines[i].textContent;
+              textToAdd+=text;
+            }
 
-            //self.$.content_from_iframe.innerText=textToAdd;
+            var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
+            console.log("MAXMAXMAX",textNode);
+            self.$.multiple_lines.appendChild(textNode);
 
             observeDocumentChanges(self.$.iframe, function(text) {
-              self.$.content_from_iframe.innerText=text;
+              var textNode=document.createTextNode(text.replace("&nbsp;"," "));
+              self.$.changed_text.appendChild(textNode);
             });
           };
 
@@ -191,7 +198,7 @@
         },
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
-        },   
+        },
       });
     })();
   </script>

@@ -478,7 +478,10 @@ Note: `<core-component-page>` sets the page title automatically.
       <iframe id="iframe" flex=""></iframe>
       <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
-        <div id="content_from_iframe"></div>
+        <h5>Multiple lines on frame load</h5>
+        <p id="multiple_lines"></p>
+        <h5>Updated when text is change</h5>
+        <p id="changed_text"></p>
         <core-xhr id="google_images"></core-xhr>
         <div id="images"></div>
       </div>

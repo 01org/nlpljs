@@ -139,6 +139,7 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         return retVal;
       };
 
+      // NOTE: doesn't handle removed lines
       var observeDocumentChanges = function(iframe,callBack) {
         var docsContainerSelector = ".kix-paginateddocumentplugin";
         var docsFilterSelector = ".kix-lineview";
@@ -153,7 +154,7 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
                 if (thisNode) {
                   var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
                   if (lineview) {
-                    callBack(lineview.innerText);
+                    callBack(lineview.textContent);
                   }
                 }
               }
@@ -201,18 +202,21 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
           self.$.iframe.onload=function() {
             console.log("CP:iframe onload");
             // demonstrate stuff can be copied from the iframe document
-            //var totalLinesToAdd=5;
-            //var textToAdd = "";
-            //var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
-            //for( var i=0; i<totalLinesToAdd; ++i) {
-              //var text=lines[i].innerText;
-              //textToAdd+=text;
-            //}
+            var totalLinesToAdd=5;
+            var textToAdd = "";
+            var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
+            for( var i=0; i<totalLinesToAdd; ++i) {
+              var text=lines[i].textContent;
+              textToAdd+=text;
+            }
 
-            //self.$.content_from_iframe.innerText=textToAdd;
+            var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
+            console.log("MAXMAXMAX",textNode);
+            self.$.multiple_lines.appendChild(textNode);
 
             observeDocumentChanges(self.$.iframe, function(text) {
-              self.$.content_from_iframe.innerText=text;
+              var textNode=document.createTextNode(text.replace("&nbsp;"," "));
+              self.$.changed_text.appendChild(textNode);
             });
           };
 
@@ -259,7 +263,7 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         },
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
-        },   
+        },
       });
     })();
   
