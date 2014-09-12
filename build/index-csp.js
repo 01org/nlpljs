@@ -211,22 +211,17 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
             }
 
             var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
-            console.log("MAXMAXMAX",textNode);
             self.$.multiple_lines.appendChild(textNode);
 
             observeDocumentChanges(self.$.iframe, function(text) {
               var textNode=document.createTextNode(text.replace("&nbsp;"," "));
+              self.$.changed_text.innerHTML="";
               self.$.changed_text.appendChild(textNode);
             });
           };
-
-          //this.search();
         },
 
         search: function (query) {
-          // TODO pass this to the function rather than hard-coding
-          query = 'intel';
-
           var handler = this.handleGoogleImagesResponse.bind(this);
 
           var searchParams = {
@@ -256,6 +251,10 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
             }
           }
 
+        },
+
+        getImages: function() {
+          this.search(this.$.changed_text.innerText);
         },
 
         downAction: function() {

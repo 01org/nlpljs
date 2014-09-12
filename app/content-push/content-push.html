@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
 <link rel="import" href="../bower_components/core-component-page/core-component-page.html">
+<!--link rel="import" href="../bower_components/paper-button/paper-button.html"-->
 
 <polymer-element name="content-push" attributes="iframeurl">
   <template>
@@ -39,10 +40,13 @@
       <iframe id="iframe" flex></iframe>
       <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
-        <h5>Multiple lines on frame load</h5>
+        <h4>Multiple lines on frame load</h4>
         <p id="multiple_lines"></p>
-        <h5>Updated when text is change</h5>
-        <p id="changed_text"></p>
+        <h4>Updated when text is changed</h4>
+        <p id="changed_text">(nothing changed yet)</p>
+        <h4>Get images for changed text</h4>
+        <button id="image_button" on-click="{{getImages}}">Go!</button>
+        <h4>Images</h4>
         <core-xhr id="google_images"></core-xhr>
         <div id="images"></div>
       </div>
@@ -146,22 +150,17 @@
             }
 
             var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
-            console.log("MAXMAXMAX",textNode);
             self.$.multiple_lines.appendChild(textNode);
 
             observeDocumentChanges(self.$.iframe, function(text) {
               var textNode=document.createTextNode(text.replace("&nbsp;"," "));
+              self.$.changed_text.innerHTML="";
               self.$.changed_text.appendChild(textNode);
             });
           };
-
-          //this.search();
         },
 
         search: function (query) {
-          // TODO pass this to the function rather than hard-coding
-          query = 'intel';
-
           var handler = this.handleGoogleImagesResponse.bind(this);
 
           var searchParams = {
@@ -191,6 +190,10 @@
             }
           }
 
+        },
+
+        getImages: function() {
+          this.search(this.$.changed_text.innerText);
         },
 
         downAction: function() {
