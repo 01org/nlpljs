@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>cp</title>
+        <title></title>
 
         <!-- bower:css -->
         <!-- endbower -->
@@ -459,18 +459,20 @@ Note: `<core-component-page>` sets the page title automatically.
         width:8px;
       }
       #iframe {
-        display: inline-block;
+        display: block;
         background-color: #F0F0F0;
         height: 100%;
+        float:left;
       }
 
       #content_push_panel {
-        display: inline-block;
+        display: block;
         background-color: #F0F0F0;
         height: 100%;
         width:300px;
         max-width: 25%;
         min-width:300px;
+        float:right;
       }
       #panel{
         height:100%;
@@ -491,26 +493,54 @@ Note: `<core-component-page>` sets the page title automatically.
         color: #FFFFFF;
         -webkit-user-select: none;
       }
-      
+      #menutoolbar{
+        background-color: #F0F0F0;
+        margin:0;
+        padding:0;
+      }
+      .menuitem {
+        margin:auto;
+        height:30px;
+        width:60px;
+        -webkit-user-select: none;
+        -user-select:none;
+      }
       img {
         max-width: 50%;
         height: auto;
       }
     </style>
+    <!--This is the main container. It contains the iframe which loads the target url, a splitter and Content Push Panel-->
     <div id="container" horizontal="" layout="">
+      <!--This is iframe for the target URL-->
       <iframe id="iframe" flex=""></iframe>
-
+      <!--Splitter-->
       <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
-
+      <!--Content Push Panel-->
       <div id="content_push_panel">
-        <core-header-panel id="panel" flex="">
-          <core-toolbar id="toolbar">
-            <div id="toolbartext" flex="">Content Push</div>
-            <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
-          </core-toolbar>
-          <div id="content_from_iframe"></div>
-          <core-xhr id="google_images"></core-xhr>
-          <div id="images"></div>
+        <!--the panel is made up of a header toolbar, a content toolbar and the content-->
+        <core-toolbar id="toolbar">
+          <div id="toolbartext" flex="">Content Push</div>
+          <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+        </core-toolbar>
+        <!--content toolbar and content wrapped up in a core-header-panel-->
+        <core-header-panel id="panel">
+        <core-toolbar id="menutoolbar">
+          <!--TODO:USe paper-icon-button, add paper-ripple effect and styling-->
+          <paper-tabs>
+          <paper-tab class="top-fit">
+            <core-icon-button icon="drive"></core-icon-button></paper-tab>
+          <paper-tab class="bottom-fit">
+            <core-icon-button icon="drive-image"></core-icon-button></paper-tab>
+          </paper-tabs>
+        </core-toolbar>
+        <div>World War II (WWII or WW2), also known as the Second World War, was a global war that lasted from 1939 to 1945, though related conflicts began earlier. It involved the vast majority of the world&apos;s nations&#x2014;including all of the great powers&#x2014;eventually forming two opposing military alliances: the Allies and the Axis. It was the most widespread war in history, and directly involved more than 100 million people, from more than 30 different countries. In a state of &quot;total war&quot;, the major participants threw their entire economic, industrial, and scientific capabilities behind the war effort, erasing the distinction between civilian and militaryresources. Marked by mass deaths of civilians, including the Holocaust, the Three Alls Policy, the strategic bombing of enemy industrial and/or population centres, and the first use of nuclear weapons in combat, it resulted in an estimated 50 million to 85 million fatalities. These made World War II the deadliest conflict inhuman history.[1]
+The Empire of Japan aimed to dominate Asia and the Pacific and was already at war with the Republic of China in 1937,[2] but the world war is generally said to have begun on 1 September 1939 with the invasion of Poland by Germany and subsequent declarations of war on Germany by France and the United Kingdom. From late 1939 to early 1941, in a series of campaigns and treaties, Germany formed the Axis alliance with Italy and Japan, conquering or subduing much of continental Europe. Following the Molotov&#x2013;Ribbentrop Pact, Germany and the Soviet Union partitioned between themselves and annexed territories of their European neighbours, including Poland, Finland and the Baltic states. The United Kingdom and the other members of the British Commonwealth were the only major Allied forces continuing the fight against the Axis, with battles taking place in North Africa and the Horn of Africa as well as the long-running Battle of the Atlantic. In June 1941, the European Axis powers launched an invasion of the Soviet Union, giving a start to the largest land theatre of war in history, which tied down the major part of the Axis&apos; military forces for the rest of the war. In December 1941, Japan attacked the United States and European territories in the Pacific Ocean, and quickly conquered much of the Western Pacific.
+The Axis advance was stopped in 1942 when Japan lost a critical Battle of Midway, near Hawaii, and Germany was defeated in North Africa and then, decisively, at Stalingrad in the Soviet Union. In 1943, with a series of German defeats on the Eastern Front, the Allied invasion of Italy which brought about that nation&apos;s surrender, and Allied victories in the Pacific, </div>
+          
+          <!--<div id="content_from_iframe"></div>-->
+          <!--<core-xhr id="google_images"></core-xhr>-->
+          <!--<div id="images"></div>-->
         </core-header-panel>
       </div>
   

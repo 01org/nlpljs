@@ -20,18 +20,20 @@
         width:8px;
       }
       #iframe {
-        display: inline-block;
+        display: block;
         background-color: #F0F0F0;
         height: 100%;
+        float:left;
       }
 
       #content_push_panel {
-        display: inline-block;
+        display: block;
         background-color: #F0F0F0;
         height: 100%;
         width:300px;
         max-width: 25%;
         min-width:300px;
+        float:right;
       }
       #panel{
         height:100%;
@@ -52,26 +54,46 @@
         color: #FFFFFF;
         -webkit-user-select: none;
       }
-      
+      #menutoolbar{
+        background-color: #F0F0F0;
+        margin:0;
+        padding:0;
+      }
       img {
         max-width: 50%;
         height: auto;
       }
     </style>
+    <!--This is the main container. It contains the iframe which loads the target url, a splitter and Content Push Panel-->
     <div id="container" horizontal layout>
+      <!--This is iframe for the target URL-->
       <iframe id="iframe" flex></iframe>
-
+      <!--Splitter-->
       <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
-
+      <!--Content Push Panel-->
       <div id="content_push_panel">
-        <core-header-panel id="panel" flex>
-          <core-toolbar id="toolbar">
-            <div id="toolbartext" flex>Content Push</div>
-            <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
-          </core-toolbar>
-          <div id="content_from_iframe"></div>
-          <core-xhr id="google_images"></core-xhr>
-          <div id="images"></div>
+        <!--the panel is made up of a header toolbar, a content toolbar and the content-->
+        <core-toolbar id="toolbar">
+          <div id="toolbartext" flex>Content Push</div>
+          <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+        </core-toolbar>
+        <!--content toolbar and content wrapped up in a core-header-panel-->
+        <core-header-panel id="panel">
+        <core-toolbar id="menutoolbar">
+          <!--TODO:USe paper-icon-button, add paper-ripple effect and styling-->
+          <paper-tabs>
+          <paper-tab>
+            <core-icon-button icon="drive"></core-icon-button></paper-tab>
+          <paper-tab>
+            <core-icon-button icon="drive-image"></core-icon-button></paper-tab>
+          </paper-tabs>
+        </core-toolbar>
+        <div id="content">
+          <!--Content based on the tab selection-->
+        </div>
+          <!--<div id="content_from_iframe"></div>-->
+          <!--<core-xhr id="google_images"></core-xhr>-->
+          <!--<div id="images"></div>-->
         </core-header-panel>
       </div>
   
