@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>cp</title>
+        <title></title>
 
         <!-- bower:css -->
         <!-- endbower -->
@@ -442,32 +442,70 @@ Note: `<core-component-page>` sets the page title automatically.
 
 <!--link rel="import" href="../bower_components/paper-button/paper-button.html"-->
 
-<polymer-element name="content-push" attributes="iframeurl" assetpath="content-push/">
+<polymer-element name="content-push" attributes="iframeurl toggle" assetpath="content-push/">
   <template>
     <style>
       :host {
         display: block;
         width: 100%;
         height: 100%;
-        background-color: cyan;
+        background-color: #F0F0F0;
       }
 
       #container {
         height: 100%;
       }
 
+      #splitter {
+        background-color: #202020;
+        box-shadow:none;
+        width:8px;
+      }
+
       #iframe {
-        display: inline-block;
-        background-color: red;
+        display: block;
+        background-color: #F0F0F0;
         height: 100%;
+        float:left;
       }
 
       #content_push_panel {
-        display: inline-block;
-        background-color: blue;
+        display: block;
+        background-color: #F0F0F0;
         height: 100%;
-        width: 25%;
-        max-width: 35%;
+        width:300px;
+        max-width: 25%;
+        min-width:300px;
+        float:right;
+      }
+
+      #panel{
+        height:100%;
+        margin:0;
+        padding:0;
+      }
+
+      #toolbar{
+        display: block;
+        background-color: #202020;
+        margin:0;
+        padding:0;
+      }
+
+      #toolbartext {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+
+      #toolbaraction {
+        color: #FFFFFF;
+        -webkit-user-select: none;
+      }
+
+      #menutoolbar{
+        background-color: #F0F0F0;
+        margin:0;
+        padding:0;
       }
 
       img {
@@ -477,20 +515,42 @@ Note: `<core-component-page>` sets the page title automatically.
     </style>
     <div id="container" horizontal="" layout="">
       <iframe id="iframe" flex=""></iframe>
-      <core-splitter direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+      <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
       <div id="content_push_panel">
-        <h4>Multiple lines on frame load</h4>
-        <p id="multiple_lines"></p>
-        <h4>Updated when text is changed</h4>
-        <p id="changed_text">(nothing changed yet)</p>
-        <h4>Get images for changed text</h4>
-        <button id="image_button" on-click="{{getImages}}">Go!</button>
-        <h4>Images</h4>
-        <core-xhr id="google_images"></core-xhr>
-        <div id="images"></div>
-      </div>
-    </div>
+        <!--the panel is made up of a header toolbar, a content toolbar and the content-->
+        <core-toolbar id="toolbar">
+          <div id="toolbartext" flex="">Content Push</div>
+          <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+        </core-toolbar>
+        <!--content toolbar and content wrapped up in a core-header-panel-->
+        <core-header-panel id="panel">
+          <core-toolbar id="menutoolbar">
+            <!--TODO:USe paper-icon-button, add paper-ripple effect and styling-->
+            <paper-tabs>
+              <paper-tab>
+                <core-icon-button icon="drive"></core-icon-button>
+              </paper-tab>
+              <paper-tab>
+                <core-icon-button icon="drive-image"></core-icon-button>
+              </paper-tab>
+            </paper-tabs>
+          </core-toolbar>
+          <div id="content">
+            <h4>Multiple lines on frame load</h4>
+            <p id="multiple_lines"></p>
+            <h4>Updated when text is changed</h4>
+            <p id="changed_text">(nothing changed yet)</p>
+            <h4>Get images for changed text</h4>
+            <button id="image_button" on-click="{{getImages}}">Go!</button>
+            <h4>Images</h4>
+            <core-xhr id="google_images"></core-xhr>
+            <div id="images"></div>
+          </div><!-- content -->
+        </core-header-panel>
+      </div><!-- content_push_panel -->
+    </div><!-- container -->
   </template>
+
   
 </polymer-element>
 </div>

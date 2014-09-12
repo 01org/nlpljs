@@ -4,7 +4,7 @@
         "description": "The name of the application"
     },
     "appDescription": {
-        "message": "Content Push",
+        "message": "Brings content from the Web to you",
         "description": "The description of the application"
     }
 }

@@ -114,7 +114,7 @@ Polymer("core-doc-toc",{searchAction:function(){this.$.searchBar.style.opacity=1
 Polymer("core-doc-viewer",{classes:[],sources:[],ready:function(){window.addEventListener("hashchange",this.parseLocationHash.bind(this));this.parseLocationHash()},parseLocationHash:function(){this.route=window.location.hash.slice(1)},routeChanged:function(){this.validateRoute()},validateRoute:function(){if(this.route){this.classes.some(function(c){if(c.name===this.route){this.data=c;this.route="";return}},this)}},selectedChanged:function(){this.data=this.classes[this.selected]},parserDataReady:function(event){this.assimilateData(event.target.data)},assimilateData:function(data){this.classes=this.classes.concat(data.classes);this.classes.sort(function(a,b){var na=a&&a.name.toLowerCase(),nb=b&&b.name.toLowerCase();return na<nb?-1:na==nb?0:1});if(!this.data&&!this.route&&this.classes.length){this.data=this.classes[0]}if(this.classes.length>1){this.$.toc.style.display="block"}this.validateRoute()}});;
 Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.moduleName=this.moduleName||this.findModuleName()},moduleNameChanged:function(){document.title=this.moduleName;this.url=!this.sources.length&&this.moduleName?this.moduleName+".html":""},findModuleName:function(){var path=location.pathname.split("/");var name=path.pop()||path.pop();if(name.indexOf(".html")>=0){name=path.pop()}return name||""}});;
 
-    (function() {
+    (function contentPushApp() {
       // private properties
 
       // find ancestor of node that has className
@@ -175,8 +175,9 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         observer.observe(node, config);
       };
 
-      // contruct polymer element
       Polymer('content-push',{
+        open:true,
+
         created: function() {
           this.iframeurl="";
 
@@ -190,23 +191,25 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         },
 
         iframeurlChanged: function(oldValue,newValue) {
-          console.log("CP:new iframeurl:",newValue);
+          //console.log("CP:new iframeurl:",newValue);
           self.$.iframe.src=newValue;
+        },
+      
+        toggleChanged: function(oldValue,newValue) {
+          this.togglePanel();
         },
 
         ready: function() {
           self=this;
-          console.log("CP:iframeurl:",self.iframeurl);
           self.$.iframe.src=self.iframeurl;
 
           self.$.iframe.onload=function() {
-            console.log("CP:iframe onload");
             // demonstrate stuff can be copied from the iframe document
             var totalLinesToAdd=5;
             var textToAdd = "";
             var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
             for( var i=0; i<totalLinesToAdd; ++i) {
-              var text=lines[i].textContent;
+              var text=lines[i].innerText;
               textToAdd+=text;
             }
 
@@ -250,7 +253,6 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
               this.$.images.appendChild(img);
             }
           }
-
         },
 
         getImages: function() {
@@ -263,6 +265,22 @@ Polymer("core-component-page",{moduleName:"",sources:[],ready:function(){this.mo
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
         },
-      });
+
+        closePanel: function() {
+          this.$.content_push_panel.style.display = 'none';
+          this.open = false;
+        },
+
+        togglePanel: function() {
+          if (this.open) {
+            this.$.content_push_panel.style.display = 'none';
+            this.open = false;
+          } else {
+            this.$.content_push_panel.style.display = 'inline-block';
+            this.open = true;
+          }
+        }
+      }); // Polymer()
     })();
+
   
