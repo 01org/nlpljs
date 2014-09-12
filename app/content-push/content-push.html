@@ -43,13 +43,13 @@
         float:right;
       }
 
-      #panel{
+      #panel {
         height:100%;
         margin:0;
         padding:0;
       }
 
-      #toolbar{
+      #toolbar {
         display: block;
         background-color: #202020;
         margin:0;
@@ -66,10 +66,14 @@
         -webkit-user-select: none;
       }
 
-      #menutoolbar{
+      #menutoolbar {
         background-color: #F0F0F0;
         margin:0;
         padding:0;
+      }
+
+      .current_buffer {
+        background-color: red;
       }
 
       img {
@@ -102,8 +106,14 @@
           <div id="content">
             <h4>Multiple lines on frame load</h4>
             <p id="multiple_lines"></p>
-            <h4>Updated when text is changed</h4>
-            <p id="changed_text">(nothing changed yet)</p>
+            <h3>Buffering changes</h3>
+            <div id="buffer_timer">-</div>
+            <h4>Buffer0</h4>
+            <p id="buffer_0" class="current_buffer">(empty)</p>
+            <h4>Buffer1</h4>
+            <p id="buffer_1">(empty)</p>
+            <h4>Sent to NLP</h4>
+            <p id="nlp_buffer">(empty)</p>
             <h4>Get images for changed text</h4>
             <button id="image_button" on-click="{{getImages}}">Go!</button>
             <h4>Images</h4>
@@ -185,7 +195,6 @@
         },
 
         iframeurlChanged: function(oldValue,newValue) {
-          //console.log("CP:new iframeurl:",newValue);
           self.$.iframe.src=newValue;
         },
 
@@ -199,7 +208,7 @@
 
           self.$.iframe.onload=function() {
             // demonstrate stuff can be copied from the iframe document
-            var totalLinesToAdd=5;
+            var totalLinesToAdd=3;
             var textToAdd = "";
             var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
             for( var i=0; i<totalLinesToAdd; ++i) {
@@ -210,11 +219,59 @@
             var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
             self.$.multiple_lines.appendChild(textNode);
 
+            var bufferElement=[
+              self.$.buffer_0,
+              self.$.buffer_1
+            ];
+            var changeBuffer0=[];
+            var changeBuffer1=[];
+            var changeBuffer=[ changeBuffer0, changeBuffer1 ];
+            var currentBuffer=0;
+            var timerValue=5;
             observeDocumentChanges(self.$.iframe, function(text) {
+              if (changeBuffer[currentBuffer].length==0) {
+                // empty element - notably '(empty)' string
+                bufferElement[currentBuffer].innerHTML="";
+
+                // swapBuffers after 5 seconds
+                setTimeout(swapBuffers,5000);
+
+                // start buffer_timer countdown
+                timerValue=5;
+                self.$.buffer_timer.innerText=timerValue;
+                var intervalId;
+                function decTimer() {
+                  timerValue--;
+                  self.$.buffer_timer.innerText=timerValue+"";
+                  if (timerValue==0) {
+                    self.$.buffer_timer.innerText="-";
+                    clearInterval(intervalId);
+                  }
+                };
+                intervalId=setInterval(decTimer,1000);
+              }
+
+              // push new line to buffer
+              changeBuffer[currentBuffer].push(text);
+
+              // add new line to buffer element
               var textNode=document.createTextNode(text.replace("&nbsp;"," "));
-              self.$.changed_text.innerHTML="";
-              self.$.changed_text.appendChild(textNode);
+              bufferElement[currentBuffer].appendChild(textNode);
             });
+
+            function swapBuffers() {
+              // copy current buffer to nlp buffer
+              self.$.nlp_buffer.innerText=bufferElement[currentBuffer].innerText;
+
+              // empty current buffer
+              changeBuffer[currentBuffer]=[];
+              bufferElement[currentBuffer].innerHTML="(empty)";
+
+              // swap buffers
+              bufferElement[currentBuffer].className=bufferElement[currentBuffer].className.replace(/\bcurrent_buffer\b/,'');
+              currentBuffer=(currentBuffer==0)?1:0;
+              bufferElement[currentBuffer].className=bufferElement[currentBuffer].className+" current_buffer";
+            };
           };
 
           // bind event handlers to search components
