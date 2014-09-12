@@ -1,10 +1,10 @@
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
-<link rel="import" href="../bower_components/core-ajax/core-xhr.html">
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="./search-google-images.html">
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -107,7 +107,7 @@
             <h4>Get images for changed text</h4>
             <button id="image_button" on-click="{{getImages}}">Go!</button>
             <h4>Images</h4>
-            <core-xhr id="google_images"></core-xhr>
+            <search-google-images id="search_google_images" query=""></search-google-images>
             <div id="images"></div>
           </div><!-- content -->
         </core-header-panel>
@@ -182,21 +182,13 @@
 
         created: function() {
           this.iframeurl="";
-
-          // from https://console.developers.google.com/project
-          this.googleImages_key = 'AIzaSyALRtaOgPBIkxDeCr10JBnCtrIo3uahgmg';
-
-          // from https://www.google.com/cse/manage/all
-          this.googleImages_cseId = '009009366889943162389:qxyeiz__u68';
-
-          this.googleImages_baseUrl = 'https://www.googleapis.com/customsearch/v1';
         },
 
         iframeurlChanged: function(oldValue,newValue) {
           //console.log("CP:new iframeurl:",newValue);
           self.$.iframe.src=newValue;
         },
-      
+
         toggleChanged: function(oldValue,newValue) {
           this.togglePanel();
         },
@@ -224,36 +216,29 @@
               self.$.changed_text.appendChild(textNode);
             });
           };
+
+          // bind event handlers to search components
+          var handler = this.handleSearchResults.bind(this);
+          this.$.search_google_images.addEventListener("searchResults", handler);
         },
 
         search: function (query) {
-          var handler = this.handleGoogleImagesResponse.bind(this);
-
-          var searchParams = {
-            searchType: 'image',
-            key: this.googleImages_key,
-            cx: this.googleImages_cseId,
-            q: query
-          };
-
-          this.$.google_images.request({
-            url: this.googleImages_baseUrl,
-            params: searchParams,
-            responseType: 'json',
-            callback: handler
-          });
+          this.$.search_google_images.query = query;
         },
 
-        handleGoogleImagesResponse: function (response) {
-          if (response.error) {
-            console.log("CP:error from Google:",response.error.message);
-          } else {
-            var img;
-            for (var i = 0; i < response.items.length; i++) {
-              img = document.createElement('img');
-              img.src = response.items[i].link;
-              this.$.images.appendChild(img);
-            }
+        handleSearchResults: function (e) {
+          var self = this;
+
+          var images = e.detail;
+
+          for (var i = 0; i < images.length; i++) {
+            var img = document.createElement("img");
+            img.src = images[i].url;
+
+            // only add images to the display if they load correctly
+            img.addEventListener("load", function () {
+              self.$.images.appendChild(this);
+            });
           }
         },
 
@@ -264,6 +249,7 @@
         downAction: function() {
           this.$.iframe.style.pointerEvents = 'none';
         },
+
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
         },

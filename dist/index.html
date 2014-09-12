@@ -440,7 +440,17 @@ Note: `<core-component-page>` sets the page title automatically.
 
 <polymer-element name="core-component-page" attributes="moduleName sources" layout="" vertical="" assetpath="../core-component-page-dev/"><template><style>:host{font-family:Arial,sans-serif;height:100vh}h2{display:inline-block;margin:8px 6px;vertical-align:middle}.choiceB,.choiceC,.choiceD{color:#fff;font-size:12px;font-weight:700;text-decoration:none;background-color:#4285F4;box-shadow:0 1px 2px 0 rgba(0,0,0,.1);box-shadow:0 0 1px 0 rgba(0,0,0,.1);border-radius:2px;cursor:pointer;display:inline-block;padding:4px 12px 5px 12px;margin:4px 0}.appbar{background-color:#E91E63;color:#fff}</style><core-toolbar class="appbar"><span>{{moduleName}}</span><a class="choiceC" target="_blank" href="../{{moduleName}}/demo.html">demo</a></core-toolbar><core-doc-viewer flex="" url="{{url}}" sources="{{sources}}"></core-doc-viewer></template></polymer-element>
 
-<!--link rel="import" href="../bower_components/paper-button/paper-button.html"-->
+
+
+
+<polymer-element name="search-google-images" attributes="query" assetpath="content-push/">
+  <template>
+    <core-ajax id="core_ajax" auto="false" url="https://www.googleapis.com/customsearch/v1?searchType=image&amp;key={{key}}&amp;cx={{cx}}&amp;q={{query}}&amp;rights={{rights}}" handleas="json" on-core-response="{{handleResponse}}">
+    </core-ajax>
+  </template>
+  
+</polymer-element>
+
 
 <polymer-element name="content-push" attributes="iframeurl toggle" assetpath="content-push/">
   <template>
@@ -543,7 +553,7 @@ Note: `<core-component-page>` sets the page title automatically.
             <h4>Get images for changed text</h4>
             <button id="image_button" on-click="{{getImages}}">Go!</button>
             <h4>Images</h4>
-            <core-xhr id="google_images"></core-xhr>
+            <search-google-images id="search_google_images" query=""></search-google-images>
             <div id="images"></div>
           </div><!-- content -->
         </core-header-panel>
