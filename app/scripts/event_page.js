@@ -7,7 +7,10 @@ chrome.runtime.onInstalled.addListener(function() {
       {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { urlContains: 'docs.google.com' }
+            pageUrl: {
+              urlContains: 'docs.google.com',
+              pathContains: '/document/'
+            }
           })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
@@ -16,11 +19,15 @@ chrome.runtime.onInstalled.addListener(function() {
   });
 });
 
+var firstClick=true;
 chrome.pageAction.onClicked.addListener(function(tab) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     //console.log("BG:sending rehost message to CS");
-    chrome.tabs.sendMessage(tabs[0].id, {message: "rehost"}, function(response) {
-      //console.log("BG:received response",response);
-    });
+    if (firstClick) {
+      firstClick=false;
+      chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"});
+    } else {
+      chrome.tabs.sendMessage(tabs[0].id, {message: "toggle"});
+    }
   });
 });
