@@ -33,16 +33,5 @@
     "content-push/content-push.html",
     "styles/main.css",
     "bower_components/*/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": [
-        "*://docs.google.com/*"
-      ],
-      "all_frames": false,
-      "js": [
-        "scripts/rehostPage.js"
-      ]
-    }
   ]
 }

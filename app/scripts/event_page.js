@@ -7,7 +7,10 @@ chrome.runtime.onInstalled.addListener(function() {
       {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { urlContains: 'docs.google.com' }
+            pageUrl: {
+              urlContains: 'docs.google.com',
+              pathContains: '/document/'
+            }
           })
         ],
         actions: [ new chrome.declarativeContent.ShowPageAction() ]
@@ -24,3 +27,5 @@ chrome.pageAction.onClicked.addListener(function(tab) {
     });
   });
 });
+
+chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"});
