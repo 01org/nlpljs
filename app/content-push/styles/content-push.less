@@ -1,0 +1,82 @@
+/// VARS ///
+@content-bg: #F0F0F0;
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: @content-bg;
+  font-family: 'ClearSans';
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+#container {
+  height: 100%;
+}
+
+#splitter {
+  background-color: #202020;
+  box-shadow:none;
+  width: 8px;
+}
+
+#iframe {
+  display: block;
+  background-color: @content-bg;
+  height: 100%;
+  float:left;
+  border: none;
+}
+
+#content_push_panel {
+  display: block;
+  background-color: @content-bg;
+  height: 100%;
+  width:300px;
+  max-width: 25%;
+  min-width:300px;
+  float:right;
+}
+
+#panel{
+  height:100%;
+  margin:0;
+  padding:0;
+  background-color: @content-bg;
+}
+
+#toolbar{
+  display: block;
+  background-color: #202020;
+  margin:0;
+  padding:0;
+}
+
+#toolbartext {
+  color: #FFFFFF;
+  -webkit-user-select: none;
+}
+
+#toolbaraction {
+  color: #FFFFFF;
+  -webkit-user-select: none;
+}
+
+#menutoolbar{
+  background-color: @content-bg;
+  margin:0;
+  padding:0;
+}
+
+#content {
+  padding: 16px;
+}
+
+img {
+  max-width: 50%;
+  height: auto;
+}

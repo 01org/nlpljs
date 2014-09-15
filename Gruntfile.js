@@ -79,13 +79,31 @@ module.exports = function (grunt) {
                 options: {
                     livereload: '<%= connect.options.livereload %>'
                 },
+                tasks: ['less:development'],
                 files: [
                     '.tmp/styles/{,*/}*.css',
                     '<%= config.app %>/*.html',
                     '<%= config.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
                     '<%= config.app %>/manifest.json',
-                    '<%= config.app %>/_locales/{,*/}*.json'
+                    '<%= config.app %>/_locales/{,*/}*.json',
+                    "<%= config.app %>/content-push/styles/content-push.less"
                 ]
+            }
+        },
+
+        less: {
+            development: {
+                options: {
+                    paths: ["<%= config.app %>/content-push/styles"]
+                },
+                files: {"<%= config.app %>/content-push/styles/content-push.css": "<%= config.app %>/content-push/styles/content-push.less"}
+            },
+            production: {
+                options: {
+                    paths: ["<%= config.app %>/content-push/styles"],
+                    cleancss: true
+                },
+                files: {"<%= config.app %>/content-push/styles/content-push.css": "<%= config.app %>/content-push/styles/content-push.less"}
             }
         },
 
@@ -285,7 +303,7 @@ module.exports = function (grunt) {
                     cwd: '<%= config.app %>',
                     dest: '<%= config.build %>',
                     src: [
-                        '**'
+                        '**', '!**/*.less'
                     ]
                 }]
             },
@@ -468,11 +486,8 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', [
         'clean:build',
-        'copy:build',
-        'vulcanize', // index.html -> index-csp.html/index-csp.js
-        'remove:unvulcanized', // rm index.html
-        'copy:vulcanized', // index-csp.html -> index.html & move script element
-        'remove:vulcanized', // rm index-csp.html
+        'less:production',
+        'copy:build'
     ]);
 
     // This is the original dist task added when the gruntfile was
