@@ -8,75 +8,8 @@
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
-    <style>
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-color: #F0F0F0;
-      }
-
-      #container {
-        height: 100%;
-      }
-
-      #splitter {
-        background-color: #202020;
-        box-shadow:none;
-        width:8px;
-      }
-
-      #iframe {
-        display: block;
-        background-color: #F0F0F0;
-        height: 100%;
-        float:left;
-      }
-
-      #content_push_panel {
-        display: block;
-        background-color: #F0F0F0;
-        height: 100%;
-        width:300px;
-        max-width: 25%;
-        min-width:300px;
-        float:right;
-      }
-
-      #panel{
-        height:100%;
-        margin:0;
-        padding:0;
-      }
-
-      #toolbar{
-        display: block;
-        background-color: #202020;
-        margin:0;
-        padding:0;
-      }
-
-      #toolbartext {
-        color: #FFFFFF;
-        -webkit-user-select: none;
-      }
-
-      #toolbaraction {
-        color: #FFFFFF;
-        -webkit-user-select: none;
-      }
-
-      #menutoolbar{
-        background-color: #F0F0F0;
-        margin:0;
-        padding:0;
-      }
-
-      img {
-        max-width: 50%;
-        height: auto;
-      }
-    </style>
+    <link type="text/css" rel="stylesheet" href="ClearSans/ClearSans.css">
+    <link type="text/css" rel="stylesheet" href="styles/content-push.css">
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
       <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>

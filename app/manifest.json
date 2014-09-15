@@ -31,6 +31,8 @@
     "index.html",
     "index-csp.js",
     "content-push/*.html",
+    "content-push/ClearSans/*",
+    "content-push/styles/*",
     "styles/main.css",
     "bower_components/*/*"
   ]
