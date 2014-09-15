@@ -47,6 +47,7 @@
         height:100%;
         margin:0;
         padding:0;
+         overflow: auto;
       }
 
       #toolbar{
@@ -72,6 +73,23 @@
         padding:0;
       }
 
+      #tabs {
+        width: 100%;
+        padding:0;
+        margin: 0;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+       }
+      core-toolbar paper-tabs {
+        box-shadow: none;
+      }
+
+      #tabs::shadow #selectionBar {
+        background-color: #4CA8B4;
+      }
+      
       img {
         max-width: 50%;
         height: auto;
@@ -89,13 +107,14 @@
         <!--content toolbar and content wrapped up in a core-header-panel-->
         <core-header-panel id="panel">
           <core-toolbar id="menutoolbar">
-            <!--TODO:USe paper-icon-button, add paper-ripple effect and styling-->
-            <paper-tabs>
-              <paper-tab>
-                <core-icon-button icon="drive"></core-icon-button>
+            <paper-tabs id="tabs" selected=0 noink self-end>
+              <paper-tab> <paper-button icon="drive-image"></paper-button>
               </paper-tab>
-              <paper-tab>
-                <core-icon-button icon="drive-image"></core-icon-button>
+              <paper-tab> <paper-button icon="drive"></paper-button>
+              </paper-tab>
+              <paper-tab> <paper-button icon="subject"></paper-button>
+              </paper-tab>
+              <paper-tab> <paper-button icon="more-vert"></paper-button>
               </paper-tab>
             </paper-tabs>
           </core-toolbar>
