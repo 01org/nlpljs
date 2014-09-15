@@ -2,11 +2,18 @@
   var loaded = false;
   var open = true;
   chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
-    if (loaded) {
+    //console.log("CS: received message",message);
+    if (loaded && message.message === "toggle" ) {
+      console.log("CS:toggling");
       document.querySelector('content-push').setAttribute("toggle", open);
       open = !open;
-      return;
     }
+  });
+
+  // do this immediately when script is injected
+  rehostPage();
+
+  function rehostPage() {
     // create and open panel
     var currentTabUrl=document.URL;
     var extensionUrl=chrome.extension.getURL("");
@@ -50,6 +57,5 @@
     // send results back to event page
     //console.log("CS: sending done response");
     loaded = true;
-    sendResponse("done");
-  });
+  }
 })();
