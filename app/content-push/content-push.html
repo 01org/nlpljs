@@ -112,7 +112,10 @@
 
       Polymer({
         open:true,
-
+        editor:null,
+        scrollTimer:0,
+        pageno:0, //Current Page numer the user is on
+        page:null, //Current page
         created: function() {
           this.iframeurl="";
         },
@@ -148,6 +151,10 @@
               self.$.changed_text.innerHTML="";
               self.$.changed_text.appendChild(textNode);
             });
+  
+            self.editor = self.$.iframe.contentDocument.querySelector('.kix-appview-editor');
+            self.editor.self = self;
+            self.editor.onscroll = function(){this.self.onScroll(this.self);};
           };
 
           // bind event handlers to search components
@@ -158,7 +165,35 @@
         search: function (query) {
           this.$.search_google_images.query = query;
         },
-
+        // When the user scrolls the document onScroll is triggered. But we are interested in
+        // an event when the scroll stops. Add a timeout to onScroll, which triggers after 500ms
+        // If the event triggers, the user has stopped scrolling.
+        onScroll: function(self){
+        clearTimeout(self.scrollTimer);
+        self.scrollTimer = setTimeout(function() {self.scrollStop(self)}, 500);
+        },
+        
+        scrollStop: function(self) {
+        var pageno = parseInt((self.editor.scrollTop/1056).toString().split('.')[0]);
+        self.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
+        //console.log('scrolling has stopped.You are on page no ' + self.pageno);
+        self.getPageInfo(); //Just a Helper Function
+        },
+        
+        getPageInfo: function() {
+        //Get the current Page
+        var str = '.kix-page:nth-child(' + (self.pageno).toString() + ')';
+        self.page = self.$.iframe.contentDocument.querySelector(str);
+        //Get all the paragraphs in the page
+        var paras = self.page.querySelectorAll('.kix-paragraphrenderer');
+        //console.log('No of paraghaphs: ' + paras.length.toString() + ' in page' + self.pageno);
+        
+        // for(var i=0;i<paras.length;i++){
+        //   var line = paras[i].querySelector('.kix-lineview');
+        //   console.log('first line is' + line.innerText);
+        // }
+        },
+        
         handleSearchResults: function (e) {
           var self = this;
 
