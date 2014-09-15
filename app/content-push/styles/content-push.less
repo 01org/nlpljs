@@ -47,6 +47,7 @@
   margin:0;
   padding:0;
   background-color: @content-bg;
+  overflow: auto;
 }
 
 #toolbar{
@@ -79,4 +80,22 @@
 img {
   max-width: 50%;
   height: auto;
+}
+
+#tabs {
+    width: 100%;
+    padding:0;
+    margin: 0;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+core-toolbar paper-tabs {
+    box-shadow: none;
+}
+
+#tabs::shadow #selectionBar {
+    background-color: #4CA8B4;
 }
