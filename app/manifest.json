@@ -30,7 +30,7 @@
     "/",
     "index.html",
     "index-csp.js",
-    "content-push/content-push.html",
+    "content-push/*.html",
     "styles/main.css",
     "bower_components/*/*"
   ],
