@@ -71,17 +71,15 @@
         background-color: #F0F0F0;
         margin:0;
         padding:0;
+        height:0px;
       }
 
       #tabs {
         width: 100%;
         padding:0;
         margin: 0;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
        }
+
       core-toolbar paper-tabs {
         box-shadow: none;
       }
@@ -104,10 +102,8 @@
           <div id="toolbartext" flex>Content Push</div>
           <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
         </core-toolbar>
-        <!--content toolbar and content wrapped up in a core-header-panel-->
-        <core-header-panel id="panel">
-          <core-toolbar id="menutoolbar">
-            <paper-tabs id="tabs" selected=0 noink self-end>
+        <!--Tabs Menu-->
+        <paper-tabs id="tabs" noink self-end >
               <paper-tab> <paper-button icon="drive-image"></paper-button>
               </paper-tab>
               <paper-tab> <paper-button icon="drive"></paper-button>
@@ -117,18 +113,11 @@
               <paper-tab> <paper-button icon="more-vert"></paper-button>
               </paper-tab>
             </paper-tabs>
-          </core-toolbar>
-          <div id="content">
-            <h4>Multiple lines on frame load</h4>
-            <p id="multiple_lines"></p>
-            <h4>Updated when text is changed</h4>
-            <p id="changed_text">(nothing changed yet)</p>
-            <h4>Get images for changed text</h4>
-            <paper-button id="image_button" raisedButton="true" label="Go!" on-click="{{getImages}}"></paper-button>
-            <h4>Images</h4>
-            <search-google-images id="search_google_images" query=""></search-google-images>
-            <div id="images"></div>
-          </div><!-- content -->
+        <!-- Using content-header-panel sp the content auto scrolls. header is empty. Content is default.-->
+        <core-header-panel id="panel">
+          <core-header></core-header>
+          <content id='content' fit>
+          </content>
         </core-header-panel>
       </div><!-- content_push_panel -->
     </div><!-- container -->
@@ -220,32 +209,48 @@
           self.$.iframe.src=self.iframeurl;
 
           self.$.iframe.onload=function() {
-            // demonstrate stuff can be copied from the iframe document
-            var totalLinesToAdd=5;
-            var textToAdd = "";
-            var lines=self.$.iframe.contentDocument.querySelectorAll(".kix-lineview");
-            for( var i=0; i<totalLinesToAdd; ++i) {
-              var text=lines[i].innerText;
-              textToAdd+=text;
-            }
 
-            var textNode=document.createTextNode(textToAdd.replace("&nbsp;"," "));
-            self.$.multiple_lines.appendChild(textNode);
+          }
+          
+          var tabselect = this.tabSelected.bind(this);
+          self.$.tabs.addEventListener('core-select', tabselect);
+        },
 
-            observeDocumentChanges(self.$.iframe, function(text) {
-              var textNode=document.createTextNode(text.replace("&nbsp;"," "));
-              self.$.changed_text.innerHTML="";
-              self.$.changed_text.appendChild(textNode);
-            });
-  
-            self.editor = self.$.iframe.contentDocument.querySelector('.kix-appview-editor');
-            self.editor.self = self;
-            self.editor.onscroll = function(){this.self.onScroll(this.self);};
-          };
+        tabSelected: function(e) {
+          if (!e.detail.isSelected)
+            return;
+            
+          switch(parseInt(this.$.tabs.selected)){
+            case 0:
+              this.loadImages();
+              break;
+            case 1:
+              this.loadDrive();
+              break;
+            case 2:
+              this.loadQuotes();
+              break;
+            case 3:
+              this.loadMore();
+              break;
+            default:
+          }
+        },
 
-          // bind event handlers to search components
-          var handler = this.handleSearchResults.bind(this);
-          this.$.search_google_images.addEventListener("searchResults", handler);
+        loadImages: function() {
+
+        },
+        
+        loadDrive: function() {
+
+        },
+
+        loadQuotes: function() {
+
+        },
+
+        loadMore: function() {
+
         },
 
         search: function (query) {
