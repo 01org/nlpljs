@@ -47,7 +47,10 @@
         height:100%;
         margin:0;
         padding:0;
-         overflow: auto;
+        overflow: auto;
+        background-image: url('../images/background.svg');
+        /*background-repeat:repeat-y;*/
+        background-position: 100% 100%;
       }
 
       #toolbar{
@@ -88,6 +91,10 @@
         background-color: #4CA8B4;
       }
       
+      #content {
+
+      }
+      
       img {
         max-width: 50%;
         height: auto;
@@ -117,6 +124,7 @@
         <core-header-panel id="panel">
           <core-header></core-header>
           <content id='content' fit>
+
           </content>
         </core-header-panel>
       </div><!-- content_push_panel -->

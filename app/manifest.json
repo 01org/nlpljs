@@ -28,6 +28,7 @@
   "web_accessible_resources": [
     "",
     "/",
+    "images/*",
     "index.html",
     "index-csp.js",
     "content-push/*.html",
