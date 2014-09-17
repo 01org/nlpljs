@@ -147,7 +147,7 @@ define(['tokenizer'], function (tokenizer) {
             this.emissions[i][j].probability = this.emissions[i][j].frequency /
               this.unigrams[i].frequency;
 
-            //if (this.observationFreqs[j] <= 10) {
+            if (this.observationFreqs[j] <= 5) {
               var index = 1;
               if (j.length > 11)
                 index = j.length - 10;
@@ -174,7 +174,7 @@ define(['tokenizer'], function (tokenizer) {
                 this.suffixes[suffix].tags[i].frequency++;
                 index++;
               }
-            //}
+            }
           }
         }
 
@@ -224,6 +224,35 @@ define(['tokenizer'], function (tokenizer) {
 
         return 0;
       },
+      checkForSuffix: function (observation) {
+        if (this.observations.indexOf(observation) !== -1)
+          return 0;
+        else {
+          var index = 1;
+          var ending;
+
+          if (/[a-zA-Z]/.test(observation)) {
+            if (observation[0] === observation[0].toUpperCase())
+              ending = ' ' + 'UPPER';
+            else
+              ending = ' ' + 'LOWER';
+          }
+
+          if (observation.length > 11)
+            index = observation.length - 10;
+
+          while (index < observation.length) {
+            var suffix = observation.slice(index, observation.length) + ending;
+
+            if (typeof this.suffixes[suffix] !== 'undefined')
+              return index;
+
+            index++;
+          }
+        }
+
+        return 0;
+      },
       getSuffixProbability: function (state, suffix) {
 
         if (typeof this.suffixes[suffix] !== 'undefined' &&
@@ -232,13 +261,30 @@ define(['tokenizer'], function (tokenizer) {
 
         return 0;
       },
-      getEmissionProbability: function (state, observation) {
+      getEmissionProbability: function (state, observation, suffixIndex) {
         if (typeof this.emissions[state] !== 'undefined' &&
             typeof this.emissions[state][observation] !== 'undefined')
           return this.emissions[state][observation].probability;
 
-        if (this.observations.indexOf(observation) === -1) {
-          var index = 1;
+        if (this.observations.indexOf(observation) === -1 &&
+            /[a-zA-Z]/.test(observation)) {
+          var ammended = observation;
+          if (/[A-Z]/.test(ammended[0])) {
+            ammended = ammended.toLowerCase();
+          }
+          else {
+            ammended = ammended[0].toUpperCase() + observation.slice(1,
+              observation.length);
+          }
+
+          if (typeof this.emissions[state] !== 'undefined' &&
+              typeof this.emissions[state][ammended] !== 'undefined')
+            return this.emissions[state][ammended].probability;
+        }
+
+        if (this.observations.indexOf(observation) === -1 &&
+            suffixIndex !== -1) {
+          var index = suffixIndex;
           var counter = 0;
           var prevProb = 0;
           var totalProb = 0;
@@ -248,11 +294,8 @@ define(['tokenizer'], function (tokenizer) {
             if (observation[0] === observation[0].toUpperCase())
               ending = ' ' + 'UPPER';
             else
-              ending = ' ' + 'LOWER'
+              ending = ' ' + 'LOWER';
           }
-
-          if (observation.length > 11)
-            index = observation.length - 10;
 
           while (index < observation.length) {
             var suffix = observation.slice(index, observation.length) + ending;
@@ -273,7 +316,6 @@ define(['tokenizer'], function (tokenizer) {
             counter++;
           }
 
-          //console.log(observation + " " + state +  " " + totalProb / counter);
           return totalProb / counter;
         }
 
@@ -316,15 +358,33 @@ define(['tokenizer'], function (tokenizer) {
 
 
         for (i = 1; i < sequence.length; i++) {
+          var suffixOf = this.checkForSuffix(sequence[i]);
+          var maxNode = 0;
+          var maxPrev = 0;
+          var maxBack;
+
           trellis[i] = [];
           backpointer[i] = [];
 
           for (j = 0; j < this.states.length; j++) {
             var unigramProb = this.getUnigramProbability(this.states[j]);
             var emissionProb = this.getEmissionProbability(this.states[j],
-                                                             sequence[i]);
+                                                           sequence[i],
+                                                           suffixOf);
 
             trellis[i][j] = 0;
+
+            if (suffixOf === -1) {
+              if (/[a-zA-Z]/.test(sequence[i])) {
+                if (/[A-Z]/.test(sequence[i][0]) && (this.states[j] ===
+                    'NNP UPPER' || this.states[j] === 'NN UPPER'))
+                  emissionProb = 0.5;
+                else if (this.states[j] === 'NN LOWER')
+                  emissionProb = 1;
+              }
+              else if (this.states[j] === 'CD')
+                emissionProb = 1;
+            }
 
             for (k = 0; k < this.states.length; k++) {
               var prob = trellis[i - 1][k];
@@ -344,38 +404,41 @@ define(['tokenizer'], function (tokenizer) {
               prob *= (this.uniWeight * unigramProb + this.biWeight *
                 bigramProb + this.triWeight * trigramProb) * emissionProb;
 
-              //if (i === sequence.length - 1 )
-                //console.log(sequence[i], this.states[j], prob, unigramProb, bigramProb, trigramProb, emissionProb);
               if (prob > trellis[i][j]) {
                 trellis[i][j] = prob;
                 backpointer[i][j] = k;
-                //console.log(sequence[i], this.states[j], this.states[k], prob);
               }
             }
 
-            if (typeof backpointer[i][j] === 'undefined') {
-              if (/[a-zA-Z]/.test(sequence[i])) {
-                if (sequence[i][0] === sequence[i][0].toUpperCase()) {
-                  backpointer[i][j] = this.states.indexOf('NNP UPPER');
-                  trellis[i][this.states.indexOf('NNP UPPER')] = 1;
-                }
-                else {
-                  backpointer[i][j] = this.states.indexOf('NN LOWER');
-                  trellis[i][this.states.indexOf('NN LOWER')] = 1;
-                }
+            if (trellis[i][j] > maxNode)
+              maxNode = trellis[i][j];
+
+            if (trellis[i - 1][j] > maxPrev) {
+              maxPrev = trellis[i - 1][j];
+              maxBack = j;
+            }
+          }
+
+          if (maxNode === 0) {
+            if (/[a-zA-Z]/.test(sequence[i])) {
+              if (/[A-Z]/.test(sequence[i][0])) {
+                trellis[i][this.states.indexOf('NNP UPPER')] = 1;
+                backpointer[i][this.states.indexOf('NNP UPPER')] = maxBack;
               }
-              if (/[0-9]/.test(sequence[i])) {
-                backpointer[i][j] = this.states.indexOf('CD');
-                trellis[i][this.states.indexOf('CD')] = 1;
+              else {
+                trellis[i][this.states.indexOf('NN LOWER')] = 1;
+                backpointer[i][this.states.indexOf('NN LOWER')] = maxBack;
               }
+            }
+            else {
+              trellis[i][this.states.indexOf('CD')] = 1;
+              backpointer[i][this.states.indexOf('CD')] = maxBack;
             }
           }
         }
 
-        console.log(trellis[sequence.length - 1][this.states.indexOf('SB')]);
         var max = 0;
         for (i = 0; i < this.states.length; i++) {
-          console.log(path[sequence.length - 1], trellis[sequence.length - 1][i]);
           if (trellis[sequence.length - 1][i] > max) {
             max = trellis[sequence.length - 1][i];
             path[sequence.length - 1] = this.states[i];
@@ -386,7 +449,7 @@ define(['tokenizer'], function (tokenizer) {
           var next = backpointer[i + 1][this.states.indexOf(path[i + 1])];
           path[i] = this.states[next];
         }
-
+      //console.log(tokenized);
         return path;
       }
     };
@@ -401,7 +464,7 @@ define(['tokenizer'], function (tokenizer) {
       if (/[a-zA-Z]/.test(corpus[i].observation[0])) {
         if (corpus[i].observation[0] === corpus[i].observation[0].toUpperCase())
           state = corpus[i].state + ' ' + 'UPPER';
-        else
+        else      //console.log(tokenized);
           state = corpus[i].state + ' ' + 'LOWER'
       }
 
