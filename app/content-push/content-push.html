@@ -8,98 +8,8 @@
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
-    <style>
-      :host {
-        display: block;
-        width: 100%;
-        height: 100%;
-        background-color: #F0F0F0;
-      }
-
-      #container {
-        height: 100%;
-      }
-
-      #splitter {
-        background-color: #202020;
-        box-shadow:none;
-        width:8px;
-      }
-
-      #iframe {
-        display: block;
-        background-color: #F0F0F0;
-        height: 100%;
-        float:left;
-      }
-
-      #content_push_panel {
-        display: block;
-        background-color: #F0F0F0;
-        height: 100%;
-        width:300px;
-        max-width: 25%;
-        min-width:300px;
-        float:right;
-      }
-
-      #panel{
-        height:100%;
-        margin:0;
-        padding:0;
-        overflow: auto;
-        background-image: url('../images/background.svg');
-        /*background-repeat:repeat-y;*/
-        background-position: 100% 100%;
-      }
-
-      #toolbar{
-        display: block;
-        background-color: #202020;
-        margin:0;
-        padding:0;
-      }
-
-      #toolbartext {
-        color: #FFFFFF;
-        -webkit-user-select: none;
-      }
-
-      #toolbaraction {
-        color: #FFFFFF;
-        -webkit-user-select: none;
-      }
-
-      #menutoolbar{
-        background-color: #F0F0F0;
-        margin:0;
-        padding:0;
-        height:0px;
-      }
-
-      #tabs {
-        width: 100%;
-        padding:0;
-        margin: 0;
-       }
-
-      core-toolbar paper-tabs {
-        box-shadow: none;
-      }
-
-      #tabs::shadow #selectionBar {
-        background-color: #4CA8B4;
-      }
-      
-      #content {
-
-      }
-      
-      img {
-        max-width: 50%;
-        height: auto;
-      }
-    </style>
+    <link type="text/css" rel="stylesheet" href="ClearSans/ClearSans.css">
+    <link type="text/css" rel="stylesheet" href="styles/content-push.css">
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
       <core-splitter id="splitter" direction="right" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
@@ -124,7 +34,6 @@
         <core-header-panel id="panel">
           <core-header></core-header>
           <content id='content' fit>
-
           </content>
         </core-header-panel>
       </div><!-- content_push_panel -->
@@ -217,7 +126,6 @@
           self.$.iframe.src=self.iframeurl;
 
           self.$.iframe.onload=function() {
-
           }
           
           var tabselect = this.tabSelected.bind(this);
@@ -246,7 +154,7 @@
         },
 
         loadImages: function() {
-
+          console.log('load images');
         },
         
         loadDrive: function() {
@@ -258,7 +166,20 @@
         },
 
         loadMore: function() {
+            observeDocumentChanges(self.$.iframe, function(text) {
+              var textNode=document.createTextNode(text.replace("&nbsp;"," "));
+              self.$.changed_text.innerHTML="";
+              self.$.changed_text.appendChild(textNode);
+            });
+  
+            self.editor = self.$.iframe.contentDocument.querySelector('.kix-appview-editor');
+            self.editor.self = self;
+            self.editor.onscroll = function(){this.self.onScroll(this.self);};
+          
 
+          // bind event handlers to search components
+          //var handler = this.handleSearchResults.bind(this);
+          //this.$.search_google_images.addEventListener("searchResults", handler);
         },
 
         search: function (query) {
