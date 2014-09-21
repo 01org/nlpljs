@@ -37,8 +37,8 @@
         <!-- Using content-header-panel sp the content auto scrolls. header is empty. Content is default.-->
         <core-header-panel id="panel">
           <core-header></core-header>
-          <content id='content' fit>
-          </content>
+          <div id='content'>
+          </div>
         </core-header-panel>
       </div><!-- content_push_panel -->
     </div><!-- container -->
@@ -110,7 +110,7 @@
         open:true,
         editor:null,
         scrollTimer:0,
-        pageno:0, //Current Page numer the user is on
+        pageno:1, //Current Page numer the user is on
         page:null, //Current page
 
         created: function() {
@@ -130,9 +130,10 @@
           self=this;
           self.$.iframe.src=self.iframeurl;
 
-          self.$.iframe.onload=function() {
-          }
-          
+          /* Add a iframe onLoad handler */
+          var onLoadHandler = this.onLoad.bind(this);
+          self.$.iframe.onload = onLoadHandler;
+
           var tabselect = this.tabSelected.bind(this);
           self.$.tabs.addEventListener('core-select', tabselect);
         },
@@ -177,48 +178,66 @@
             self.$.changed_text.appendChild(textNode);
           });
   
-          self.editor = self.$.iframe.contentDocument.querySelector('.kix-appview-editor');
-          self.editor.self = self;
-          self.editor.onscroll = function(){this.self.onScroll(this.self);};
-
           // bind event handlers to search components
           //var handler = this.handleSearchResults.bind(this);
           //this.$.search_google_images.addEventListener("searchResults", handler);
+        },
+
+        onLoad: function(){
+          /* Get a handle to the editor DOM element */
+          this.editor = this.$.iframe.contentDocument.querySelector('.kix-appview-editor');
+          /* Add a scroll event handler */
+          var onScrollHandler = this.onScroll.bind(this);
+          this.editor.onscroll =  onScrollHandler;
+          /* For page 1 */
+          var handler = this.getCurrentPage.bind(this);
+          setTimeout(handler, 1000);
         },
 
         search: function (query) {
           this.$.search_google_images.query = query;
         },
 
-        // When the user scrolls the document onScroll is triggered. But we are interested in
-        // an event when the scroll stops. Add a timeout to onScroll, which triggers after 500ms
-        // If the event triggers, the user has stopped scrolling.
-        onScroll: function(self){
-          clearTimeout(self.scrollTimer);
-          self.scrollTimer = setTimeout(function() {self.scrollStop(self)}, 500);
+        /*When the user scrolls the document onScroll is triggered. But we are interested in
+        an event when the scroll stops. Add a timeout to onScroll, which triggers after 500ms
+        If the event triggers, the user has stopped scrolling. */
+        onScroll: function(){
+          clearTimeout(this.scrollTimer);
+          var scrollStopHandler = this.scrollStop.bind(this);
+          this.scrollTimer = setTimeout(scrollStopHandler, 500);
         },
         
-        scrollStop: function(self) {
-          var pageno = parseInt((self.editor.scrollTop/1056).toString().split('.')[0]);
-          self.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
-          //console.log('scrolling has stopped.You are on page no ' + self.pageno);
-          self.getPageInfo(); //Just a Helper Function
+        scrollStop: function() {
+          var pageno = parseInt((this.editor.scrollTop/1056).toString().split('.')[0]);
+          /* Scrolling on the same page */
+          if (this.pageno == (pageno+1))
+            return;
+            
+          this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
+          this.getCurrentPage();
         },
         
-        getPageInfo: function() {
-          //Get the current Page
-          var str = '.kix-page:nth-child(' + (self.pageno).toString() + ')';
-          self.page = self.$.iframe.contentDocument.querySelector(str);
-          //Get all the paragraphs in the page
-          var paras = self.page.querySelectorAll('.kix-paragraphrenderer');
-          //console.log('No of paraghaphs: ' + paras.length.toString() + ' in page' + self.pageno);
-        
-          // for(var i=0;i<paras.length;i++){
-          //   var line = paras[i].querySelector('.kix-lineview');
-          //   console.log('first line is' + line.innerText);
-          // }
+        getCurrentPage: function() {
+          /* Handle to the current Page */
+
+          var str = '.kix-page:nth-child(' + (this.pageno).toString() + ') > div:nth-child(2) > div:nth-child(1)';
+          var content = this.$.iframe.contentDocument.querySelector(str);
+
+          var paragraphs = content.querySelectorAll('.kix-paragraphrenderer');
+          var paraText = [];
+
+          for(var i=0;i<paragraphs.length;i++)
+            paraText[i] = paragraphs[i].innerText;
+          var pageText = paraText.join();
+
+          this.processPageText(pageText);
         },
-        
+
+        processPageText: function(text) {
+          this.$.content.innerText = '';
+          this.$.content.innerText = text;
+        },
+
         handleSearchResults: function (e) {
           var self = this;
 
