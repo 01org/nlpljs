@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+
+    <script src="../../app/bower_components/polymer/polymer.js"></script>
+
+    <title>CP functional test runner</title>
+
+    <style>
+      p, li { font-size: 0.5em }
+    </style>
+  </head>
+  <body>
+    <h1>CP functional test runner</h1>
+
+    <p>Tests for visual checking of custom elements.</p>
+
+    <ul id="test-links">
+      <li><a href="index.html">Run all tests</a></li>
+    </ul>
+
+    <hr>
+
+    <script>
+      // default to running all tests
+      var DEFAULT_TEST_TO_RUN = '_ALL_';
+
+      // add the name of each test file to this array; each
+      // test file should define one custom element (with the same
+      // name as the file) which runs the test; and
+      // each should test one of the real custom elements
+      // in app/content-push/
+      var testHrefs = [
+        './cp-image-test.html',
+        './cp-gallery-test.html'
+      ];
+
+      // get the location of the test to run from the URL
+      var testToRun = /test=(.+?)($|&.*$)/.exec(document.location.href);
+
+      if (testToRun) {
+        testToRun = testToRun[1];
+      }
+      else {
+        testToRun = DEFAULT_TEST_TO_RUN;
+      }
+
+      window.addEventListener('polymer-ready', function () {
+        // return a function which will append an instance of
+        // a test element with name elementName to the body
+        var makeRunTestFn = function (elementName) {
+          return function () {
+            var heading = document.createElement('h2');
+            heading.innerHTML = elementName.replace('-test', ' test');
+            document.body.appendChild(heading);
+
+            var testElement = document.createElement(elementName);
+            document.body.appendChild(testElement);
+
+            var rule = document.createElement('hr');
+            document.body.appendChild(rule);
+          };
+        };
+
+        var testLinksElt = document.querySelector('#test-links');
+
+        for (var i = 0; i < testHrefs.length; i++) {
+          var testHref = testHrefs[i];
+          var elementName = /\/(.+?)\.html$/.exec(testHref)[1];
+
+          if (testToRun === DEFAULT_TEST_TO_RUN || testToRun === elementName) {
+            // import the test element
+            var link = document.createElement('link');
+            link.rel = 'import';
+            link.href = testHref;
+
+            // when the import is done, create an instance of the
+            // element and append it
+            link.onload = makeRunTestFn(elementName);
+
+            // start the import
+            document.head.appendChild(link);
+          }
+
+          // create a link to the test
+          var testContainer = document.createElement('li');
+          var testLink = document.createElement('a');
+          testLink.href = 'index.html?test=' + elementName;
+          testLink.innerHTML = 'Run ' + elementName + ' test';
+          testContainer.appendChild(testLink);
+          testLinksElt.appendChild(testContainer);
+        }
+      });
+    </script>
+  </body>
+</html>

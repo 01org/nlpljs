@@ -1,0 +1,38 @@
+<link rel="import" href="../../app/content-push/cp-gallery.html">
+
+<!--
+test for cp-gallery; creates a gallery and adds ten random images to it
+-->
+<polymer-element name="cp-gallery-test">
+  <template>
+    <!-- make the gallery span a percentage of the window to check centering -->
+    <style>
+      cp-gallery {
+        width: 50%;
+        margin-left: 25%;
+        background-color: gray;
+      }
+    </style>
+
+    <p>
+      Create a cp-gallery with 10 random images inside it; fills 50% of
+      screen to check for centering of images inside.
+    </p>
+    <cp-gallery id="gallery"></cp-gallery>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        // add random images with URLs from lorempixel
+        for (var i = 0; i < 10; i ++) {
+          this.$.gallery.appendImage({
+            src: makeImageUrl(200, 200)
+          });
+        }
+      }
+    });
+  </script>
+</polymer-element>

@@ -1,0 +1,28 @@
+<link rel="import" href="../../app/content-push/cp-image.html">
+
+<!--
+test for cp-image; draws 10 random cp-image elements at
+different sizes
+-->
+<polymer-element name="cp-image-test">
+  <template>
+    <p>Create 10 cp-images with 50 pixel increments in width and height.</p>
+    <div id="container"></div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        // add random cp-images with URLs from lorempixel
+        var cpImage;
+        for (var i = 50; i <= 500; i += 50) {
+          cpImage = document.createElement('cp-image');
+          cpImage.src = makeImageUrl(i, i);
+          this.$.container.appendChild(cpImage);
+        }
+      }
+    });
+  </script>
+</polymer-element>
