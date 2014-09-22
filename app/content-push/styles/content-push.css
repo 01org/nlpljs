@@ -101,3 +101,7 @@ core-toolbar paper-tabs {
 #tabs::shadow #selectionBar {
   background-color: #4CA8B4;
 }
+
+cp-gallery {
+  width: 100%;
+}
