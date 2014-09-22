@@ -2,6 +2,8 @@
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
+<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="./search-google-images.html">
@@ -37,8 +39,10 @@
         <!-- Using content-header-panel sp the content auto scrolls. header is empty. Content is default.-->
         <core-header-panel id="panel">
           <core-header></core-header>
-          <div id='content'>
-          </div>
+          <content fit>
+          <core-animated-pages id='content' transitions="slide-from-right">
+          </core-animated-pages>
+          </content>
         </core-header-panel>
       </div><!-- content_push_panel -->
     </div><!-- container -->
@@ -112,7 +116,8 @@
         scrollTimer:0,
         pageno:1, //Current Page numer the user is on
         page:null, //Current page
-
+        sectionIndex:[],
+        sectionCount:0,
         created: function() {
           this.iframeurl="";
         },
@@ -234,8 +239,22 @@
         },
 
         processPageText: function(text) {
-          this.$.content.innerText = '';
-          this.$.content.innerText = text;
+          if (this.sectionIndex[this.pageno] == null) {
+            console.log('page hit 1st time');
+            var section = document.createElement('div');
+            var para = document.createElement('p');
+            var t = document.createTextNode(text);
+            para.appendChild(t);
+            section.appendChild(para);
+            section.style.display = 'block';
+            section.style.height = '100%';
+            
+            this.$.content.appendChild(section);
+            this.sectionIndex[this.pageno] = this.sectionCount;
+            this.sectionCount++;
+          }
+
+          this.$.content.selected = this.sectionIndex[this.pageno];
         },
 
         handleSearchResults: function (e) {
