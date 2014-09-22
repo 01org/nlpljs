@@ -1,13 +1,13 @@
-<link rel="import" href="../../app/content-push/cp-gallery.html">
+<link rel="import" href="../../app/content-push/image-card.html">
 
 <!--
-test for cp-gallery; creates a gallery and adds ten random images to it
+test for image-card; creates a card and adds ten random images to it
 -->
-<polymer-element name="cp-gallery-test">
+<polymer-element name="image-card-test">
   <template>
-    <!-- make the gallery span a percentage of the window to check centering -->
+    <!-- make the card span a percentage of the window to check centering -->
     <style>
-      cp-gallery {
+      #gallery {
         width: 50%;
         margin-left: 25%;
         background-color: gray;
@@ -15,10 +15,10 @@ test for cp-gallery; creates a gallery and adds ten random images to it
     </style>
 
     <p>
-      Create a cp-gallery with 10 random images inside it; fills 50% of
+      Create an image-card with 10 random images inside it; fills 50% of
       screen to check for centering of images inside.
     </p>
-    <cp-gallery id="gallery"></cp-gallery>
+    <image-card id="gallery"></image-card>
   </template>
 
   <script src="./test-utils.js"></script>

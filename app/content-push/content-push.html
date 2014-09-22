@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="./cp-gallery.html">
+<link rel="import" href="./image-card.html">
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -113,9 +113,9 @@
         pageno:0, //Current Page numer the user is on
         page:null, //Current page
 
-        // map from page IDs to cp-gallery elements; each page gets
-        // its own gallery element (at the moment)
-        galleries: {},
+        // map from page IDs to image-card elements; each page gets
+        // its own image-card element (at the moment)
+        imageCards: {},
 
         created: function() {
           this.iframeurl="";
@@ -145,8 +145,8 @@
           // TODO use the current page number as the pageId
           var pageId = 1;
 
-          // create a gallery for the current (only) page
-          this.addGallery(pageId);
+          // create an image-card for the current (only) page
+          this.addImageCard(pageId);
 
           // TODO trigger searches from the real text on the page
           this.search(pageId, ['stub phrase', 'stub phrase']);
@@ -250,22 +250,22 @@
         },
 
         /**
-         * Add an image gallery for the page with ID pageId;
-         * if the gallery exists for this page already, do nothing.
+         * Add an image card (gallery) for the page with ID pageId;
+         * if the image card exists for this page already, do nothing.
          *
          * @param String pageId Identifier for the page with which
          * this gallery is associated
          */
-        addGallery: function (pageId) {
-          if (this.galleries[pageId]) {
+        addImageCard: function (pageId) {
+          if (this.imageCards[pageId]) {
             return;
           }
 
-          this.galleries[pageId] = document.createElement('cp-gallery');
-          this.$.content.appendChild(this.galleries[pageId]);
+          this.imageCards[pageId] = document.createElement('image-card');
+          this.$.content.appendChild(this.imageCards[pageId]);
         },
 
-        // perform search for keyphrases and populate the gallery
+        // perform search for keyphrases and populate the image card
         // for the associated page
         // TODO replace this stub with a real implementation
         search: function (pageId, keyPhrases) {
@@ -274,7 +274,7 @@
             var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
 
-            this.galleries[pageId].appendImage({
+            this.imageCards[pageId].appendImage({
               src: src
             });
           }

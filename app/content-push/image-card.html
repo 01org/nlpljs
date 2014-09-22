@@ -1,6 +1,6 @@
-<link rel="import" href="./cp-image.html">
+<link rel="import" href="./image-item.html">
 
-<polymer-element name="cp-gallery">
+<polymer-element name="image-card">
   <template>
     <style>
       :host {
@@ -40,7 +40,7 @@
        * }
        */
       appendImage: function (image) {
-        var elt = document.createElement('cp-image');
+        var elt = document.createElement('image-item');
         elt.src = image.src;
         this.$.container.appendChild(elt);
       }
