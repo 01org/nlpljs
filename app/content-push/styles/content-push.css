@@ -41,17 +41,6 @@
   float: right;
 }
 
-#panel {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background-color: #f0f0f0;
-  overflow: auto;
-  background-image: url('../../images/background.svg');
-  background-position: 100% 100%;
-  background-size: 100%;
-}
-
 #toolbar {
   display: block;
   background-color: #202020;
@@ -77,6 +66,8 @@
 
 #content {
   padding: 16px;
+  background-image: url('../../images/background.svg');
+  background-size: 100%;
 }
 
 img {
@@ -84,14 +75,20 @@ img {
   height: auto;
 }
 
+#tabs-toolbar {
+  height: 48px;
+  background-color: white;
+}
+
 #tabs {
   width: 100%;
   padding: 0;
-  margin: 0;
+  margin: -15px 0 0 0;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background-color: white;
 }
 
 core-toolbar paper-tabs {
