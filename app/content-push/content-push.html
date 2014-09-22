@@ -3,9 +3,10 @@
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
-<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
+<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-up.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="./image-card.html">
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -20,26 +21,29 @@
           <div id="toolbartext" flex>Content Push</div>
           <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
         </core-toolbar>
+
         <!--Tabs Menu-->
-        <paper-tabs id="tabs" noink self-end >
-          <paper-tab>
-            <paper-button icon="drive-image"></paper-button>
-          </paper-tab>
-          <paper-tab>
-            <paper-button icon="drive"></paper-button>
-          </paper-tab>
-          <paper-tab>
-            <paper-button icon="subject"></paper-button>
-          </paper-tab>
-          <paper-tab>
-            <paper-button icon="more-vert"></paper-button>
-          </paper-tab>
-        </paper-tabs>
-        <!-- Using content-header-panel sp the content auto scrolls. header is empty. Content is default.-->
+        <core-toolbar id="tabs-toolbar">
+          <paper-tabs id="tabs" noink>
+            <paper-tab>
+              <paper-button icon="drive-image"></paper-button>
+            </paper-tab>
+            <paper-tab>
+              <paper-button icon="drive"></paper-button>
+            </paper-tab>
+            <paper-tab>
+              <paper-button icon="subject"></paper-button>
+            </paper-tab>
+            <paper-tab>
+              <paper-button icon="more-vert"></paper-button>
+            </paper-tab>
+          </paper-tabs>
+        </core-toolbar>
+
         <core-header-panel id="panel">
           <core-header></core-header>
           <content fit>
-          <core-animated-pages id='content' transitions="slide-from-right">
+          <core-animated-pages id='content' transitions="slide-up">
           </core-animated-pages>
           </content>
         </core-header-panel>
@@ -117,6 +121,10 @@
         page:null, //Current page
         sectionIndex:[],
         sectionCount:0,
+        /* map from page IDs to image-card elements; each page gets
+        its own image-card element (at the moment)*/
+        imageCards: {},
+
         created: function() {
           this.iframeurl="";
         },
@@ -140,6 +148,11 @@
 
           var tabselect = this.tabSelected.bind(this);
           self.$.tabs.addEventListener('core-select', tabselect);
+        },
+
+        domReady: function () {
+          /* TODO trigger searches from the real text on the page */
+          //this.search(pageId, ['stub phrase', 'stub phrase']);
         },
 
         tabSelected: function(e) {
@@ -243,7 +256,8 @@
              object with 'text' as key & line content with value. The function
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
-          this.processPageText(txtObj);
+          //this.processPageText(txtObj);
+          this.addImageCard();
         },
 
         /* This is test function for demonstration purpose only. */
@@ -311,6 +325,43 @@
           } else {
             this.$.content_push_panel.style.display = 'inline-block';
             this.open = true;
+          }
+        },
+
+        /**
+         * Add an image card (gallery) for the page with ID pageId;
+         * if the image card exists for this page already, do nothing.
+         *
+         * @param String pageId Identifier for the page with which
+         * this gallery is associated
+         */
+        addImageCard: function () {
+          if (this.sectionIndex[this.pageno] == null) {
+            this.imageCards[this.pageno] = document.createElement('image-card');
+
+            this.imageCards[this.pageno].style.display = 'block';
+            this.imageCards[this.pageno].style.height = '100%';
+            this.$.content.appendChild(this.imageCards[this.pageno]);
+            this.sectionIndex[this.pageno] = this.sectionCount;
+            this.sectionCount++;
+          }
+
+          this.$.content.selected = this.sectionIndex[this.pageno];
+          this.search(this.pageno,"");
+        },
+
+        // perform search for keyphrases and populate the image card
+        // for the associated page
+        // TODO replace this stub with a real implementation
+        search: function (pageId, keyPhrases) {
+          // add a random image from lorempixel
+          for (var i = 0; i < 50; i ++) {
+            var src = 'http://lorempixel.com/125/125?cacheBust=' +
+                      (new Date()).getTime() + i;
+            console.log("adding image for page " + pageId);
+            this.imageCards[pageId].appendImage({
+              src: src
+            });
           }
         }
       }); // Polymer()

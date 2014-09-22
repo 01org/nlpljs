@@ -41,10 +41,10 @@
   float: right;
 }
 
-#panel {
-  height: 100%;
-  margin: 0;
-  padding: 0;
+#panel{
+  height:100%;
+  margin:0;
+  padding:0;
   background-color: #f0f0f0;
   overflow: auto;
   background-image: url('../../images/background.svg');
@@ -76,7 +76,10 @@
 }
 
 #content {
-  padding: 16px;
+  margin:0;
+  padding:0;
+  height:100%;
+  width:100%;
 }
 
 img {
@@ -84,14 +87,20 @@ img {
   height: auto;
 }
 
+#tabs-toolbar {
+  height: 48px;
+  background-color: white;
+}
+
 #tabs {
   width: 100%;
   padding: 0;
-  margin: 0;
+  margin: -15px 0 0 0;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  background-color: white;
 }
 
 core-toolbar paper-tabs {
@@ -100,4 +109,8 @@ core-toolbar paper-tabs {
 
 #tabs::shadow #selectionBar {
   background-color: #4CA8B4;
+}
+
+cp-gallery {
+  width: 100%;
 }
