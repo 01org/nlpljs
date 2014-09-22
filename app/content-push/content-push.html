@@ -4,7 +4,6 @@
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="./search-google-images.html">
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -132,7 +131,7 @@
 
           self.$.iframe.onload=function() {
           }
-          
+
           var tabselect = this.tabSelected.bind(this);
           self.$.tabs.addEventListener('core-select', tabselect);
         },
@@ -140,7 +139,7 @@
         tabSelected: function(e) {
           if (!e.detail.isSelected)
             return;
-            
+
           switch(parseInt(this.$.tabs.selected)){
             case 0:
               this.loadImages();
@@ -161,7 +160,7 @@
         loadImages: function() {
           console.log('load images');
         },
-        
+
         loadDrive: function() {
 
         },
@@ -176,18 +175,10 @@
             self.$.changed_text.innerHTML="";
             self.$.changed_text.appendChild(textNode);
           });
-  
+
           self.editor = self.$.iframe.contentDocument.querySelector('.kix-appview-editor');
           self.editor.self = self;
           self.editor.onscroll = function(){this.self.onScroll(this.self);};
-
-          // bind event handlers to search components
-          //var handler = this.handleSearchResults.bind(this);
-          //this.$.search_google_images.addEventListener("searchResults", handler);
-        },
-
-        search: function (query) {
-          this.$.search_google_images.query = query;
         },
 
         // When the user scrolls the document onScroll is triggered. But we are interested in
@@ -197,14 +188,14 @@
           clearTimeout(self.scrollTimer);
           self.scrollTimer = setTimeout(function() {self.scrollStop(self)}, 500);
         },
-        
+
         scrollStop: function(self) {
           var pageno = parseInt((self.editor.scrollTop/1056).toString().split('.')[0]);
           self.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
           //console.log('scrolling has stopped.You are on page no ' + self.pageno);
           self.getPageInfo(); //Just a Helper Function
         },
-        
+
         getPageInfo: function() {
           //Get the current Page
           var str = '.kix-page:nth-child(' + (self.pageno).toString() + ')';
@@ -212,31 +203,11 @@
           //Get all the paragraphs in the page
           var paras = self.page.querySelectorAll('.kix-paragraphrenderer');
           //console.log('No of paraghaphs: ' + paras.length.toString() + ' in page' + self.pageno);
-        
+
           // for(var i=0;i<paras.length;i++){
           //   var line = paras[i].querySelector('.kix-lineview');
           //   console.log('first line is' + line.innerText);
           // }
-        },
-        
-        handleSearchResults: function (e) {
-          var self = this;
-
-          var images = e.detail;
-
-          for (var i = 0; i < images.length; i++) {
-            var img = document.createElement("img");
-            img.src = images[i].url;
-
-            // only add images to the display if they load correctly
-            img.addEventListener("load", function () {
-              self.$.images.appendChild(this);
-            });
-          }
-        },
-
-        getImages: function() {
-          this.search(this.$.changed_text.innerText);
         },
 
         downAction: function() {
