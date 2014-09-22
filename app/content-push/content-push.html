@@ -6,7 +6,6 @@
 <link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="./search-google-images.html">
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -146,7 +145,7 @@
         tabSelected: function(e) {
           if (!e.detail.isSelected)
             return;
-            
+
           switch(parseInt(this.$.tabs.selected)){
             case 0:
               this.loadImages();
@@ -167,7 +166,7 @@
         loadImages: function() {
           console.log('load images');
         },
-        
+
         loadDrive: function() {
 
         },
@@ -182,7 +181,7 @@
             self.$.changed_text.innerHTML="";
             self.$.changed_text.appendChild(textNode);
           });
-  
+
           // bind event handlers to search components
           //var handler = this.handleSearchResults.bind(this);
           //this.$.search_google_images.addEventListener("searchResults", handler);
@@ -211,7 +210,7 @@
           var scrollStopHandler = this.scrollStop.bind(this);
           this.scrollTimer = setTimeout(scrollStopHandler, 500);
         },
-        
+
         scrollStop: function() {
           var pageno = parseInt((this.editor.scrollTop/1056).toString().split('.')[0]);
           /* Scrolling on the same page */
