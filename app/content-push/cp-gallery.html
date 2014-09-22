@@ -1,0 +1,49 @@
+<link rel="import" href="./cp-image.html">
+
+<polymer-element name="cp-gallery">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+      }
+
+      cp-image {
+        display: block;
+
+        /* remove the mysterious extra 5 pixels added by something or other */
+        margin-bottom: -5px;
+      }
+    </style>
+
+    <div id="container"></div>
+  </template>
+
+  <script>
+    Polymer({
+      /**
+       * Convenience method to append an image search result to the
+       * gallery; creates a cp-image element for the image object added.
+       *
+       * @param Object image Representation of image to add; has the
+       * format:
+       * {
+       *   src: <url of image>
+       * }
+       */
+      appendImage: function (image) {
+        var elt = document.createElement('cp-image');
+        elt.src = image.src;
+        this.$.container.appendChild(elt);
+      }
+    });
+  </script>
+</polymer-element>
