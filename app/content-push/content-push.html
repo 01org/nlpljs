@@ -3,7 +3,7 @@
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
-<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-up.html">
+<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="./image-card.html">
@@ -43,7 +43,7 @@
         <core-header-panel id="panel">
           <core-header></core-header>
           <content fit>
-          <core-animated-pages id='content' transitions="slide-up">
+          <core-animated-pages id='content' transitions="slide-from-right">
           </core-animated-pages>
           </content>
         </core-header-panel>
@@ -358,7 +358,6 @@
           for (var i = 0; i < 50; i ++) {
             var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
-            console.log("adding image for page " + pageId);
             this.imageCards[pageId].appendImage({
               src: src
             });
