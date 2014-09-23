@@ -12,7 +12,8 @@
     "paper-icon-button": "Polymer/paper-icon-button#~0.4.0",
     "core-toolbar": "Polymer/core-toolbar#~0.4.0",
     "core-ajax": "Polymer/core-ajax#~0.4.0",
-    "paper-tabs": "Polymer/paper-tabs#~0.4.0"
+    "paper-tabs": "Polymer/paper-tabs#~0.4.0",
+    "core-animated-pages": "Polymer/core-animated-pages#~0.4.1"
   },
   "devDependencies": {}
 }
