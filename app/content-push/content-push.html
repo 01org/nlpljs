@@ -257,7 +257,8 @@
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
           //this.processPageText(txtObj);
-          this.addImageCard();
+          //this.addImageCard();
+          this.processPageText(txtObj);
         },
 
         /* This is test function for demonstration purpose only. */
@@ -267,11 +268,14 @@
            transitions to the relevant section */
         processPageText: function(textObject) {
           if (this.sectionIndex[this.pageno] == null) {
+            this.fire('Reset extractor', null);
             var section = document.createElement('div');
 
             for (var i=0;i<Object.keys(textObject).length;i++) {
               section.appendChild(document.createTextNode(textObject[i].text));
               section.appendChild(document.createElement('br'));
+              this.fire('Add line', { pageID: this.pageno, lineID: i,
+                text: textObject[i].text });
             }
 
             section.style.display = 'block';

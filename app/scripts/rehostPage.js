@@ -1,6 +1,14 @@
 (function(){
   var loaded = false;
   var open = true;
+
+  eventPageMessage = function (type, data) {
+    return {
+      type: type,
+      data: data
+    };
+  };
+
   chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
     //console.log("CS: received message",message);
     if (loaded && message.message === "toggle" ) {
@@ -8,6 +16,22 @@
       document.querySelector('content-push').setAttribute("toggle", open);
       open = !open;
     }
+    /*else if (loaded && message.message === "Got keywords") {
+      var event = new CustomEvent("Got keywords", {
+        detail: message.data,
+        bubbles: true,
+        cancelable: true
+      });
+
+      document.dispatchEvent(event);
+    }*/
+  });
+
+  var port =
+    chrome.runtime.connect({name: "background/content script messages"});
+
+  port.onMessage.addListener(function (message) {
+    console.log(message);
   });
 
   // do this immediately when script is injected
@@ -50,7 +74,15 @@
       // set iframe url in <content-push> element
       var cp = document.querySelector('content-push');
       cp.setAttribute("iframeurl",currentTabUrl);
+      cp.addEventListener('Add line', function (e) {
+        port.postMessage(eventPageMessage('Add line', e.detail));
+      });
+
+      cp.addEventListener('Reset extractor', function (e) {
+        port.postMessage(eventPageMessage('Reset extractor', e.detail));
+      });
     };
+
     link.onerror = function(e) { console.log("got link error"); };
     document.head.appendChild(link);
 
