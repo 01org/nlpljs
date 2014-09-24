@@ -32,7 +32,7 @@
     "images/*",
     "index.html",
     "index-csp.js",
-    "content-push/*.html",
+    "content-push/*",
     "content-push/ClearSans/*",
     "content-push/styles/*",
     "styles/main.css",

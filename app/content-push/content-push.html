@@ -7,6 +7,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="./image-card.html">
+<link rel='import' href='./keyword-highlighter.html'>
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -49,6 +50,7 @@
         </core-header-panel>
       </div><!-- content_push_panel -->
     </div><!-- container -->
+    <keyword-highlighter id='highlighter'></keyword-highlighter>
   </template>
 
   <script>
@@ -209,6 +211,8 @@
           /* For page 1 */
           var handler = this.getCurrentPage.bind(this);
           setTimeout(handler, 1000);
+
+          this.$.highlighter.targetElement = this.$.iframe.contentDocument;
         },
 
         search: function (query) {
