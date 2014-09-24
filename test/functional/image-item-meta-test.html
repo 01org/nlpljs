@@ -1,0 +1,29 @@
+<link rel="import" href="../../app/content-push/image-item.html">
+
+<!--
+test for image-item metadata
+-->
+<polymer-element name="image-item-meta-test">
+  <template>
+    <p>The image on the left should reveal its metadata on hover.
+    The image on the right should always show its metadata.</p>
+    <div id="container"></div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        var imageItemMetaHover = document.createElement('image-item');
+        imageItemMetaHover.src = makeImageUrl(200, 200);
+        this.$.container.appendChild(imageItemMetaHover);
+
+        var imageItemMetaAlways = document.createElement('image-item');
+        imageItemMetaAlways.src = makeImageUrl(200, 200);
+        imageItemMetaAlways.revealmeta = 'always';
+        this.$.container.appendChild(imageItemMetaAlways);
+      }
+    });
+  </script>
+</polymer-element>
