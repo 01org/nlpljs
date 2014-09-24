@@ -7,6 +7,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="./image-card.html">
+<link rel='import' href='./se-highlighter.html'>
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
   <template>
@@ -49,6 +50,7 @@
         </core-header-panel>
       </div><!-- content_push_panel -->
     </div><!-- container -->
+    <se-highlighter id='highlighter'></se-highlighter>
   </template>
 
   <script>
@@ -111,6 +113,69 @@
         // Pass in the target node, as well as the observer options
         var node=iframe.contentDocument.querySelector(docsContainerSelector);
         observer.observe(node, config);
+      };
+
+      var testHighlighter = function() {
+
+        // from NLP
+        var testInput=[
+
+          // same line
+          // in group 1
+          {
+            groupId: 1,
+            start: {
+              lineNo: 0,
+              charNo: 0
+            },
+            end: {
+              lineNo: 0,
+              charNo: 17
+            }
+          },
+
+          // a second keyword
+          // in group 1
+          {
+            groupId: 1,
+            start: {
+              lineNo: 1,
+              charNo: 65
+            },
+            end: {
+              lineNo: 1,
+              charNo: 82
+            }
+          },
+
+          // keyword split across two lines
+          // in group 2
+          {
+            groupId: 2,
+            start: {
+              lineNo: 9,
+              charNo: 82
+            },
+            end: {
+              lineNo: 10,
+              charNo: 9 
+            }
+          },
+
+        ];
+
+        // insert the html
+        self.$.highlighter.prepare(testInput);
+
+        // turn group 2 on
+        self.$.highlighter.turn(2,'on');
+
+        // demo highlighting by toggling groupId==1 every second
+        var highlightsOn=false;
+        setInterval(function() {
+          highlightsOn=!highlightsOn;
+          self.$.highlighter.turn(1,highlightsOn?'on':'off');
+        }, 1000);
       };
 
       Polymer({
@@ -209,6 +274,12 @@
           /* For page 1 */
           var handler = this.getCurrentPage.bind(this);
           setTimeout(handler, 1000);
+
+          self.$.highlighter.targetElement = self.$.iframe.contentDocument;
+
+          setTimeout(function() {
+            testHighlighter();
+          }, 5000 );
         },
 
         search: function (query) {
