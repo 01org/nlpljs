@@ -1,15 +1,83 @@
 <!--
 wrapper for a single img element plus related elements for
-metadata
+metadata; metadata elements are revealed by user interaction
+(mouse hover);
+the smallest image which will display OK is about 50x50px; any smaller
+than this and there's not enough room for the metadata about the image
+size
 -->
-<polymer-element name="image-item" attributes="src">
+<polymer-element name="image-item" attributes="src revealmeta">
   <template>
-    <img src="{{src}}">
+    <style>
+      div {
+        display: inline-block;
+        position: relative;
+        overflow: hidden;
+      }
+
+      [data-revealed="true"] {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        margin-bottom: 5px;
+        background-color: black;
+        color: white;
+        min-width: 3em;
+        text-align: center;
+        padding: 0.5em;
+      }
+
+      /* adjust padding on the meta text when the image is < 100 pixels */
+      [data-tiny-image="true"] {
+        padding: 0.25em 0.1em !important;
+      }
+
+      [data-revealed="false"] {
+        display: none;
+      }
+    </style>
+
+    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
+      <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
+      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="false"></p>
+    </div>
   </template>
 
   <script>
     Polymer({
-      src: null
+      // URL for the image to display
+      src: null,
+
+      // set to 'on' to reveal metadata; set to 'off' to hide it;
+      // set to 'always' if metadata should always be visible
+      revealmeta: 'off',
+
+      revealmetaOn: function () {
+        if (this.revealmeta === 'always') {
+          return;
+        }
+
+        this.revealmeta = 'on';
+      },
+
+      revealmetaOff: function () {
+        if (this.revealmeta === 'always') {
+          return;
+        }
+
+        this.revealmeta = 'off';
+      },
+
+      // set metadata for the image once it's loaded
+      imageLoaded: function () {
+        var height = this.$.image.height;
+        var width = this.$.image.width;
+
+        // mark tiny images so the metadata display can be adjusted
+        this.$.meta.setAttribute('data-tiny-image', width < 100);
+
+        this.$.meta.innerHTML = width + 'x' + height;
+      }
     });
   </script>
 </polymer-element>
