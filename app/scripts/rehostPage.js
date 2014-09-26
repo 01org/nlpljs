@@ -1,6 +1,14 @@
 (function(){
   var loaded = false;
   var open = true;
+
+  eventPageMessage = function (type, data) {
+    return {
+      type: type,
+      data: data
+    };
+  };
+
   chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
     //console.log("CS: received message",message);
     if (loaded && message.message === "toggle" ) {
@@ -8,9 +16,24 @@
       document.querySelector('content-push').setAttribute("toggle", open);
       open = !open;
     }
+    /*else if (loaded && message.message === "Got keywords") {
+      var event = new CustomEvent("Got keywords", {
+        detail: message.data,
+        bubbles: true,
+        cancelable: true
+      });
+
+      document.dispatchEvent(event);
+    }*/
   });
 
-  // do this immediately when script is injected
+  var port = chrome.runtime.connect({name: "ContentPushChannel"});
+
+  port.onMessage.addListener(function (message) {
+    console.log(message);
+  });
+
+  /* Do this immediately when script is injected */
   rehostPage();
 
   function rehostPage() {
@@ -28,8 +51,8 @@
     html.appendChild(body);
     document.appendChild(html);
 
-    // add new link/import element to head
-    // to load the index.html content
+    /*Add new link/import element to head
+      to load the index.html content */
     var link = document.createElement('link');
     link.rel = 'import';
     link.href = indexUrl;
@@ -49,8 +72,17 @@
 
       // set iframe url in <content-push> element
       var cp = document.querySelector('content-push');
-      cp.setAttribute("iframeurl",currentTabUrl);
+      cp.setAttribute("iframeurl", currentTabUrl);
+
+      cp.addEventListener('lineadd', function (e) {
+        port.postMessage(eventPageMessage('lineadd', e.detail));
+      });
+
+      cp.addEventListener('resetextractor', function (e) {
+        port.postMessage(eventPageMessage('resetextractor', e.detail));
+      });
     };
+
     link.onerror = function(e) { console.log("got link error"); };
     document.head.appendChild(link);
 
