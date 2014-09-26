@@ -13,7 +13,8 @@
     "core-toolbar": "Polymer/core-toolbar#~0.4.0",
     "core-ajax": "Polymer/core-ajax#~0.4.0",
     "paper-tabs": "Polymer/paper-tabs#~0.4.0",
-    "core-animated-pages": "Polymer/core-animated-pages#~0.4.1"
+    "core-animated-pages": "Polymer/core-animated-pages#~0.4.1",
+    "requirejs": "~2.1.15"
   },
   "devDependencies": {}
 }
