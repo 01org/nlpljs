@@ -35,10 +35,15 @@ size
       [data-revealed="false"] {
         display: none;
       }
+
+      [highlight-on="true"] {
+        border: 3px solid #01bcd4;
+      }
+
     </style>
 
-    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
-      <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
+    <div id="container" on-mouseover="{{onMouseOver}}" on-mouseout="{{onMouseOut}}">
+      <img id="image" src="{{src}}" on-load="{{imageLoaded}}" highlight-on="{{highlight === 'on'}}">
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="false"></p>
     </div>
   </template>
@@ -51,6 +56,17 @@ size
       // set to 'on' to reveal metadata; set to 'off' to hide it;
       // set to 'always' if metadata should always be visible
       revealmeta: 'off',
+      highlight: 'off',
+
+      onMouseOver: function () {
+        this.revealmetaOn();
+        this.highlightOn();
+      },
+
+      onMouseOut: function () {
+        this.revealmetaOff();
+        this.highlightOff();
+      },
 
       revealmetaOn: function () {
         if (this.revealmeta === 'always') {
@@ -66,6 +82,14 @@ size
         }
 
         this.revealmeta = 'off';
+      },
+
+      highlightOn: function () {
+        this.highlight = 'on';
+      },
+
+      highlightOff: function () {
+        this.highlight = 'off';
       },
 
       // set metadata for the image once it's loaded
