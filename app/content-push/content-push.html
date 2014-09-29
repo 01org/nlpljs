@@ -55,8 +55,8 @@
     (function contentPushApp() {
       // private properties
 
-      // find ancestor of node that has className
-      // for finding the ancestor with .kix-lineview of whatever line has changed
+      /* find ancestor of node that has className
+      for finding the ancestor with .kix-lineview of whatever line has changed */
       var findAncestor = function(node,className) {
         var retVal=null;
 
@@ -142,7 +142,7 @@
           self=this;
           self.$.iframe.src=self.iframeurl;
 
-          /* Add a iframe onLoad handler */
+          // Add a iframe onLoad handler
           var onLoadHandler = this.onLoad.bind(this);
           self.$.iframe.onload = onLoadHandler;
 
@@ -151,7 +151,7 @@
         },
 
         domReady: function () {
-          /* TODO trigger searches from the real text on the page */
+          //TODO trigger searches from the real text on the page
           //this.search(pageId, ['stub phrase', 'stub phrase']);
         },
 
@@ -257,7 +257,8 @@
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
           this.processPageText(txtObj);
-          //this.addImageCard();
+          
+          this.addImageCard();
         },
 
         /* This is test function for demonstration purpose only. */
@@ -353,9 +354,9 @@
           this.search(this.pageno,"");
         },
 
-        // perform search for keyphrases and populate the image card
-        // for the associated page
-        // TODO replace this stub with a real implementation
+        /* perform search for keyphrases and populate the image card
+          for the associated page.
+          TODO replace this stub with a real implementation */
         search: function (pageId, keyPhrases) {
           // add a random image from lorempixel
           for (var i = 0; i < 50; i ++) {

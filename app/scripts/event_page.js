@@ -30,26 +30,27 @@ chrome.pageAction.onClicked.addListener(function(tab) {
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (firstClick) {
       firstClick = false;
-      /*estabilsing communication between event_page.js <--> nlp_worker.js*/
+      //estabilsing communication between event_page.js <--> nlp_worker.js
       createWorker();
       
-      /*estabilsing communication between event_page.js <--> rehost.js*/
+      //estabilsing communication between event_page.js <--> rehost.js
       initChannel();
 
-      /* Execute the content script */
+      //Execute the content script
       chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"});
-    } else
+    } else {
       chrome.tabs.sendMessage(tabs[0].id, {message: "toggle"});
+    }
   });
 });
 
-/* Create a web worker for NLP tasks */
+//Create a web worker for NLP tasks
 var createWorker = function() {
   var posModelPath = chrome.extension.getURL('libnlp/models/english.json');
 
   worker = new Worker("scripts/nlp_worker.js");
 
-  /*TODO: Error handling & fallback.*/
+  //TODO: Error handling & fallback.
   worker.onmessage = function(event) {
     var message = JSON.parse(event.data);
     switch (message.type) {
@@ -62,7 +63,7 @@ var createWorker = function() {
     }
   };
   
-  /* Initialize the NLP modules */
+  //Initialize the NLP modules
   worker.postMessage(workerMessage("initialize", posModelPath));
 };
 
@@ -74,7 +75,7 @@ var initChannel = function() {
     /* This background page is the common link between the content script (rehost.js) and
       the web worker. Relay the messages comming from the content script to the web worker.*/
     port.onMessage.addListener(function (message) {
-      /* relay messages from rehost.js to nlp_worker.js */
+      //relay messages from rehost.js to nlp_worker.js
       worker.postMessage(workerMessage(message.type, message.data));
     });
   });

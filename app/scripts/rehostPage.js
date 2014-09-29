@@ -12,19 +12,10 @@
   chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
     //console.log("CS: received message",message);
     if (loaded && message.message === "toggle" ) {
-      console.log("CS:toggling");
+      //console.log("CS:toggling");
       document.querySelector('content-push').setAttribute("toggle", open);
       open = !open;
     }
-    /*else if (loaded && message.message === "Got keywords") {
-      var event = new CustomEvent("Got keywords", {
-        detail: message.data,
-        bubbles: true,
-        cancelable: true
-      });
-
-      document.dispatchEvent(event);
-    }*/
   });
 
   var port = chrome.runtime.connect({name: "ContentPushChannel"});
@@ -33,7 +24,7 @@
     console.log(message);
   });
 
-  /* Do this immediately when script is injected */
+  //Do this immediately when script is injected
   rehostPage();
 
   function rehostPage() {
@@ -86,7 +77,7 @@
     link.onerror = function(e) { console.log("got link error"); };
     document.head.appendChild(link);
 
-    // send results back to event page
+    //send results back to event page
     //console.log("CS: sending done response");
     loaded = true;
   }
