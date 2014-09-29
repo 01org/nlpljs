@@ -16,7 +16,7 @@ this.importScripts("../bower_components/requirejs/require.js");
 require.config({
   baseUrl: "../libnlp/",
   paths: {
-    text: "../bower_components/text/text"
+    text: "../bower_components/requirejs-text/text"
   }
 });
 
