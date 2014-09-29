@@ -47,8 +47,6 @@ chrome.pageAction.onClicked.addListener(function(tab) {
 
 //Create a web worker for NLP tasks
 var createWorker = function() {
-  var posModelPath = chrome.extension.getURL('libnlp/models/english.json');
-
   worker = new Worker("scripts/nlp_worker.js");
 
   //TODO: Error handling & fallback.
@@ -68,7 +66,7 @@ var createWorker = function() {
   };
   
   //Initialize the NLP modules
-  worker.postMessage(workerMessage("initialize", posModelPath));
+  worker.postMessage(workerMessage("initialize", null));
 };
 
 var initChannel = function() {

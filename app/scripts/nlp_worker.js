@@ -14,7 +14,10 @@
 this.importScripts("../bower_components/requirejs/require.js");
 
 require.config({
-  baseUrl: "../libnlp/"
+  baseUrl: "../libnlp/",
+  paths: {
+    text: "../bower_components/text/text"
+  }
 });
 
 var libnlp;
@@ -45,28 +48,17 @@ var eventPageMessage = function (type, data) {
 this.onmessage = function (event) {
   var message = JSON.parse(event.data);
 
-  while (queuedMessages.length > 0)
-    this.onmessage(queuedMessages.unshift());
-
   switch (message.type) {
     case "initialize":
-      var request = new XMLHttpRequest();
-      /*
-       * TODO: Syncronously loading a large file and then
-       * passing it over as a string might be a bad idea.
-       * load the file in NLP module itself perhaps?
-       */
-      request.open("GET", message.data, false);
-      request.send(null);
-
       require(['libnlp'], function (result) {
         libnlp = result;
-	      if (libnlp) {
-          libnlp.postagger.fromJSON(request.responseText);
+	      if (libnlp)
           loaded = true;
-    	  }
 
 	      if (loaded) {
+          while (queuedMessages.length > 0)
+            this.onmessage(queuedMessages.unshift());
+
           postMessage(eventPageMessage("initdone", "initialized nlp modules"));
           console.log('Loaded libnlp module');
 	      } else {
