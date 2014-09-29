@@ -55,8 +55,8 @@
     (function contentPushApp() {
       // private properties
 
-      // find ancestor of node that has className
-      // for finding the ancestor with .kix-lineview of whatever line has changed
+      /* find ancestor of node that has className
+      for finding the ancestor with .kix-lineview of whatever line has changed */
       var findAncestor = function(node,className) {
         var retVal=null;
 
@@ -142,7 +142,7 @@
           self=this;
           self.$.iframe.src=self.iframeurl;
 
-          /* Add a iframe onLoad handler */
+          // Add a iframe onLoad handler
           var onLoadHandler = this.onLoad.bind(this);
           self.$.iframe.onload = onLoadHandler;
 
@@ -151,7 +151,7 @@
         },
 
         domReady: function () {
-          /* TODO trigger searches from the real text on the page */
+          //TODO trigger searches from the real text on the page
           //this.search(pageId, ['stub phrase', 'stub phrase']);
         },
 
@@ -256,7 +256,7 @@
              object with 'text' as key & line content with value. The function
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
-          //this.processPageText(txtObj);
+          this.processPageText(txtObj);
           this.addImageCard();
         },
 
@@ -266,23 +266,17 @@
            each visited page and when the page scrolls we animates the
            transitions to the relevant section */
         processPageText: function(textObject) {
+          /* If this is a new page, then reset the extractor and feed the
+             whole text , line-by-line to the NLP module */
           if (this.sectionIndex[this.pageno] == null) {
-            var section = document.createElement('div');
-
-            for (var i=0;i<Object.keys(textObject).length;i++) {
-              section.appendChild(document.createTextNode(textObject[i].text));
-              section.appendChild(document.createElement('br'));
+            this.fire('resetextractor', null);
+            for (var i=0; i < Object.keys(textObject).length; i++) {
+              this.fire('lineadd',
+                { pageId: this.pageno, lineId: i, text: textObject[i].text });
             }
-
-            section.style.display = 'block';
-            section.style.height = '100%';
-            
-            this.$.content.appendChild(section);
-            this.sectionIndex[this.pageno] = this.sectionCount;
-            this.sectionCount++;
           }
 
-          this.$.content.selected = this.sectionIndex[this.pageno];
+          this.fire('getkeywords', { pageId: this.pageno });
         },
 
         handleSearchResults: function (e) {
@@ -350,9 +344,9 @@
           this.search(this.pageno,"");
         },
 
-        // perform search for keyphrases and populate the image card
-        // for the associated page
-        // TODO replace this stub with a real implementation
+        /* perform search for keyphrases and populate the image card
+          for the associated page.
+          TODO replace this stub with a real implementation */
         search: function (pageId, keyPhrases) {
           // add a random image from lorempixel
           for (var i = 0; i < 50; i ++) {
