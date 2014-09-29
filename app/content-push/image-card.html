@@ -1,5 +1,4 @@
 <link rel="import" href="./image-item.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <polymer-element name="image-card">
   <template>
@@ -7,6 +6,7 @@
       :host {
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
 
       #container {
@@ -16,23 +16,21 @@
         justify-content: center;
         align-items: center;
       }
+
       #more {
-        display:block;
+        display: block;
         margin-left: 50%;
       }
     </style>
 
     <div id="container"></div>
-    <div id="more">
-      <paper-fab class="mini" icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
-    </div>
   </template>
 
   <script>
     Polymer({
       /**
        * Convenience method to append an image search result to the
-       * gallery; creates a cp-image element for the image object added.
+       * gallery; creates an image-item element for the image object added.
        *
        * @param Object image Representation of image to add; has the
        * format:
@@ -44,15 +42,6 @@
         var elt = document.createElement('image-item');
         elt.src = image.src;
         this.$.container.appendChild(elt);
-      },
-
-      moreImages: function(){
-        console.log('more images');
-        for (var i = 0; i < 10; i ++) {
-          var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
-          this.appendImage({src: src});
-        }
       }
     });
   </script>

@@ -1,0 +1,64 @@
+<link rel="import" href="../../app/content-push/image-card.html">
+
+<!--
+test for image-card layout
+-->
+<polymer-element name="image-card-layout-test">
+  <template>
+    <style>
+      #gallery {
+        background-color: gray;
+      }
+    </style>
+
+    <p>
+      Create an image card with irregularly-sized images.
+    </p>
+    <p>
+      <label for="widthSetter">Set width:</label>
+      <select id="widthSetter" on-change="{{setWidth}}">
+        <option value="220">220px (minimum)</option>
+        <option value="272" selected>272px (default)</option>
+        <option value="456">456px (2 column breakpoint)</option>
+      </select>
+    </p>
+    <image-card id="gallery"></image-card>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    (function () {
+
+    // width x height for the sample images; based on the values
+    // in the UX doc
+    var imagesDimensions = [
+      {width: 400, height: 300},
+      {width: 250, height: 250},
+      {width: 150, height: 150},
+      {width: 150, height: 150},
+      {width: 400, height: 300},
+      {width: 600, height: 600}
+    ];
+
+    Polymer({
+      domReady: function () {
+        for (var i = 0; i < imagesDimensions.length; i++) {
+          this.$.gallery.appendImage({
+            src: makeImageUrl(imagesDimensions[i].width, imagesDimensions[i].height)
+          });
+        }
+
+        this.setWidth();
+      },
+
+      setWidth: function (e) {
+        var idx = this.$.widthSetter.selectedIndex;
+        var width = this.$.widthSetter.options[idx].value;
+        this.$.gallery.style.width = width + 'px';
+      }
+    });
+
+    })();
+  </script>
+</polymer-element>

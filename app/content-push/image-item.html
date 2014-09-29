@@ -9,10 +9,12 @@ size
 <polymer-element name="image-item" attributes="src revealmeta">
   <template>
     <style>
-      div {
+      #container {
         display: inline-block;
         position: relative;
         overflow: hidden;
+        height: inherit;
+        width: inherit;
       }
 
       [data-revealed="true"] {
