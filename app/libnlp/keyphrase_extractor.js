@@ -186,11 +186,14 @@ define(['postagger'], function (postagger) {
           if (typeof prevEdge === 'undefined' ||
               prevEdge.bID !== graph.edges[i].aID) {
             if (typeof keyphrase !== 'undefined') {
+              if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
+                keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
+
               if (keyphrases.indexOf(keyphrase) === -1)
                 keyphrases[keyphrases.length] = keyphrase;
             }
 
-            if (graph.edges[i].aTag !== 'IN')
+            if (graph.edges[i].aTag !== 'IN' && graph.edges[i].aTag !== 'CC')
               keyphrase = graph.edges[i].a.content;
             else
               keyphrase = '';
@@ -201,7 +204,10 @@ define(['postagger'], function (postagger) {
               keywords.splice(index, 1);
           }
 
-          keyphrase += " " + graph.edges[i].b.content;
+          if (keyphrase !== '')
+            keyphrase += " ";
+
+          keyphrase += graph.edges[i].b.content;
 
           var index = keywords.indexOf(graph.edges[i].b.content);
 
@@ -212,9 +218,12 @@ define(['postagger'], function (postagger) {
         }
       }
 
-      if (typeof keyphrase !== null &&
-          keyphrases.indexOf(keyphrase) === -1) {
-        keyphrases[keyphrases.length] = keyphrase;
+      if (typeof keyphrase !== null) {
+        if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
+          keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
+
+        if (keyphrases.indexOf(keyphrase) === -1)
+          keyphrases[keyphrases.length] = keyphrase;
       }
 
       return {
