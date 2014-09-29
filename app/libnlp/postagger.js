@@ -1,4 +1,4 @@
-define(['tokenizer'], function (tokenizer) {
+define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishModel) {
   var postagger;
 
   if (typeof postagger !== 'undefined')
@@ -544,6 +544,8 @@ define(['tokenizer'], function (tokenizer) {
       return JSON.stringify(model, null, 4);
     }
   };
+
+  postagger.fromJSON(englishModel);
 
   return postagger;
 });
