@@ -415,7 +415,17 @@ define(['tokenizer'], function (tokenizer) {
 
           if (maxNode === 0) {
             if (/[a-zA-Z]/.test(sequence[i])) {
-              if (/[A-Z]/.test(sequence[i][0])) {
+              if (sequence[i][0] === '[') {
+                trellis[i][this.states.indexOf('(')] = 1;
+                backpointer[i][this.states.indexOf('(')] = maxBack;
+                console.log('[');
+              }
+              else if (sequence[i][0] === ']') {
+                trellis[i][this.states.indexOf(')')] = 1;
+                backpointer[i][this.states.indexOf(')')] = maxBack;
+                console.log(']');
+              }
+              else if (/[A-Z]/.test(sequence[i][0])) {
                 trellis[i][this.states.indexOf('NNP UPPER')] = 1;
                 backpointer[i][this.states.indexOf('NNP UPPER')] = maxBack;
               }

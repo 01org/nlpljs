@@ -22,6 +22,25 @@
 
   port.onMessage.addListener(function (message) {
     console.log(message);
+    switch(message.message) {
+      case "keywordlist":
+        var event = new CustomEvent("keywordlist", {
+                      detail: message.data,
+                      bubbles: true,
+                      cancelable: true
+                    });
+
+        var keywords = message.data;
+        //console.log('length:'+ Object.keys(keywords).length);
+        for (var i in keywords) {
+           console.log(keywords[i].text);
+        }
+
+        document.dispatchEvent(event);
+        break;
+      default:
+        console.log("Unknown message from event page");
+    }
   });
 
   //Do this immediately when script is injected
@@ -72,6 +91,11 @@
       cp.addEventListener('resetextractor', function (e) {
         port.postMessage(eventPageMessage('resetextractor', e.detail));
       });
+
+      cp.addEventListener('getkeywords', function (e) {
+        port.postMessage(eventPageMessage('getkeywords', e.detail));
+      });
+      
     };
 
     link.onerror = function(e) { console.log("got link error"); };

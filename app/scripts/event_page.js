@@ -3,6 +3,7 @@
 var firstClick = true;
 var nlplibReady = false;
 var worker;
+var localport;
 var workerMessage = function (type, data) {
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
@@ -57,6 +58,9 @@ var createWorker = function() {
       case "initdone":
         nlplibReady = true;
         break;
+      case "keywordlist":
+        localport.postMessage({message: message.type, data: message.data});
+        break;
       default:
         console.warn("nlp_worker:Unable to recognize response " + message.type);
         break;
@@ -71,7 +75,8 @@ var initChannel = function() {
   chrome.runtime.onConnect.addListener(function (port) {
     if (port.name !== "ContentPushChannel")
       return;
-      
+    
+    localport = port;
     /* This background page is the common link between the content script (rehost.js) and
       the web worker. Relay the messages comming from the content script to the web worker.*/
     port.onMessage.addListener(function (message) {

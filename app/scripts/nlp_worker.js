@@ -30,10 +30,10 @@ var createLine = function (lineId, lineText) {
 
 var pages = [];
 
-var createPage = function (pageID) {
+var createPage = function (pageId) {
   return{
     lines: [],
-    pageID: pageID,
+    pageId: pageId,
     graph: null
   };
 };
@@ -80,18 +80,22 @@ this.onmessage = function (event) {
         queuedMessages[queuedMessages.length] = event;
         break;
       }
-      
+
       if (typeof pages[message.data.pageId] === 'undefined') {
-        pages[message.data.pageId] = createPage(message.data.pageID);
+        pages[message.data.pageId] = createPage(message.data.pageId);
         pages[message.data.pageId].graph =
-        libnlp.keyphrase_extractor.getGraph();
+              libnlp.keyphrase_extractor.getGraph();
       }
 
+      var re = new RegExp(String.fromCharCode(160), "gi");
+      var text = message.data.text.replace(re,' ');
+      text = text.replace(/\[\w*\]/g, '');
+
       pages[message.data.pageId].lines[pages[message.data.pageId].lines.length] =
-        createLine(message.data.lineID, message.data.text);
+      createLine(message.data.lineId, text);
 
       libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
-      libnlp.keyphrase_extractor.addText(message.data.text);
+      libnlp.keyphrase_extractor.addText(text);
 
       break;
     case "getkeywords":
@@ -99,9 +103,51 @@ this.onmessage = function (event) {
         queuedMessages[queuedMessages.length] = event;
         break;
       }
-      
+
+      libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
       var result = libnlp.keyphrase_extractor.score();
-      postMessage(eventPageMessage("keywordlist", result));
+      var keywords = {};
+
+      for (i = 0; i < pages[message.data.pageId].lines.length; i++) {
+        var lineId = pages[message.data.pageId].lines[i].lineId;
+        var lineText = pages[message.data.pageId].lines[i].text;
+
+        for (j = 0; j < result.keyphrases.length; j++) {
+          var keyphrase = result.keyphrases[j];
+
+            if (typeof keywords[keyphrase] === 'undefined')
+              keywords[keyphrase] = { text: keyphrase, occurrences: [] };
+
+            var regex = new RegExp(keyphrase, "gi");
+            while ((search = regex.exec(lineText))) {
+              var numOccur = keywords[keyphrase].occurrences.length;
+              keywords[keyphrase].occurrences[numOccur] = {
+                pageId: pages[message.data.pageId].pageId,
+                lineId: lineId,
+                charIndex: search.index
+              };
+            }
+        }
+
+        for (j = 0; j < result.keywords.length; j++) {
+          var keyword = result.keywords[j];
+
+          if (typeof keywords[keyword] === 'undefined')
+            keywords[keyword] = { text: keyword, occurrences: [] };
+
+          var regex = new RegExp(keyword, "gi");
+          while ((search = regex.exec(lineText))) {
+            var numOccur = keywords[keyword].occurrences.length;
+              keywords[keyword].occurrences[numOccur] = {
+                pageId: pages[message.data.pageId].pageId,
+                lineId: lineId,
+                charIndex: search.index
+              };
+            }
+          }
+        }
+
+      postMessage(eventPageMessage("keywordlist", keywords));
       break;
     case "resetextractor":
       if (loaded === false) {
