@@ -19,7 +19,7 @@ size
         display: block;
         position: absolute;
         bottom: 0;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
         background-color: black;
         color: white;
         min-width: 3em;
@@ -35,9 +35,18 @@ size
       [data-revealed="false"] {
         display: none;
       }
+
+      #container {
+        padding: 3px;
+      }
+
+      #container:hover {
+        background-color: #01bcd4;
+      }
+
     </style>
 
-    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
+    <div id="container">
       <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="false"></p>
     </div>
@@ -72,6 +81,7 @@ size
       imageLoaded: function () {
         var height = this.$.image.height;
         var width = this.$.image.width;
+        this.$.container.style['max-height']=width+'px';
 
         // mark tiny images so the metadata display can be adjusted
         this.$.meta.setAttribute('data-tiny-image', width < 100);
