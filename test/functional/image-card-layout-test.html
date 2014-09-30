@@ -12,15 +12,14 @@ test for image-card layout
     </style>
 
     <p>
-      Create an image card with irregularly-sized images.
+      Create an image card with irregularly-sized images. The breakpoint
+      for switching to two columns is at 456px.
     </p>
     <p>
-      <label for="widthSetter">Set width:</label>
-      <select id="widthSetter" on-change="{{setWidth}}">
-        <option value="220">220px (minimum)</option>
-        <option value="272" selected>272px (default)</option>
-        <option value="456">456px (2 column breakpoint)</option>
-      </select>
+      <label for="widthSlider">Set width:</label>
+      <input id="widthSlider" type="range" min="220" max="600" value="272"
+             on-input="{{setWidth}}">
+      Current width: <input id="widthDisplay" size="3" type="text" readonly>px
     </p>
     <image-card id="gallery"></image-card>
   </template>
@@ -53,9 +52,9 @@ test for image-card layout
       },
 
       setWidth: function (e) {
-        var idx = this.$.widthSetter.selectedIndex;
-        var width = this.$.widthSetter.options[idx].value;
+        var width = this.$.widthSlider.value;
         this.$.gallery.style.width = width + 'px';
+        this.$.widthDisplay.value = width;
       }
     });
 
