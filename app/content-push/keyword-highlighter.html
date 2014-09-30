@@ -1,0 +1,415 @@
+/*
+  implements keyword highlighting functionality
+
+  attributes:
+    onStyle: the style to set when the highlighting is 'on'
+    default:
+      border: 1px dashed transparent;
+      background-color: lightpink;
+
+    offStyle: the style to set when the highlighting is 'off'
+    default:
+      border: 1px dashed lightgrey;
+      background-color: transparent;
+
+  targetElement:
+    set to the element containing the google doc, eg :
+    this.$.highlighter.targetElement = this.$.iframe.contentDocument;
+
+  prepare(ranges):
+    insert the html for the given ranges (in 'off' mode)
+    ranges is (first line/char is '0'):
+    [
+      {
+        groupId: 1,
+        start: {
+          lineNo: 2,
+          charNo: 5
+        },
+        end: {
+          lineNo: 2,
+          charNo: 15
+        }
+      },
+      ...
+    ]
+
+  turn(groupId,'on'|'off'):
+    turns the highlighing on or off for the specific groupId
+
+  clear([groupId]);
+    removes the html for the given groupId, or if no groupId given, all of them.
+*/
+
+<polymer-element name='keyword-highlighter' attributes='onStyle offStyle'>
+  <script>
+    (function seHighlighter() {
+      // private properties
+      var self;
+
+      var hl={
+        open: function(groupId) { return '<KEYWORD-HIGHLIGHT group-id="'+groupId+'">'; },
+        close: function() { return '</KEYWORD-HIGHLIGHT>'; }
+      };
+
+      var nbsp='&nbsp;';
+
+      // splits a string at (non-html) character position
+      // ignoring html and counting '&nbsp;' as one character
+      var splitAtPosition = function(position,chars) {
+        var retVal = {
+          before: null,
+          after: null
+        };
+
+        var currentPosition=0;
+        var nonHtmlPosition=0;
+        var charsLength=chars.length;
+        var notFound=true;
+
+        while (notFound && currentPosition<charsLength) {
+          var thisChar=chars[currentPosition];
+
+          // read past html tags
+          if (thisChar==='<') {
+            // just move current position to next character
+            currentPosition=chars.indexOf('>',currentPosition)+1;
+          } else
+          if (thisChar==='\n') {
+            // just move current position to next character
+            currentPosition++;
+          } else {
+            if (chars.substr(currentPosition,nbsp.length)===nbsp) {
+              // read past '&nbsp;'
+              if (nonHtmlPosition<position) {
+                currentPosition+=nbsp.length-1; // place on last char of nbsp
+              }
+            }
+
+            // end when we get to 'position' non-html chars
+            notFound=(nonHtmlPosition<position);
+
+            if (notFound && currentPosition<charsLength) {
+              // move onto next character
+              currentPosition++;
+              nonHtmlPosition++;
+            }
+          }
+        }
+
+        if (notFound) {
+          console.log('HL:splitAtPosition');
+          console.log('HL:ran off end of string');
+          console.log('HL:probably something wrong somewhere');
+          console.log('HL:splitting at end of string');
+        }
+
+        retVal.before=chars.substr(0,currentPosition);
+        retVal.after=chars.substr(currentPosition);
+
+        return retVal;
+      };
+
+      var getLine = function(lineNo) {
+        var retVal = self.targetElement.querySelectorAll(
+          '.kix-lineview-content'
+        )[lineNo];
+
+        return retVal;
+      };
+
+      // tries to behave like html parser does
+      // wrt to white space
+      var compressWhiteSpace = function(html) {
+        var retVal = html;
+
+        // compress multiple white space into one
+        retVal = retVal.replace(/\s+/, ' ');
+
+        // remove white space at the beginning of line
+        retVal = retVal.replace(/^\s+/,'');
+
+        // remove white space at the end of line
+        retVal = retVal.replace(/\s+$/,'');
+
+        return retVal;
+      };
+
+      var highlightRange = function(rangeToHighlight) {
+        var start=rangeToHighlight.start;
+        var end=rangeToHighlight.end;
+        var groupId=rangeToHighlight.groupId;
+
+        // 1. get start line object
+        var line=getLine(start.lineNo);
+
+        // 2. split the lines html at start char
+        var bits0=splitAtPosition(
+          start.charNo,
+          compressWhiteSpace(line.innerHTML)
+        );
+
+        // 3. add close hl before first '<' in .after0
+        var closePosition=bits0.after.indexOf('<');
+        if (end.lineNo===start.lineNo) {
+          // use splitAtPosition to find
+          // if the split would be before the '<'
+          var tmpBits=splitAtPosition(
+              // algorithm splits *before* position,
+              // we want after, so +1
+              end.charNo-start.charNo+1,
+              bits0.after);
+          if (tmpBits.before.length<closePosition) {
+            closePosition=tmpBits.before.length;
+          }
+        }
+        bits0.after = [
+          bits0.after.substr(0,closePosition),
+          hl.close(),
+          bits0.after.substr(closePosition)
+        ].join('');
+
+        // 4. if end char is on same line as start char
+        if (end.lineNo===start.lineNo) {
+         // 4.1 in .after0, split line at (end char - start char)
+         var bits1=splitAtPosition(
+             end.charNo-start.charNo,
+             bits0.after
+         );
+
+         // 4.2 in .before1, replace />([^>]+)</ with hl.open(groupId) \1 hl.close()
+         bits1.before = bits1.before.replace(
+           />([^<]+)</g,
+           [
+              '>',
+              hl.open(groupId),
+              '$1',
+              hl.close(),
+              '<'
+           ].join('')
+         );
+
+         // 4.2a in .before1, surround any plain text at the end of the line with hl
+         bits1.before = bits1.before.replace(
+           />([^>]+)$/,
+           [
+              '>',
+              hl.open(groupId),
+              '$1',
+              hl.close()
+           ].join('')
+         );
+
+         // 4.3 join the .before1, .after1 together
+         // 4.4 assign to .after0
+         bits0.after=[
+           bits1.before,
+           bits1.after
+         ].join('');
+         // # done close on same line
+        } else {
+          // 5. if end char is not on start line
+
+          // 5.1 in .after0, replace />([^<]+)</ with hl.open(groupId) $1 hl.close()
+          bits0.after = bits0.after.replace(
+              />([^<]+)</g,
+              [
+                '>',
+                hl.open(groupId),
+                '$1',
+                hl.close(),
+                '<'
+              ].join('')
+          );
+        }
+
+        // 6. join the .before0, open hl, .after0 together
+        // 7. assign the line to start line object
+        line.innerHTML=[
+          bits0.before,
+          hl.open(groupId),
+          bits0.after
+        ].join('');
+        // # done first line including hl.close() if it's on the same line
+
+
+        // 7. if end line > start line
+        if (end.lineNo>start.lineNo) {
+          // # process intermediate lines
+
+          // 7.1 loop over intermediate lines ie lineNo=startLine+1;lineNo<endLine;lineNo++
+          for (var lineNo=start.lineNo+1;lineNo<end.lineNo;++lineNo) {
+            // 7.2.1 get line object
+            var thisLine=getLine(lineNo);
+
+            // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
+            var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
+                />([^<]+)</g,
+                [
+                  '>',
+                  hl.open(groupId),
+                  '$1',
+                  hl.close(),
+                  '<'
+                ].join('')
+            );
+            
+            // 7.2.3 assign to the line object
+            thisLine.innerHTML=thisHTML;
+          }
+
+          // # process last line
+          // 7.3 get last line object
+          var endLine=getLine(end.lineNo);
+
+          // 7.4 split it at the end char
+          var bits=splitAtPosition(
+            end.charNo+1, // include last character
+            compressWhiteSpace(endLine.innerHTML)
+          );
+
+          // 7.5 in .before, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
+          bits.before = bits.before.replace(
+              />([^<]+)</g,
+              [
+                '>',
+                hl.open(groupId),
+                '$1',
+                hl.close(),
+                '<'
+              ].join('')
+          );
+          
+          // 7.5a in .before add hl.open(groupId) after final '>'
+          var gtPosition = bits.before.lastIndexOf('>');
+          if (gtPosition!=-1) {
+            var insertAtPos=gtPosition+1;
+            bits.before = [
+              bits.before.substr(0,insertAtPos),
+              hl.open(groupId),
+              bits.before.substr(insertAtPos)
+            ].join('');
+          }
+
+          // 7.6 join the .before, close hl, .after together
+          // 7.7 assign to the last line object
+          endLine.innerHTML=[
+            bits.before,
+            hl.close(),
+            bits.after
+          ].join('')
+        }
+
+      };
+
+      /*
+         Injects the css for the on and off style into the head.
+       */
+      var injectCss = function() {
+        var css=[
+          'keyword-highlight,',
+          'keyword-highlighter-test::shadow keyword-highlight {',
+            self.offStyle,
+          '}',
+          'keyword-highlight.on,',
+          'keyword-highlighter-test::shadow keyword-highlight.on {',
+            self.onStyle,
+          '}',
+        ].join('\n');
+
+        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0],
+        style = targetDocument.createElement('style');
+        style.type = 'text/css';
+        if (style.styleSheet){
+          style.styleSheet.cssText = css;
+        } else {
+          style.appendChild(document.createTextNode(css));
+        }
+
+        head.appendChild(style);
+      };
+
+      Polymer({
+        created: function() {
+          self=this;
+
+          this.offStyle=[
+            'border: 1px dashed lightgrey;',
+            'background-color: transparent;'
+          ].join('');
+          this.onStyle=[
+            'border: 1px dashed transparent;',
+            'background-color: lightpink;'
+          ].join('');
+        },
+
+        ready: function() {
+        },
+
+        targetElementChanged: function() {
+          targetDocument=this.targetElement.ownerDocument ||
+            this.targetElement.body.ownerDocument;
+
+          injectCss();
+        },
+
+        prepare: function(ranges) {
+          for (var i=0;i<ranges.length;++i) {
+            highlightRange(ranges[i]);
+          };
+        },
+
+        turn: function(groupId,state) {
+          if (state==='on') {
+            var elements=this.targetElement.querySelectorAll(
+              'keyword-highlight[group-id="'+groupId+'"]:not(.on)'
+            );
+            for (var i=0;i<elements.length;++i) {
+              elements[i].classList.add('on');
+            }
+          } else {
+            var elements=self.targetElement.querySelectorAll(
+              'keyword-highlight.on[group-id="'+groupId+'"]'
+            );
+            for (var i=0;i<elements.length;++i) {
+              elements[i].classList.remove('on');
+            }
+          }
+        },
+
+        clear: function(groupId) {
+
+          // get the elements with the given groupId,
+          // or all if non given
+          var elements=this.targetElement.querySelectorAll([
+            'keyword-highlight',
+            (groupId)?'[group-id="'+groupId+'"]':''
+          ].join(''));
+
+          // remove each element in turn
+          for (var elementIndex=0;elementIndex<elements.length;++elementIndex) {
+            var thisElement=elements[elementIndex];
+            var parent=thisElement.parentNode;
+            var children=thisElement.childNodes;
+
+            // move children to before thisElement
+            for (var childIndex=0;childIndex<children.length;++childIndex) {
+              var child=children[childIndex];
+              parent.insertBefore(child,thisElement);
+            }
+
+            // remove thisElement
+            parent.removeChild(thisElement);
+          }
+        },
+
+        // for testing only
+        testSplitAtPosition: function(position,chars) {
+          return splitAtPosition(position,chars);
+        },
+
+      }); // Polymer()
+    })();
+
+  </script>
+</polymer-element>
