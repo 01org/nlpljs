@@ -15,7 +15,7 @@
     <link type="text/css" rel="stylesheet" href="styles/content-push.css">
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
-      <core-splitter id="splitter" direction="right" minSize="300px" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+      <core-splitter id="splitter" direction="right" minSize="300px" on-down="{{downAction}}" on-up="{{upAction}}" on-track="{{trackAction}}"></core-splitter>
       <div id="content_push_panel">
         <!--the panel is made up of a header toolbar, a content toolbar and the content-->
         <core-toolbar id="toolbar">
@@ -228,9 +228,9 @@
           /* Scrolling on the same page */
           if (this.pageno == (pageno+1))
             return;
-            
+
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
-  
+
           if (this.sectionIndex[this.pageno]) {
             //Just transition to the already cached content
             this.$.content.selected = this.sectionIndex[this.pageno];
@@ -239,7 +239,7 @@
             this.getCurrentPage();
           }
         },
-        
+
         getCurrentPage: function() {
           /* Handle to the current Page */
 
@@ -313,6 +313,18 @@
           this.$.iframe.style.pointerEvents = '';
         },
 
+        /* when the splitter moves, layout the gallery;
+           this is to get around the fact that MutationObservers
+           don't work when this app runs as a Chrome extension
+           (the image-card has a mutation observer on its width
+           which automatically calls layout(), but that doesn't
+           work here */
+        trackAction: function() {
+          if (this.pageno && this.imageCards[this.pageno]) {
+            this.imageCards[this.pageno].layout();
+          }
+        },
+
         closePanel: function() {
           this.$.content_push_panel.style.display = 'none';
           this.open = false;
@@ -354,10 +366,26 @@
           for the associated page.
           TODO replace this stub with a real implementation */
         search: function (pageId, keyPhrases) {
-          // add a random image from lorempixel
-          for (var i = 0; i < 10; i ++) {
-            var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
+          // add random images from lorempixel
+          var imagesDimensions = [
+            {width: 400, height: 300},
+            {width: 250, height: 150},
+            {width: 150, height: 150},
+            {width: 150, height: 150},
+            {width: 400, height: 300},
+            {width: 600, height: 600},
+            {width: 150, height: 150},
+            {width: 150, height: 150},
+            {width: 400, height: 300},
+            {width: 250, height: 150}
+          ];
+
+          var dim;
+          for (var i = 0; i < imagesDimensions.length; i ++) {
+            dim = imagesDimensions[i];
+            var src = 'http://lorempixel.com/' +
+                      dim.width + '/' + dim.height +
+                      '?cacheBust=' + (new Date()).getTime() + i;
             this.imageCards[pageId].appendImage({
               src: src
             });
