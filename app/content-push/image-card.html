@@ -1,12 +1,12 @@
 <link rel="import" href="./image-item.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <polymer-element name="image-card">
   <template>
     <style>
       :host {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        overflow: hidden;
       }
 
       #container {
@@ -16,44 +16,117 @@
         justify-content: center;
         align-items: center;
       }
+
       #more {
-        display:block;
+        display: block;
         margin-left: 50%;
+      }
+
+      /*
+      when an image-item displays inside an image-card, a margin
+      appears to be added below the meta paragraph; I couldn't track
+      this down, so this work-around removes that margin for
+      image-items only in the context of an image-card
+      */
+      image-item::shadow #meta {
+        margin: 0;
+      }
+
+      image-item::shadow img {
+        width: 100%;
+        height: auto;
       }
     </style>
 
     <div id="container"></div>
-    <div id="more">
-      <paper-fab class="mini" icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
-    </div>
   </template>
 
-  <script>
-    Polymer({
-      /**
-       * Convenience method to append an image search result to the
-       * gallery; creates a cp-image element for the image object added.
-       *
-       * @param Object image Representation of image to add; has the
-       * format:
-       * {
-       *   src: <url of image>
-       * }
-       */
-      appendImage: function (image) {
-        var elt = document.createElement('image-item');
-        elt.src = image.src;
-        this.$.container.appendChild(elt);
-      },
+  <script src="image-card-frame-chooser.js"></script>
 
-      moreImages: function(){
-        console.log('more images');
-        for (var i = 0; i < 10; i ++) {
-          var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
-          this.appendImage({src: src});
+  <script>
+    (function () {
+
+      // width of gallery where it is split across two columns
+      var TWO_COL_BREAKPOINT = 456;
+
+      Polymer({
+        frameChooser: new FrameChooser(),
+
+        // track the offsetWidth, so if it changes we can relayout
+        lastObservedOffsetWidth: 0,
+
+        domReady: function () {
+          var self = this;
+
+          // watch for changes in the element's width and relayout when
+          // they occur
+          var observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+              if (self.offsetWidth !== self.lastObservedOffsetWidth) {
+                self.lastObservedOffsetWidth = self.offsetWidth;
+                self.layout();
+              }
+            });
+          });
+
+          observer.observe(this, {
+            attributes: true,
+            attributeFilter: ['style']
+          });
+
+          this.lastObservedOffsetWidth = this.offsetWidth;
+        },
+
+        /**
+         * Add the appropriate frame to the image-item img.
+         *
+         * @param DOMElement img image-item element
+         */
+        frameImage: function (img) {
+          var frame = this.frameChooser.choose(img);
+          var columns = (this.offsetWidth >= TWO_COL_BREAKPOINT ? 2 : 1);
+          img.style.width = (frame.widthPercent / columns) + '%';
+          img.style.height = frame.height + 'px';
+          img.setAttribute('data-frame', frame.name);
+        },
+
+        /**
+         * Convenience method to append an image search result to the
+         * gallery; creates an image-item element for the image object added.
+         *
+         * @param Object image Representation of image to add; has the
+         * format:
+         * {
+         *   src: <url of image>
+         * }
+         */
+        appendImage: function (image) {
+          var self = this;
+
+          var elt = document.createElement('image-item');
+
+          elt.addEventListener('load', function () {
+            self.frameImage(elt);
+            self.$.container.appendChild(elt);
+          });
+
+          elt.src = image.src;
+        },
+
+        /**
+         * Reframe all image-item elements inside the card.
+         */
+        layout: function () {
+          var imageItems = this.$.container.querySelectorAll('image-item');
+
+          for (var i = 0; i < imageItems.length; i++) {
+            this.frameImage(imageItems[i]);
+          }
+
+          console.log('layout() called');
         }
-      }
-    });
+      });
+
+    })();
   </script>
 </polymer-element>

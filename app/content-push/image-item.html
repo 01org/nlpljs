@@ -9,10 +9,12 @@ size
 <polymer-element name="image-item" attributes="src revealmeta">
   <template>
     <style>
-      div {
+      #container {
         display: inline-block;
         position: relative;
         overflow: hidden;
+        height: 100%;
+        width: 100%;
       }
 
       [data-revealed="true"] {
@@ -39,7 +41,9 @@ size
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
       <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
-      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="false"></p>
+      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="{{isTinyImage}}">
+        {{width}}x{{height}}
+      </p>
     </div>
   </template>
 
@@ -47,6 +51,17 @@ size
     Polymer({
       // URL for the image to display
       src: null,
+
+      // width, height and ratio are set when the wrapped image has loaded
+      width: 0,
+      height: 0,
+      ratio: 0,
+
+      // true if the wrapped image's load event has fired
+      loaded: false,
+
+      // true if the image's width is less than 100px
+      isTinyImage: false,
 
       // set to 'on' to reveal metadata; set to 'off' to hide it;
       // set to 'always' if metadata should always be visible
@@ -68,15 +83,24 @@ size
         this.revealmeta = 'off';
       },
 
+      srcChanged: function () {
+        this.loaded = false;
+      },
+
       // set metadata for the image once it's loaded
       imageLoaded: function () {
-        var height = this.$.image.height;
-        var width = this.$.image.width;
+        this.height = this.$.image.height;
+        this.width = this.$.image.width;
+
+        if (this.height > 0) {
+          this.ratio = this.width / this.height;
+        }
 
         // mark tiny images so the metadata display can be adjusted
-        this.$.meta.setAttribute('data-tiny-image', width < 100);
+        this.isTinyImage = (this.width < 100);
 
-        this.$.meta.innerHTML = width + 'x' + height;
+        this.loaded = true;
+        this.fire('load', this);
       }
     });
   </script>

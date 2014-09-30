@@ -194,6 +194,16 @@ module.exports = function (grunt) {
             }
         },
 
+        // grunt-mochaccino options; runs the tests in the test/unit
+        // directory on the command line (rather than in a browser)
+        mochaccino: {
+          all: {
+            files: [
+              { src: 'test/unit/*.test.js' }
+            ]
+          }
+        },
+
         // Automatically inject Bower components into the HTML file
         bowerInstall: {
             app: {
@@ -479,10 +489,12 @@ module.exports = function (grunt) {
         ]);
     });
 
-    grunt.registerTask('test', [
+    grunt.registerTask('test-with-server', [
         'connect:test',
         'mocha'
     ]);
+
+    grunt.registerTask('test', ['mochaccino:all']);
 
     grunt.registerTask('build', [
         'clean:build',
