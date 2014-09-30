@@ -36,48 +36,39 @@
     <div id="container"></div>
   </template>
 
+  <script src="image-card-frame-chooser.js"></script>
+
   <script>
-    (function () {
-      // frames around image-item elements inside the gallery
-      var FRAMES = [
-        {name: 'small_square', width: 104, height: 104, widthPercent: 50, ratio: 1},
-        {name: 'large_square', width: 212, height: 212, widthPercent: 100, ratio: 1},
-        {name: 'portrait', width: 104, height: 212, widthPercent: 50, ratio: 0.49},
-        {name: 'landscape1', width: 212, height: 104, widthPercent: 100, ratio: 2.04},
-        {name: 'landscape2', width: 212, height: 158, widthPercent: 100, ratio: 1.34}
-      ];
+    Polymer({
+      frameChooser: new FrameChooser(),
 
-      // TODO choose a frame from FRAMES for imageItem; this restricts
-      // the size of the item inside the gallery
-      var chooseFrame = function (imageItem) {
-        return FRAMES[0];
-      };
+      /**
+       * Convenience method to append an image search result to the
+       * gallery; creates an image-item element for the image object added.
+       *
+       * @param Object image Representation of image to add; has the
+       * format:
+       * {
+       *   src: <url of image>
+       * }
+       */
+      appendImage: function (image) {
+        var self = this;
 
-      Polymer({
-        /**
-         * Convenience method to append an image search result to the
-         * gallery; creates an image-item element for the image object added.
-         *
-         * @param Object image Representation of image to add; has the
-         * format:
-         * {
-         *   src: <url of image>
-         * }
-         */
-        appendImage: function (image) {
-          var elt = document.createElement('image-item');
-          elt.src = image.src;
+        var elt = document.createElement('image-item');
 
-          var frame = chooseFrame(elt);
+        elt.addEventListener('load', function () {
+          var frame = self.frameChooser.choose(elt);
 
           elt.style.width = frame.widthPercent + '%';
           elt.style.height = frame.height + 'px';
           elt.setAttribute('data-frame', frame.name);
 
-          this.$.container.appendChild(elt);
-        }
-      });
+          self.$.container.appendChild(elt);
+        });
 
-    })();
+        elt.src = image.src;
+      }
+    });
   </script>
 </polymer-element>
