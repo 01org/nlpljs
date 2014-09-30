@@ -5,7 +5,7 @@
     <style>
       :host {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         overflow: hidden;
       }
 
@@ -39,36 +39,45 @@
   <script src="image-card-frame-chooser.js"></script>
 
   <script>
-    Polymer({
-      frameChooser: new FrameChooser(),
+    (function () {
 
-      /**
-       * Convenience method to append an image search result to the
-       * gallery; creates an image-item element for the image object added.
-       *
-       * @param Object image Representation of image to add; has the
-       * format:
-       * {
-       *   src: <url of image>
-       * }
-       */
-      appendImage: function (image) {
-        var self = this;
+      // width of gallery where it is split across two columns
+      var TWO_COL_BREAKPOINT = 456;
 
-        var elt = document.createElement('image-item');
+      Polymer({
+        frameChooser: new FrameChooser(),
 
-        elt.addEventListener('load', function () {
-          var frame = self.frameChooser.choose(elt);
+        /**
+         * Convenience method to append an image search result to the
+         * gallery; creates an image-item element for the image object added.
+         *
+         * @param Object image Representation of image to add; has the
+         * format:
+         * {
+         *   src: <url of image>
+         * }
+         */
+        appendImage: function (image) {
+          var self = this;
 
-          elt.style.width = frame.widthPercent + '%';
-          elt.style.height = frame.height + 'px';
-          elt.setAttribute('data-frame', frame.name);
+          var elt = document.createElement('image-item');
 
-          self.$.container.appendChild(elt);
-        });
+          elt.addEventListener('load', function () {
+            var frame = self.frameChooser.choose(elt);
 
-        elt.src = image.src;
-      }
-    });
+            var columns = (self.offsetWidth > TWO_COL_BREAKPOINT ? 2 : 1);
+
+            elt.style.width = (frame.widthPercent / columns) + '%';
+            elt.style.height = frame.height + 'px';
+            elt.setAttribute('data-frame', frame.name);
+
+            self.$.container.appendChild(elt);
+          });
+
+          elt.src = image.src;
+        }
+      });
+
+    })();
   </script>
 </polymer-element>
