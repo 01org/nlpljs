@@ -44,6 +44,14 @@
         var elt = document.createElement('image-item');
         elt.src = image.src;
         this.$.container.appendChild(elt);
+
+        elt.$.container.addEventListener('mouseover', function () {
+          elt.revealmetaOn();
+        });
+
+        elt.$.container.addEventListener('mouseout', function () {
+          elt.revealmetaOff();
+        });
       },
 
       moreImages: function(){
