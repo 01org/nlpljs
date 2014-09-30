@@ -21,28 +21,63 @@
         display: block;
         margin-left: 50%;
       }
+
+      /*
+      when an image-item displays inside an image-card, a margin
+      appears to be added below the meta paragraph; I couldn't track
+      this down, so this work-around removes that margin for
+      image-items only in the context of an image-card
+      */
+      image-item::shadow #meta {
+        margin: 0;
+      }
     </style>
 
     <div id="container"></div>
   </template>
 
   <script>
-    Polymer({
-      /**
-       * Convenience method to append an image search result to the
-       * gallery; creates an image-item element for the image object added.
-       *
-       * @param Object image Representation of image to add; has the
-       * format:
-       * {
-       *   src: <url of image>
-       * }
-       */
-      appendImage: function (image) {
-        var elt = document.createElement('image-item');
-        elt.src = image.src;
-        this.$.container.appendChild(elt);
-      }
-    });
+    (function () {
+      // frames around image-item elements inside the gallery
+      var FRAMES = [
+        {name: 'small_square', width: 104, height: 104, widthPercent: 50, ratio: 1},
+        {name: 'large_square', width: 212, height: 212, widthPercent: 100, ratio: 1},
+        {name: 'portrait', width: 104, height: 212, widthPercent: 50, ratio: 0.49},
+        {name: 'landscape1', width: 212, height: 104, widthPercent: 100, ratio: 2.04},
+        {name: 'landscape2', width: 212, height: 158, widthPercent: 100, ratio: 1.34}
+      ];
+
+      // TODO choose a frame from FRAMES for imageItem; this restricts
+      // the size of the item inside the gallery
+      var chooseFrame = function (imageItem) {
+        return FRAMES[0];
+      };
+
+      Polymer({
+        /**
+         * Convenience method to append an image search result to the
+         * gallery; creates an image-item element for the image object added.
+         *
+         * @param Object image Representation of image to add; has the
+         * format:
+         * {
+         *   src: <url of image>
+         * }
+         */
+        appendImage: function (image) {
+          var elt = document.createElement('image-item');
+          elt.src = image.src;
+
+          var frame = chooseFrame(elt);
+
+          elt.style.width = frame.widthPercent + '%';
+          elt.style.height = frame.height + 'px';
+          elt.setAttribute('data-frame', frame.name);
+
+          this.$.container.appendChild(elt);
+        }
+      });
+
+    })();
   </script>
 </polymer-element>
