@@ -33,12 +33,12 @@ test for image-card layout
     // width x height for the sample images; based on the values
     // in the UX doc
     var imagesDimensions = [
-      {width: 400, height: 300},
-      {width: 250, height: 250},
-      {width: 150, height: 150},
-      {width: 150, height: 150},
-      {width: 400, height: 300},
-      {width: 600, height: 600}
+      {expected: 'landscape1', width: 400, height: 300},
+      {expected: 'landscape2', width: 250, height: 150},
+      {expected: 'small_square', width: 150, height: 150},
+      {expected: 'small_square', width: 150, height: 150},
+      {expected: 'landscape1', width: 400, height: 300},
+      {expected: 'large_square', width: 600, height: 600}
     ];
 
     Polymer({
