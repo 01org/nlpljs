@@ -226,7 +226,14 @@
             return;
             
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
-          this.getCurrentPage();
+  
+          if (this.sectionIndex[this.pageno]) {
+            //Just transition to the already cached content
+            this.$.content.selected = this.sectionIndex[this.pageno];
+          } else {
+            //get the keyworks and images for the new page
+            this.getCurrentPage();
+          }
         },
         
         getCurrentPage: function() {
@@ -333,10 +340,10 @@
             this.$.content.appendChild(this.imageCards[this.pageno]);
             this.sectionIndex[this.pageno] = this.sectionCount;
             this.sectionCount++;
+            this.search(this.pageno,"");
           }
 
           this.$.content.selected = this.sectionIndex[this.pageno];
-          this.search(this.pageno,"");
         },
 
         /* perform search for keyphrases and populate the image card
