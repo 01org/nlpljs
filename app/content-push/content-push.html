@@ -41,13 +41,8 @@
           </paper-tabs>
         </core-toolbar>
 
-        <core-header-panel id="panel">
-          <core-header></core-header>
-          <content fit>
-          <core-animated-pages id='content' transitions="slide-from-right">
-          </core-animated-pages>
-          </content>
-        </core-header-panel>
+        <core-animated-pages id='content' transitions="slide-from-right">
+        </core-animated-pages>
       </div><!-- content_push_panel -->
     </div><!-- container -->
     <keyword-highlighter id='highlighter'></keyword-highlighter>
@@ -235,7 +230,14 @@
             return;
             
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
-          this.getCurrentPage();
+  
+          if (this.sectionIndex[this.pageno]) {
+            //Just transition to the already cached content
+            this.$.content.selected = this.sectionIndex[this.pageno];
+          } else {
+            //get the keyworks and images for the new page
+            this.getCurrentPage();
+          }
         },
         
         getCurrentPage: function() {
@@ -342,10 +344,10 @@
             this.$.content.appendChild(this.imageCards[this.pageno]);
             this.sectionIndex[this.pageno] = this.sectionCount;
             this.sectionCount++;
+            this.search(this.pageno,"");
           }
 
           this.$.content.selected = this.sectionIndex[this.pageno];
-          this.search(this.pageno,"");
         },
 
         /* perform search for keyphrases and populate the image card
@@ -353,7 +355,7 @@
           TODO replace this stub with a real implementation */
         search: function (pageId, keyPhrases) {
           // add a random image from lorempixel
-          for (var i = 0; i < 50; i ++) {
+          for (var i = 0; i < 10; i ++) {
             var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
             this.imageCards[pageId].appendImage({

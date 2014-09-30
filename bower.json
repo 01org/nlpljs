@@ -15,7 +15,8 @@
     "paper-tabs": "Polymer/paper-tabs#~0.4.0",
     "core-animated-pages": "Polymer/core-animated-pages#~0.4.1",
     "requirejs": "requirejs#~2.1.15",
-    "requirejs-text": "~2.0.12"
+    "requirejs-text": "~2.0.12",
+    "paper-fab": "Polymer/paper-fab#~0.4.1"
   },
   "devDependencies": {}
 }
