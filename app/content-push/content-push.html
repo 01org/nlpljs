@@ -116,6 +116,7 @@
         scrollTimer:0,
         pageno:1, //Current Page numer the user is on
         page:null, //Current page
+        numLines: 0,
         sectionIndex:[],
         sectionCount:0,
         /* map from page IDs to image-card elements; each page gets
@@ -277,8 +278,10 @@
           if (this.sectionIndex[this.pageno] == null) {
             this.fire('resetextractor', null);
             for (var i=0; i < Object.keys(textObject).length; i++) {
-              this.fire('lineadd',
-                { pageId: this.pageno, lineId: i, text: textObject[i].text });
+              this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
+                text: textObject[i].text });
+
+              this.numLines++;
             }
           }
 
