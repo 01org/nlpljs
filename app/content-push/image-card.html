@@ -42,15 +42,18 @@
        */
       appendImage: function (image, keyword) {
         var elt = document.createElement('image-item');
+        var image_card = this;
         elt.src = image.src;
         elt.keyword = keyword;
         this.$.container.appendChild(elt);
 
         elt.$.container.addEventListener('mouseover', function () {
+          image_card.fire('mouse-over', { keyword: elt.keyword });
           elt.revealmetaOn();
         });
 
         elt.$.container.addEventListener('mouseout', function () {
+          image_card.fire('mouse-out', { keyword: elt.keyword });
           elt.revealmetaOff();
         });
       },
