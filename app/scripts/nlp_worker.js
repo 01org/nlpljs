@@ -81,10 +81,11 @@ this.onmessage = function (event) {
 
       var re = new RegExp(String.fromCharCode(160), "gi");
       var text = message.data.text.replace(re,' ');
-      text = text.replace(/\[\w*\]/g, '');
 
       pages[message.data.pageId].lines[pages[message.data.pageId].lines.length] =
       createLine(message.data.lineId, text);
+
+      text = text.replace(/\[\w*\]/g, '');
 
       libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
       libnlp.keyphrase_extractor.addText(text);
