@@ -40,9 +40,10 @@
        *   src: <url of image>
        * }
        */
-      appendImage: function (image) {
+      appendImage: function (image, keyword) {
         var elt = document.createElement('image-item');
         elt.src = image.src;
+        elt.keyword = keyword;
         this.$.container.appendChild(elt);
 
         elt.$.container.addEventListener('mouseover', function () {

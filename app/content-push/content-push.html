@@ -146,6 +146,12 @@
 
           var tabselect = this.tabSelected.bind(this);
           self.$.tabs.addEventListener('core-select', tabselect);
+
+          document.addEventListener('keywordlist', function (e) {
+            var cp = document.querySelector('content-push');
+            if (typeof cp.imageCards[cp.pageno] === 'undefined')
+              cp.addImageCard(e.detail);
+          });
         },
 
         domReady: function () {
@@ -235,6 +241,7 @@
           if (this.sectionIndex[this.pageno]) {
             //Just transition to the already cached content
             this.$.content.selected = this.sectionIndex[this.pageno];
+            this.fire('getkeywords', { pageId: this.pageno });
           } else {
             //get the keyworks and images for the new page
             this.getCurrentPage();
@@ -264,7 +271,6 @@
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
           this.processPageText(txtObj);
-          this.addImageCard();
         },
 
         /* This is test function for demonstration purpose only. */
@@ -338,7 +344,7 @@
          * @param String pageId Identifier for the page with which
          * this gallery is associated
          */
-        addImageCard: function () {
+        addImageCard: function (keywordInfo) {
           if (this.sectionIndex[this.pageno] == null) {
             this.imageCards[this.pageno] = document.createElement('image-card');
 
@@ -347,7 +353,7 @@
             this.$.content.appendChild(this.imageCards[this.pageno]);
             this.sectionIndex[this.pageno] = this.sectionCount;
             this.sectionCount++;
-            this.search(this.pageno,"");
+            this.search(this.pageno, keywordInfo);
           }
 
           this.$.content.selected = this.sectionIndex[this.pageno];
@@ -356,14 +362,28 @@
         /* perform search for keyphrases and populate the image card
           for the associated page.
           TODO replace this stub with a real implementation */
-        search: function (pageId, keyPhrases) {
+        search: function (pageId, keywordInfo) {
           // add a random image from lorempixel
+          var usedKeywords = [];
+
           for (var i = 0; i < 10; i ++) {
+            var keywordIndex = null;
+
+            while (keywordIndex === null) {
+              var randomIndex = Math.floor(Math.random() *
+                keywordInfo.keywords.length);
+
+              if (usedKeywords.indexOf(randomIndex) === -1) {
+                keywordIndex = randomIndex;
+                usedKeywords[usedKeywords.length] = randomIndex;
+              }
+            }
+
             var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
             this.imageCards[pageId].appendImage({
               src: src
-            });
+            }, keywordInfo.keywords[keywordIndex]);
           }
         }
       }); // Polymer()
