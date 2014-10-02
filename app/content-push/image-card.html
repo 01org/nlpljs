@@ -29,43 +29,49 @@
   </template>
 
   <script>
-    Polymer({
-      /**
-       * Convenience method to append an image search result to the
-       * gallery; creates a cp-image element for the image object added.
-       *
-       * @param Object image Representation of image to add; has the
-       * format:
-       * {
-       *   src: <url of image>
-       * }
-       */
-      appendImage: function (image, keyword) {
-        var elt = document.createElement('image-item');
-        var image_card = this;
-        elt.src = image.src;
-        elt.keyword = keyword;
-        this.$.container.appendChild(elt);
+    (function () {
+      var self;
+      Polymer({
+        created: function () {
+          self = this;
+        },
 
-        elt.$.container.addEventListener('mouseover', function () {
-          image_card.fire('mouse-over', { keyword: elt.keyword });
-          elt.revealmetaOn();
-        });
+        /**
+        * Convenience method to append an image search result to the
+        * gallery; creates a cp-image element for the image object added.
+        *
+        * @param Object image Representation of image to add; has the
+        * format:
+        * {
+        *   src: <url of image>
+        * }
+        */
+        appendImage: function (image, keyword) {
+          var elt = document.createElement('image-item');
+          elt.src = image.src;
+          elt.keyword = keyword;
+          this.$.container.appendChild(elt);
 
-        elt.$.container.addEventListener('mouseout', function () {
-          image_card.fire('mouse-out', { keyword: elt.keyword });
-          elt.revealmetaOff();
-        });
-      },
+          elt.$.container.addEventListener('mouseover', function () {
+            self.fire('mouse-over', { keyword: elt.keyword });
+            elt.revealmetaOn();
+          });
 
-      moreImages: function(){
-        console.log('more images');
-        for (var i = 0; i < 10; i ++) {
-          var src = 'http://lorempixel.com/125/125?cacheBust=' +
+          elt.$.container.addEventListener('mouseout', function () {
+            self.fire('mouse-out', { keyword: elt.keyword });
+            elt.revealmetaOff();
+          });
+        },
+
+        moreImages: function(){
+          console.log('more images');
+          for (var i = 0; i < 10; i ++) {
+            var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
-          this.appendImage({src: src});
+            this.appendImage({src: src});
+          }
         }
-      }
-    });
+      })
+    })();
   </script>
 </polymer-element>
