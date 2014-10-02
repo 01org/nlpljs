@@ -71,12 +71,10 @@
 
           self.imageCards[self.pageno].addEventListener('mouse-over', function (e) {
             self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
-            console.log('hovering', e.detail.keyword);
           });
 
           self.imageCards[self.pageno].addEventListener('mouse-out', function (e) {
             self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
-            console.log('stopped hovering', e.detail.keyword);
           });
         }
 
@@ -377,13 +375,13 @@
         search: function (pageId, keywordInfo) {
           // add a random image from lorempixel
           var usedKeywords = [];
+          var noKeywords=keywordInfo.keywords.length;
 
-          for (var i = 0; i < 10; i ++) {
+          for (var i = 0; i < Math.min(10,noKeywords); i ++) {
             var keywordIndex = null;
 
             while (keywordIndex === null) {
-              var randomIndex = Math.floor(Math.random() *
-                keywordInfo.keywords.length);
+              var randomIndex = Math.floor(Math.random() * noKeywords);
 
               if (usedKeywords.indexOf(randomIndex) === -1) {
                 keywordIndex = randomIndex;

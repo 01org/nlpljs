@@ -46,64 +46,106 @@
     (function keywordHighlighter() {
       // private properties
       var hl={
-        open: function(groupId) { return '<KEYWORD-HIGHLIGHT group-id="'+groupId+'">'; },
-        close: function() { return '</KEYWORD-HIGHLIGHT>'; }
+        open: function(groupId) { return '<keyword-highlight group-id="'+groupId+'">'; },
+        close: function() { return '</keyword-highlight>'; }
       };
 
       var nbsp='&nbsp;';
 
-      // splits a string at (non-html) character position
-      // ignoring html and counting '&nbsp;' as one character
-      var splitAtPosition = function(position,chars) {
+      /*
+         skip any number of tags next to each other
+         eg: <tag><tag>
+         chars - the whole string
+         start - the position of the first '<'
+         returns - the position after the last '>'
+       */
+      var skipTags = function(chars,start) {
+        var retVal=(start)?start:0;
+
+        while (chars[retVal]==='<' && retVal<chars.length) {
+          var endOfTag=chars.indexOf('>',retVal);
+          retVal=endOfTag+1;
+        }
+
+        return retVal;
+      };
+
+      /*
+         splits a string at (non-html) character position
+         ignoring html tags and counting '&nbsp;' as one character
+
+         position - the (non-html) character position to split at
+         chars - the whole string, html and all
+         endian - 'begin' if this is for the beginning of a 'range', or
+                  'end' if this is at the end of a 'range'
+       */
+      var splitAtPosition = function(position,chars,endian) {
         var retVal = {
           before: null,
           after: null
         };
 
+        // replace nbsp with char 160 to make life simpler
+        var re = new RegExp('&nbsp;', 'g');
+        var fakeSpace=String.fromCharCode(160);
+        chars = chars.replace(re,fakeSpace);
+
         var currentPosition=0;
-        var nonHtmlPosition=0;
-        var charsLength=chars.length;
-        var notFound=true;
 
-        while (notFound && currentPosition<charsLength) {
-          var thisChar=chars[currentPosition];
+        // TODO: examine the two endian cases and combine
+        if (endian==='begin') {
+          var endOfTag=skipTags(chars);
+          currentPosition=endOfTag;
+          var keywordChars=0;
+          var nextTag=chars.indexOf('<',currentPosition);
+          while (nextTag!==-1 && nextTag <= currentPosition+position-keywordChars) {
+            // update current count of keyword characters
+            keywordChars+=nextTag-currentPosition;
 
-          // read past html tags
-          if (thisChar==='<') {
-            // just move current position to next character
-            currentPosition=chars.indexOf('>',currentPosition)+1;
-          } else
-          if (thisChar==='\n') {
-            // just move current position to next character
-            currentPosition++;
+            // move to next tag
+            currentPosition=nextTag;
+
+            // skip past tag(s)
+            currentPosition=skipTags(chars,currentPosition);
+
+            nextTag=chars.indexOf('<',currentPosition);
+          }
+          currentPosition+=position-keywordChars; // *before* position
+        } else
+        if (endian==='end') {
+          var nextTag=chars.indexOf('<');
+          if (nextTag===-1) {
+            currentPosition=chars.length;
           } else {
-            if (chars.substr(currentPosition,nbsp.length)===nbsp) {
-              // read past '&nbsp;'
-              if (nonHtmlPosition<position) {
-                currentPosition+=nbsp.length-1; // place on last char of nbsp
+            var endOfTags=skipTags(chars);
+            currentPosition=endOfTags;
+            var keywordChars=0;
+            var nextTag=chars.indexOf('<',currentPosition);
+            while (nextTag!==-1 && nextTag < currentPosition+position-keywordChars+1) {
+              // update current count of keyword characters
+              keywordChars+=nextTag-currentPosition;
+
+              // move to next tag
+              currentPosition=nextTag;
+
+              if (keywordChars<position) {
+                // skip past tag(s)
+                currentPosition=skipTags(chars,currentPosition);
+
+                // find next tag
+                nextTag=chars.indexOf('<',currentPosition);
+              } else {
+                break;
               }
             }
-
-            // end when we get to 'position' non-html chars
-            notFound=(nonHtmlPosition<position);
-
-            if (notFound && currentPosition<charsLength) {
-              // move onto next character
-              currentPosition++;
-              nonHtmlPosition++;
-            }
+            currentPosition+=position-keywordChars+1; // *after* position
           }
         }
 
-        if (notFound) {
-          console.log('HL:splitAtPosition');
-          console.log('HL:ran off end of string');
-          console.log('HL:probably something wrong somewhere');
-          console.log('HL:splitting at end of string');
-        }
-
-        retVal.before=chars.substr(0,currentPosition);
-        retVal.after=chars.substr(currentPosition);
+        // replace char 160 with nbsp again
+        var re = new RegExp(fakeSpace, 'g');
+        retVal.before=chars.substr(0,currentPosition).replace(re,nbsp);
+        retVal.after=chars.substr(currentPosition).replace(re,nbsp);
 
         return retVal;
       };
@@ -141,10 +183,17 @@
         // 1. get start line object
         var line=getLine(self,start.lineNo);
 
+        // abort if no line
+        if (!line) {
+          console.log(['HL:ERROR, line#',start.lineNo,' no found.'].join(''));
+          return;
+        }
+
         // 2. split the lines html at start char
         var bits0=splitAtPosition(
           start.charNo,
-          compressWhiteSpace(line.innerHTML)
+          compressWhiteSpace(line.innerHTML),
+          'begin'
         );
 
         // 3. add close hl before first '<' in .after0
@@ -153,10 +202,9 @@
           // use splitAtPosition to find
           // if the split would be before the '<'
           var tmpBits=splitAtPosition(
-              // algorithm splits *before* position,
-              // we want after, so +1
-              end.charNo-start.charNo+1,
-              bits0.after);
+            end.charNo-start.charNo,
+            bits0.after,
+            'end');
           if (tmpBits.before.length<closePosition) {
             closePosition=tmpBits.before.length;
           }
@@ -169,55 +217,56 @@
 
         // 4. if end char is on same line as start char
         if (end.lineNo===start.lineNo) {
-         // 4.1 in .after0, split line at (end char - start char)
-         var bits1=splitAtPosition(
-             end.charNo-start.charNo,
-             bits0.after
-         );
+          // 4.1 in .after0, split line at (end char - start char)
+          var bits1=splitAtPosition(
+            end.charNo-start.charNo,
+            bits0.after,
+            'end'
+          );
 
-         // 4.2 in .before1, replace />([^>]+)</ with hl.open(groupId) \1 hl.close()
-         bits1.before = bits1.before.replace(
-           />([^<]+)</g,
-           [
+          // 4.2 in .before1, replace />([^>]+)</ with hl.open(groupId) \1 hl.close()
+          bits1.before = bits1.before.replace(
+            />([^<]+)</g,
+            [
               '>',
               hl.open(groupId),
               '$1',
               hl.close(),
               '<'
-           ].join('')
-         );
+            ].join('')
+          );
 
-         // 4.2a in .before1, surround any plain text at the end of the line with hl
-         bits1.before = bits1.before.replace(
-           />([^>]+)$/,
-           [
+          // 4.2a in .before1, surround any plain text at the end of the line with hl
+          bits1.before = bits1.before.replace(
+            />([^>]+)$/,
+            [
               '>',
               hl.open(groupId),
               '$1',
               hl.close()
-           ].join('')
-         );
+            ].join('')
+          );
 
-         // 4.3 join the .before1, .after1 together
-         // 4.4 assign to .after0
-         bits0.after=[
-           bits1.before,
-           bits1.after
-         ].join('');
-         // # done close on same line
+          // 4.3 join the .before1, .after1 together
+          // 4.4 assign to .after0
+          bits0.after=[
+            bits1.before,
+            bits1.after
+          ].join('');
+          // # done close on same line
         } else {
           // 5. if end char is not on start line
 
           // 5.1 in .after0, replace />([^<]+)</ with hl.open(groupId) $1 hl.close()
           bits0.after = bits0.after.replace(
-              />([^<]+)</g,
-              [
-                '>',
-                hl.open(groupId),
-                '$1',
-                hl.close(),
-                '<'
-              ].join('')
+            />([^<]+)</g,
+            [
+              '>',
+              hl.open(groupId),
+              '$1',
+              hl.close(),
+              '<'
+            ].join('')
           );
         }
 
@@ -242,14 +291,14 @@
 
             // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
-                />([^<]+)</g,
-                [
-                  '>',
-                  hl.open(groupId),
-                  '$1',
-                  hl.close(),
-                  '<'
-                ].join('')
+              />([^<]+)</g,
+              [
+                '>',
+                hl.open(groupId),
+                '$1',
+                hl.close(),
+                '<'
+              ].join('')
             );
             
             // 7.2.3 assign to the line object
@@ -263,19 +312,20 @@
           // 7.4 split it at the end char
           var bits=splitAtPosition(
             end.charNo+1, // include last character
-            compressWhiteSpace(endLine.innerHTML)
+            compressWhiteSpace(endLine.innerHTML),
+            'end'
           );
 
           // 7.5 in .before, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
           bits.before = bits.before.replace(
-              />([^<]+)</g,
-              [
-                '>',
-                hl.open(groupId),
-                '$1',
-                hl.close(),
-                '<'
-              ].join('')
+            />([^<]+)</g,
+            [
+              '>',
+              hl.open(groupId),
+              '$1',
+              hl.close(),
+              '<'
+            ].join('')
           );
           
           // 7.5a in .before add hl.open(groupId) after final '>'
@@ -295,7 +345,7 @@
             bits.before,
             hl.close(),
             bits.after
-          ].join('')
+          ].join('');
         }
 
       };
@@ -315,7 +365,7 @@
           '}',
         ].join('\n');
 
-        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0],
+        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
         style = targetDocument.createElement('style');
         style.type = 'text/css';
         if (style.styleSheet){
@@ -352,7 +402,7 @@
         prepare: function(ranges) {
           for (var i=0;i<ranges.length;++i) {
             highlightRange(this,ranges[i]);
-          };
+          }
         },
 
         turn: function(groupId,state) {
@@ -386,11 +436,10 @@
           for (var elementIndex=0;elementIndex<elements.length;++elementIndex) {
             var thisElement=elements[elementIndex];
             var parent=thisElement.parentNode;
-            var children=thisElement.childNodes;
 
             // move children to before thisElement
-            for (var childIndex=0;childIndex<children.length;++childIndex) {
-              var child=children[childIndex];
+            while (thisElement.firstChild) {
+              var child=thisElement.firstChild;
               parent.insertBefore(child,thisElement);
             }
 
@@ -400,8 +449,8 @@
         },
 
         // for testing only
-        testSplitAtPosition: function(position,chars) {
-          return splitAtPosition(position,chars);
+        testSplitAtPosition: function(position,chars,endian) {
+          return splitAtPosition(position,chars,endian);
         },
 
       }); // Polymer()
