@@ -79,13 +79,13 @@ this.onmessage = function (event) {
               libnlp.keyphrase_extractor.getGraph();
       }
 
-      var re = new RegExp(String.fromCharCode(160), "gi");
+      var re = new RegExp(String.fromCharCode(160), "g");
       var text = message.data.text.replace(re,' ');
 
       pages[message.data.pageId].lines[pages[message.data.pageId].lines.length] =
       createLine(message.data.lineId, text);
 
-      text = text.replace(/\[\w*\]/g, '');
+      text = text.replace(/\[\w+\]/g, '');
 
       libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
       libnlp.keyphrase_extractor.addText(text);
