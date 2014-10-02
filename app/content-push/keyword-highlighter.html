@@ -386,11 +386,10 @@
           for (var elementIndex=0;elementIndex<elements.length;++elementIndex) {
             var thisElement=elements[elementIndex];
             var parent=thisElement.parentNode;
-            var children=thisElement.childNodes;
 
             // move children to before thisElement
-            for (var childIndex=0;childIndex<children.length;++childIndex) {
-              var child=children[childIndex];
+            while (thisElement.firstChild) {
+              var child=thisElement.firstChild;
               parent.insertBefore(child,thisElement);
             }
 
