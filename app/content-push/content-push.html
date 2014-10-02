@@ -52,6 +52,7 @@
     (function contentPushApp() {
       // private properties
 
+      var self;
       /* find ancestor of node that has className
       for finding the ancestor with .kix-lineview of whatever line has changed */
       var findAncestor = function(node,className) {
@@ -148,11 +149,10 @@
           self.$.tabs.addEventListener('core-select', tabselect);
 
           document.addEventListener('keywordlist', function (e) {
-            var cp = document.querySelector('content-push');
-            if (typeof cp.imageCards[cp.pageno] === 'undefined')
-              cp.addImageCard(e.detail);
+            if (typeof self.imageCards[self.pageno] === 'undefined')
+              self.addImageCard(e.detail);
 
-            cp.$.highlighter.prepare(e.detail.ranges);
+            self.$.highlighter.prepare(e.detail.ranges);
           });
         },
 
@@ -299,8 +299,6 @@
         },
 
         handleSearchResults: function (e) {
-          var self = this;
-
           var images = e.detail;
 
           for (var i = 0; i < images.length; i++) {
@@ -359,16 +357,15 @@
             this.sectionCount++;
             this.search(this.pageno, keywordInfo);
 
-            var cp = this;
             this.imageCards[this.pageno].addEventListener('mouse-over',
             function (e) {
-              cp.$.highlighter.turn(e.detail.keyword.groupId, 'on');
+              self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
               console.log('hovering', e.detail.keyword);
             });
 
             this.imageCards[this.pageno].addEventListener('mouse-out',
             function (e) {
-              cp.$.highlighter.turn(e.detail.keyword.groupId, 'off');
+              self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
               console.log('stopped hovering', e.detail.keyword);
             });
           }
