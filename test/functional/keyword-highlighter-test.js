@@ -12,6 +12,32 @@
       // from NLP
       var testInput=[
 
+        // overlapping range
+        {
+          groupId: 0,
+          start: {
+            charNo: 0,
+            lineNo: 0,
+          },
+          end: {
+            charNo: 17,
+            lineNo: 0,
+          },
+        },
+
+        // overlaps above range
+        {
+          groupId: 5,
+          end: {
+            charNo: 6,
+            lineNo: 0,
+          },
+          start: {
+            charNo: 0,
+            lineNo: 0,
+          },
+        },
+
         // same line
         // in group 1
         {
