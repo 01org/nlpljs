@@ -35,6 +35,14 @@ size
       [data-revealed="false"] {
         display: none;
       }
+      #image {
+        -webkit-animation: fadein 2s;
+      }
+      
+      @-webkit-keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
