@@ -36,7 +36,7 @@ var pages = [];
 var createPage = function (pageId) {
   return{
     lines: [],
-    pageId: pageId,
+    id: pageId,
     graph: null
   };
 };
@@ -79,12 +79,13 @@ this.onmessage = function (event) {
               libnlp.keyphrase_extractor.getGraph();
       }
 
-      var re = new RegExp(String.fromCharCode(160), "gi");
+      var re = new RegExp(String.fromCharCode(160), "g");
       var text = message.data.text.replace(re,' ');
-      text = text.replace(/\[\w*\]/g, '');
 
       pages[message.data.pageId].lines[pages[message.data.pageId].lines.length] =
       createLine(message.data.lineId, text);
+
+      text = text.replace(/\[\w+\]/g, '');
 
       libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
       libnlp.keyphrase_extractor.addText(text);
@@ -98,48 +99,72 @@ this.onmessage = function (event) {
 
       libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
       var result = libnlp.keyphrase_extractor.score();
-      var keywords = {};
+      var keywords = [];
+      var ranges = [];
 
-      for (i = 0; i < pages[message.data.pageId].lines.length; i++) {
-        var lineId = pages[message.data.pageId].lines[i].lineId;
-        var lineText = pages[message.data.pageId].lines[i].text;
+      for (i = 0; i < result.keyphrases.length; i++) {
+        var keyphrase = result.keyphrases[i];
+        var index = keywords.length;
 
-        for (j = 0; j < result.keyphrases.length; j++) {
-          var keyphrase = result.keyphrases[j];
+        keywords[index] = {
+          text: keyphrase,
+          groupId: index
+        };
 
-            if (typeof keywords[keyphrase] === 'undefined')
-              keywords[keyphrase] = { text: keyphrase, occurrences: [] };
+        for (j = 0; j < pages[message.data.pageId].lines.length; j++) {
+          var lineId = pages[message.data.pageId].lines[j].id;
+          var lineText = pages[message.data.pageId].lines[j].text;
 
-            var regex = new RegExp(keyphrase, "gi");
-            while ((search = regex.exec(lineText))) {
-              var numOccur = keywords[keyphrase].occurrences.length;
-              keywords[keyphrase].occurrences[numOccur] = {
-                pageId: pages[message.data.pageId].pageId,
-                lineId: lineId,
-                charIndex: search.index
-              };
-            }
+          var regex = new RegExp(keyphrase, "gi");
+          while ((search = regex.exec(lineText))) {
+            ranges[ranges.length] = {
+              groupId: keywords[index].groupId,
+              start: {
+                lineNo: lineId,
+                charNo: search.index
+              },
+              end: {
+                lineNo: lineId,
+                charNo: search.index + keyphrase.length
+              }
+            };
+          }
         }
+      }
 
-        for (j = 0; j < result.keywords.length; j++) {
-          var keyword = result.keywords[j];
+      for (i = 0; i < result.keywords.length; i++) {
+        var keyword = result.keywords[i];
+        var index = keywords.length;
 
-          if (typeof keywords[keyword] === 'undefined')
-            keywords[keyword] = { text: keyword, occurrences: [] };
+        keywords[index] = {
+          text: keyword,
+          groupId: index
+        };
+
+        for (j = 0; j < pages[message.data.pageId].lines.length; j++) {
+          var lineId = pages[message.data.pageId].lines[j].id;
+          var lineText = pages[message.data.pageId].lines[j].text;
 
           var regex = new RegExp(keyword, "gi");
           while ((search = regex.exec(lineText))) {
-            var numOccur = keywords[keyword].occurrences.length;
-              keywords[keyword].occurrences[numOccur] = {
-                pageId: pages[message.data.pageId].pageId,
-                lineId: lineId,
-                charIndex: search.index
-              };
-            }
+            ranges[ranges.length] = {
+              groupId: keywords[index].groupId,
+              start: {
+                lineNo: lineId,
+                charNo: search.index
+              },
+              end: {
+                lineNo: lineId,
+                charNo: search.index + keyword.length
+              }
+            };
           }
         }
+      }
 
-      postMessage(eventPageMessage("keywordlist", keywords));
+      postMessage(eventPageMessage("keywordlist", { keywords: keywords,
+        ranges: ranges }));
+
       break;
     case "resetextractor":
       if (loaded === false) {

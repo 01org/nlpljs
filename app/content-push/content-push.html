@@ -52,6 +52,40 @@
     (function contentPushApp() {
       // private properties
 
+      var self;
+
+      /**
+       * Add an image card (gallery) for the page with ID pageId;
+       * if the image card exists for this page already, do nothing.
+       *
+       * @param String pageId Identifier for the page with which
+       * this gallery is associated
+       */
+      var addImageCard = function (keywordInfo) {
+        if (self.sectionIndex[self.pageno] == null) {
+          self.imageCards[self.pageno] = document.createElement('image-card');
+
+          self.imageCards[self.pageno].style.display = 'block';
+          self.imageCards[self.pageno].style.height = '100%';
+          self.$.content.appendChild(self.imageCards[self.pageno]);
+          self.sectionIndex[self.pageno] = self.sectionCount;
+          self.sectionCount++;
+          self.search(self.pageno, keywordInfo);
+
+          self.imageCards[self.pageno].addEventListener('mouse-over', function (e) {
+            self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
+            console.log('hovering', e.detail.keyword);
+          });
+
+          self.imageCards[self.pageno].addEventListener('mouse-out', function (e) {
+            self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
+            console.log('stopped hovering', e.detail.keyword);
+          });
+        }
+
+        self.$.content.selected = selfs.sectionIndex[self.pageno];
+      };
+
       /* find ancestor of node that has className
       for finding the ancestor with .kix-lineview of whatever line has changed */
       var findAncestor = function(node,className) {
@@ -116,6 +150,7 @@
         scrollTimer:0,
         pageno:1, //Current Page numer the user is on
         page:null, //Current page
+        numLines: 0,
         sectionIndex:[],
         sectionCount:0,
         /* map from page IDs to image-card elements; each page gets
@@ -145,6 +180,13 @@
 
           var tabselect = this.tabSelected.bind(this);
           self.$.tabs.addEventListener('core-select', tabselect);
+
+          document.addEventListener('keywordlist', function (e) {
+            if (typeof self.imageCards[self.pageno] === 'undefined')
+              addImageCard(e.detail);
+
+            self.$.highlighter.prepare(e.detail.ranges);
+          });
         },
 
         domReady: function () {
@@ -228,12 +270,15 @@
           /* Scrolling on the same page */
           if (this.pageno == (pageno+1))
             return;
-            
+
+          this.$.highlighter.clear();
+
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
   
           if (this.sectionIndex[this.pageno]) {
             //Just transition to the already cached content
             this.$.content.selected = this.sectionIndex[this.pageno];
+            this.fire('getkeywords', { pageId: this.pageno });
           } else {
             //get the keyworks and images for the new page
             this.getCurrentPage();
@@ -263,7 +308,6 @@
              processPageText() is a sample function , demonstrating how you can
              parse the object. NPL should just JSON stringify it and process it.*/
           this.processPageText(txtObj);
-          this.addImageCard();
         },
 
         /* This is test function for demonstration purpose only. */
@@ -277,8 +321,10 @@
           if (this.sectionIndex[this.pageno] == null) {
             this.fire('resetextractor', null);
             for (var i=0; i < Object.keys(textObject).length; i++) {
-              this.fire('lineadd',
-                { pageId: this.pageno, lineId: i, text: textObject[i].text });
+              this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
+                text: textObject[i].text });
+
+              this.numLines++;
             }
           }
 
@@ -286,8 +332,6 @@
         },
 
         handleSearchResults: function (e) {
-          var self = this;
-
           var images = e.detail;
 
           for (var i = 0; i < images.length; i++) {
@@ -328,39 +372,31 @@
           }
         },
 
-        /**
-         * Add an image card (gallery) for the page with ID pageId;
-         * if the image card exists for this page already, do nothing.
-         *
-         * @param String pageId Identifier for the page with which
-         * this gallery is associated
-         */
-        addImageCard: function () {
-          if (this.sectionIndex[this.pageno] == null) {
-            this.imageCards[this.pageno] = document.createElement('image-card');
-
-            this.imageCards[this.pageno].style.display = 'block';
-            this.imageCards[this.pageno].style.height = '100%';
-            this.$.content.appendChild(this.imageCards[this.pageno]);
-            this.sectionIndex[this.pageno] = this.sectionCount;
-            this.sectionCount++;
-            this.search(this.pageno,"");
-          }
-
-          this.$.content.selected = this.sectionIndex[this.pageno];
-        },
-
         /* perform search for keyphrases and populate the image card
           for the associated page.
           TODO replace this stub with a real implementation */
-        search: function (pageId, keyPhrases) {
+        search: function (pageId, keywordInfo) {
           // add a random image from lorempixel
+          var usedKeywords = [];
+
           for (var i = 0; i < 10; i ++) {
+            var keywordIndex = null;
+
+            while (keywordIndex === null) {
+              var randomIndex = Math.floor(Math.random() *
+                keywordInfo.keywords.length);
+
+              if (usedKeywords.indexOf(randomIndex) === -1) {
+                keywordIndex = randomIndex;
+                usedKeywords[usedKeywords.length] = randomIndex;
+              }
+            }
+
             var src = 'http://lorempixel.com/125/125?cacheBust=' +
                       (new Date()).getTime() + i;
             this.imageCards[pageId].appendImage({
               src: src
-            });
+            }, keywordInfo.keywords[keywordIndex]);
           }
         }
       }); // Polymer()
