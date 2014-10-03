@@ -30,12 +30,7 @@
 
   <script>
     (function () {
-      var self;
       Polymer({
-        created: function () {
-          self = this;
-        },
-
         /**
         * Convenience method to append an image search result to the
         * gallery; creates a cp-image element for the image object added.
@@ -47,6 +42,7 @@
         * }
         */
         appendImage: function (image, keyword) {
+          var self=this;
           var elt = document.createElement('image-item');
           elt.src = image.src;
           elt.keyword = keyword;

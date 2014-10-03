@@ -52,8 +52,6 @@
     (function contentPushApp() {
       // private properties
 
-      var self;
-
       /**
        * Add an image card (gallery) for the page with ID pageId;
        * if the image card exists for this page already, do nothing.
@@ -61,7 +59,7 @@
        * @param String pageId Identifier for the page with which
        * this gallery is associated
        */
-      var addImageCard = function (keywordInfo) {
+      var addImageCard = function (self,keywordInfo) {
         if (self.sectionIndex[self.pageno] == null) {
           self.imageCards[self.pageno] = document.createElement('image-card');
 
@@ -163,7 +161,7 @@
 
         iframeurlChanged: function(oldValue,newValue) {
           //console.log("CP:new iframeurl:",newValue);
-          self.$.iframe.src=newValue;
+          this.$.iframe.src=newValue;
         },
 
         toggleChanged: function(oldValue,newValue) {
@@ -171,19 +169,19 @@
         },
 
         ready: function() {
-          self=this;
-          self.$.iframe.src=self.iframeurl;
+          var self=this;
+          this.$.iframe.src=this.iframeurl;
 
           // Add a iframe onLoad handler
           var onLoadHandler = this.onLoad.bind(this);
-          self.$.iframe.onload = onLoadHandler;
+          this.$.iframe.onload = onLoadHandler;
 
           var tabselect = this.tabSelected.bind(this);
-          self.$.tabs.addEventListener('core-select', tabselect);
+          this.$.tabs.addEventListener('core-select', tabselect);
 
           document.addEventListener('keywordlist', function (e) {
             if (typeof self.imageCards[self.pageno] === 'undefined')
-              addImageCard(e.detail);
+              addImageCard(self,e.detail);
 
             self.$.highlighter.prepare(e.detail.ranges);
           });
@@ -228,7 +226,8 @@
         },
 
         loadMore: function() {
-          observeDocumentChanges(self.$.iframe, function(text) {
+          var self=this;
+          observeDocumentChanges(this.$.iframe, function(text) {
             var textNode=document.createTextNode(text.replace("&nbsp;"," "));
             self.$.changed_text.innerHTML="";
             self.$.changed_text.appendChild(textNode);
@@ -339,6 +338,7 @@
             img.src = images[i].url;
 
             // only add images to the display if they load correctly
+            var self=this;
             img.addEventListener("load", function () {
               self.$.images.appendChild(this);
             });
