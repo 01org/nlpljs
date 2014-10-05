@@ -88,11 +88,6 @@ img {
   height: auto;
 }
 
-#tabs-toolbar {
-  height: 48px;
-  background-color: white;
-}
-
 #tabs {
   width: 100%;
   padding: 0;
