@@ -4,12 +4,12 @@
   attributes:
     onStyle: the style to set when the highlighting is 'on'
     default:
-      border: 1px dashed transparent;
       background-color: lightpink;
 
     offStyle: the style to set when the highlighting is 'off'
     default:
       border: 1px dashed lightgrey;
+      margin: -1px;
       background-color: transparent;
 
   targetElement:
@@ -331,10 +331,10 @@
         created: function() {
           this.offStyle=[
             'border: 1px dashed lightgrey;',
+            'margin: -1px',
             'background-color: transparent;'
           ].join('');
           this.onStyle=[
-            'border: 1px dashed transparent;',
             'background-color: lightpink;'
           ].join('');
         },
