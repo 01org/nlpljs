@@ -43,10 +43,8 @@
 
 <polymer-element name='keyword-highlighter' attributes='onStyle offStyle'>
   <script>
-    (function seHighlighter() {
+    (function keywordHighlighter() {
       // private properties
-      var self;
-
       var hl={
         open: function(groupId) { return '<KEYWORD-HIGHLIGHT group-id="'+groupId+'">'; },
         close: function() { return '</KEYWORD-HIGHLIGHT>'; }
@@ -110,7 +108,7 @@
         return retVal;
       };
 
-      var getLine = function(lineNo) {
+      var getLine = function(self,lineNo) {
         var retVal = self.targetElement.querySelectorAll(
           '.kix-lineview-content'
         )[lineNo];
@@ -135,13 +133,13 @@
         return retVal;
       };
 
-      var highlightRange = function(rangeToHighlight) {
+      var highlightRange = function(self,rangeToHighlight) {
         var start=rangeToHighlight.start;
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
 
         // 1. get start line object
-        var line=getLine(start.lineNo);
+        var line=getLine(self,start.lineNo);
 
         // 2. split the lines html at start char
         var bits0=splitAtPosition(
@@ -240,7 +238,7 @@
           // 7.1 loop over intermediate lines ie lineNo=startLine+1;lineNo<endLine;lineNo++
           for (var lineNo=start.lineNo+1;lineNo<end.lineNo;++lineNo) {
             // 7.2.1 get line object
-            var thisLine=getLine(lineNo);
+            var thisLine=getLine(self,lineNo);
 
             // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
@@ -260,7 +258,7 @@
 
           // # process last line
           // 7.3 get last line object
-          var endLine=getLine(end.lineNo);
+          var endLine=getLine(self,end.lineNo);
 
           // 7.4 split it at the end char
           var bits=splitAtPosition(
@@ -305,7 +303,7 @@
       /*
          Injects the css for the on and off style into the head.
        */
-      var injectCss = function() {
+      var injectCss = function(self, targetDocument) {
         var css=[
           'keyword-highlight,',
           'keyword-highlighter-test::shadow keyword-highlight {',
@@ -331,8 +329,6 @@
 
       Polymer({
         created: function() {
-          self=this;
-
           this.offStyle=[
             'border: 1px dashed lightgrey;',
             'background-color: transparent;'
@@ -346,16 +342,16 @@
         ready: function() {
         },
 
-        targetElementChanged: function() {
-          targetDocument=this.targetElement.ownerDocument ||
+        targetElementChanged: function(oldValue,newValue) {
+          var targetDocument=this.targetElement.ownerDocument ||
             this.targetElement.body.ownerDocument;
 
-          injectCss();
+          injectCss(this, targetDocument);
         },
 
         prepare: function(ranges) {
           for (var i=0;i<ranges.length;++i) {
-            highlightRange(ranges[i]);
+            highlightRange(this,ranges[i]);
           };
         },
 
@@ -368,7 +364,7 @@
               elements[i].classList.add('on');
             }
           } else {
-            var elements=self.targetElement.querySelectorAll(
+            var elements=this.targetElement.querySelectorAll(
               'keyword-highlight.on[group-id="'+groupId+'"]'
             );
             for (var i=0;i<elements.length;++i) {

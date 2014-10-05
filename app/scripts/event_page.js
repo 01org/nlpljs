@@ -38,7 +38,11 @@ chrome.pageAction.onClicked.addListener(function(tab) {
       initChannel();
 
       //Execute the content script
-      chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"});
+      chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"}, function(result) {
+        if (chrome.runtime.lastError) {
+          console.log('EP:error executing content script:',chrome.runtime.lastError.message);
+        }
+      });
     } else {
       chrome.tabs.sendMessage(tabs[0].id, {message: "toggle"});
     }
