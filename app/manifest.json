@@ -30,8 +30,6 @@
     "",
     "/",
     "images/*",
-    "index.html",
-    "index-csp.js",
     "content-push/*",
     "content-push/ClearSans/*",
     "content-push/styles/*",
