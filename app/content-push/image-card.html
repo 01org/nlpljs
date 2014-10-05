@@ -20,11 +20,14 @@
         display:block;
         margin-left: 50%;
       }
+      #morebutton {
+        background-color:grey;
+      }
     </style>
 
     <div id="container"></div>
     <div id="more">
-      <paper-fab class="mini" icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
+      <paper-fab id="morebutton" mini icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
     </div>
   </template>
 
