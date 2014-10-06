@@ -58,6 +58,13 @@
             heading.innerHTML = elementName.replace('-test', ' test');
             document.body.appendChild(heading);
 
+            if (testToRun === DEFAULT_TEST_TO_RUN) {
+              var para = document.createElement('p');
+              para.innerHTML = '<a href="index.html?test=' + elementName +
+                               '">Run just this test</a>';
+              document.body.appendChild(para);
+            }
+
             var testElement = document.createElement(elementName);
             document.body.appendChild(testElement);
 
