@@ -1,5 +1,5 @@
 <link rel="import" href="./image-item.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<!--link rel="import" href="../bower_components/paper-fab/paper-fab.html"-->
 
 <polymer-element name="image-card">
   <template>
@@ -7,6 +7,7 @@
       :host {
         display: flex;
         flex-direction: column;
+        overflow: hidden;
       }
 
       #container {
@@ -16,12 +17,29 @@
         justify-content: center;
         align-items: center;
       }
+
       #more {
-        display:block;
+        display: block;
         margin-left: 50%;
       }
+
       #morebutton {
         background-color:grey;
+      }
+
+      /*
+      when an image-item displays inside an image-card, a margin
+      appears to be added below the meta paragraph; I couldn't track
+      this down, so this work-around removes that margin for
+      image-items only in the context of an image-card
+      */
+      image-item::shadow #meta {
+        margin: 0 0 5px 0;
+      }
+
+      image-item::shadow img {
+        width: 100%;
+        height: auto;
       }
     </style>
 
@@ -31,9 +49,20 @@
     </div>
   </template>
 
+  <script src="image-card-frame-chooser.js"></script>
+
   <script>
     (function () {
+      /*
+       size in pixels of the size of a "cell" in the layout;
+       50px (element) + 2px gutter on each edge == 54
+       */
+      var CELL_SIDE = 54;
+
       Polymer({
+        // all instances share a single FrameChooser
+        frameChooser: new FrameChooser(CELL_SIDE, CELL_SIDE),
+
         /**
         * Convenience method to append an image search result to the
         * gallery; creates a cp-image element for the image object added.
@@ -45,11 +74,15 @@
         * }
         */
         appendImage: function (image, keyword) {
-          var self=this;
+          var self = this;
+
           var elt = document.createElement('image-item');
-          elt.src = image.src;
-          elt.keyword = keyword;
-          this.$.container.appendChild(elt);
+
+          elt.addEventListener('load', function () {
+            self.frameImage(elt);
+            self.$.container.appendChild(elt);
+            self.layout();
+          });
 
           elt.$.container.addEventListener('mouseover', function () {
             self.fire('mouse-over', { keyword: elt.keyword });
@@ -58,6 +91,26 @@
           elt.$.container.addEventListener('mouseout', function () {
             self.fire('mouse-out', { keyword: elt.keyword });
           });
+
+          elt.src = image.src;
+          elt.keyword = keyword;
+        },
+
+        /**
+         * Add the appropriate frame to the image-item img.
+         *
+         * @param DOMElement img image-item element
+         */
+        frameImage: function (img) {
+          var frame = this.frameChooser.choose(img);
+          img.setAttribute('data-frame', frame.name);
+        },
+
+        /**
+         * Apply layout to image-items.
+         */
+        layout: function () {
+          var imageItems = this.$.container.querySelectorAll('image-item');
         },
 
         moreImages: function(){
