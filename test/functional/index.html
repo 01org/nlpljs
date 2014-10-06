@@ -4,7 +4,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8">
 
-    <script src="../../app/bower_components/polymer/polymer.js"></script>
+    <script src="../../app/bower_components/platform/platform.js"></script>
+    <link rel="import" href="../../app/bower_components/polymer/polymer.html">
 
     <title>CP functional test runner</title>
 
@@ -36,7 +37,8 @@
         './keyword-highlighter-test.html',
         './image-item-test.html',
         './image-item-meta-test.html',
-        './image-card-test.html'
+        './image-card-test.html',
+        './image-card-layout-test.html'
       ];
 
       // get the location of the test to run from the URL
@@ -57,6 +59,13 @@
             var heading = document.createElement('h2');
             heading.innerHTML = elementName.replace('-test', ' test');
             document.body.appendChild(heading);
+
+            if (testToRun === DEFAULT_TEST_TO_RUN) {
+              var para = document.createElement('p');
+              para.innerHTML = '<a href="index.html?test=' + elementName +
+                               '">Run just this test</a>';
+              document.body.appendChild(para);
+            }
 
             var testElement = document.createElement(elementName);
             document.body.appendChild(testElement);

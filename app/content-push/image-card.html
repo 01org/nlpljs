@@ -5,23 +5,37 @@
   <template>
     <style>
       :host {
-        display: flex;
-        flex-direction: column;
+        display: block;
       }
 
       #container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
+        position: relative;
       }
+
+      image-item {
+        position: absolute;
+        transition-property: top, left, opacity;
+        transition-duration: 0.25s, 0.25s, 1s;
+        transition-timing-function: ease-out, ease-out, ease-out;
+      }
+
       #more {
-        display:block;
-        margin-left: 50%;
+        text-align: center;
+        margin-top: 1em;
       }
+
       #morebutton {
-        background-color:grey;
+        background-color: gray;
+      }
+
+      /*
+      when an image-item displays inside an image-card, a margin
+      appears to be added below the meta paragraph; I couldn't track
+      this down, so this work-around removes that margin for
+      image-items only in the context of an image-card
+      */
+      image-item::shadow #meta {
+        margin: 0 0 3px 0;
       }
     </style>
 
@@ -31,9 +45,45 @@
     </div>
   </template>
 
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="image-card-frame-chooser.js"></script>
+  <script src="image-card-layout-generator.js"></script>
+
   <script>
     (function () {
+      var NARROW_NUM_COLS = 4;
+      var WIDE_NUM_COLS = 8;
+
+      // when gallery >= this width, switch to WIDE_NUM_COLS
+      var WIDE_BREAKPOINT = 456;
+
+      // length of the side of a row/column for the purpose of
+      // choosing a frame
+      var FRAME_CELL_SIDE = 54;
+
       Polymer({
+        created: function () {
+          this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
+          this.layoutGenerator = new LayoutGenerator();
+          this.numColumns = NARROW_NUM_COLS;
+        },
+
+        // set number of columns based on the gallery width
+        setLayoutParams: function () {
+          var width = this.$.container.offsetWidth;
+
+          if (width >= WIDE_BREAKPOINT) {
+            this.numColumns = WIDE_NUM_COLS;
+          }
+          else {
+            this.numColumns = NARROW_NUM_COLS;
+          }
+        },
+
+        domReady: function () {
+          this.setLayoutParams();
+        },
+
         /**
         * Convenience method to append an image search result to the
         * gallery; creates a cp-image element for the image object added.
@@ -45,21 +95,88 @@
         * }
         */
         appendImage: function (image, keyword) {
-          var self=this;
+          var self = this;
+
           var elt = document.createElement('image-item');
-          elt.src = image.src;
-          elt.keyword = keyword;
-          this.$.container.appendChild(elt);
+
+          elt.addEventListener('load', function () {
+            self.frameImage(elt);
+            self.$.container.appendChild(elt);
+            self.layout();
+          });
 
           elt.$.container.addEventListener('mouseover', function () {
             self.fire('mouse-over', { keyword: elt.keyword });
-            elt.revealmetaOn();
           });
 
           elt.$.container.addEventListener('mouseout', function () {
             self.fire('mouse-out', { keyword: elt.keyword });
-            elt.revealmetaOff();
           });
+
+          elt.src = image.src;
+          elt.keyword = keyword;
+        },
+
+        /**
+         * Add the appropriate frame to the image-item img.
+         *
+         * @param DOMElement img image-item element
+         */
+        frameImage: function (img) {
+          var frame = this.frameChooser.choose(img);
+          img.setAttribute('data-frame', frame.name);
+          img.setAttribute('data-columns', frame.columns);
+          img.setAttribute('data-rows', frame.rows);
+        },
+
+        /**
+         * Apply layout to image-items.
+         */
+        layout: function () {
+          this.setLayoutParams();
+
+          var cellSide = this.$.container.offsetWidth / this.numColumns;
+          var imageItems = this.$.container.querySelectorAll('image-item');
+
+          // convert imageItems into shapes
+          var shapes = [];
+
+          for (var i = 0; i < imageItems.length; i++) {
+            var imageItem = imageItems[i];
+
+            shapes.push({
+              elt: imageItem,
+              width: parseInt(imageItem.getAttribute('data-columns'), 10),
+              height: parseInt(imageItem.getAttribute('data-rows'), 10)
+            });
+          }
+
+          var layout = this.layoutGenerator.generate(shapes, this.numColumns);
+
+          var shape, position, elt, firstCol, width, x,
+              firstRow, height, y;
+
+          _.each(layout.placements, function (placement) {
+            shape = placement.shape;
+            position = placement.position;
+
+            width = position.columns.length * cellSide;
+            firstCol = _.first(position.columns);
+            x = firstCol * cellSide;
+
+            height = position.rows.length * cellSide;
+            firstRow = _.first(position.rows);
+            y = firstRow * cellSide;
+
+            shape.elt.style.left = x + 'px';
+            shape.elt.style.top = y + 'px';
+            shape.elt.style.width = width + 'px'
+            shape.elt.style.height = height + 'px';
+          });
+
+          // set the container height
+          var height = layout.grid.length * cellSide;
+          this.$.container.style.height = height + 'px';
         },
 
         moreImages: function(){

@@ -9,10 +9,22 @@ size
 <polymer-element name="image-item" attributes="src revealmeta">
   <template>
     <style>
-      div {
+      :host {
+        display: inline-block;
+      }
+
+      #container {
         display: inline-block;
         position: relative;
         overflow: hidden;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 3px 3px 0px 3px;
+      }
+
+      #container:hover {
+        background-color: #01bcd4;
       }
 
       [data-revealed="true"] {
@@ -29,47 +41,61 @@ size
 
       /* adjust padding on the meta text when the image is < 100 pixels */
       [data-tiny-image="true"] {
-        padding: 0.25em 0.1em !important;
+        padding: 0.25em 0em !important;
       }
 
       [data-revealed="false"] {
         display: none;
       }
 
-      #container {
-        padding: 3px;
-      }
-
-      #container:hover {
-        background-color: #01bcd4;
-      }
-
       #image {
         -webkit-animation: fadein 2s;
+        width: 100%;
+        height: auto;
       }
-      
+
       @-webkit-keyframes fadein {
         from { opacity: 0; }
         to   { opacity: 1; }
       }
 
+      #meta {
+        max-width: 100%;
+      }
     </style>
 
-    <div id="container">
+    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
       <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
-      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}" data-tiny-image="false"></p>
+      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}"
+         data-tiny-image="{{isTinyImage}}">
+        {{width}}x{{height}}
+      </p>
     </div>
   </template>
 
   <script>
     Polymer({
-      // URL for the image to display
-      src: null,
+      created: function () {
+        // URL for the image to display
+        this.src = null;
 
-      // set to 'on' to reveal metadata; set to 'off' to hide it;
-      // set to 'always' if metadata should always be visible
-      revealmeta: 'off',
-      keyword: null,
+        // width, height and ratio are set when the wrapped image has loaded
+        this.width = 0;
+        this.height = 0;
+        this.ratio = 0;
+
+        // true if the wrapped image's load event has fired
+        this.loaded = false;
+
+        // true if the image's width is less than 100px
+        this.isTinyImage = false;
+
+        // set to 'on' to reveal metadata; set to 'off' to hide it;
+        // set to 'always' if metadata should always be visible
+        this.revealmeta = 'off';
+
+        this.keyword = null;
+      },
 
       revealmetaOn: function () {
         if (this.revealmeta === 'always') {
@@ -87,16 +113,24 @@ size
         this.revealmeta = 'off';
       },
 
+      srcChanged: function () {
+        this.loaded = false;
+      },
+
       // set metadata for the image once it's loaded
       imageLoaded: function () {
-        var height = this.$.image.height;
-        var width = this.$.image.width;
-        this.$.container.style['max-height']=width+'px';
+        this.height = this.$.image.height;
+        this.width = this.$.image.width;
+
+        if (this.height > 0) {
+          this.ratio = this.width / this.height;
+        }
 
         // mark tiny images so the metadata display can be adjusted
-        this.$.meta.setAttribute('data-tiny-image', width < 100);
+        this.isTinyImage = (this.width < 100);
 
-        this.$.meta.innerHTML = width + 'x' + height;
+        this.loaded = true;
+        this.fire('load', this);
       }
     });
   </script>

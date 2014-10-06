@@ -1,0 +1,64 @@
+<link rel="import" href="../../app/content-push/image-card.html">
+
+<!--
+test for image-card layout
+-->
+<polymer-element name="image-card-layout-test">
+  <template>
+    <style>
+      #gallery {
+        background-color: gray;
+      }
+    </style>
+
+    <p>
+      Create an image card with irregularly-sized images. The breakpoint
+      for switching to two columns is at 456px.
+    </p>
+    <p>
+      <label for="widthSlider">Set width:</label>
+      <input id="widthSlider" type="range" min="220" max="600" value="272"
+             on-change="{{setWidth}}">
+      Current width: <input id="widthDisplay" size="3" type="text" readonly>px
+    </p>
+    <image-card id="gallery"></image-card>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    (function () {
+
+    // width x height for the sample images; based on the values
+    // in the UX doc
+    var imagesDimensions = [
+      {expected: 'landscape1', width: 400, height: 300},
+      {expected: 'landscape2', width: 250, height: 150},
+      {expected: 'small_square', width: 150, height: 150},
+      {expected: 'small_square', width: 150, height: 150},
+      {expected: 'landscape1', width: 400, height: 300},
+      {expected: 'large_square', width: 600, height: 600}
+    ];
+
+    Polymer({
+      domReady: function () {
+        for (var i = 0; i < imagesDimensions.length; i++) {
+          this.$.gallery.appendImage({
+            src: makeImageUrl(imagesDimensions[i].width, imagesDimensions[i].height)
+          });
+        }
+
+        this.setWidth();
+      },
+
+      setWidth: function (e) {
+        var width = this.$.widthSlider.value;
+        this.$.gallery.style.width = width + 'px';
+        this.$.widthDisplay.value = width;
+        this.$.gallery.layout();
+      }
+    });
+
+    })();
+  </script>
+</polymer-element>
