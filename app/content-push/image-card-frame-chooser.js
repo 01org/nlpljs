@@ -3,16 +3,16 @@
   // NB the first item in this object will be the default if
   // no other frame is suitable
   var FRAMES = [
-    { name: 'small_square', rows: 2, cols: 2, ratio: 1 },
-    { name: 'large_square', rows: 4, cols: 4, ratio: 1 },
-    { name: 'portrait', cols: 2, rows: 4, ratio: 0.5 },
-    { name: 'landscape1', cols: 4, rows: 2, ratio: 2 },
-    { name: 'landscape2', cols: 4, rows: 3, ratio: 1.333333 }
+    { name: 'small_square', rows: 2, columns: 2, ratio: 1 },
+    { name: 'large_square', rows: 4, columns: 4, ratio: 1 },
+    { name: 'portrait', columns: 2, rows: 4, ratio: 0.5 },
+    { name: 'landscape1', columns: 4, rows: 2, ratio: 2 },
+    { name: 'landscape2', columns: 4, rows: 3, ratio: 1.333333 }
   ];
 
-  var FrameChooser = function (colWidth, rowHeight) {
-    this.colWidth = colWidth;
-    this.rowHeight = rowHeight;
+  var FrameChooser = function (columnWidth, rowHeight) {
+    this.columnWidth = columnWidth || 1;
+    this.rowHeight = rowHeight || 1;
   };
 
   /**
@@ -70,7 +70,7 @@
 
     for (var i = 0; i < FRAMES.length; i++) {
       candidateFrame = FRAMES[i];
-      candidateFrameWidth = candidateFrame.cols * this.colWidth;
+      candidateFrameWidth = candidateFrame.columns * this.columnWidth;
       candidateFrameHeight = candidateFrame.rows * this.rowHeight;
 
       ratioDiff = Math.abs(candidateFrame.ratio - imageItem.ratio);

@@ -1,30 +1,31 @@
 <link rel="import" href="./image-item.html">
-<!--link rel="import" href="../bower_components/paper-fab/paper-fab.html"-->
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <polymer-element name="image-card">
   <template>
     <style>
       :host {
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        display: block;
       }
 
       #container {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
+        position: relative;
+      }
+
+      image-item {
+        position: absolute;
+        transition-property: top, left, opacity;
+        transition-duration: 0.25s, 0.25s, 1s;
+        transition-timing-function: ease-out, ease-out, ease-out;
       }
 
       #more {
-        display: block;
-        margin-left: 50%;
+        text-align: center;
+        margin-top: 1em;
       }
 
       #morebutton {
-        background-color:grey;
+        background-color: gray;
       }
 
       /*
@@ -34,12 +35,7 @@
       image-items only in the context of an image-card
       */
       image-item::shadow #meta {
-        margin: 0 0 5px 0;
-      }
-
-      image-item::shadow img {
-        width: 100%;
-        height: auto;
+        margin: 0 0 3px 0;
       }
     </style>
 
@@ -49,19 +45,44 @@
     </div>
   </template>
 
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="image-card-frame-chooser.js"></script>
+  <script src="image-card-layout-generator.js"></script>
 
   <script>
     (function () {
-      /*
-       size in pixels of the size of a "cell" in the layout;
-       50px (element) + 2px gutter on each edge == 54
-       */
-      var CELL_SIDE = 54;
+      var NARROW_NUM_COLS = 4;
+      var WIDE_NUM_COLS = 8;
+
+      // when gallery >= this width, switch to WIDE_NUM_COLS
+      var WIDE_BREAKPOINT = 456;
+
+      // length of the side of a row/column for the purpose of
+      // choosing a frame
+      var FRAME_CELL_SIDE = 54;
 
       Polymer({
-        // all instances share a single FrameChooser
-        frameChooser: new FrameChooser(CELL_SIDE, CELL_SIDE),
+        created: function () {
+          this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
+          this.layoutGenerator = new LayoutGenerator();
+          this.numColumns = NARROW_NUM_COLS;
+        },
+
+        // set number of columns based on the gallery width
+        setLayoutParams: function () {
+          var width = this.$.container.offsetWidth;
+
+          if (width >= WIDE_BREAKPOINT) {
+            this.numColumns = WIDE_NUM_COLS;
+          }
+          else {
+            this.numColumns = NARROW_NUM_COLS;
+          }
+        },
+
+        domReady: function () {
+          this.setLayoutParams();
+        },
 
         /**
         * Convenience method to append an image search result to the
@@ -104,13 +125,58 @@
         frameImage: function (img) {
           var frame = this.frameChooser.choose(img);
           img.setAttribute('data-frame', frame.name);
+          img.setAttribute('data-columns', frame.columns);
+          img.setAttribute('data-rows', frame.rows);
         },
 
         /**
          * Apply layout to image-items.
          */
         layout: function () {
+          this.setLayoutParams();
+
+          var cellSide = this.$.container.offsetWidth / this.numColumns;
           var imageItems = this.$.container.querySelectorAll('image-item');
+
+          // convert imageItems into shapes
+          var shapes = [];
+
+          for (var i = 0; i < imageItems.length; i++) {
+            var imageItem = imageItems[i];
+
+            shapes.push({
+              elt: imageItem,
+              width: parseInt(imageItem.getAttribute('data-columns'), 10),
+              height: parseInt(imageItem.getAttribute('data-rows'), 10)
+            });
+          }
+
+          var layout = this.layoutGenerator.generate(shapes, this.numColumns);
+
+          var shape, position, elt, firstCol, width, x,
+              firstRow, height, y;
+
+          _.each(layout.placements, function (placement) {
+            shape = placement.shape;
+            position = placement.position;
+
+            width = position.columns.length * cellSide;
+            firstCol = _.first(position.columns);
+            x = firstCol * cellSide;
+
+            height = position.rows.length * cellSide;
+            firstRow = _.first(position.rows);
+            y = firstRow * cellSide;
+
+            shape.elt.style.left = x + 'px';
+            shape.elt.style.top = y + 'px';
+            shape.elt.style.width = width + 'px'
+            shape.elt.style.height = height + 'px';
+          });
+
+          // set the container height
+          var height = layout.grid.length * cellSide;
+          this.$.container.style.height = height + 'px';
         },
 
         moreImages: function(){

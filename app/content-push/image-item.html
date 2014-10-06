@@ -9,12 +9,22 @@ size
 <polymer-element name="image-item" attributes="src revealmeta">
   <template>
     <style>
+      :host {
+        display: inline-block;
+      }
+
       #container {
         display: inline-block;
         position: relative;
         overflow: hidden;
         height: 100%;
         width: 100%;
+        box-sizing: border-box;
+        padding: 3px 3px 0px 3px;
+      }
+
+      #container:hover {
+        background-color: #01bcd4;
       }
 
       [data-revealed="true"] {
@@ -38,17 +48,10 @@ size
         display: none;
       }
 
-      #container {
-        box-sizing: border-box;
-        padding: 3px 3px 0px 3px;
-      }
-
-      #container:hover {
-        background-color: #01bcd4;
-      }
-
       #image {
         -webkit-animation: fadein 2s;
+        width: 100%;
+        height: auto;
       }
 
       @-webkit-keyframes fadein {
@@ -57,7 +60,6 @@ size
       }
 
       #meta {
-        margin-bottom: 5px;
         max-width: 100%;
       }
     </style>
