@@ -53,12 +53,10 @@
 
           elt.$.container.addEventListener('mouseover', function () {
             self.fire('mouse-over', { keyword: elt.keyword });
-            elt.revealmetaOn();
           });
 
           elt.$.container.addEventListener('mouseout', function () {
             self.fire('mouse-out', { keyword: elt.keyword });
-            elt.revealmetaOff();
           });
         },
 
