@@ -16,7 +16,7 @@
     <link type="text/css" rel="stylesheet" href="styles/content-push.css">
     <div id="container" horizontal layout>
       <iframe id="iframe" flex></iframe>
-      <core-splitter id="splitter" direction="right" minSize="300px" on-down="{{downAction}}" on-up="{{upAction}}"></core-splitter>
+      <core-splitter id="splitter" direction="right" minSize="220px" on-down="{{downAction}}" on-up="{{upAction}}" on-track="{{trackAction}}"></core-splitter>
       <div id="content_push_panel">
         <!--the panel is made up of a header toolbar, a content toolbar and the content-->
         <core-toolbar id="toolbar">
@@ -272,7 +272,7 @@
           this.$.highlighter.clear();
 
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
-  
+
           if (this.sectionIndex[this.pageno]) {
             //Just transition to the already cached content
             this.$.content.selected = this.sectionIndex[this.pageno];
@@ -282,7 +282,7 @@
             this.getCurrentPage();
           }
         },
-        
+
         getCurrentPage: function() {
           /* Handle to the current Page */
 
@@ -354,6 +354,11 @@
 
         upAction: function() {
           this.$.iframe.style.pointerEvents = '';
+        },
+
+        // if the splitter moves, resize the gallery
+        trackAction: function () {
+          this.imageCards[this.pageno].layout();
         },
 
         closePanel: function() {
