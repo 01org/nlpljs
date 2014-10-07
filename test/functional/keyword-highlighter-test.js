@@ -20,24 +20,23 @@
         {
           groupId: 0,
           start: {
-            charNo: 70,
+            charNo: 0,
             lineNo: 0,
           },
           end: {
-            charNo: 83,
+            charNo: 10,
             lineNo: 0,
           },
         },
 
-        // overlaps above range
         {
           groupId: 5,
-          end: {
-            charNo: 6,
+          start: {
+            charNo: 2,
             lineNo: 0,
           },
-          start: {
-            charNo: 0,
+          end: {
+            charNo: 6,
             lineNo: 0,
           },
         },
@@ -115,6 +114,38 @@
       var testMethod=this.$.highlighter.testSplitAtPosition;
 
       var tests=[
+
+        {
+          comment: 'bug from multi-line work (begin of keyword)',
+          input: {
+            endian: 'begin',
+            position: 65,
+            chars:
+              '<span>north-west<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Hastings</span></a><span>,<span>&nbsp;</span>close<span>&nbsp;</span>to<span>&nbsp;</span>the<span>&nbsp;</span>present-day<span>&nbsp;</span>town<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Battle,<span>&nbsp;</span>East<span>&nbsp;</span>Susse</span></a><span>x,<span>&nbsp;</span>and<span>&nbsp;</span>was<span>&nbsp;</span>a<span>&nbsp;</span></span></span></span></div>',
+          },
+          output: {
+            before:
+              '<span>north-west<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Hastings</span></a><span>,<span>&nbsp;</span>close<span>&nbsp;</span>to<span>&nbsp;</span>the<span>&nbsp;</span>present-day<span>&nbsp;</span>town<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Battle,<span>&nbsp;</span>',
+            after:
+              'East<span>&nbsp;</span>Susse</span></a><span>x,<span>&nbsp;</span>and<span>&nbsp;</span>was<span>&nbsp;</span>a<span>&nbsp;</span></span></span></span></div>',
+          }
+        },
+
+        {
+          comment: 'bug from multi-line work (end of keyword)',
+          input: {
+            endian: 'end',
+            position: 75,
+            chars:
+              '<div><span></span><span><span><span>north-west<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Hastings</span></a><span>,<span>&nbsp;</span>close<span>&nbsp;</span>to<span>&nbsp;</span>the<span>&nbsp;</span>present-day<span>&nbsp;</span>town<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Battle,<span>&nbsp;</span>East<span>&nbsp;</span>Susse</span></a><span>x,<span>&nbsp;</span>and<span>&nbsp;</span>was<span>&nbsp;</span>a<span>&nbsp;</span></span></span></span></div>',
+          },
+          output: {
+            before:
+              '<div><span></span><span><span><span>north-west<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Hastings</span></a><span>,<span>&nbsp;</span>close<span>&nbsp;</span>to<span>&nbsp;</span>the<span>&nbsp;</span>present-day<span>&nbsp;</span>town<span>&nbsp;</span>of<span>&nbsp;</span></span><a><span>Battle,<span>&nbsp;</span>East<span>&nbsp;</span>Susse</span></a><span>x',
+            after:
+              ',<span>&nbsp;</span>and<span>&nbsp;</span>was<span>&nbsp;</span>a<span>&nbsp;</span></span></span></span></div>',
+          }
+        },
 
         {
           comment: 'end of string',
