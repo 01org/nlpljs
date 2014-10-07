@@ -82,6 +82,13 @@
           after: null
         };
 
+        var sanityCheck=0;
+        var SANITYMAXLOOPS=1000; // picked out of thin air
+        function outputSanityMessage() {
+          console.log('HL:sanity check: loop unreasonable long; breaking');
+          console.log('%cHL:TELL MAX ABOUT ABOVE ERROR','color:orange; background:red; font-size: 16pt;');
+        }
+
         // replace nbsp with char 160 to make life simpler
         var re = new RegExp('&nbsp;', 'g');
         var fakeSpace=String.fromCharCode(160);
@@ -101,6 +108,11 @@
 
             // move to next tag
             currentPosition=nextTag;
+
+            if (++sanityCheck>SANITYMAXLOOPS) {
+              outputSanityMessage();
+              break;
+            }
 
             // skip past tag(s)
             currentPosition=skipTags(chars,currentPosition);
@@ -126,8 +138,8 @@
               // move to next tag
               currentPosition=nextTag;
 
-              if (++sanityCheck>10000) {
-                console.log('HL:sanity check: breaking');
+              if (++sanityCheck>SANITYMAXLOOPS) {
+                outputSanityMessage();
                 break;
               }
 
@@ -193,7 +205,7 @@
 
         // abort if no line
         if (!line) {
-          console.log(['HL:ERROR, line#',start.lineNo,' no found.'].join(''));
+          console.log('HL:ERROR, line#%d not found.',start.lineNo);
           return;
         }
 
