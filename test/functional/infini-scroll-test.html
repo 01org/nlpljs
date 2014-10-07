@@ -1,0 +1,58 @@
+<link rel="import" href="../../app/content-push/infini-scroll.html">
+<link rel="import" href="../../app/content-push/image-card.html">
+
+<!--
+test for infini-scroll
+-->
+<polymer-element name="infini-scroll-test">
+  <template>
+    <style>
+      #container {
+        width: 400px;
+        height: 600px;
+      }
+
+      infini-scroll {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <p>The outer container is a fixed height to represent the
+    content-push element; the infini-scroll is styled to fill its
+    parent.</p>
+
+    <ul>
+      <li>With the initial two images, a button to load more content
+      should be visible.</li>
+      <li>After loading six more images, the button should be hidden
+      and new images load when the user scrolls to the bottom of
+      the element.</li>
+    </ul>
+
+    <div id="container">
+      <infini-scroll id="scroller" on-morecontent="{{addImages}}">
+        <image-card id="imagecard"></image-card>
+      </infini-scroll>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        this.addImages();
+      },
+
+      addImages: function () {
+        // add some images to the image-card
+        for (var i = 0; i < 2; i ++) {
+          this.$.imagecard.appendImage({
+            src: makeImageUrl(200, 200)
+          });
+        }
+      }
+    });
+  </script>
+</polymer-element>
