@@ -125,7 +125,7 @@ this.onmessage = function (event) {
               },
               end: {
                 lineNo: lineId,
-                charNo: search.index + keyphrase.length
+                charNo: search.index + (keyphrase.length - 1)
               }
             };
           }
@@ -155,7 +155,7 @@ this.onmessage = function (event) {
               },
               end: {
                 lineNo: lineId,
-                charNo: search.index + keyword.length
+                charNo: search.index + (keyword.length - 1)
               }
             };
           }
