@@ -1,5 +1,4 @@
 <link rel="import" href="./image-item.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <polymer-element name="image-card">
   <template>
@@ -19,15 +18,6 @@
         transition-timing-function: ease-out, ease-out, ease-out;
       }
 
-      #more {
-        text-align: center;
-        margin-top: 1em;
-      }
-
-      #morebutton {
-        background-color: gray;
-      }
-
       /*
       when an image-item displays inside an image-card, a margin
       appears to be added below the meta paragraph; I couldn't track
@@ -40,9 +30,6 @@
     </style>
 
     <div id="container"></div>
-    <div id="more">
-      <paper-fab id="morebutton" mini icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
-    </div>
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
@@ -66,6 +53,10 @@
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
+
+          // cached height and width, to reduce the number of events fired
+          this.lastMeasuredHeight = 0;
+          this.lastMeasuredWidth = 0;
         },
 
         // set number of columns based on the gallery width
@@ -177,14 +168,19 @@
           // set the container height
           var height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
-        },
 
-        moreImages: function(){
-          console.log('more images');
-          for (var i = 0; i < 10; i ++) {
-            var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
-            this.appendImage({src: src});
+          /*
+          fire an event to notify listeners that this element's height
+          has changed; this is required for infini-scroll to work
+          */
+          var width = this.offsetWidth;
+          var height = this.offsetHeight;
+
+          if (this.lastMeasuredWidth !== width ||
+              this.lastMeasuredHeight !== height) {
+            this.lastMeasuredWidth = width;
+            this.lastMeasuredHeight = height;
+            this.fire('resize', { width: width, height: height });
           }
         }
       })
