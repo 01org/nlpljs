@@ -43,7 +43,7 @@
     (function keywordHighlighter() {
       // private properties
       var hl={
-        open: function(groupId) { return '<keyword-highlight group-id="'+groupId+'">'; },
+        open: function(groupId,tag) { return '<keyword-highlight debugTag="'+tag+'" group-id="'+groupId+'">'; },
         close: function() { return '</keyword-highlight>'; }
       };
 
@@ -118,6 +118,7 @@
             currentPosition=endOfTags;
             var keywordChars=0;
             var nextTag=chars.indexOf('<',currentPosition);
+            var sanityCheck=0;
             while (nextTag!==-1 && nextTag < currentPosition+position-keywordChars+1) {
               // update current count of keyword characters
               keywordChars+=nextTag-currentPosition;
@@ -125,7 +126,12 @@
               // move to next tag
               currentPosition=nextTag;
 
-              if (keywordChars<position) {
+              if (++sanityCheck>10000) {
+                console.log('HL:sanity check: breaking');
+                break;
+              }
+
+              if (keywordChars<=position) {
                 // skip past tag(s)
                 currentPosition=skipTags(chars,currentPosition);
 
@@ -177,6 +183,11 @@
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
 
+        var tag = [
+          [start.lineNo,start.charNo].join(':'),
+          [end.lineNo,end.charNo].join(':'),
+        ].join('-');
+
         // 1. get start line object
         var line=getLine(self,start.lineNo);
 
@@ -226,7 +237,7 @@
             />([^<]+)</g,
             [
               '>',
-              hl.open(groupId),
+              hl.open(groupId,tag),
               '$1',
               hl.close(),
               '<'
@@ -238,7 +249,7 @@
             />([^>]+)$/,
             [
               '>',
-              hl.open(groupId),
+              hl.open(groupId,tag),
               '$1',
               hl.close()
             ].join('')
@@ -259,7 +270,7 @@
             />([^<]+)</g,
             [
               '>',
-              hl.open(groupId),
+              hl.open(groupId,tag),
               '$1',
               hl.close(),
               '<'
@@ -271,7 +282,7 @@
         // 7. assign the line to start line object
         line.innerHTML=[
           bits0.before,
-          hl.open(groupId),
+          hl.open(groupId,tag),
           bits0.after
         ].join('');
         // # done first line including hl.close() if it's on the same line
@@ -291,7 +302,7 @@
               />([^<]+)</g,
               [
                 '>',
-                hl.open(groupId),
+                hl.open(groupId,tag),
                 '$1',
                 hl.close(),
                 '<'
@@ -318,7 +329,7 @@
             />([^<]+)</g,
             [
               '>',
-              hl.open(groupId),
+              hl.open(groupId,tag),
               '$1',
               hl.close(),
               '<'
@@ -331,7 +342,7 @@
             var insertAtPos=gtPosition+1;
             bits.before = [
               bits.before.substr(0,insertAtPos),
-              hl.open(groupId),
+              hl.open(groupId,tag),
               bits.before.substr(insertAtPos)
             ].join('');
           }
@@ -345,6 +356,21 @@
           ].join('');
         }
 
+
+        // dump the contents of the range highlighted
+        console.log('HL:Tag:',tag);
+        var elements=self.targetElement.querySelectorAll('keyword-highlight[debugTag="'+tag+'"]');
+        var result=[];
+        for ( var i=0;i<elements.length;++i ) {
+          result.push(elements[i].innerText);
+        }
+        var concatResult=[result.join('')].join('');
+        console.log('HL:Result: ',['/',concatResult,'/'].join(''));
+        if (start.lineNo===end.lineNo && concatResult.length!=(end.charNo-start.charNo+1)) {
+          // only checking when the same line
+          console.log('HL:Error: concatResult length=',concatResult.length);
+          console.log('HL:Error: end.charNo-start.charNo+1=',end.charNo-start.charNo+1);
+        }
       };
 
       /*
