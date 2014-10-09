@@ -43,6 +43,8 @@ the child elements we're interested in are being added)
 
       #nocontent {
         text-align: center;
+        width: 60%;
+        margin-left: 15%;
       }
 
       #loading {
@@ -65,8 +67,8 @@ the child elements we're interested in are being added)
       #more {
         text-align: center;
         margin: 3em 0 0 0;
-        width: 50%;
-        margin-left: 25%;
+        width: 60%;
+        margin-left: 15%;
         border-top: thin solid gray;
         content-sizing: border-box;
       }
@@ -139,6 +141,10 @@ the child elements we're interested in are being added)
           this.addEventListener('scroll', this.onScroll.bind(this));
         },
 
+        changeIsLoading: function () {
+          console.log(this.isLoading);
+        },
+
         /*
         if the height of the content item + height of the "more"
         container is >= the height of the infini-scroll, hide the
@@ -148,9 +154,12 @@ the child elements we're interested in are being added)
           var contentHeight = e.detail.height;
           var moreHeight = this.$.more.offsetHeight;
           var thisHeight = this.offsetHeight;
+
           if (this.showButton && contentHeight + moreHeight > thisHeight) {
             this.showButton = false;
             this.fireMoreContent();
+          } else if (contentHeight + moreHeight <= thisHeight) {
+            this.showButton = true;
           }
         },
 

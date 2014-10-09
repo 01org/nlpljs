@@ -1,0 +1,57 @@
+<!--
+scrolling image search results component
+
+wraps an image-card with an infini-scroll component, and propagates
+any "morecontent" and "replacecontent" events from the infini-scroll
+upwards
+-->
+<link rel="import" href="./infini-scroll.html">
+<link rel="import" href="./image-card.html">
+
+<polymer-element name="image-results">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      infini-scroll {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <infini-scroll id="scroller" on-morecontent="{{fireMoreImages}}"
+                   on-replacecontent="{{fireReplaceImages}}">
+      <image-card id="imagecard"></image-card>
+    </infini-scroll>
+  </template>
+
+  <script>
+    Polymer({
+      /*
+      load more results already returned by searches when
+      the scroller reaches the bottom
+      */
+      fireMoreImages: function () {
+        this.fire('moreimages');
+      },
+
+      // replace current content with new search results
+      fireReplaceImages: function () {
+        this.$.imagecard.clear();
+        this.fire('replaceimages');
+      },
+
+      // append an image into the wrapped image-card
+      appendImage: function (image, keyword) {
+        this.$.imagecard.appendImage(image, keyword);
+      },
+
+      // layout the wrapped image-card
+      layout: function () {
+        this.$.imagecard.layout();
+      }
+    });
+  </script>
+</polymer-element>
