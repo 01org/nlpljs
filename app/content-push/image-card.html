@@ -76,6 +76,13 @@
         },
 
         /**
+         * Return all child image-item elements
+         */
+        getChildren: function () {
+          return this.$.container.querySelectorAll('image-item');
+        },
+
+        /**
         * Convenience method to append an image search result to the
         * gallery; creates a cp-image element for the image object added.
         *
@@ -83,6 +90,13 @@
         * format:
         * {
         *   src: <url of image>
+        * }
+        *
+        * @fires childrenchanged Event data:
+        * {
+        *   added: <reference to the child element which was added>,
+        *   numChildren: <total number of children>,
+        *   parent: <reference to this image-card>
         * }
         */
         appendImage: function (image, keyword) {
@@ -94,6 +108,12 @@
             self.frameImage(elt);
             self.$.container.appendChild(elt);
             self.layout();
+
+            self.fire('childrenchanged', {
+              added: elt,
+              numChildren: self.getChildren().length,
+              parent: self
+            });
           });
 
           elt.$.container.addEventListener('mouseover', function () {
@@ -127,7 +147,7 @@
           this.setLayoutParams();
 
           var cellSide = this.$.container.offsetWidth / this.numColumns;
-          var imageItems = this.$.container.querySelectorAll('image-item');
+          var imageItems = this.getChildren();
 
           // convert imageItems into shapes
           var shapes = [];
@@ -180,7 +200,35 @@
               this.lastMeasuredHeight !== height) {
             this.lastMeasuredWidth = width;
             this.lastMeasuredHeight = height;
-            this.fire('resize', { width: width, height: height });
+
+            this.fire('resize', {
+              width: width,
+              height: height
+            });
+          }
+        },
+
+        /**
+         * Remove all image-item elements from the card
+         *
+         * @param boolean silent Set to true to prevent a childrenchanged
+         * event being fired; useful for situations where you expect
+         * to immediately append new children after clearing and don't
+         * want to incorrectly notify listeners that the container
+         * has no content.
+         */
+        clear: function (silent) {
+          var imageItems = this.getChildren();
+          for (var i = 0; i < imageItems.length; i++) {
+            imageItems[i].parentNode.removeChild(imageItems[i]);
+          }
+
+          if (!silent) {
+            this.fire('childrenchanged', {
+              cleared: true,
+              numChildren: 0,
+              parent: this
+            });
           }
         }
       })

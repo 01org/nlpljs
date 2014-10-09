@@ -20,13 +20,19 @@ dimensions change, with this data:
 note that if multiple elements are inside an infini-scroll, only the
 first one is used to determine whether the button is visible and
 to set the y scroll boundary
+
+for the "no content" display to be toggled on/off, the wrapped
+element should also fire a "childadded" event when new child elements
+are added to it (NB it would be nice to use MutationObservers for
+this, but these don't work inside the Shadow DOM, which is where
+the child events we're interested in are being added)
 -->
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <!-- this is needed for the icon on the "more" button -->
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
 
-<polymer-element name="infini-scroll" attributes="showbutton">
+<polymer-element name="infini-scroll" attributes="showButton">
   <template>
     <style>
       :host {
@@ -56,14 +62,19 @@ to set the y scroll boundary
     </style>
 
     <div id="container">
-      <content id="content" select="*" on-resize="{{onContentResize}}">
+      <content id="content" select="*" on-resize="{{onContentResize}}"
+               on-childrenchanged="{{onChildrenChanged}}">
       </content>
     </div>
 
-    <div id="more" data-show="{{showbutton}}">
+    <div id="nocontent" data-show="{{noContent}}">
+      No content
+    </div>
+
+    <div id="more" data-show="{{showButton}}">
       <p>Widen the search</p>
       <paper-fab id="morebutton" mini icon="add-circle-outline"
-                 raisedButton="true" on-click="{{fireMoreContent}}">
+                 raisedButton="true" on-click="{{fireReplaceContent}}">
       </paper-fab>
     </div>
   </template>
@@ -76,23 +87,29 @@ to set the y scroll boundary
         set to false once the height of the #content element is equal
         to or greater than the height of the infini-scroll
         */
-        this.showbutton = true;
+        this.showButton = true;
+
+        /*
+        set to true when the wrapped element contains at least
+        one child element
+        */
+        this.noContent = true;
 
         // event handler for scroll events on the container
         this.addEventListener('scroll', this.onScroll.bind(this));
       },
 
       /*
-        if the height of the content item + height of the "more"
-        container is >= the height of the infini-scroll, hide the
-        button
+      if the height of the content item + height of the "more"
+      container is >= the height of the infini-scroll, hide the
+      button
       */
       onContentResize: function (e) {
         var contentHeight = e.detail.height;
         var moreHeight = this.$.more.offsetHeight;
         var thisHeight = this.offsetHeight;
-        if (this.showbutton && contentHeight + moreHeight > thisHeight) {
-          this.showbutton = false;
+        if (this.showButton && contentHeight + moreHeight > thisHeight) {
+          this.showButton = false;
           this.fireMoreContent();
         }
       },
@@ -104,13 +121,35 @@ to set the y scroll boundary
       },
 
       /*
-      fire a "morecontent" event, signifying either that the "more" button
-      was pressed, or that the end of the scroll was reached; it's up
-      to listeners to decide what to do with this (e.g. append more
-      content into the wrapped element)
+      called when a child is added or removed from the wrapped content
+      element
+      */
+      onChildrenChanged: function (e) {
+        console.log(e);
+
+        if (e.detail.numChildren === 0) {
+          this.noContent = true;
+        }
+        else {
+          this.noContent = false;
+        }
+      },
+
+      /*
+      fire a "morecontent" event, signifying either that the end of
+      the scroll was reached; it's up to listeners to decide what to do
+      with this (e.g. append more content into the wrapped element)
       */
       fireMoreContent: function () {
         this.fire('morecontent');
+      },
+
+      /*
+      fire a "replacecontent" event, signifying that the content of
+      the wrapped element should be replaced
+      */
+      fireReplaceContent: function () {
+        this.fire('replacecontent');
       }
     });
   </script>

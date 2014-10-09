@@ -23,15 +23,17 @@ test for infini-scroll
     parent.</p>
 
     <ul>
-      <li>With the initial two images, a button to load more content
-      should be visible.</li>
-      <li>After loading six more images, the button should be hidden
-      and new images load when the user scrolls to the bottom of
+      <li>With the initial two images, a button to "widen the search"
+      should be visible. Clicking this button loads six images
+      which replace the existing ones.</li>
+      <li>After loading these six images, the button should be hidden
+      and new images load when the user scrolls near the bottom of
       the element.</li>
     </ul>
 
     <div id="container">
-      <infini-scroll id="scroller" on-morecontent="{{addImages}}">
+      <infini-scroll id="scroller" on-morecontent="{{addImages}}"
+                     on-replacecontent="{{replaceImages}}">
         <image-card id="imagecard"></image-card>
       </infini-scroll>
     </div>
@@ -41,13 +43,36 @@ test for infini-scroll
 
   <script>
     Polymer({
-      domReady: function () {
-        this.addImages();
+      created: function () {
+        /*
+        for stubbing purposes, record how many times replaceImages()
+        has been called; this is so that the first call adds only
+        2 images (so the "widen search" button is visible); and
+        the second call adds 6 (to show the "more content on scroll"
+        behaviour)
+        */
+        this.callsToReplaceImages = 0;
       },
 
       addImages: function () {
         // add some images to the image-card
         for (var i = 0; i < 2; i ++) {
+          this.$.imagecard.appendImage({
+            src: makeImageUrl(200, 200)
+          });
+        }
+      },
+
+      replaceImages: function () {
+        this.callsToReplaceImages++;
+
+        // show more images on the second call to this function
+        var numImages = (this.callsToReplaceImages === 1 ? 2 : 6)
+
+        var clearSilently = true;
+        this.$.imagecard.clear(clearSilently);
+
+        for (var i = 0; i < numImages; i ++) {
           this.$.imagecard.appendImage({
             src: makeImageUrl(200, 200)
           });
