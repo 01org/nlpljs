@@ -57,6 +57,9 @@
           // cached height and width, to reduce the number of events fired
           this.lastMeasuredHeight = 0;
           this.lastMeasuredWidth = 0;
+
+          // count of the number of images currently loading
+          this.countChildrenLoading = 0;
         },
 
         // set number of columns based on the gallery width
@@ -104,6 +107,10 @@
 
           var elt = document.createElement('image-item');
 
+          this.countChildrenLoading++;
+          this.fireChildrenLoading();
+
+          // image loaded successfully
           elt.addEventListener('load', function () {
             self.frameImage(elt);
             self.$.container.appendChild(elt);
@@ -114,6 +121,16 @@
               numChildren: self.getChildren().length,
               parent: self
             });
+
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
+          });
+
+          // image fails to load, we still need to remove it from
+          // the count of loading images
+          elt.addEventListener('error', function (e) {
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
           });
 
           elt.$.container.addEventListener('mouseover', function () {
@@ -210,26 +227,36 @@
 
         /**
          * Remove all image-item elements from the card
-         *
-         * @param boolean silent Set to true to prevent a childrenchanged
-         * event being fired; useful for situations where you expect
-         * to immediately append new children after clearing and don't
-         * want to incorrectly notify listeners that the container
-         * has no content.
          */
-        clear: function (silent) {
+        clear: function () {
           var imageItems = this.getChildren();
           for (var i = 0; i < imageItems.length; i++) {
             imageItems[i].parentNode.removeChild(imageItems[i]);
+            imageItems[i] = null;
           }
 
-          if (!silent) {
-            this.fire('childrenchanged', {
-              cleared: true,
-              numChildren: 0,
-              parent: this
-            });
-          }
+          /*
+          reset the height of the container (cheap operation
+          as there are no children at this point)
+          */
+          this.layout();
+
+          this.fire('childrenchanged', {
+            cleared: true,
+            numChildren: 0,
+            parent: this
+          });
+        },
+
+        /**
+         * Fire a "childrenloading" event with a count of the number
+         * of images which are currently loading.
+         *
+         * @fires childrenloading Event data: count of the number of
+         * images which are currently loading into the component.
+         */
+        fireChildrenLoading: function () {
+          this.fire('childrenloading', this.countChildrenLoading);
         }
       })
     })();

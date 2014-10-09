@@ -69,8 +69,7 @@ test for infini-scroll
         // show more images on the second call to this function
         var numImages = (this.callsToReplaceImages === 1 ? 2 : 6)
 
-        var clearSilently = true;
-        this.$.imagecard.clear(clearSilently);
+        this.$.imagecard.clear();
 
         for (var i = 0; i < numImages; i ++) {
           this.$.imagecard.appendImage({

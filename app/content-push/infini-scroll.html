@@ -1,11 +1,10 @@
 <!--
 wraps a single element in a scrollable area;
 when the wrapped element is shorter than the scrollable area, a button
-is shown which triggers a "morecontent" event when pressed;
+is shown which triggers a "replacecontent" event when pressed;
 if the wrapped element is the same height or taller than the scroller,
 the button is hidden and a vertical scrollbar is added; then, when the
-end of the scroll is reached, a "more content" event is fired (the same
-as if the button were pressed)
+end of the scroll is reached, a "morecontent" event is fired
 
 for this to work, the infini-scroll element should have a fixed size
 (e.g. set width and height to a percentage of its parent element);
@@ -21,25 +20,46 @@ note that if multiple elements are inside an infini-scroll, only the
 first one is used to determine whether the button is visible and
 to set the y scroll boundary
 
-for the "no content" display to be toggled on/off, the wrapped
-element should also fire a "childadded" event when new child elements
+for the "no content" visibility to be toggled on/off, the wrapped
+element should also fire a "childrenchanged" event when new child elements
 are added to it (NB it would be nice to use MutationObservers for
 this, but these don't work inside the Shadow DOM, which is where
-the child events we're interested in are being added)
+the child elements we're interested in are being added)
 -->
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <!-- this is needed for the icon on the "more" button -->
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
 
-<polymer-element name="infini-scroll" attributes="showButton">
+<polymer-element name="infini-scroll" attributes="showButton scrollGap">
   <template>
     <style>
       :host {
         display: block;
-        flex-direction: column;
+        position: relative;
         overflow-x: hidden;
         overflow-y: scroll;
+      }
+
+      #nocontent {
+        text-align: center;
+      }
+
+      #loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* fill the whole panel when there is no content */
+      #loading[data-nocontent="true"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        z-index: 1000;
       }
 
       #more {
@@ -57,100 +77,133 @@ the child events we're interested in are being added)
       }
 
       [data-show="false"] {
-        display: none;
+        display: none !important;
       }
     </style>
 
     <div id="container">
       <content id="content" select="*" on-resize="{{onContentResize}}"
-               on-childrenchanged="{{onChildrenChanged}}">
+               on-childrenchanged="{{onChildrenChanged}}"
+               on-childrenloading="{{onChildrenLoading}}">
       </content>
     </div>
 
-    <div id="nocontent" data-show="{{noContent}}">
-      No content
+    <div id="loading" data-show="{{isLoading}}" data-nocontent="{{noContent}}">
+      <img src="../images/spinner.gif">
     </div>
 
-    <div id="more" data-show="{{showButton}}">
+    <div id="nocontent" data-show="{{noContent && !isLoading}}">
+      Sorry, we couldn't find anything
+    </div>
+
+    <div id="more" data-show="{{showButton && !isLoading}}">
       <p>Widen the search</p>
-      <paper-fab id="morebutton" mini icon="add-circle-outline"
+      <paper-fab id="morebutton" mini icon="add"
                  raisedButton="true" on-click="{{fireReplaceContent}}">
       </paper-fab>
     </div>
   </template>
 
   <script>
-    Polymer({
-      domReady: function () {
-        /*
-        set to false if the button should be hidden; this is automatically
-        set to false once the height of the #content element is equal
-        to or greater than the height of the infini-scroll
-        */
-        this.showButton = true;
-
-        /*
-        set to true when the wrapped element contains at least
-        one child element
-        */
-        this.noContent = true;
-
-        // event handler for scroll events on the container
-        this.addEventListener('scroll', this.onScroll.bind(this));
-      },
-
+    (function () {
       /*
-      if the height of the content item + height of the "more"
-      container is >= the height of the infini-scroll, hide the
-      button
+      default number of pixels between the scroll position and the
+      end of the container when the "morecontent" event triggers,
+      signifying that the container should have more content added to it
       */
-      onContentResize: function (e) {
-        var contentHeight = e.detail.height;
-        var moreHeight = this.$.more.offsetHeight;
-        var thisHeight = this.offsetHeight;
-        if (this.showButton && contentHeight + moreHeight > thisHeight) {
-          this.showButton = false;
-          this.fireMoreContent();
-        }
-      },
+      var DEFAULT_SCROLL_GAP = 100;
 
-      onScroll: function () {
-        if (this.scrollTop + this.offsetHeight >= this.scrollHeight - 100) {
-          this.fireMoreContent();
-        }
-      },
+      Polymer({
+        created: function () {
+          /*
+          set to false if the button should be hidden; this is automatically
+          set to false once the height of the #content element is equal
+          to or greater than the height of the infini-scroll
+          */
+          this.showButton = true;
 
-      /*
-      called when a child is added or removed from the wrapped content
-      element
-      */
-      onChildrenChanged: function (e) {
-        console.log(e);
-
-        if (e.detail.numChildren === 0) {
+          /*
+          set to true when the wrapped element contains at least
+          one child element
+          */
           this.noContent = true;
-        }
-        else {
-          this.noContent = false;
-        }
-      },
 
-      /*
-      fire a "morecontent" event, signifying either that the end of
-      the scroll was reached; it's up to listeners to decide what to do
-      with this (e.g. append more content into the wrapped element)
-      */
-      fireMoreContent: function () {
-        this.fire('morecontent');
-      },
+          /*
+          set to true when content is being loaded; shows the spinner
+          */
+          this.isLoading = false;
+        },
 
-      /*
-      fire a "replacecontent" event, signifying that the content of
-      the wrapped element should be replaced
-      */
-      fireReplaceContent: function () {
-        this.fire('replacecontent');
-      }
-    });
+        domReady: function () {
+          // event handler for scroll events on the container
+          this.addEventListener('scroll', this.onScroll.bind(this));
+        },
+
+        /*
+        if the height of the content item + height of the "more"
+        container is >= the height of the infini-scroll, hide the
+        button
+        */
+        onContentResize: function (e) {
+          var contentHeight = e.detail.height;
+          var moreHeight = this.$.more.offsetHeight;
+          var thisHeight = this.offsetHeight;
+          if (this.showButton && contentHeight + moreHeight > thisHeight) {
+            this.showButton = false;
+            this.fireMoreContent();
+          }
+        },
+
+        onScroll: function () {
+          var gap = this.scrollGap || DEFAULT_SCROLL_GAP;
+          if (this.scrollTop + this.offsetHeight >= this.scrollHeight - gap) {
+            this.fireMoreContent();
+          }
+        },
+
+        /*
+        called when a child is added or removed from the wrapped content
+        element
+        */
+        onChildrenChanged: function (e) {
+          if (e.detail.numChildren === 0) {
+            this.noContent = true;
+          }
+          else {
+            this.noContent = false;
+          }
+        },
+
+        /*
+        called when the number of images being loaded into the wrapped
+        content element changes
+        */
+        onChildrenLoading: function (e) {
+          if (e.detail > 0) {
+            this.isLoading = true;
+          }
+          else {
+            this.isLoading = false;
+          }
+        },
+
+        /*
+        fire a "morecontent" event, signifying either that the end of
+        the scroll was reached; it's up to listeners to decide what to do
+        with this (e.g. append more content into the wrapped element)
+        */
+        fireMoreContent: function () {
+          this.fire('morecontent');
+        },
+
+        /*
+        fire a "replacecontent" event, signifying that the content of
+        the wrapped element should be replaced
+        */
+        fireReplaceContent: function () {
+          this.fire('replacecontent');
+        }
+      });
+    })();
   </script>
 </polymer-element>
