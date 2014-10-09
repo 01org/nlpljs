@@ -102,6 +102,10 @@ this.onmessage = function (event) {
       var keywords = [];
       var ranges = [];
 
+      function escapeRegExp(str) {
+        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+      }
+
       for (i = 0; i < result.keyphrases.length; i++) {
         var keyphrase = result.keyphrases[i];
         var index = keywords.length;
@@ -124,7 +128,7 @@ this.onmessage = function (event) {
             lineStart = pages[message.data.pageId].lines[j - 1].text.length;
           }
 
-          var regex = new RegExp(keyphrase, "gi");
+          var regex = new RegExp(escapeRegExp(keyphrase), "gi");
           while ((search = regex.exec(totalText))) {
             var startLine = lineId;
             var endLine = lineId;
@@ -169,7 +173,7 @@ this.onmessage = function (event) {
           var lineId = pages[message.data.pageId].lines[j].id;
           var lineText = pages[message.data.pageId].lines[j].text;
 
-          var regex = new RegExp(keyword, "gi");
+          var regex = new RegExp(escapeRegExp(keyword), "gi");
           while ((search = regex.exec(lineText))) {
             ranges[ranges.length] = {
               groupId: keywords[index].groupId,
