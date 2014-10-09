@@ -27,31 +27,37 @@ upwards
     </infini-scroll>
   </template>
 
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
+
   <script>
-    Polymer({
-      /*
-      load more results already returned by searches when
-      the scroller reaches the bottom
-      */
-      fireMoreImages: function () {
-        this.fire('moreimages');
-      },
+    (function () {
+      Polymer({
+        /*
+        load more results already returned by searches when
+        the scroller reaches the bottom; this is throttled for now
+        to prevent lots of searches piling on top of each other as the
+        container's size changes with each new image added
+        */
+        fireMoreImages: _.debounce(function () {
+          this.fire('moreimages');
+        }, 1000, {leading: true}).bind(this),
 
-      // replace current content with new search results
-      fireReplaceImages: function () {
-        this.$.imagecard.clear();
-        this.fire('replaceimages');
-      },
+        // replace current content with new search results
+        fireReplaceImages: function () {
+          this.$.imagecard.clear();
+          this.fire('replaceimages');
+        },
 
-      // append an image into the wrapped image-card
-      appendImage: function (image, keyword) {
-        this.$.imagecard.appendImage(image, keyword);
-      },
+        // append an image into the wrapped image-card
+        appendImage: function (image, keyword) {
+          this.$.imagecard.appendImage(image, keyword);
+        },
 
-      // layout the wrapped image-card
-      layout: function () {
-        this.$.imagecard.layout();
-      }
-    });
+        // layout the wrapped image-card
+        layout: function () {
+          this.$.imagecard.layout();
+        }
+      });
+    })();
   </script>
 </polymer-element>
