@@ -113,19 +113,43 @@ this.onmessage = function (event) {
 
         for (j = 0; j < pages[message.data.pageId].lines.length; j++) {
           var lineId = pages[message.data.pageId].lines[j].id;
+          var prevLineId;
           var lineText = pages[message.data.pageId].lines[j].text;
+          var totalText = lineText;
+          var lineStart = 0;
+
+          if (j > 0) {
+            prevLineId = pages[message.data.pageId].lines[j - 1].id;
+            totalText = pages[message.data.pageId].lines[j - 1].text + lineText;
+            lineStart = pages[message.data.pageId].lines[j - 1].text.length;
+          }
 
           var regex = new RegExp(keyphrase, "gi");
-          while ((search = regex.exec(lineText))) {
+          while ((search = regex.exec(totalText))) {
+            var startLine = lineId;
+            var endLine = lineId;
+            var startChar = search.index - lineStart;
+            var endChar = 0;
+
+            if (search.index < lineStart) {
+              if (search.index + keyphrase.length - 1 < lineStart)
+                continue;
+              else {
+                startChar = search.index;
+                startLine = prevLineId;
+              }
+            }
+
+            endChar = (search.index - lineStart) + keyphrase.length - 1;
             ranges[ranges.length] = {
               groupId: keywords[index].groupId,
               start: {
-                lineNo: lineId,
-                charNo: search.index
+                lineNo: startLine,
+                charNo: startChar
               },
               end: {
-                lineNo: lineId,
-                charNo: search.index + (keyphrase.length - 1)
+                lineNo: endLine,
+                charNo: endChar
               }
             };
           }
