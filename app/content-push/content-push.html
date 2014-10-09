@@ -173,66 +173,11 @@
           var onLoadHandler = this.onLoad.bind(this);
           this.$.iframe.onload = onLoadHandler;
 
-          var tabselect = this.tabSelected.bind(this);
-          this.$.tabs.addEventListener('core-select', tabselect);
-
           document.addEventListener('keywordlist', function (e) {
-            if (typeof self.imageCards[self.pageno] === 'undefined')
-              addImageCard(self,e.detail);
+            addImageCard(self,e.detail);
 
             self.$.highlighter.prepare(e.detail.ranges);
           });
-        },
-
-        domReady: function () {
-          //TODO trigger searches from the real text on the page
-          //this.search(pageId, ['stub phrase', 'stub phrase']);
-        },
-
-        tabSelected: function(e) {
-          if (!e.detail.isSelected)
-            return;
-
-          switch(parseInt(this.$.tabs.selected)){
-            case 0:
-              this.loadImages();
-              break;
-            case 1:
-              this.loadDrive();
-              break;
-            case 2:
-              this.loadQuotes();
-              break;
-            case 3:
-              this.loadMore();
-              break;
-            default:
-          }
-        },
-
-        loadImages: function() {
-          console.log('load images');
-        },
-
-        loadDrive: function() {
-
-        },
-
-        loadQuotes: function() {
-
-        },
-
-        loadMore: function() {
-          var self=this;
-          observeDocumentChanges(this.$.iframe, function(text) {
-            var textNode=document.createTextNode(text.replace("&nbsp;"," "));
-            self.$.changed_text.innerHTML="";
-            self.$.changed_text.appendChild(textNode);
-          });
-
-          // bind event handlers to search components
-          //var handler = this.handleSearchResults.bind(this);
-          //this.$.search_google_images.addEventListener("searchResults", handler);
         },
 
         onLoad: function(){
@@ -288,37 +233,14 @@
           var content = this.$.iframe.contentDocument.querySelector(str);
 
           var paragraphs = content.querySelectorAll('.kix-paragraphrenderer');
-          var txtObj = {};
-          var lineCount = 0;
+
+          this.fire('resetextractor', null);
 
           for(var i=0;i<paragraphs.length;i++) {
             var lines = paragraphs[i].querySelectorAll('.kix-lineview-content');
             for(var j=0;j<lines.length;j++) {
-              txtObj[lineCount]= {'text':lines[j].innerText};
-              lineCount++;
-            }
-          }
-          /* Create an object to represent the text structure on this page.
-             txtObj is a object with line number as key, and the value is a
-             object with 'text' as key & line content with value. The function
-             processPageText() is a sample function , demonstrating how you can
-             parse the object. NPL should just JSON stringify it and process it.*/
-          this.processPageText(txtObj);
-        },
-
-        /* This is test function for demonstration purpose only. */
-        /* This function parses the text object and appends them
-           in the animated-pages in sections. There is a section for
-           each visited page and when the page scrolls we animates the
-           transitions to the relevant section */
-        processPageText: function(textObject) {
-          /* If this is a new page, then reset the extractor and feed the
-             whole text , line-by-line to the NLP module */
-          if (this.sectionIndex[this.pageno] == null) {
-            this.fire('resetextractor', null);
-            for (var i=0; i < Object.keys(textObject).length; i++) {
               this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
-                text: textObject[i].text });
+                text: lines[j].innerText });
 
               this.numLines++;
             }
