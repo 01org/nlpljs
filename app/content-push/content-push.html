@@ -177,8 +177,7 @@
           this.$.tabs.addEventListener('core-select', tabselect);
 
           document.addEventListener('keywordlist', function (e) {
-            if (typeof self.imageCards[self.pageno] === 'undefined')
-              addImageCard(self,e.detail);
+            addImageCard(self,e.detail);
 
             self.$.highlighter.prepare(e.detail.ranges);
           });
