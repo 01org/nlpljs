@@ -173,58 +173,11 @@
           var onLoadHandler = this.onLoad.bind(this);
           this.$.iframe.onload = onLoadHandler;
 
-          var tabselect = this.tabSelected.bind(this);
-          this.$.tabs.addEventListener('core-select', tabselect);
-
           document.addEventListener('keywordlist', function (e) {
             addImageCard(self,e.detail);
 
             self.$.highlighter.prepare(e.detail.ranges);
           });
-        },
-
-        domReady: function () {
-          //TODO trigger searches from the real text on the page
-          //this.search(pageId, ['stub phrase', 'stub phrase']);
-        },
-
-        tabSelected: function(e) {
-          if (!e.detail.isSelected)
-            return;
-
-          switch(parseInt(this.$.tabs.selected)){
-            case 0:
-              this.loadImages();
-              break;
-            case 1:
-              this.loadDrive();
-              break;
-            case 2:
-              this.loadQuotes();
-              break;
-            case 3:
-              this.loadMore();
-              break;
-            default:
-          }
-        },
-
-        loadImages: function() {
-          console.log('load images');
-        },
-
-        loadDrive: function() {
-
-        },
-
-        loadQuotes: function() {
-
-        },
-
-        loadMore: function() {
-          // bind event handlers to search components
-          //var handler = this.handleSearchResults.bind(this);
-          //this.$.search_google_images.addEventListener("searchResults", handler);
         },
 
         onLoad: function(){
