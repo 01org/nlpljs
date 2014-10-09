@@ -222,13 +222,6 @@
         },
 
         loadMore: function() {
-          var self=this;
-          observeDocumentChanges(this.$.iframe, function(text) {
-            var textNode=document.createTextNode(text.replace("&nbsp;"," "));
-            self.$.changed_text.innerHTML="";
-            self.$.changed_text.appendChild(textNode);
-          });
-
           // bind event handlers to search components
           //var handler = this.handleSearchResults.bind(this);
           //this.$.search_google_images.addEventListener("searchResults", handler);
