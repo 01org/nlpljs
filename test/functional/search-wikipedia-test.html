@@ -1,0 +1,62 @@
+<link rel="import" href="../../app/content-push/search-wikipedia.html">
+
+<!--
+test for search-wikipedia
+-->
+<polymer-element name="search-wikipedia-test">
+  <template>
+    <style>
+      img {
+        max-width: 200px;
+      }
+
+      #error {
+        color: red;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <p>Search wikipedia and display images. Pressing the button
+    initiates a search for 30 results, but only displays 10 of them.
+    Press the button again twice to get 10 more results each time
+    (to show all 30). Then pressing it again will initiate
+    another search etc.</p>
+
+    <p><button id="fetch" on-click="{{fetchResults}}">Fetch results</button></p>
+
+    <search-wikipedia id="searchWikipedia"
+                      resultsPerSearch="30" resultsPerFetch="10">
+    </search-wikipedia>
+
+    <p id="error" data-show="false">No more results</p>
+
+    <div id="container"></div>
+  </template>
+
+  <script>
+    Polymer({
+      fetchResults: function () {
+        var self = this;
+        var query = 'battle of hastings';
+
+        this.$.searchWikipedia.fetch(query)
+        .then(
+          function (results) {
+            if (results.length) {
+              for (var i = 0; i < results.length; i++) {
+                var img = document.createElement('img');
+                img.src = results[i].src;
+                self.$.container.insertBefore(img, self.$.container.firstChild);
+              }
+            } else {
+              self.$.error.setAttribute('data-show', 'true');
+            }
+          }
+        );
+      }
+    });
+  </script>
+</polymer-element>
