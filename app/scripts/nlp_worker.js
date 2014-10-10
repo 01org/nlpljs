@@ -102,7 +102,16 @@ this.onmessage = function (event) {
       var keywords = [];
       var ranges = [];
 
+      /**
+       * Prefix characters that are special to RegExp() with a backslash
+       *     to render them inert.
+       * @param {string} str The string to escape RexExp() special characters in.
+       * @return {string} The string with escaped special characters.
+       */
       function escapeRegExp(str) {
+        // the first parameter is a list of characters that are special to RegExp()
+        // $& is the string matched in the first parameter
+        // \\ is a single backslash to escape the character
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
       }
 
