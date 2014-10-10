@@ -227,21 +227,16 @@
         getCurrentPage: function() {
           /* Handle to the current Page */
 
-          var str = '.kix-page:nth-child(' + (this.pageno).toString() + ') > div:nth-child(2) > div:nth-child(1)';
-          var content = this.$.iframe.contentDocument.querySelector(str);
-
-          var paragraphs = content.querySelectorAll('.kix-paragraphrenderer');
+          var lines = this.$.iframe.contentDocument.querySelectorAll(
+            '.kix-lineview-content');
 
           this.fire('resetextractor', null);
 
-          for(var i=0;i<paragraphs.length;i++) {
-            var lines = paragraphs[i].querySelectorAll('.kix-lineview-content');
-            for(var j=0;j<lines.length;j++) {
-              this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
-                text: lines[j].innerText });
+          for (i = this.numLines; i < lines.length; i++) {
+            this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
+                text: lines[i].innerText });
 
-              this.numLines++;
-            }
+            this.numLines++;
           }
 
           this.fire('getkeywords', { pageId: this.pageno });
