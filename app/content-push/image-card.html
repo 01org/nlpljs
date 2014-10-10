@@ -1,5 +1,4 @@
 <link rel="import" href="./image-item.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <polymer-element name="image-card">
   <template>
@@ -19,15 +18,6 @@
         transition-timing-function: ease-out, ease-out, ease-out;
       }
 
-      #more {
-        text-align: center;
-        margin-top: 1em;
-      }
-
-      #morebutton {
-        background-color: gray;
-      }
-
       /*
       when an image-item displays inside an image-card, a margin
       appears to be added below the meta paragraph; I couldn't track
@@ -40,9 +30,6 @@
     </style>
 
     <div id="container"></div>
-    <div id="more">
-      <paper-fab id="morebutton" mini icon="expand-more" raisedButton="true" on-click={{moreImages}}></paper-fab>
-    </div>
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
@@ -57,15 +44,29 @@
       // when gallery >= this width, switch to WIDE_NUM_COLS
       var WIDE_BREAKPOINT = 456;
 
-      // length of the side of a row/column for the purpose of
-      // choosing a frame
+      /*
+      length of the side of a row/column for the purpose of
+      choosing a frame
+      */
       var FRAME_CELL_SIDE = 54;
+
+      /*
+      timeout (in ms) before treating an image load as failed
+      */
+      var TIMEOUT = 5000;
 
       Polymer({
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
+
+          // cached height and width, to reduce the number of events fired
+          this.lastMeasuredHeight = 0;
+          this.lastMeasuredWidth = 0;
+
+          // count of the number of images currently loading
+          this.countChildrenLoading = 0;
         },
 
         // set number of columns based on the gallery width
@@ -85,6 +86,13 @@
         },
 
         /**
+         * Return all child image-item elements
+         */
+        getChildren: function () {
+          return this.$.container.querySelectorAll('image-item');
+        },
+
+        /**
         * Convenience method to append an image search result to the
         * gallery; creates a cp-image element for the image object added.
         *
@@ -93,17 +101,60 @@
         * {
         *   src: <url of image>
         * }
+        *
+        * @fires childrenchanged Event data:
+        * {
+        *   added: <reference to the child element which was added>,
+        *   numChildren: <total number of children>,
+        *   parent: <reference to this image-card>
+        * }
         */
         appendImage: function (image, keyword) {
           var self = this;
 
           var elt = document.createElement('image-item');
 
+          this.countChildrenLoading++;
+          this.fireChildrenLoading();
+
+          // image loaded successfully
           elt.addEventListener('load', function () {
             self.frameImage(elt);
             self.$.container.appendChild(elt);
             self.layout();
+
+            self.fire('childrenchanged', {
+              added: elt,
+              numChildren: self.getChildren().length,
+              parent: self
+            });
+
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
+            elt.counted = true;
           });
+
+          /*
+          image fails to load, we still need to remove it from
+          the count of loading images
+          */
+          elt.addEventListener('error', function (e) {
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
+            elt.counted = true;
+          });
+
+          /*
+          set a timeout so that if the image still hasn't loaded
+          (e.g. the server is down) we can clear the loading count
+          */
+          setTimeout(function () {
+            if (!elt.counted) {
+              self.countChildrenLoading--;
+              self.fireChildrenLoading();
+              elt.counted = true;
+            }
+          }, TIMEOUT);
 
           elt.$.container.addEventListener('mouseover', function () {
             self.fire('mouse-over', { keyword: elt.keyword });
@@ -136,7 +187,7 @@
           this.setLayoutParams();
 
           var cellSide = this.$.container.offsetWidth / this.numColumns;
-          var imageItems = this.$.container.querySelectorAll('image-item');
+          var imageItems = this.getChildren();
 
           // convert imageItems into shapes
           var shapes = [];
@@ -177,15 +228,58 @@
           // set the container height
           var height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
+
+          /*
+          fire an event to notify listeners that this element's height
+          has changed; this is required for infini-scroll to work
+          */
+          var width = this.offsetWidth;
+          var height = this.offsetHeight;
+
+          if (this.lastMeasuredWidth !== width ||
+              this.lastMeasuredHeight !== height) {
+            this.lastMeasuredWidth = width;
+            this.lastMeasuredHeight = height;
+
+            this.fire('resize', {
+              width: width,
+              height: height
+            });
+          }
         },
 
-        moreImages: function(){
-          console.log('more images');
-          for (var i = 0; i < 10; i ++) {
-            var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
-            this.appendImage({src: src});
+        /**
+         * Remove all image-item elements from the card
+         */
+        clear: function () {
+          var imageItems = this.getChildren();
+          for (var i = 0; i < imageItems.length; i++) {
+            imageItems[i].parentNode.removeChild(imageItems[i]);
+            imageItems[i] = null;
           }
+
+          /*
+          reset the height of the container (cheap operation
+          as there are no children at this point)
+          */
+          this.layout();
+
+          this.fire('childrenchanged', {
+            cleared: true,
+            numChildren: 0,
+            parent: this
+          });
+        },
+
+        /**
+         * Fire a "childrenloading" event with a count of the number
+         * of images which are currently loading.
+         *
+         * @fires childrenloading Event data: count of the number of
+         * images which are currently loading into the component.
+         */
+        fireChildrenLoading: function () {
+          this.fire('childrenloading', this.countChildrenLoading);
         }
       })
     })();

@@ -11,6 +11,7 @@ size
     <style>
       :host {
         display: inline-block;
+        -webkit-animation: fadein 2s;
       }
 
       #container {
@@ -49,7 +50,6 @@ size
       }
 
       #image {
-        -webkit-animation: fadein 2s;
         width: 100%;
         height: auto;
       }
@@ -65,7 +65,7 @@ size
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
-      <img id="image" src="{{src}}" on-load="{{imageLoaded}}">
+      <img id="image" src="{{src}}" on-load="{{imageLoaded}}" on-error="{{imageError}}">
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}"
          data-tiny-image="{{isTinyImage}}">
         {{width}}x{{height}}
@@ -131,6 +131,11 @@ size
 
         this.loaded = true;
         this.fire('load', this);
+      },
+
+      // image failed to load for whatever reason
+      imageError: function (e) {
+        this.fire('error', e);
       }
     });
   </script>

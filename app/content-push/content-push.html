@@ -7,7 +7,7 @@
 <link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
 <link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="./image-card.html">
+<link rel="import" href="./image-results.html">
 <link rel='import' href='./keyword-highlighter.html'>
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
@@ -60,7 +60,7 @@
        */
       var addImageCard = function (self,keywordInfo) {
         if (self.sectionIndex[self.pageno] == null) {
-          self.imageCards[self.pageno] = document.createElement('image-card');
+          self.imageCards[self.pageno] = document.createElement('image-results');
 
           self.imageCards[self.pageno].style.display = 'block';
           self.imageCards[self.pageno].style.height = '100%';
@@ -68,6 +68,16 @@
           self.sectionIndex[self.pageno] = self.sectionCount;
           self.sectionCount++;
           self.search(self.pageno, keywordInfo);
+
+          // add handlers for when the image card scroll reaches the
+          // bottom or replacement content is requested
+          self.imageCards[self.pageno].addEventListener('morecontent', function () {
+            self.search(self.pageno, keywordInfo);
+          });
+
+          self.imageCards[self.pageno].addEventListener('replacecontent', function () {
+            self.search(self.pageno, keywordInfo);
+          });
 
           self.imageCards[self.pageno].addEventListener('mouse-over', function (e) {
             self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
@@ -79,6 +89,12 @@
 
           self.$.highlighter.prepare(keywordInfo.ranges);
         }
+
+        /*
+        refresh the layout in case the panel has changed size since
+        the last time the card was displayed
+        */
+        self.imageCards[self.pageno].layout();
 
         self.$.content.selected = self.sectionIndex[self.pageno];
       };
@@ -150,8 +166,8 @@
         numLines: 0,
         sectionIndex:[],
         sectionCount:0,
-        /* map from page IDs to image-card elements; each page gets
-        its own image-card element (at the moment)*/
+        /* map from page IDs to image-results elements; each page gets
+        its own image-results element (at the moment)*/
         imageCards: {},
 
         created: function() {
@@ -191,10 +207,6 @@
           setTimeout(handler, 1000);
 
           this.$.highlighter.targetElement = this.$.iframe.contentDocument;
-        },
-
-        search: function (query) {
-          this.$.search_google_images.query = query;
         },
 
         /*When the user scrolls the document onScroll is triggered. But we are interested in
@@ -242,25 +254,6 @@
           this.fire('getkeywords', { pageId: this.pageno });
         },
 
-        handleSearchResults: function (e) {
-          var images = e.detail;
-
-          for (var i = 0; i < images.length; i++) {
-            var img = document.createElement("img");
-            img.src = images[i].url;
-
-            // only add images to the display if they load correctly
-            var self=this;
-            img.addEventListener("load", function () {
-              self.$.images.appendChild(this);
-            });
-          }
-        },
-
-        getImages: function() {
-          this.search(this.$.changed_text.innerText);
-        },
-
         downAction: function() {
           this.$.iframe.style.pointerEvents = 'none';
         },
@@ -297,7 +290,16 @@
           var usedKeywords = [];
           var noKeywords=keywordInfo.keywords.length;
 
-          for (var i = 0; i < Math.min(10,noKeywords); i ++) {
+          /*
+          half the time, we get 0-20 images; the other half of
+          the time, we get 0-3; this is so we can see the "widen
+          the search" button fairly easily
+          */
+          var numImages = (Math.random() < 0.5 ?
+                              parseInt(Math.random() * 20, 10) :
+                              parseInt(Math.random() * 3, 10));
+
+          for (var i = 0; i < numImages; i++) {
             var keywordIndex = null;
 
             while (keywordIndex === null) {

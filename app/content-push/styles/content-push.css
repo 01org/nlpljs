@@ -80,7 +80,7 @@
   padding:0;
   height:90%;
   width:100%;
-  overflow:scroll;
+  overflow:hidden;
 }
 
 img {
