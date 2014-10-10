@@ -90,6 +90,12 @@
           self.$.highlighter.prepare(keywordInfo.ranges);
         }
 
+        /*
+        refresh the layout in case the panel has changed size since
+        the last time the card was displayed
+        */
+        self.imageCards[self.pageno].layout();
+
         self.$.content.selected = self.sectionIndex[self.pageno];
       };
 
@@ -284,7 +290,16 @@
           var usedKeywords = [];
           var noKeywords=keywordInfo.keywords.length;
 
-          for (var i = 0; i < Math.min(10,noKeywords); i ++) {
+          /*
+          half the time, we get 0-20 images; the other half of
+          the time, we get 0-3; this is so we can see the "widen
+          the search" button fairly easily
+          */
+          var numImages = (Math.random() < 0.5 ?
+                              parseInt(Math.random() * 20, 10) :
+                              parseInt(Math.random() * 3, 10));
+
+          for (var i = 0; i <= numImages; i++) {
             var keywordIndex = null;
 
             while (keywordIndex === null) {

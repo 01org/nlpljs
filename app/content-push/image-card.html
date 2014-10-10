@@ -44,9 +44,16 @@
       // when gallery >= this width, switch to WIDE_NUM_COLS
       var WIDE_BREAKPOINT = 456;
 
-      // length of the side of a row/column for the purpose of
-      // choosing a frame
+      /*
+      length of the side of a row/column for the purpose of
+      choosing a frame
+      */
       var FRAME_CELL_SIDE = 54;
+
+      /*
+      timeout (in ms) before treating an image load as failed
+      */
+      var TIMEOUT = 5000;
 
       Polymer({
         created: function () {
@@ -124,14 +131,30 @@
 
             self.countChildrenLoading--;
             self.fireChildrenLoading();
+            elt.counted = true;
           });
 
-          // image fails to load, we still need to remove it from
-          // the count of loading images
+          /*
+          image fails to load, we still need to remove it from
+          the count of loading images
+          */
           elt.addEventListener('error', function (e) {
             self.countChildrenLoading--;
             self.fireChildrenLoading();
+            elt.counted = true;
           });
+
+          /*
+          set a timeout so that if the image still hasn't loaded
+          (e.g. the server is down) we can clear the loading count
+          */
+          setTimeout(function () {
+            if (!elt.counted) {
+              self.countChildrenLoading--;
+              self.fireChildrenLoading();
+              elt.counted = true;
+            }
+          }, TIMEOUT);
 
           elt.$.container.addEventListener('mouseover', function () {
             self.fire('mouse-over', { keyword: elt.keyword });

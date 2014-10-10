@@ -23,6 +23,9 @@ test for infini-scroll
     parent.</p>
 
     <ul>
+      <li>When there are no images loaded, the "no results" message
+      should be visible with a "widen the search" button. Clicking
+      that button loads two images.</li>
       <li>With the initial two images, a button to "widen the search"
       should be visible. Clicking this button loads six images
       which replace the existing ones.</li>
@@ -48,7 +51,7 @@ test for infini-scroll
         for stubbing purposes, record how many times replaceImages()
         has been called; this is so that the first call adds only
         2 images (so the "widen search" button is visible); and
-        the second call adds 6 (to show the "more content on scroll"
+        the second call adds 8 (to show the "more content on scroll"
         behaviour)
         */
         this.callsToReplaceImages = 0;
@@ -67,7 +70,7 @@ test for infini-scroll
         this.callsToReplaceImages++;
 
         // show more images on the second call to this function
-        var numImages = (this.callsToReplaceImages === 1 ? 2 : 6)
+        var numImages = (this.callsToReplaceImages === 1 ? 2 : 8)
 
         this.$.imagecard.clear();
 

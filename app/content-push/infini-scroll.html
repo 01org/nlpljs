@@ -1,20 +1,11 @@
 <!--
 wraps a single element in a scrollable area;
-when the wrapped element is shorter than the scrollable area, a button
-is shown which triggers a "replacecontent" event when pressed;
+when the wrapped element has 3 or fewer children, a button
+is shown which triggers a "replacecontent" event when pressed
+
 if the wrapped element is the same height or taller than the scroller,
-the button is hidden and a vertical scrollbar is added; then, when the
-end of the scroll is reached, a "morecontent" event is fired
-
-for this to work, the infini-scroll element should have a fixed size
-(e.g. set width and height to a percentage of its parent element);
-and the element you are wrapping must fire a "resize" event when its
-dimensions change, with this data:
-
-  {
-    width: <new width in pixels>,
-    height: <new height in pixels>
-  }
+a vertical scrollbar is added; when the scroll reaches nearly the
+end, a "morecontent" event is fired
 
 note that if multiple elements are inside an infini-scroll, only the
 first one is used to determine whether the button is visible and
@@ -115,17 +106,21 @@ the child elements we're interested in are being added)
       */
       var DEFAULT_SCROLL_GAP = 100;
 
+      /*
+      if there are <= this number of results in the wrapped content
+      element, show the "widen the search" button
+      */
+      var FEW_RESULTS = 3;
+
       Polymer({
         created: function () {
           /*
-          set to false if the button should be hidden; this is automatically
-          set to false once the height of the #content element is equal
-          to or greater than the height of the infini-scroll
+          set to false if the button should be hidden
           */
           this.showButton = true;
 
           /*
-          set to true when the wrapped element contains at least
+          set to false when the wrapped element contains at least
           one child element
           */
           this.noContent = true;
@@ -139,28 +134,6 @@ the child elements we're interested in are being added)
         domReady: function () {
           // event handler for scroll events on the container
           this.addEventListener('scroll', this.onScroll.bind(this));
-        },
-
-        changeIsLoading: function () {
-          console.log(this.isLoading);
-        },
-
-        /*
-        if the height of the content item + height of the "more"
-        container is >= the height of the infini-scroll, hide the
-        button
-        */
-        onContentResize: function (e) {
-          var contentHeight = e.detail.height;
-          var moreHeight = this.$.more.offsetHeight;
-          var thisHeight = this.offsetHeight;
-
-          if (this.showButton && contentHeight + moreHeight > thisHeight) {
-            this.showButton = false;
-            this.fireMoreContent();
-          } else if (contentHeight + moreHeight <= thisHeight) {
-            this.showButton = true;
-          }
         },
 
         onScroll: function () {
@@ -177,9 +150,14 @@ the child elements we're interested in are being added)
         onChildrenChanged: function (e) {
           if (e.detail.numChildren === 0) {
             this.noContent = true;
-          }
-          else {
+          } else {
             this.noContent = false;
+          }
+
+          if (e.detail.numChildren <= FEW_RESULTS) {
+            this.showButton = true;
+          } else {
+            this.showButton = false;
           }
         },
 
@@ -190,8 +168,7 @@ the child elements we're interested in are being added)
         onChildrenLoading: function (e) {
           if (e.detail > 0) {
             this.isLoading = true;
-          }
-          else {
+          } else {
             this.isLoading = false;
           }
         },
