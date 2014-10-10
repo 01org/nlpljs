@@ -76,6 +76,8 @@
           self.imageCards[self.pageno].addEventListener('mouse-out', function (e) {
             self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
           });
+
+          self.$.highlighter.prepare(keywordInfo.ranges);
         }
 
         self.$.content.selected = self.sectionIndex[self.pageno];
@@ -175,8 +177,6 @@
 
           document.addEventListener('keywordlist', function (e) {
             addImageCard(self,e.detail);
-
-            self.$.highlighter.prepare(e.detail.ranges);
           });
         },
 
@@ -211,8 +211,6 @@
           /* Scrolling on the same page */
           if (this.pageno == (pageno+1))
             return;
-
-          this.$.highlighter.clear();
 
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
 
