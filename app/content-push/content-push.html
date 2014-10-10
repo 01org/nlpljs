@@ -214,7 +214,7 @@
 
           this.pageno = pageno+1; //querySelector starts from 1. Hence add 1.
 
-          if (this.sectionIndex[this.pageno]) {
+          if (this.sectionIndex[this.pageno] != null) {
             //Just transition to the already cached content
             this.$.content.selected = this.sectionIndex[this.pageno];
             this.fire('getkeywords', { pageId: this.pageno });

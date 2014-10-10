@@ -1,0 +1,41 @@
+<link rel="import" href="../../app/content-push/image-detail.html">
+
+<!--
+Test for image-detail; Creates a image-detail panel and adds a random image with some info to it.
+-->
+<polymer-element name="image-detail-test">
+  <template>
+    <!-- make the card span a percentage of the window to check centering -->
+    <style>
+      #container {
+        width:300px;
+        background-color: #F0F0F0;
+        margin-left:auto;
+        margin-right:auto;
+        height:100%;
+      }
+    </style>
+
+    <p>
+      Create an image-detail with 1 random images inside it; fills 50% of
+      screen to check for centering of image inside.
+    </p>
+    <div id="container">
+    <image-detail id="detail"></image-detail>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        // add a random images with URLs from lorempixel
+          this.$.detail.src = makeImageUrl(800, 400);
+          this.$.detail.title = 'This is a test tite';
+          this.$.detail.size = {height:800, width:400};
+          this.$.detail.source = 'flickr.com';
+      }
+    });
+  </script>
+</polymer-element>
