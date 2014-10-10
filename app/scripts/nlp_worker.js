@@ -37,7 +37,9 @@ var createPage = function (pageId) {
   return{
     lines: [],
     id: pageId,
-    graph: null
+    graph: null,
+    keywords: null,
+    ranges: null,
   };
 };
 
@@ -94,6 +96,15 @@ this.onmessage = function (event) {
     case "getkeywords":
       if (loaded === false) {
         queuedMessages[queuedMessages.length] = event;
+        break;
+      }
+
+      if (pages[message.data.pageId].keywords !== null) {
+        postMessage(eventPageMessage("keywordlist", {
+          keywords: pages[message.data.pageId].keywords,
+          ranges: pages[message.data.pageId].ranges
+        }));
+
         break;
       }
 
@@ -199,8 +210,13 @@ this.onmessage = function (event) {
         }
       }
 
-      postMessage(eventPageMessage("keywordlist", { keywords: keywords,
-        ranges: ranges }));
+      pages[message.data.pageId].keywords = keywords;
+      pages[message.data.pageId].ranges = ranges;
+
+      postMessage(eventPageMessage("keywordlist", {
+        keywords: keywords,
+        ranges: ranges
+      }));
 
       break;
     case "resetextractor":
