@@ -1,0 +1,139 @@
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<polymer-element name="image-detail" attributes="src title size source">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin:10px;
+      }
+
+      #container {
+        display: block;
+        position: relative;
+        overflow: scroll;
+        height: 100%;
+        width: 100%;
+      }
+      
+      #image {
+        margin-top:10px;
+        display: block;
+        position: relative;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+        width:80%;
+        height:auto;
+        max-width:400px;
+      }
+
+      #backbutton {
+         background-color: #4CA8B4;
+         margin-left: 0;
+      }
+
+      #imgTitle {
+        display:none;
+        margin-top:10px;
+        text-align:left;
+        color:black;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #imgSize {
+        display:none;
+        margin-top:10px;
+        text-align:left;
+        color:black;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #imgSource{
+        display:none;
+        margin-top:10px;
+        text-align:left;
+        color:black;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      #visitSrc{
+        display:block;
+        margin-top:10px;
+        text-align:right;
+        color:#4CA8B4;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      paper-button[raised].colored {
+        background: #4285f4;
+        color: #fff;
+      }
+    </style>
+
+    <div id="back">
+      <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true" on-click={{goBack}}></paper-fab>
+    </div>
+    <div id="container">
+      <img id="image" src="{{src}}">
+    <div id="imgTitle">
+    <h3>{{title}}</h3>
+    </div>
+    <div id="imgSize">
+    <h4>{{size.width}}x{{size.height}}</h4>
+    </div>
+    <div id="imgSource">
+    <h4>{{source}}</h4>
+    </div>
+    <div id="visitSrc">
+    <paper-button raised class="colored" on-click={{visitWebpage}}>Visit Webpage</paper-button>
+    </div>
+</div>
+  </template>
+
+  <script>
+    Polymer({
+      src:null,
+      created: function() {
+        this.title = 'Image title';
+        this.size = {width:'', height:''}
+        this.source = null;
+      },
+      
+      goBack:function() {
+        this.fire('CloseImageDetail', this);
+      },
+      
+      sizeChanged: function(oldVal, newVal) {
+        if (newVal.width && newVal.height) {
+          this.size = newVal;
+          this.$.imgSize.style.display = 'block';
+        }
+      },
+      
+      titleChanged: function(oldVal, newVal) {
+        this.title = newVal;
+        this.$.imgTitle.style.display = 'block';
+      },
+
+      sourceChanged: function(oldVal, newVal) {
+        this.source = newVal;
+        this.$.imgSource.style.display = 'block';
+      },
+      visitWebpage: function(){
+        if (this.source)
+          window.open(this.source, '_blank');
+          window.focus();
+      }
+
+    });
+  </script>
+</polymer-element>
