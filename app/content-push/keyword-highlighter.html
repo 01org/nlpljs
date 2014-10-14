@@ -82,13 +82,6 @@
           after: null
         };
 
-        var sanityCheck=0;
-        var SANITYMAXLOOPS=1000; // picked out of thin air
-        function outputSanityMessage() {
-          console.log('HL:sanity check: loop unreasonable long; breaking');
-          console.log('%cHL:TELL MAX ABOUT ABOVE ERROR','color:orange; background:red; font-size: 16pt;');
-        }
-
         // replace nbsp with char 160 to make life simpler
         var re = new RegExp('&nbsp;', 'g');
         var fakeSpace=String.fromCharCode(160);
@@ -108,11 +101,6 @@
 
             // move to next tag
             currentPosition=nextTag;
-
-            if (++sanityCheck>SANITYMAXLOOPS) {
-              outputSanityMessage();
-              break;
-            }
 
             // skip past tag(s)
             currentPosition=skipTags(chars,currentPosition);
@@ -137,11 +125,6 @@
 
               // move to next tag
               currentPosition=nextTag;
-
-              if (++sanityCheck>SANITYMAXLOOPS) {
-                outputSanityMessage();
-                break;
-              }
 
               if (keywordChars<=position) {
                 // skip past tag(s)
@@ -370,15 +353,15 @@
 
 
         // dump the contents of the range highlighted
-        console.log('HL:Tag:',tag);
         var elements=self.targetElement.querySelectorAll('keyword-highlight[debugTag="'+tag+'"]');
         var result=[];
         for ( var i=0;i<elements.length;++i ) {
           result.push(elements[i].innerText);
         }
         var concatResult=[result.join('')].join('');
-        console.log('HL:Result: ',['/',concatResult,'/'].join(''));
         if (start.lineNo===end.lineNo && concatResult.length!=(end.charNo-start.charNo+1)) {
+          console.log('HL:Result: ',['/',concatResult,'/'].join(''));
+          console.log('HL:Tag:',tag);
           // only checking when the same line
           console.log('HL:Error: concatResult length=',concatResult.length);
           console.log('HL:Error: end.charNo-start.charNo+1=',end.charNo-start.charNo+1);
