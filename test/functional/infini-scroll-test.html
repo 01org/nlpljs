@@ -1,5 +1,5 @@
 <link rel="import" href="../../app/content-push/infini-scroll.html">
-<link rel="import" href="../../app/content-push/image-card.html">
+<link rel="import" href="../../app/content-push/cp-layout.html">
 
 <!--
 test for infini-scroll
@@ -37,7 +37,7 @@ test for infini-scroll
     <div id="container">
       <infini-scroll id="scroller" on-morecontent="{{addImages}}"
                      on-replacecontent="{{replaceImages}}">
-        <image-card id="imagecard"></image-card>
+        <cp-layout id="imagecard"></cp-layout>
       </infini-scroll>
     </div>
   </template>
@@ -58,7 +58,7 @@ test for infini-scroll
       },
 
       addImages: function () {
-        // add some images to the image-card
+        // add some images to the gallery
         for (var i = 0; i < 2; i ++) {
           this.$.imagecard.appendImage({
             src: makeImageUrl(200, 200)
