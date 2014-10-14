@@ -56,7 +56,7 @@ define(['postagger'], function (postagger) {
       if ((annotatedToken.tag[0] !== 'N' &&
            annotatedToken.tag[0] !== 'J') ||
           /[^a-zA-Z0-9]/.test(annotatedToken.token)) {
-        if (annotatedToken.tag === 'IN') {
+        if (annotatedToken.tag === 'IN' || annotatedToken.tag === 'CC') {
           if (typeof annotatedTokens[id - 1] !== 'undefined' &&
               typeof annotatedTokens[id + 1] !== 'undefined') {
             if (/[A-Z]/.test(annotatedTokens[id - 1].token[0]) &&
@@ -189,7 +189,7 @@ define(['postagger'], function (postagger) {
                sorted.indexOf(graph.edges[i].b) !== -1) ||
               (i < graph.edges.length - 1 &&
                sorted.indexOf(graph.edges[i + 1].b) !== -1)) {
-            if (graph.edges[i].aTag !== 'IN') {
+            if (graph.edges[i].aTag !== 'IN' && graph.edges[i].aTag !== 'CC') {
               keyphrase = graph.edges[i].a.content;
               var index = keywords.indexOf(graph.edges[i].a.content);
 
@@ -218,7 +218,7 @@ define(['postagger'], function (postagger) {
         if (typeof graph.edges[i + 1] !== 'undefined' && 
             graph.edges[i + 1].aID !== graph.edges[i].bID) {
 
-          if (prevEdge.bTag === 'IN')
+          if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
             keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
 
           if (keyphrases.indexOf(keyphrase) === -1)
@@ -229,7 +229,7 @@ define(['postagger'], function (postagger) {
       }
 
       if (typeof keyphrase !== 'undefined' && prevEdge !== null) {
-        if (prevEdge.bTag === 'IN')
+        if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
           keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
 
         if (keyphrases.indexOf(keyphrase) === -1)
