@@ -148,7 +148,10 @@ the child elements we're interested in are being added)
 
         onScroll: function () {
           var gap = this.scrollGap || DEFAULT_SCROLL_GAP;
-          if (this.scrollTop + this.offsetHeight >= this.scrollHeight - gap) {
+          var scrolledEnough = this.scrollTop + this.offsetHeight >=
+                                   this.scrollHeight - gap;
+          if (!this.loading && scrolledEnough) {
+            this.loading = true;
             this.fireMoreContent();
           }
         },
