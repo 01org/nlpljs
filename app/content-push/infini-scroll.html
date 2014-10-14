@@ -153,6 +153,7 @@ the child elements we're interested in are being added)
                                    this.scrollHeight - gap;
           if (!this.loading && scrolledEnough) {
             this.loading = true;
+            this.setState();
             this.fireMoreContent();
           }
         },
