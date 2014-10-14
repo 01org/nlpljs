@@ -61,14 +61,7 @@
        * this gallery is associated
        */
       var addImageCard = function (self,keywordInfo) {
-        if (self.sectionIndex[self.pageno] == null) {
-          self.imageCards[self.pageno] = document.createElement('image-results');
-
-          self.imageCards[self.pageno].style.display = 'block';
-          self.imageCards[self.pageno].style.height = '100%';
-          self.$.content.appendChild(self.imageCards[self.pageno]);
-          self.sectionIndex[self.pageno] = self.sectionCount;
-          self.sectionCount++;
+        if (self.sectionIndex[self.pageno] !== null) {
           self.search(self.pageno, keywordInfo);
 
           // add handlers for when the image card scroll reaches the
@@ -185,6 +178,17 @@
           this.togglePanel();
         },
 
+        createImageResults: function () {
+          if (!this.imageCards[this.pageno]) {
+            this.imageCards[this.pageno] = document.createElement('image-results');
+            this.imageCards[this.pageno].style.display = 'block';
+            this.imageCards[this.pageno].style.height = '100%';
+            this.$.content.appendChild(this.imageCards[this.pageno]);
+            this.sectionIndex[this.pageno] = this.sectionCount;
+            this.sectionCount++;
+          }
+        },
+
         ready: function() {
           var self=this;
           this.$.iframe.src=this.iframeurl;
@@ -193,7 +197,10 @@
           var onLoadHandler = this.onLoad.bind(this);
           this.$.iframe.onload = onLoadHandler;
 
+          this.createImageResults();
+
           document.addEventListener('keywordlist', function (e) {
+            self.createImageResults();
             addImageCard(self,e.detail);
           });
         },
