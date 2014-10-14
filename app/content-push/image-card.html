@@ -182,11 +182,11 @@
           }, TIMEOUT);
 
           elt.$.container.addEventListener('mouseover', function () {
-            self.fire('mouse-over', { keyword: keyphrase });
+            self.fire('mouse-over', image.keyphrase)
           });
 
           elt.$.container.addEventListener('mouseout', function () {
-            self.fire('mouse-out', { keyword: keyphrase });
+            self.fire('mouse-out', image.keyphrase);
           });
 
           // dynamically resize using Google's image resizer
@@ -198,8 +198,7 @@
                       'url=' + encodeURIComponent(image.src);
 
           elt.src = resizeUrl;
-
-          elt.setAttribute('keyword', keyphrase);
+          elt.keyword = image.keyphrase;
         },
 
         /**

@@ -82,11 +82,11 @@
           });
 
           self.imageCards[self.pageno].addEventListener('mouse-over', function (e) {
-            self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
+            self.$.highlighter.turn(e.detail.groupId, 'on');
           });
 
           self.imageCards[self.pageno].addEventListener('mouse-out', function (e) {
-            self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
+            self.$.highlighter.turn(e.detail.groupId, 'off');
           });
 
           self.$.highlighter.prepare(keywordInfo.ranges);
