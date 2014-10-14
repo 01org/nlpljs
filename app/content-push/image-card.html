@@ -55,6 +55,12 @@
       */
       var TIMEOUT = 5000;
 
+      /*
+      base URL for Google's image resizer (undocumented);
+      see http://carlo.zottmann.org/2013/04/14/google-image-resizer/
+      */
+      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
+
       Polymer({
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
@@ -123,6 +129,9 @@
         appendImage: function (image) {
           var self = this;
 
+          // for passing to Google's image resizer
+          var resizeUrl;
+
           var keyphrase = '';
           if (image.keyphrase) {
             keyphrase = image.keyphrase.text;
@@ -180,7 +189,16 @@
             self.fire('mouse-out', { keyword: keyphrase });
           });
 
-          elt.src = image.src;
+          // dynamically resize using Google's image resizer
+          // TODO figure out a long term solution for this
+          resizeUrl = RESIZER_BASE_URL +
+                      '?container=focus&' +
+                      'refresh=' + (60 * 60) + '&' + // cache for one hour
+                      'resize_w=600&' + // set max image width to 600px
+                      'url=' + encodeURIComponent(image.src);
+
+          elt.src = resizeUrl;
+
           elt.setAttribute('keyword', keyphrase);
         },
 

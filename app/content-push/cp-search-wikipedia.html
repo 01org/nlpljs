@@ -8,8 +8,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
   <script>
     (function () {
-      // for testing for PDF files returned as image results
-      var PDF_REGEX = /\.pdf$/;
+      // for testing for PDF or SVG files returned as image results
+      var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
 
       // hard limit on search page size set by Wikipedia
       var MAX_RESULTS_PER_SEARCH = 50;
@@ -194,7 +194,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                 url = pages[k].imageinfo[0].url;
 
                 // make sure we don't include any pdfs...
-                if (!PDF_REGEX.test(url)) {
+                if (!BAD_EXTENSIONS_REGEX.test(url)) {
                   resultSet.add({
                     src: url,
                     raw_meta: pages[k].imageinfo[0]
