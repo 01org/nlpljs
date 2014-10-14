@@ -1,0 +1,23 @@
+<link rel="import" href="./cp-search-wikipedia.html">
+
+<polymer-element name="cp-fetcher" attributes="resultsPerFetch">
+  <template>
+    <cp-search-wikipedia id="searchWikipedia"
+                         resultsPerFetch="{{resultsPerFetch}}"
+                         resultsPerSearch="50">
+    </cp-search-wikipedia>
+  </template>
+
+  <script>
+    Polymer({
+      // number of results to fetch per call to the fetch() method
+      resultsPerFetch: 5,
+
+      /* at the moment we just fetch and aggregate via the
+         cp-search-wikipedia component */
+      fetch: function (keyword) {
+        return this.$.searchWikipedia.fetch(keyword);
+      }
+    });
+  </script>
+</polymer-element>

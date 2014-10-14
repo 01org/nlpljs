@@ -7,6 +7,7 @@
 <link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
 <link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./image-results.html">
 <link rel='import' href='./keyword-highlighter.html'>
 
@@ -45,6 +46,7 @@
       </div><!-- content_push_panel -->
     </div><!-- container -->
     <keyword-highlighter id='highlighter'></keyword-highlighter>
+    <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
   </template>
 
   <script>
@@ -80,11 +82,11 @@
           });
 
           self.imageCards[self.pageno].addEventListener('mouse-over', function (e) {
-            self.$.highlighter.turn(e.detail.keyword.groupId, 'on');
+            self.$.highlighter.turn(e.detail.groupId, 'on');
           });
 
           self.imageCards[self.pageno].addEventListener('mouse-out', function (e) {
-            self.$.highlighter.turn(e.detail.keyword.groupId, 'off');
+            self.$.highlighter.turn(e.detail.groupId, 'off');
           });
 
           self.$.highlighter.prepare(keywordInfo.ranges);
@@ -283,40 +285,23 @@
         },
 
         /* perform search for keyphrases and populate the image card
-          for the associated page.
-          TODO replace this stub with a real implementation */
+          for the associated page. */
         search: function (pageId, keywordInfo) {
-          // add a random image from lorempixel
-          var usedKeywords = [];
-          var noKeywords=keywordInfo.keywords.length;
+          var self = this;
 
-          /*
-          half the time, we get 0-20 images; the other half of
-          the time, we get 0-3; this is so we can see the "widen
-          the search" button fairly easily
-          */
-          var numImages = (Math.random() < 0.5 ?
-                              parseInt(Math.random() * 20, 10) :
-                              parseInt(Math.random() * 3, 10));
+          // search for one keyphrase
+          // TODO search for all keyphrases
+          var keyphrase = keywordInfo.keywords[0];
 
-          for (var i = 0; i < numImages; i++) {
-            var keywordIndex = null;
-
-            while (keywordIndex === null) {
-              var randomIndex = Math.floor(Math.random() * noKeywords);
-
-              if (usedKeywords.indexOf(randomIndex) === -1) {
-                keywordIndex = randomIndex;
-                usedKeywords[usedKeywords.length] = randomIndex;
-              }
+          // append each image
+          this.$.fetcher.fetch(keyphrase.text).then(function (results) {
+            for (var i = 0; i < results.length; i++) {
+              self.imageCards[pageId].appendImage({
+                src: results[i].src,
+                keyphrase: keyphrase
+              });
             }
-
-            var src = 'http://lorempixel.com/125/125?cacheBust=' +
-                      (new Date()).getTime() + i;
-            this.imageCards[pageId].appendImage({
-              src: src
-            }, keywordInfo.keywords[keywordIndex]);
-          }
+          });
         }
       }); // Polymer()
     })();

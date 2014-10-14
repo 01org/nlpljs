@@ -55,6 +55,12 @@
       */
       var TIMEOUT = 5000;
 
+      /*
+      base URL for Google's image resizer (undocumented);
+      see http://carlo.zottmann.org/2013/04/14/google-image-resizer/
+      */
+      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
+
       Polymer({
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
@@ -99,8 +105,19 @@
         * @param Object image Representation of image to add; has the
         * format:
         * {
-        *   src: <url of image>
+        *   src: "<url of image>",
+        *   keyphrase: {
+        *     text: "<keyphrase text>",
+        *     groupId: "<keyphrase group ID>"
+        *   }
         * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        *
+        * TODO If the URL already exists on an image-item inside the card,
+        * its keyphrases are updated, rather than a new image being added.
         *
         * @fires childrenchanged Event data:
         * {
@@ -109,8 +126,16 @@
         *   parent: <reference to this image-card>
         * }
         */
-        appendImage: function (image, keyword) {
+        appendImage: function (image) {
           var self = this;
+
+          // for passing to Google's image resizer
+          var resizeUrl;
+
+          var keyphrase = '';
+          if (image.keyphrase) {
+            keyphrase = image.keyphrase.text;
+          }
 
           var elt = document.createElement('image-item');
 
@@ -157,15 +182,23 @@
           }, TIMEOUT);
 
           elt.$.container.addEventListener('mouseover', function () {
-            self.fire('mouse-over', { keyword: elt.keyword });
+            self.fire('mouse-over', image.keyphrase)
           });
 
           elt.$.container.addEventListener('mouseout', function () {
-            self.fire('mouse-out', { keyword: elt.keyword });
+            self.fire('mouse-out', image.keyphrase);
           });
 
-          elt.src = image.src;
-          elt.keyword = keyword;
+          // dynamically resize using Google's image resizer
+          // TODO figure out a long term solution for this
+          resizeUrl = RESIZER_BASE_URL +
+                      '?container=focus&' +
+                      'refresh=' + (60 * 60) + '&' + // cache for one hour
+                      'resize_w=600&' + // set max image width to 600px
+                      'url=' + encodeURIComponent(image.src);
+
+          elt.src = resizeUrl;
+          elt.keyword = image.keyphrase;
         },
 
         /**
