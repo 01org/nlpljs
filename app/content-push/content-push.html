@@ -295,17 +295,12 @@
 
           // append each image
           this.$.fetcher.fetch(keyphrase.text).then(function (results) {
-            if (results.length) {
-              for (var i = 0; i < results.length; i++) {
-                self.imageCards[pageId].appendImage({
-                  src: results[i].src,
-                  keyphrase: keyphrase
-                });
-              }
-            } else {
-              // no results
+            for (var i = 0; i < results.length; i++) {
+              self.imageCards[pageId].appendImage({
+                src: results[i].src,
+                keyphrase: keyphrase
+              });
             }
-
           });
         }
       }); // Polymer()
