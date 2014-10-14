@@ -53,8 +53,9 @@ define(['postagger'], function (postagger) {
     var sortedVertices = [];
 
     var vertexFilter = function (annotatedToken, id) {
-      if (annotatedToken.tag[0] !== 'N' &&
-          annotatedToken.tag[0] !== 'J') {
+      if ((annotatedToken.tag[0] !== 'N' &&
+           annotatedToken.tag[0] !== 'J') ||
+          /[^a-zA-Z0-9]/.test(annotatedToken.token)) {
         if (annotatedToken.tag === 'IN') {
           if (typeof annotatedTokens[id - 1] !== 'undefined' &&
               typeof annotatedTokens[id + 1] !== 'undefined') {
@@ -98,10 +99,11 @@ define(['postagger'], function (postagger) {
             continue;
 
           if (i > 0) {
-            for (j = 1; j < i + 1; j++) {
-              if (j > adjLimit)
-                break;
-
+            var j = 1;
+            var actualJ = 0;
+            while (j <= adjLimit &&
+                   typeof annotatedTokens[i - (actualJ + 1)] !== 'undefined') {
+              actualJ++;
               var prevToken = annotatedTokens[i - j].token.toLowerCase();
 
               if (vertexFilter(annotatedTokens[i - j], i - j) === false)
@@ -115,13 +117,14 @@ define(['postagger'], function (postagger) {
               vertex.addConnection(prevVertex);
               prevVertex.addConnection(vertex);
 
-              if (j === 1) {
+              if (actualJ === 1) {
                 var edge = graphEdge(prevVertex, vertex, i - j, i,
                   annotatedTokens[i - j].tag, annotatedTokens[i].tag);
                 this.edges[this.edges.length] = edge;
 
                 this.numEdges++;
               }
+              j++;
             }
           }
         }
@@ -172,54 +175,61 @@ define(['postagger'], function (postagger) {
         }
       }
 
-      var sorted = graph.sortVertices(Math.floor(graph.numVertices / 3));
+      var sorted = graph.sortVertices(Math.floor(graph.numVertices * (1 / 3)));
 
       for (i = 0; i < sorted.length; i++)
         keywords[i] = sorted[i].content;
 
       var keyphrase;
-      var prevEdge;
+      var prevEdge = null;
 
       for (i = 0; i < graph.edges.length; i++) {
-        if (sorted.indexOf(graph.edges[i].a) !== -1 &&
-            sorted.indexOf(graph.edges[i].b) !== -1) {
-          if (typeof prevEdge === 'undefined' ||
-              prevEdge.bID !== graph.edges[i].aID) {
-            if (typeof keyphrase !== 'undefined') {
-              if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
-                keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
-
-              if (keyphrases.indexOf(keyphrase) === -1)
-                keyphrases[keyphrases.length] = keyphrase;
-            }
-
-            if (graph.edges[i].aTag !== 'IN' && graph.edges[i].aTag !== 'CC')
+        if (prevEdge === null) {
+          if ((sorted.indexOf(graph.edges[i].a) !== -1 ||
+               sorted.indexOf(graph.edges[i].b) !== -1) ||
+              (i < graph.edges.length - 1 &&
+               sorted.indexOf(graph.edges[i + 1].b) !== -1)) {
+            if (graph.edges[i].aTag !== 'IN') {
               keyphrase = graph.edges[i].a.content;
+              var index = keywords.indexOf(graph.edges[i].a.content);
+
+              if (index !== -1)
+                keywords.splice(index, 1);
+            }
             else
               keyphrase = '';
-
-            var index = keywords.indexOf(graph.edges[i].a.content);
-
-            if (index !== -1)
-              keywords.splice(index, 1);
           }
+          else
+            continue;
+        }
 
-          if (keyphrase !== '')
-            keyphrase += " ";
+        if (keyphrase !== '')
+          keyphrase += " ";
 
-          keyphrase += graph.edges[i].b.content;
+        keyphrase += graph.edges[i].b.content;
 
-          var index = keywords.indexOf(graph.edges[i].b.content);
+        var index = keywords.indexOf(graph.edges[i].b.content);
 
-          if (index !== -1)
-            keywords.splice(index, 1);
+        if (index !== -1)
+          keywords.splice(index, 1);
 
-          prevEdge = graph.edges[i];
+        prevEdge = graph.edges[i];
+
+        if (typeof graph.edges[i + 1] !== 'undefined' && 
+            graph.edges[i + 1].aID !== graph.edges[i].bID) {
+
+          if (prevEdge.bTag === 'IN')
+            keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
+
+          if (keyphrases.indexOf(keyphrase) === -1)
+            keyphrases[keyphrases.length] = keyphrase;
+
+          prevEdge = null;
         }
       }
 
-      if (typeof keyphrase !== null) {
-        if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
+      if (typeof keyphrase !== 'undefined' && prevEdge !== null) {
+        if (prevEdge.bTag === 'IN')
           keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
 
         if (keyphrases.indexOf(keyphrase) === -1)
@@ -237,7 +247,7 @@ define(['postagger'], function (postagger) {
       return this;
     },
     extractFrom: function (text) {
-      var graph = textGraph();
+      graph = textGraph();
 
       graph.addText(text);
 
