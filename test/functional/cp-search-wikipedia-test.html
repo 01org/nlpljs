@@ -1,9 +1,9 @@
-<link rel="import" href="../../app/content-push/search-wikipedia.html">
+<link rel="import" href="../../app/content-push/cp-search-wikipedia.html">
 
 <!--
 test for search-wikipedia
 -->
-<polymer-element name="search-wikipedia-test">
+<polymer-element name="cp-search-wikipedia-test">
   <template>
     <style>
       img {
@@ -27,9 +27,9 @@ test for search-wikipedia
 
     <p><button id="fetch" on-click="{{fetchResults}}">Fetch results</button></p>
 
-    <search-wikipedia id="searchWikipedia"
-                      resultsPerSearch="30" resultsPerFetch="10">
-    </search-wikipedia>
+    <cp-search-wikipedia id="searchWikipedia"
+                         resultsPerSearch="30" resultsPerFetch="10">
+    </cp-search-wikipedia>
 
     <p id="error" data-show="false">No more results</p>
 
@@ -45,6 +45,8 @@ test for search-wikipedia
         this.$.searchWikipedia.fetch(query)
         .then(
           function (results) {
+            console.log(results);
+
             if (results.length) {
               for (var i = 0; i < results.length; i++) {
                 var img = document.createElement('img');

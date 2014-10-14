@@ -99,8 +99,19 @@
         * @param Object image Representation of image to add; has the
         * format:
         * {
-        *   src: <url of image>
+        *   src: "<url of image>",
+        *   keyphrase: {
+        *     text: "<keyphrase text>",
+        *     groupId: "<keyphrase group ID>"
+        *   }
         * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        *
+        * TODO If the URL already exists on an image-item inside the card,
+        * its keyphrases are updated, rather than a new image being added.
         *
         * @fires childrenchanged Event data:
         * {
@@ -109,8 +120,13 @@
         *   parent: <reference to this image-card>
         * }
         */
-        appendImage: function (image, keyword) {
+        appendImage: function (image) {
           var self = this;
+
+          var keyphrase = '';
+          if (image.keyphrase) {
+            keyphrase = image.keyphrase.text;
+          }
 
           var elt = document.createElement('image-item');
 
@@ -157,15 +173,15 @@
           }, TIMEOUT);
 
           elt.$.container.addEventListener('mouseover', function () {
-            self.fire('mouse-over', { keyword: elt.keyword });
+            self.fire('mouse-over', { keyword: keyphrase });
           });
 
           elt.$.container.addEventListener('mouseout', function () {
-            self.fire('mouse-out', { keyword: elt.keyword });
+            self.fire('mouse-out', { keyword: keyphrase });
           });
 
           elt.src = image.src;
-          elt.keyword = keyword;
+          elt.setAttribute('keyword', keyphrase);
         },
 
         /**
