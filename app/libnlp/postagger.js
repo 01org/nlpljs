@@ -323,7 +323,10 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
 
         trellis[0] = [];
         backpointer[0] = [];
- 
+
+        if (sequence.length === 0)
+          return path;
+
         for (i = 0; i < this.states.length; i++) {
           var unigramProb = this.getUnigramProbability(this.states[i]);
           var bigramProb = this.getBigramProbability('SB', this.states[i]);
@@ -415,17 +418,7 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
 
           if (maxNode === 0) {
             if (/[a-zA-Z]/.test(sequence[i])) {
-              if (sequence[i][0] === '[') {
-                trellis[i][this.states.indexOf('(')] = 1;
-                backpointer[i][this.states.indexOf('(')] = maxBack;
-                console.log('[');
-              }
-              else if (sequence[i][0] === ']') {
-                trellis[i][this.states.indexOf(')')] = 1;
-                backpointer[i][this.states.indexOf(')')] = maxBack;
-                console.log(']');
-              }
-              else if (/[A-Z]/.test(sequence[i][0])) {
+              if (/[A-Z]/.test(sequence[i][0])) {
                 trellis[i][this.states.indexOf('NNP UPPER')] = 1;
                 backpointer[i][this.states.indexOf('NNP UPPER')] = maxBack;
               }
@@ -509,7 +502,6 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
       var tagSeq = model.decode(tokenized);
 
       for (i = 0; i < tagSeq.length; i++) {
-
         var index = tagSeq[i].indexOf(' ');
         var tag = tagSeq[i];
 
