@@ -21,8 +21,7 @@ upwards
       }
     </style>
 
-    <infini-scroll id="scroller" on-morecontent="{{fireMoreImages}}"
-                   on-replacecontent="{{fireReplaceImages}}">
+    <infini-scroll id="scroller">
       <cp-layout id="layout"></cp-layout>
     </infini-scroll>
   </template>
@@ -30,20 +29,6 @@ upwards
   <script>
     (function () {
       Polymer({
-        /*
-        load more results already returned by searches when
-        the scroller reaches the bottom
-        */
-        fireMoreImages: function () {
-          this.fire('moreimages');
-        },
-
-        // replace current content with new search results
-        fireReplaceImages: function () {
-          this.$.layout.clear();
-          this.fire('replaceimages');
-        },
-
         // append an image into the wrapped cp-layout
         appendImage: function (image, keyword) {
           this.$.layout.appendImage(image, keyword);
