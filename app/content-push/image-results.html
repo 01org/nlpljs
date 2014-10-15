@@ -15,7 +15,7 @@ upwards
         display: block;
       }
 
-      infini-scroll {
+      cp-scroll {
         width: 100%;
         height: 100%;
       }
@@ -28,10 +28,52 @@ upwards
 
   <script>
     (function () {
+      /* base URL for Google's image resizer (undocumented);
+         see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
+      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
+
       Polymer({
-        // append an image into the wrapped cp-layout
-        appendImage: function (image, keyword) {
-          this.$.layout.appendImage(image, keyword);
+        /**
+        * Convenience method to append an image search result to the
+        * gallery; creates a cp-tile-image element for the image
+        * object added.
+        *
+        * @param Object image Representation of image to add; has the
+        * format:
+        * {
+        *   src: "<url of image>",
+        *   keyphrase: {
+        *     text: "<keyphrase text>",
+        *     groupId: "<keyphrase group ID>"
+        *   }
+        * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        */
+        appendImage: function (image) {
+          var self = this;
+
+          var elt = document.createElement('cp-tile-image');
+
+          // dynamically resize using Google's image resizer
+          // TODO figure out a long term solution for this
+          elt.src = RESIZER_BASE_URL +
+                    '?container=focus&' +
+                    'refresh=' + (60 * 60) + '&' + // cache for one hour
+                    'resize_w=600&' + // set max image width to 600px
+                    'url=' + encodeURIComponent(image.src);
+
+          elt.addEventListener('mouseover', function () {
+            self.fire('mouse-over', image.keyphrase)
+          });
+
+          elt.addEventListener('mouseout', function () {
+            self.fire('mouse-out', image.keyphrase);
+          });
+
+          this.$.layout.addTile(elt);
         },
 
         // layout the wrapped cp-layout

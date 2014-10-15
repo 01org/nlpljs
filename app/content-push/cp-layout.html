@@ -1,4 +1,4 @@
-<link rel="import" href="./image-item.html">
+<link rel="import" href="./cp-tile-image.html">
 
 <polymer-element name="cp-layout">
   <template>
@@ -114,8 +114,8 @@
           this.lastMeasuredHeight = 0;
           this.lastMeasuredWidth = 0;
 
-          // count of the number of children currently loading
-          this.childrenLoading = 0;
+          // count of the number of tiles currently loading
+          this.tilesLoading = 0;
         },
 
         // set number of columns based on the gallery width
@@ -141,78 +141,46 @@
           return this.$.container.querySelectorAll('cp-tile-image');
         },
 
+        // add the tile to the layout if it loaded OK
+        tileReady: function (tile) {
+          // loaded is false if the image failed to load
+          if (tile.loaded) {
+            this.frameTile(tile);
+            this.$.container.appendChild(tile);
+            this.layout();
+          }
+
+          this.tilesLoading--;
+          this.fireLoadEvent();
+        },
+
         /**
-        * Convenience method to append an image search result to the
-        * gallery; creates a cp-image element for the image object added.
+        * Convenience method to add a tile to the layout.
         *
-        * @param Object image Representation of image to add; has the
-        * format:
-        * {
-        *   src: "<url of image>",
-        *   keyphrase: {
-        *     text: "<keyphrase text>",
-        *     groupId: "<keyphrase group ID>"
-        *   }
-        * }
-        *
-        * The keyphrase groupId is assigned by the NLP engine and
-        * enables the Highlighter to identify the correct ranges
-        * in the Context when highlights are toggled.
-        *
-        * TODO If the URL already exists on an cp-tile-image inside the card,
-        * its keyphrases are updated, rather than a new image being added.
+        * @param {cp-tile} tile Tile to add; must have the following
+        * properties:
+        *   - loaded: true if the tile can be added to the layout
+        *   - done: true if the tile is finished preparing itself
+        *   - width
+        *   - height
+        *   - ratio
         *
         * @fires loading or loaddone
         */
-        appendImage: function (image) {
+        addTile: function (tile) {
           var self = this;
 
-          // for passing to Google's image resizer
-          var resizeUrl;
-
-          var keyphrase = '';
-          if (image.keyphrase) {
-            keyphrase = image.keyphrase.text;
-          }
-
-          var elt = document.createElement('cp-tile-image');
-
-          this.childrenLoading++;
+          this.tilesLoading++;
           this.fireLoadEvent();
 
-          // image loaded successfully (or not)
-          elt.addEventListener('done', function () {
-            // loaded is false if the image failed to load
-            if (elt.loaded) {
-              self.frameTile(elt);
-              self.$.container.appendChild(elt);
-              self.layout();
-            } else {
-              elt = null;
-            }
-
-            self.childrenLoading--;
-            self.fireLoadEvent();
-          });
-
-          elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', image.keyphrase)
-          });
-
-          elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', image.keyphrase);
-          });
-
-          // dynamically resize using Google's image resizer
-          // TODO figure out a long term solution for this
-          resizeUrl = RESIZER_BASE_URL +
-                      '?container=focus&' +
-                      'refresh=' + (60 * 60) + '&' + // cache for one hour
-                      'resize_w=600&' + // set max image width to 600px
-                      'url=' + encodeURIComponent(image.src);
-
-          elt.src = resizeUrl;
-          elt.keyword = image.keyphrase;
+          if (tile.loaded) {
+            this.tileReady(tile);
+          }
+          else {
+            tile.addEventListener('done', function () {
+              self.tileReady(tile);
+            });
+          }
         },
 
         /**
@@ -300,7 +268,7 @@
          * number of children pending.
          */
         fireLoadEvent: function () {
-          if (this.childrenLoading > 0) {
+          if (this.tilesLoading > 0) {
             this.fire('loading');
           } else {
             this.fire('loaddone');

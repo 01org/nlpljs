@@ -43,9 +43,9 @@ test for cp-layout's layout algorithm
     Polymer({
       domReady: function () {
         for (var i = 0; i < imagesDimensions.length; i++) {
-          this.$.gallery.appendImage({
-            src: makeImageUrl(imagesDimensions[i].width, imagesDimensions[i].height)
-          });
+          var tile = document.createElement('cp-tile-image');
+          tile.src = makeImageUrl(imagesDimensions[i].width, imagesDimensions[i].height);
+          this.$.gallery.addTile(tile);
         }
 
         this.setWidth();

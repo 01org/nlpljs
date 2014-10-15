@@ -91,10 +91,12 @@ size
           this.ratio = 0;
 
           // true if the wrapped image's load event has fired
-          this.setAttribute('loaded', false);
+          this.loaded = false;
 
           // true if the image is ready, whether it loaded or failed
-          this.setAttribute('done', false);
+          this.done = false;
+
+          this.keyword = null;
 
           // true if the image's width is less than 100px
           this.isTinyImage = false;
@@ -102,8 +104,6 @@ size
           // set to 'on' to reveal metadata; set to 'off' to hide it;
           // set to 'always' if metadata should always be visible
           this.revealmeta = 'off';
-
-          this.keyword = null;
         },
 
         revealmetaOn: function () {
@@ -128,9 +128,9 @@ size
           this.loaded = false;
 
           // fire a "done" event, even if the image times out
-          this.timeout = setTimeout(function () {
+          setTimeout(function () {
             if (!self.loaded) {
-              self.setAttribute('done', true);
+              self.done = true;
               self.fire('done');
             }
           }, TIMEOUT);
@@ -148,15 +148,15 @@ size
           // mark tiny images so the metadata display can be adjusted
           this.isTinyImage = (this.width < 100);
 
-          this.setAttribute('loaded', true);
-          this.setAttribute('done', true);
+          this.loaded = true;
+          this.done = true;
           this.fire('done', this);
         },
 
         // image failed to load for whatever reason
         imageError: function (e) {
-          this.setAttribute('loaded', false);
-          this.setAttribute('done', true);
+          this.loaded = false;
+          this.done = true;
           this.fire('done', this);
 
           // notify the error, in case anyone cares

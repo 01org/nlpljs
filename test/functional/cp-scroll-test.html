@@ -44,9 +44,9 @@ test for cp-scroll
         var numImages = 8;
 
         for (var i = 0; i < numImages; i++) {
-          this.$.gallery.appendImage({
-            src: makeImageUrl(100, 50)
-          });
+          var tile = document.createElement('cp-tile-image');
+          tile.src = makeImageUrl(200, 200);
+          this.$.gallery.addTile(tile);
         }
       },
 
