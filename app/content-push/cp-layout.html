@@ -330,29 +330,6 @@
         },
 
         /**
-         * Remove all cp-tile-image elements from the card
-         */
-        clear: function () {
-          var imageItems = this.getChildren();
-          for (var i = 0; i < imageItems.length; i++) {
-            imageItems[i].parentNode.removeChild(imageItems[i]);
-            imageItems[i] = null;
-          }
-
-          /*
-          reset the height of the container (cheap operation
-          as there are no children at this point)
-          */
-          this.layout();
-
-          this.fire('childrenchanged', {
-            cleared: true,
-            numChildren: 0,
-            parent: this
-          });
-        },
-
-        /**
          * Fire a "childrenloading" event with a count of the number
          * of images which are currently loading.
          *

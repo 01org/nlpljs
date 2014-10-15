@@ -78,9 +78,13 @@ test for infini-scroll
         var numImages = (this.callsToFetchImages === 1 ? 1 : 4)
 
         // clear all children from the gallery
-        this.$.gallery.clear();
+        var imageItems = this.$.gallery.getChildren();
+        for (var i = 0; i < imageItems.length; i++) {
+          imageItems[i].parentNode.removeChild(imageItems[i]);
+          imageItems[i] = null;
+        }
 
-        for (var i = 0; i < numImages; i ++) {
+        for (i = 0; i < numImages; i ++) {
           this.$.gallery.appendImage({
             src: makeImageUrl(200, 200)
           });
