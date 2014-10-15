@@ -117,39 +117,60 @@
       };
 
       // NOTE: doesn't handle removed lines
-      var observeDocumentChanges = function(iframe,callBack) {
-        var docsContainerSelector = ".kix-paginateddocumentplugin";
-        var docsFilterSelector = ".kix-lineview";
-
+      var observeDocumentChanges = function(self,iframe,callBack) {
         // Create an observer instance
         var observer = new MutationObserver(function(mutations,observerInstance) {
-          mutations.forEach(function(mutation) {
-            var newNodes = mutation.addedNodes; // DOM NodeList
-            if (newNodes !== null) { // If there are new nodes added
-              for (var i=0;i<newNodes.length;++i) {
-                var thisNode=newNodes[i];
+          for (var i = 0; i < mutations.length; i++) {
+            var mutation = mutations[i];
+            var newNodes = mutation.addedNodes;
+            var removedNodes = mutation.removedNodes;
+
+            if (removedNodes !== null) {
+              for (var j = 0; j < removedNodes.length; j++) {
+                var thisNode = removedNodes[j];
                 if (thisNode) {
-                  var lineview=(thisNode.classList.contains("kix-lineview"))?thisNode:findAncestor(thisNode,"kix-lineview");
-                  if (lineview) {
-                    callBack(lineview.textContent);
+                  if (thisNode.className === 'kix-lineview') {
+                    console.log('MO:removed line');
                   }
                 }
               }
             }
-          });
+
+            if (newNodes !== null) {
+              for (var j = 0; j < newNodes.length; j++) {
+                var thisNode = newNodes[j];
+                if (thisNode) {
+                  if (thisNode.nodeName === 'SPAN') {
+                    if (findAncestor(thisNode,"kix-lineview") !== null)
+                      console.log('MO:editing line');
+                  }
+                  else if (thisNode.className === 'kix-lineview') {
+                    if (thisNode.getAttribute('cp_line_id') === null) {
+                      var lineIdAtt = document.createAttribute('cp_line_id');
+
+                      console.log('MO:new line');
+
+                      lineIdAtt.value = self.numLines;
+                      thisNode.setAttributeNode(lineIdAtt);
+                      self.numLines++;
+                    }
+                  }
+                }
+              }
+            }
+          }
         });
 
         // Configuration of the observer:
         var config = {
-          attributes: true,
+          attributes: false,
           childList: true,
           subtree: true,
-          characterData: true
+          characterData: false
         };
 
         // Pass in the target node, as well as the observer options
-        var node=iframe.contentDocument.querySelector(docsContainerSelector);
-        observer.observe(node, config);
+        observer.observe(iframe.contentDocument, config);
       };
 
       Polymer({
@@ -216,6 +237,9 @@
           setTimeout(handler, 1000);
 
           this.$.highlighter.targetElement = this.$.iframe.contentDocument;
+
+          observeDocumentChanges(this, this.$.iframe, function () {
+          });
         },
 
         /*When the user scrolls the document onScroll is triggered. But we are interested in
@@ -254,6 +278,10 @@
           this.fire('resetextractor', null);
 
           for (i = this.numLines; i < lines.length; i++) {
+            var lineIdAtt = document.createAttribute('cp_line_id');
+            lineIdAtt.value = this.numLines;
+
+            lines[i].parentNode.setAttributeNode (lineIdAtt);
             this.fire('lineadd', { pageId: this.pageno, lineId: this.numLines,
                 text: lines[i].innerText });
 
