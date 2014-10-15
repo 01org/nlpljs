@@ -11,7 +11,7 @@
         position: relative;
       }
 
-      image-item {
+      cp-tile-image {
         position: absolute;
         transition-property: top, left, opacity;
         transition-duration: 0.25s, 0.25s, 1s;
@@ -19,12 +19,12 @@
       }
 
       /*
-      when an image-item displays inside this element, a margin
+      when an cp-tile-image displays inside this element, a margin
       appears to be added below the meta paragraph; I couldn't track
       this down, so this work-around removes that margin for
-      image-items only in the context of a this element
+      cp-tile-images only in the context of a this element
       */
-      image-item::shadow #meta {
+      cp-tile-image::shadow #meta {
         margin: 0 0 3px 0;
       }
     </style>
@@ -140,10 +140,10 @@
         },
 
         /**
-         * Return all child image-item elements
+         * Return all child cp-tile-image elements
          */
         getChildren: function () {
-          return this.$.container.querySelectorAll('image-item');
+          return this.$.container.querySelectorAll('cp-tile-image');
         },
 
         /**
@@ -164,7 +164,7 @@
         * enables the Highlighter to identify the correct ranges
         * in the Context when highlights are toggled.
         *
-        * TODO If the URL already exists on an image-item inside the card,
+        * TODO If the URL already exists on an cp-tile-image inside the card,
         * its keyphrases are updated, rather than a new image being added.
         *
         * @fires childrenchanged Event data:
@@ -185,35 +185,57 @@
             keyphrase = image.keyphrase.text;
           }
 
-          var elt = document.createElement('image-item');
+          var elt = document.createElement('cp-tile-image');
 
           this.countChildrenLoading++;
           this.fireChildrenLoading();
 
           // image loaded successfully
-          elt.addEventListener('load', makeImageLoadHandler(self, elt));
+          elt.addEventListener('load', function () {
+            self.frameTile(elt);
+            self.$.container.appendChild(elt);
+            self.layout();
+
+            self.fire('childrenchanged', {
+              added: elt,
+              numChildren: self.getChildren().length,
+              parent: self
+            });
+
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
+            elt.counted = true;
+          });
 
           /*
           image fails to load, we still need to remove it from
           the count of loading images
           */
-          elt.addEventListener('error', makeImageErrorHandler(self, elt));
+          elt.addEventListener('error', function (e) {
+            self.countChildrenLoading--;
+            self.fireChildrenLoading();
+            elt.counted = true;
+          });
 
           /*
           set a timeout so that if the image still hasn't loaded
           (e.g. the server is down) we can clear the loading count
           */
-          setTimeout(makeImageTimeoutHandler(self, elt), TIMEOUT);
+          setTimeout(function () {
+            if (!elt.counted) {
+              self.countChildrenLoading--;
+              self.fireChildrenLoading();
+              elt.counted = true;
+            }
+          }, TIMEOUT);
 
-          elt.$.container.addEventListener(
-            'mouseover',
-            makeImageMouseoverHandler(self, image)
-          );
+          elt.addEventListener('mouseover', function () {
+            self.fire('mouse-over', image.keyphrase)
+          });
 
-          elt.$.container.addEventListener(
-            'mouseout',
-            makeImageMouseoutHandler(self, image)
-          );
+          elt.addEventListener('mouseout', function () {
+            self.fire('mouse-out', image.keyphrase);
+          });
 
           // dynamically resize using Google's image resizer
           // TODO figure out a long term solution for this
@@ -228,19 +250,19 @@
         },
 
         /**
-         * Add the appropriate frame to the image-item img.
+         * Add the appropriate frame to the cp-tile-image img.
          *
-         * @param DOMElement img image-item element
+         * @param DOMElement tile cp-tile* element
          */
-        frameImage: function (img) {
-          var frame = this.frameChooser.choose(img);
-          img.setAttribute('data-frame', frame.name);
-          img.setAttribute('data-columns', frame.columns);
-          img.setAttribute('data-rows', frame.rows);
+        frameTile: function (tile) {
+          var frame = this.frameChooser.choose(tile);
+          tile.setAttribute('data-frame', frame.name);
+          tile.setAttribute('data-columns', frame.columns);
+          tile.setAttribute('data-rows', frame.rows);
         },
 
         /**
-         * Apply layout to image-items.
+         * Apply layout to cp-tile-images.
          */
         layout: function () {
           this.setLayoutParams();
@@ -308,7 +330,7 @@
         },
 
         /**
-         * Remove all image-item elements from the card
+         * Remove all cp-tile-image elements from the card
          */
         clear: function () {
           var imageItems = this.getChildren();

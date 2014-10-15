@@ -1,9 +1,9 @@
-<link rel="import" href="../../app/content-push/image-item.html">
+<link rel="import" href="../../app/content-push/cp-tile-image.html">
 
 <!--
-test for image-item metadata
+test for cp-tile-image metadata
 -->
-<polymer-element name="image-item-meta-test">
+<polymer-element name="cp-tile-image-meta-test">
   <template>
     <p>The image on the left should reveal its metadata on hover.
     The image on the right should always show its metadata.</p>
@@ -15,11 +15,11 @@ test for image-item metadata
   <script>
     Polymer({
       domReady: function () {
-        var imageItemMetaHover = document.createElement('image-item');
+        var imageItemMetaHover = document.createElement('cp-tile-image');
         imageItemMetaHover.src = makeImageUrl(200, 200);
         this.$.container.appendChild(imageItemMetaHover);
 
-        var imageItemMetaAlways = document.createElement('image-item');
+        var imageItemMetaAlways = document.createElement('cp-tile-image');
         imageItemMetaAlways.src = makeImageUrl(200, 200);
         imageItemMetaAlways.revealmeta = 'always';
         this.$.container.appendChild(imageItemMetaAlways);

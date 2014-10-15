@@ -20,5 +20,8 @@
     "lodash": "~2.4.1",
     "paper-spinner": "https://github.com/PolymerLabs/paper-spinner.git"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "polymer": "~0.4.0"
+  }
 }

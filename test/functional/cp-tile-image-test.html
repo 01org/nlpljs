@@ -1,12 +1,12 @@
-<link rel="import" href="../../app/content-push/image-item.html">
+<link rel="import" href="../../app/content-push/cp-tile-image.html">
 
 <!--
-test for image-item; draws 10 random cp-image elements at
+test for cp-tile-image; draws 10 random cp-image elements at
 different sizes
 -->
-<polymer-element name="image-item-test">
+<polymer-element name="cp-tile-image-test">
   <template>
-    <p>Create 10 image-items with 50 pixel increments in width and height.
+    <p>Create 10 cp-tile-images with 50 pixel increments in width and height.
     The image dimensions should be revealed when the mouse hovers over them.</p>
     <div id="container"></div>
   </template>
@@ -16,10 +16,10 @@ different sizes
   <script>
     Polymer({
       domReady: function () {
-        // add random image-items with URLs from lorempixel
+        // add random cp-tile-images with URLs from lorempixel
         var cpImage;
         for (var i = 50; i <= 500; i += 50) {
-          cpImage = document.createElement('image-item');
+          cpImage = document.createElement('cp-tile-image');
           cpImage.src = makeImageUrl(i, i);
           this.$.container.appendChild(cpImage);
         }
