@@ -21,7 +21,9 @@ test for cp-scroll
     <p>The outer container is a fixed height to represent the
     content-push element; the cp-scroll is styled to fill its
     parent. A "scrollend" event fires each time the end of
-    the scroll is reached.</p>
+    the scroll is reached. It should only fire if the user
+    is scrolling down, and only once each time the user scrolls
+    into the gap.</p>
 
     <p>Times "scrollend" fired: <span id="eventfired">0</span></p>
 

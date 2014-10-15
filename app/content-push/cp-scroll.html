@@ -28,18 +28,46 @@ end, a "scrollend" event is fired
       var DEFAULT_SCROLL_GAP = 100;
 
       Polymer({
+        created: function () {
+          /* record the scroll position so we can determine whether
+             we are scrolling downwards */
+          this.lastScrollPosition = 0;
+
+          /* record whether we are inside the scroll gap; this is
+             reset when we scroll back up out of the scroll gap;
+             the reason for this is to ensure we only fire one
+             scrollend each time we enter the scroll gap */
+          this.inScrollGap = false;
+        },
+
         domReady: function () {
           // event handler for scroll events on the container
           this.addEventListener('scroll', this.onScroll.bind(this));
         },
 
         onScroll: function () {
-          var gap = this.scrollgap || DEFAULT_SCROLL_GAP;
-          var scrolledEnough = this.scrollTop + this.offsetHeight >=
-                                   this.scrollHeight - gap;
-          if (scrolledEnough) {
-            this.fire('scrollend');
+          var scrollPosition = this.scrollTop;
+
+          // we're scrolling down
+          if (scrollPosition > this.lastScrollPosition) {
+            var gap = this.scrollgap || DEFAULT_SCROLL_GAP;
+
+            var scrolledEnough = (this.scrollTop + this.offsetHeight) >=
+                                     (this.scrollHeight - gap);
+
+            /* we've scrolled far enough, and we haven't fired
+               a scrollend event since we entered the gap */
+            if (scrolledEnough) {
+              if (!this.inScrollGap) {
+                this.inScrollGap = true;
+                this.fire('scrollend');
+              }
+            } else {
+              this.inScrollGap = false;
+            }
           }
+
+          this.lastScrollPosition = scrollPosition;
         }
       });
     })();
