@@ -51,11 +51,6 @@
       var FRAME_CELL_SIDE = 54;
 
       /*
-      timeout (in ms) before treating an image load as failed
-      */
-      var TIMEOUT = 5000;
-
-      /*
       base URL for Google's image resizer (undocumented);
       see http://carlo.zottmann.org/2013/04/14/google-image-resizer/
       */
@@ -119,8 +114,8 @@
           this.lastMeasuredHeight = 0;
           this.lastMeasuredWidth = 0;
 
-          // count of the number of images currently loading
-          this.countChildrenLoading = 0;
+          // count of the number of children currently loading
+          this.childrenLoading = 0;
         },
 
         // set number of columns based on the gallery width
@@ -187,47 +182,23 @@
 
           var elt = document.createElement('cp-tile-image');
 
-          this.countChildrenLoading++;
-          this.fireChildrenLoading();
+          this.childrenLoading++;
+          this.fireLoadEvent();
 
-          // image loaded successfully
-          elt.addEventListener('load', function () {
-            self.frameTile(elt);
-            self.$.container.appendChild(elt);
-            self.layout();
-
-            self.fire('childrenchanged', {
-              added: elt,
-              numChildren: self.getChildren().length,
-              parent: self
-            });
-
-            self.countChildrenLoading--;
-            self.fireChildrenLoading();
-            elt.counted = true;
-          });
-
-          /*
-          image fails to load, we still need to remove it from
-          the count of loading images
-          */
-          elt.addEventListener('error', function (e) {
-            self.countChildrenLoading--;
-            self.fireChildrenLoading();
-            elt.counted = true;
-          });
-
-          /*
-          set a timeout so that if the image still hasn't loaded
-          (e.g. the server is down) we can clear the loading count
-          */
-          setTimeout(function () {
-            if (!elt.counted) {
-              self.countChildrenLoading--;
-              self.fireChildrenLoading();
-              elt.counted = true;
+          // image loaded successfully (or not)
+          elt.addEventListener('done', function () {
+            // loaded is false if the image failed to load
+            if (elt.loaded) {
+              self.frameTile(elt);
+              self.$.container.appendChild(elt);
+              self.layout();
+            } else {
+              elt = null;
             }
-          }, TIMEOUT);
+
+            self.childrenLoading--;
+            self.fireLoadEvent();
+          });
 
           elt.addEventListener('mouseover', function () {
             self.fire('mouse-over', image.keyphrase)
@@ -330,14 +301,15 @@
         },
 
         /**
-         * Fire a "childrenloading" event with a count of the number
-         * of images which are currently loading.
-         *
-         * @fires childrenloading Event data: count of the number of
-         * images which are currently loading into the component.
+         * Fire a "loading" or "loaddone" event, depending on the
+         * number of children pending.
          */
-        fireChildrenLoading: function () {
-          this.fire('childrenloading', this.countChildrenLoading);
+        fireLoadEvent: function () {
+          if (this.childrenLoading > 0) {
+            this.fire('loading');
+          } else {
+            this.fire('loaddone');
+          }
         }
       })
     })();

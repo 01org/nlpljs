@@ -91,8 +91,8 @@ the child elements we're interested in are being added)
 
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*" on-resize="{{onContentResize}}"
-             on-childrenchanged="{{onChildrenChanged}}"
-             on-childrenloading="{{onChildrenLoading}}">
+             on-loaddone="{{onLoaddone}}"
+             on-loading="{{onLoading}}">
     </content>
 
     <!-- full page loader for a fresh search -->
@@ -158,28 +158,13 @@ the child elements we're interested in are being added)
           }
         },
 
-        /*
-        called when a child is added or removed from the wrapped content
-        element
-        */
-        onChildrenChanged: function (e) {
-          this.numChildren = e.detail.numChildren;
+        onLoading: function () {
+          this.loading = true
           this.setState();
         },
 
-        /*
-        called when the number of images being loaded into the wrapped
-        content element changes
-
-        e is an event whose detail is a count of the number of children
-        loading into the wrapped element
-        */
-        onChildrenLoading: function (e) {
-          if (e.detail > 0) {
-            this.loading = true;
-          } else {
-            this.loading = false;
-          }
+        onLoaddone: function () {
+          this.loading = false;
           this.setState();
         },
 
