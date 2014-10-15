@@ -61,6 +61,54 @@
       */
       var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
 
+      var makeImageLoadHandler = function (layout, elt) {
+        return function () {
+          layout.frameImage(elt);
+          layout.$.container.appendChild(elt);
+          layout.layout();
+
+          layout.fire('childrenchanged', {
+            added: elt,
+            numChildren: layout.getChildren().length,
+            parent: layout
+          });
+
+          layout.countChildrenLoading--;
+          layout.fireChildrenLoading();
+          elt.counted = true;
+        }
+      };
+
+      var makeImageErrorHandler = function (layout, elt) {
+        return function () {
+          layout.countChildrenLoading--;
+          layout.fireChildrenLoading();
+          elt.counted = true;
+        }
+      };
+
+      var makeImageTimeoutHandler = function (layout, elt) {
+        return function () {
+          if (!elt.counted) {
+            layout.countChildrenLoading--;
+            layout.fireChildrenLoading();
+            elt.counted = true;
+          }
+        };
+      };
+
+      var makeImageMouseoverHandler = function (layout, image) {
+        return function () {
+          layout.fire('mouse-over', image.keyphrase)
+        };
+      };
+
+      var makeImageMouseoutHandler = function (layout, image) {
+        return function () {
+          layout.fire('mouse-out', image.keyphrase);
+        };
+      };
+
       Polymer({
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
@@ -143,51 +191,29 @@
           this.fireChildrenLoading();
 
           // image loaded successfully
-          elt.addEventListener('load', function () {
-            self.frameImage(elt);
-            self.$.container.appendChild(elt);
-            self.layout();
-
-            self.fire('childrenchanged', {
-              added: elt,
-              numChildren: self.getChildren().length,
-              parent: self
-            });
-
-            self.countChildrenLoading--;
-            self.fireChildrenLoading();
-            elt.counted = true;
-          });
+          elt.addEventListener('load', makeImageLoadHandler(self, elt));
 
           /*
           image fails to load, we still need to remove it from
           the count of loading images
           */
-          elt.addEventListener('error', function (e) {
-            self.countChildrenLoading--;
-            self.fireChildrenLoading();
-            elt.counted = true;
-          });
+          elt.addEventListener('error', makeImageErrorHandler(self, elt));
 
           /*
           set a timeout so that if the image still hasn't loaded
           (e.g. the server is down) we can clear the loading count
           */
-          setTimeout(function () {
-            if (!elt.counted) {
-              self.countChildrenLoading--;
-              self.fireChildrenLoading();
-              elt.counted = true;
-            }
-          }, TIMEOUT);
+          setTimeout(makeImageTimeoutHandler(self, elt), TIMEOUT);
 
-          elt.$.container.addEventListener('mouseover', function () {
-            self.fire('mouse-over', image.keyphrase)
-          });
+          elt.$.container.addEventListener(
+            'mouseover',
+            makeImageMouseoverHandler(self, image)
+          );
 
-          elt.$.container.addEventListener('mouseout', function () {
-            self.fire('mouse-out', image.keyphrase);
-          });
+          elt.$.container.addEventListener(
+            'mouseout',
+            makeImageMouseoutHandler(self, image)
+          );
 
           // dynamically resize using Google's image resizer
           // TODO figure out a long term solution for this
