@@ -1,9 +1,9 @@
-<link rel="import" href="../../app/content-push/image-card.html">
+<link rel="import" href="../../app/content-push/cp-layout.html">
 
 <!--
-test for image-card; creates a card and adds ten random images to it
+test for cp-layout; creates a card and adds ten random images to it
 -->
-<polymer-element name="image-card-test">
+<polymer-element name="cp-layout-test">
   <template>
     <!-- make the card span a percentage of the window to check centering -->
     <style>
@@ -15,10 +15,10 @@ test for image-card; creates a card and adds ten random images to it
     </style>
 
     <p>
-      Create an image-card with 10 random images inside it; fills 50% of
+      Create an layout with 10 random images inside it; fills 50% of
       screen to check for centering of images inside.
     </p>
-    <image-card id="gallery"></image-card>
+    <cp-layout id="gallery"></cp-layout>
   </template>
 
   <script src="./test-utils.js"></script>

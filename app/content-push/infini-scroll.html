@@ -18,6 +18,7 @@ this, but these don't work inside the Shadow DOM, which is where
 the child elements we're interested in are being added)
 -->
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
 <!-- this is needed for the icon on the "more" button -->
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
@@ -43,10 +44,15 @@ the child elements we're interested in are being added)
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        margin-top: 1em;
       }
 
       /* fill the whole panel when there is no content */
-      #loading[data-nocontent="true"] {
+      #fullPageLoading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         position: absolute;
         top: 0;
         left: 0;
@@ -55,13 +61,16 @@ the child elements we're interested in are being added)
         z-index: 1000;
       }
 
-      #more {
+      #welcome, #more {
         text-align: center;
         margin: 3em 0 0 0;
         width: 60%;
         margin-left: 15%;
-        border-top: thin solid gray;
         content-sizing: border-box;
+      }
+
+      #more {
+        border-top: thin solid gray;
       }
 
       #morebutton {
@@ -74,26 +83,39 @@ the child elements we're interested in are being added)
       }
     </style>
 
-    <div id="container">
-      <content id="content" select="*" on-resize="{{onContentResize}}"
-               on-childrenchanged="{{onChildrenChanged}}"
-               on-childrenloading="{{onChildrenLoading}}">
-      </content>
+    <!-- never searched -->
+    <div id="welcome" data-show="true">
+      <p>Your related content should arrive shortly.</p>
+      <paper-spinner active></paper-spinner>
     </div>
 
-    <div id="loading" data-show="{{isLoading}}" data-nocontent="{{noContent}}">
-      <img src="../images/spinner.gif">
+    <!-- wrapped content which will become scrollable -->
+    <content id="content" select="*" on-resize="{{onContentResize}}"
+             on-childrenchanged="{{onChildrenChanged}}"
+             on-childrenloading="{{onChildrenLoading}}">
+    </content>
+
+    <!-- full page loader for a fresh search -->
+    <div id="fullPageLoading" data-show="false">
+      <paper-spinner active></paper-spinner>
     </div>
 
-    <div id="nocontent" data-show="{{noContent && !isLoading}}">
-      Sorry, we couldn't find anything
+    <!-- loader at the end of existing results -->
+    <div id="loading" data-show="false">
+      <paper-spinner active></paper-spinner>
     </div>
 
-    <div id="more" data-show="{{showButton && !isLoading}}">
+    <!-- "widen the search" button -->
+    <div id="more" data-show="false">
       <p>Widen the search</p>
       <paper-fab id="morebutton" mini icon="add"
                  raisedButton="true" on-click="{{fireReplaceContent}}">
       </paper-fab>
+    </div>
+
+    <!-- no content available -->
+    <div id="nocontent" data-show="false">
+      Sorry, we couldn't find anything
     </div>
   </template>
 
@@ -114,21 +136,10 @@ the child elements we're interested in are being added)
 
       Polymer({
         created: function () {
-          /*
-          set to false if the button should be hidden
-          */
-          this.showButton = true;
+          // the number of children the wrapped content element has
+          this.numChildren = 0;
 
-          /*
-          set to false when the wrapped element contains at least
-          one child element
-          */
-          this.noContent = true;
-
-          /*
-          set to true when content is being loaded; shows the spinner
-          */
-          this.isLoading = false;
+          this.loading = false;
         },
 
         domReady: function () {
@@ -138,7 +149,11 @@ the child elements we're interested in are being added)
 
         onScroll: function () {
           var gap = this.scrollGap || DEFAULT_SCROLL_GAP;
-          if (this.scrollTop + this.offsetHeight >= this.scrollHeight - gap) {
+          var scrolledEnough = this.scrollTop + this.offsetHeight >=
+                                   this.scrollHeight - gap;
+          if (!this.loading && scrolledEnough) {
+            this.loading = true;
+            this.setState();
             this.fireMoreContent();
           }
         },
@@ -148,29 +163,24 @@ the child elements we're interested in are being added)
         element
         */
         onChildrenChanged: function (e) {
-          if (e.detail.numChildren === 0) {
-            this.noContent = true;
-          } else {
-            this.noContent = false;
-          }
-
-          if (e.detail.numChildren <= FEW_RESULTS) {
-            this.showButton = true;
-          } else {
-            this.showButton = false;
-          }
+          this.numChildren = e.detail.numChildren;
+          this.setState();
         },
 
         /*
         called when the number of images being loaded into the wrapped
         content element changes
+
+        e is an event whose detail is a count of the number of children
+        loading into the wrapped element
         */
         onChildrenLoading: function (e) {
           if (e.detail > 0) {
-            this.isLoading = true;
+            this.loading = true;
           } else {
-            this.isLoading = false;
+            this.loading = false;
           }
+          this.setState();
         },
 
         /*
@@ -188,6 +198,38 @@ the child elements we're interested in are being added)
         */
         fireReplaceContent: function () {
           this.fire('replacecontent');
+        },
+
+        setState: function () {
+          this.$.welcome.setAttribute('data-show', 'false');
+
+          if (this.loading) {
+            if (this.numChildren === 0) {
+              // full page load
+              this.$.nocontent.setAttribute('data-show', 'false');
+              this.$.more.setAttribute('data-show', 'false');
+              this.$.fullPageLoading.setAttribute('data-show', 'true');
+              this.$.loading.setAttribute('data-show', 'false');
+            } else {
+              // loader at end of page, results still show
+              this.$.fullPageLoading.setAttribute('data-show', 'false');
+              this.$.loading.setAttribute('data-show', 'true');
+            }
+          } else {
+            this.$.fullPageLoading.setAttribute('data-show', 'false');
+            this.$.loading.setAttribute('data-show', 'false');
+
+            if (this.numChildren === 0) {
+              this.$.nocontent.setAttribute('data-show', 'true');
+              this.$.more.setAttribute('data-show', 'true');
+            } else if (this.numChildren < FEW_RESULTS) {
+              this.$.nocontent.setAttribute('data-show', 'false');
+              this.$.more.setAttribute('data-show', 'true');
+            } else {
+              this.$.nocontent.setAttribute('data-show', 'false');
+              this.$.more.setAttribute('data-show', 'false');
+            }
+          }
         }
       });
     })();

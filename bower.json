@@ -17,7 +17,8 @@
     "core-icon": "Polymer/core-icon#~0.4.2",
     "core-icons": "Polymer/core-icons#~0.4.2",
     "core-icon-button": "Polymer/core-icon-button#~0.4.2",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "paper-spinner": "https://github.com/PolymerLabs/paper-spinner.git"
   },
   "devDependencies": {}
 }

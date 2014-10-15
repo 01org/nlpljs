@@ -1,5 +1,5 @@
 <link rel="import" href="../../app/content-push/infini-scroll.html">
-<link rel="import" href="../../app/content-push/image-card.html">
+<link rel="import" href="../../app/content-push/cp-layout.html">
 
 <!--
 test for infini-scroll
@@ -23,21 +23,20 @@ test for infini-scroll
     parent.</p>
 
     <ul>
-      <li>When there are no images loaded, the "no results" message
-      should be visible with a "widen the search" button. Clicking
-      that button loads two images.</li>
-      <li>With the initial two images, a button to "widen the search"
-      should be visible. Clicking this button loads six images
+      <li>To start with, there are no images, and you see the welcome
+      message.</li>
+      <li>Then one image loads, and a button to "widen the search"
+      should be visible. Clicking this button loads four images
       which replace the existing ones.</li>
-      <li>After loading these six images, the button should be hidden
+      <li>After loading these images, the button should be hidden
       and new images load when the user scrolls near the bottom of
-      the element.</li>
+      the scroller.</li>
     </ul>
 
     <div id="container">
       <infini-scroll id="scroller" on-morecontent="{{addImages}}"
-                     on-replacecontent="{{replaceImages}}">
-        <image-card id="imagecard"></image-card>
+                     on-replacecontent="{{fetchImages}}">
+        <cp-layout id="gallery"></cp-layout>
       </infini-scroll>
     </div>
   </template>
@@ -47,35 +46,41 @@ test for infini-scroll
   <script>
     Polymer({
       created: function () {
+        var self = this;
+
         /*
         for stubbing purposes, record how many times replaceImages()
         has been called; this is so that the first call adds only
-        2 images (so the "widen search" button is visible); and
+        1 image (so the "widen search" button is visible); and
         the second call adds 8 (to show the "more content on scroll"
         behaviour)
         */
-        this.callsToReplaceImages = 0;
+        this.callsToFetchImages = 0;
+
+        setTimeout(function () {
+          self.fetchImages();
+        }, 2000);
       },
 
       addImages: function () {
-        // add some images to the image-card
+        // add some images to the gallery
         for (var i = 0; i < 2; i ++) {
-          this.$.imagecard.appendImage({
+          this.$.gallery.appendImage({
             src: makeImageUrl(200, 200)
           });
         }
       },
 
-      replaceImages: function () {
-        this.callsToReplaceImages++;
+      fetchImages: function () {
+        this.callsToFetchImages++;
 
         // show more images on the second call to this function
-        var numImages = (this.callsToReplaceImages === 1 ? 2 : 8)
+        var numImages = (this.callsToFetchImages === 1 ? 1 : 4)
 
-        this.$.imagecard.clear();
+        this.$.gallery.clear();
 
         for (var i = 0; i < numImages; i ++) {
-          this.$.imagecard.appendImage({
+          this.$.gallery.appendImage({
             src: makeImageUrl(200, 200)
           });
         }

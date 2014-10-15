@@ -1,12 +1,12 @@
 <!--
 scrolling image search results component
 
-wraps an image-card with an infini-scroll component, and propagates
+wraps an cp-layout with an infini-scroll component, and propagates
 any "morecontent" and "replacecontent" events from the infini-scroll
 upwards
 -->
 <link rel="import" href="./infini-scroll.html">
-<link rel="import" href="./image-card.html">
+<link rel="import" href="./cp-layout.html">
 
 <polymer-element name="image-results">
   <template>
@@ -21,39 +21,22 @@ upwards
       }
     </style>
 
-    <infini-scroll id="scroller" on-morecontent="{{fireMoreImages}}"
-                   on-replacecontent="{{fireReplaceImages}}">
-      <image-card id="imagecard"></image-card>
+    <infini-scroll id="scroller">
+      <cp-layout id="layout"></cp-layout>
     </infini-scroll>
   </template>
 
   <script>
     (function () {
       Polymer({
-        /*
-        load more results already returned by searches when
-        the scroller reaches the bottom; this is throttled for now
-        to prevent lots of searches piling on top of each other as the
-        container's size changes with each new image added
-        */
-        fireMoreImages: function () {
-          this.fire('moreimages');
-        },
-
-        // replace current content with new search results
-        fireReplaceImages: function () {
-          this.$.imagecard.clear();
-          this.fire('replaceimages');
-        },
-
-        // append an image into the wrapped image-card
+        // append an image into the wrapped cp-layout
         appendImage: function (image, keyword) {
-          this.$.imagecard.appendImage(image, keyword);
+          this.$.layout.appendImage(image, keyword);
         },
 
-        // layout the wrapped image-card
+        // layout the wrapped cp-layout
         layout: function () {
-          this.$.imagecard.layout();
+          this.$.layout.layout();
         }
       });
     })();

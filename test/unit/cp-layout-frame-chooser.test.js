@@ -1,6 +1,6 @@
 var chai = require('chai');
 var expect = chai.expect;
-var FrameChooser = require('./../../app/content-push/image-card-frame-chooser');
+var FrameChooser = require('./../../app/content-push/cp-layout-frame-chooser');
 
 describe('FrameChooser', function () {
 
