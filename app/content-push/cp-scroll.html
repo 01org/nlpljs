@@ -1,0 +1,47 @@
+<!--
+wraps a single element in a scrollable area;
+if the wrapped element is the same height or taller than the scroller,
+a vertical scrollbar is added; when the scroll reaches nearly the
+end, a "scrollend" event is fired
+-->
+<polymer-element name="cp-scroll" attributes="scrollgap">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+    </style>
+
+    <!-- wrapped content which will become scrollable -->
+    <content id="content" select="*"></content>
+  </template>
+
+  <script>
+    (function () {
+      /*
+      default number of pixels between the scroll position and the
+      end of the container when the "scrollend" event triggers
+      */
+      var DEFAULT_SCROLL_GAP = 100;
+
+      Polymer({
+        domReady: function () {
+          // event handler for scroll events on the container
+          this.addEventListener('scroll', this.onScroll.bind(this));
+        },
+
+        onScroll: function () {
+          var gap = this.scrollgap || DEFAULT_SCROLL_GAP;
+          var scrolledEnough = this.scrollTop + this.offsetHeight >=
+                                   this.scrollHeight - gap;
+          if (scrolledEnough) {
+            this.fire('scrollend');
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

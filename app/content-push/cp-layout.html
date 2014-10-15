@@ -162,12 +162,7 @@
         * TODO If the URL already exists on an cp-tile-image inside the card,
         * its keyphrases are updated, rather than a new image being added.
         *
-        * @fires childrenchanged Event data:
-        * {
-        *   added: <reference to the child element which was added>,
-        *   numChildren: <total number of children>,
-        *   parent: <reference to this parent element>
-        * }
+        * @fires loading or loaddone
         */
         appendImage: function (image) {
           var self = this;

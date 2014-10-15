@@ -1,0 +1,59 @@
+<link rel="import" href="../../app/content-push/cp-scroll.html">
+<link rel="import" href="../../app/content-push/cp-layout.html">
+
+<!--
+test for cp-scroll
+-->
+<polymer-element name="cp-scroll-test">
+  <template>
+    <style>
+      #container {
+        width: 400px;
+        height: 600px;
+      }
+
+      cp-scroll {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <p>The outer container is a fixed height to represent the
+    content-push element; the cp-scroll is styled to fill its
+    parent. A "scrollend" event fires each time the end of
+    the scroll is reached.</p>
+
+    <p>Times "scrollend" fired: <span id="eventfired">0</span></p>
+
+    <div id="container">
+      <cp-scroll id="scroller" on-scrollend="{{onScrollend}}">
+        <cp-layout id="gallery"></cp-layout>
+      </cp-scroll>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      created: function () {
+        this.eventfired = 0;
+      },
+
+      domReady: function () {
+        var numImages = 8;
+
+        for (var i = 0; i < numImages; i++) {
+          this.$.gallery.appendImage({
+            src: makeImageUrl(100, 50)
+          });
+        }
+      },
+
+      onScrollend: function () {
+        this.eventfired++;
+        this.$.eventfired.innerHTML = this.eventfired;
+      }
+    });
+  </script>
+</polymer-element>
