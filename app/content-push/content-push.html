@@ -8,7 +8,7 @@
 <link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="./cp-fetcher.html">
-<link rel="import" href="./image-results.html">
+<link rel="import" href="./cp-display.html">
 <link rel='import' href='./keyword-highlighter.html'>
 
 <polymer-element name="content-push" attributes="iframeurl toggle">
@@ -188,8 +188,8 @@
         numLines: 0,
         sectionIndex:[],
         sectionCount:0,
-        /* map from page IDs to image-results elements; each page gets
-        its own image-results element (at the moment)*/
+        /* map from page IDs to cp-display elements; each page gets
+        its own cp-display element (at the moment) */
         imageCards: {},
 
         created: function() {
@@ -207,7 +207,7 @@
 
         createImageResults: function () {
           if (!this.imageCards[this.pageno]) {
-            this.imageCards[this.pageno] = document.createElement('image-results');
+            this.imageCards[this.pageno] = document.createElement('cp-display');
             this.imageCards[this.pageno].style.display = 'block';
             this.imageCards[this.pageno].style.height = '100%';
             this.$.content.appendChild(this.imageCards[this.pageno]);

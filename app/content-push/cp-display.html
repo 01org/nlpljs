@@ -1,14 +1,12 @@
 <!--
-scrolling image search results component
-
-wraps an cp-layout with an infini-scroll component, and propagates
-any "morecontent" and "replacecontent" events from the infini-scroll
-upwards
+scrolling image search results component; responsible for tracking
+the state of any ongoing search, displaying loading spinners, and
+pushing new tiles into the wrapped layout
 -->
 <link rel="import" href="./cp-scroll.html">
 <link rel="import" href="./cp-layout.html">
 
-<polymer-element name="image-results">
+<polymer-element name="cp-display">
   <template>
     <style>
       :host {
@@ -30,11 +28,12 @@ upwards
     (function () {
       /* base URL for Google's image resizer (undocumented);
          see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
+      // TODO figure out a long term solution for this
       var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
 
       Polymer({
         /**
-        * Convenience method to append an image search result to the
+        * Convenience method to append an image tile to the
         * gallery; creates a cp-tile-image element for the image
         * object added.
         *
@@ -58,7 +57,6 @@ upwards
           var elt = document.createElement('cp-tile-image');
 
           // dynamically resize using Google's image resizer
-          // TODO figure out a long term solution for this
           elt.src = RESIZER_BASE_URL +
                     '?container=focus&' +
                     'refresh=' + (60 * 60) + '&' + // cache for one hour
