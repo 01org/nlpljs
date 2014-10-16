@@ -155,8 +155,21 @@ pushing new tiles into the wrapped layout
           this.loading = false;
         },
 
+        /**
+         * Add results to the layout and set the filter to only show
+         * results whose keyphrase.text matches the passed-in
+         * keyphrase.text.
+         *
+         * keyphrase looks like:
+         * { text: <keyphrase text>, groupId: <keyphrase groupId>}
+         */
         receiveResults: function (results, keyphrase) {
           this.state = 'results';
+
+          // set the filter on the layout to the current keyphrase
+          this.$.layout.filter = function (tile) {
+            return tile.data.text === keyphrase.text;
+          };
 
           if (results.length) {
             for (var i = 0; i < results.length; i++) {
@@ -168,16 +181,25 @@ pushing new tiles into the wrapped layout
           } else {
             /* no results, so we can immediately disable the spinner */
             this.loading = false;
+
+            /* force a relayout, so the new filter can take effect */
+            this.$.layout.layout();
+
+            /* set the state of the result set */
+            this.setResultState();
           }
         },
 
-        onLayoutLoaddone: function (e) {
-          if (this.$.layout.getTiles().length) {
+        setResultState: function () {
+          if (this.$.layout.getVisibleTiles().length) {
             this.state = 'results';
           } else {
             this.state = 'noresults';
           }
+        },
 
+        onLayoutLoaddone: function (e) {
+          this.setResultState();
           this.loading = (this.$.layout.tilesLoading > 0);
         },
 
@@ -224,12 +246,14 @@ pushing new tiles into the wrapped layout
                     'resize_w=600&' + // set max image width to 600px
                     'url=' + encodeURIComponent(image.src);
 
+          elt.data = image.keyphrase;
+
           elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', image.keyphrase)
+            self.fire('mouse-over', elt.data)
           });
 
           elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', image.keyphrase);
+            self.fire('mouse-out', elt.data);
           });
 
           this.$.layout.addTile(elt);

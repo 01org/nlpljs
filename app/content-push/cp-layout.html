@@ -27,6 +27,10 @@
       cp-tile-image::shadow #meta {
         margin: 0 0 3px 0;
       }
+
+      [data-show="false"] {
+        display: none !important;
+      }
     </style>
 
     <div id="container"></div>
@@ -116,6 +120,10 @@
 
           // count of the number of tiles currently loading
           this.tilesLoading = 0;
+
+          /* filter which determines the tiles to show; this is applied
+             on each layout() call to determine the visible tiles */
+          this.filter = null;
         },
 
         // set number of columns based on the gallery width
@@ -135,9 +143,16 @@
         },
 
         /**
-         * Return all child cp-tile-image elements
+         * Return all child cp-tile-image elements which are visible.
          */
-        getTiles: function () {
+        getVisibleTiles: function () {
+          return this.$.container.querySelectorAll('cp-tile-image[data-show="true"]');
+        },
+
+        /**
+         * Return all child cp-tile-image elements, including the hidden ones.
+         */
+        getAllTiles: function () {
           return this.$.container.querySelectorAll('cp-tile-image');
         },
 
@@ -146,6 +161,7 @@
           // loaded is false if the image failed to load
           if (tile.loaded) {
             this.frameTile(tile);
+            tile.setAttribute('data-show', 'true');
             this.$.container.appendChild(tile);
             this.layout();
           }
@@ -196,25 +212,32 @@
         },
 
         /**
-         * Apply layout to cp-tile-images.
+         * Apply layout to cp-tile-images which satisfy the current filter.
          */
         layout: function () {
           this.setLayoutParams();
 
           var cellSide = this.$.container.offsetWidth / this.numColumns;
-          var imageItems = this.getTiles();
+          var tiles = this.getAllTiles();
 
-          // convert imageItems into shapes
+          // convert tiles into shapes
           var shapes = [];
 
-          for (var i = 0; i < imageItems.length; i++) {
-            var imageItem = imageItems[i];
+          var hideTile;
 
-            shapes.push({
-              elt: imageItem,
-              width: parseInt(imageItem.getAttribute('data-columns'), 10),
-              height: parseInt(imageItem.getAttribute('data-rows'), 10)
-            });
+          for (var i = 0; i < tiles.length; i++) {
+            var tile = tiles[i];
+
+            hideTile = (this.filter && !this.filter(tile));
+            tile.setAttribute('data-show', !hideTile);
+
+            if (!hideTile) {
+              shapes.push({
+                elt: tile,
+                width: parseInt(tile.getAttribute('data-columns'), 10),
+                height: parseInt(tile.getAttribute('data-rows'), 10)
+              });
+            }
           }
 
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
