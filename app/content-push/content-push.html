@@ -121,7 +121,7 @@
       };
 
       // NOTE: doesn't handle removed lines
-      var observeDocumentChanges = function(self,iframe,callBack) {
+      var observeDocumentChanges = function(self, callBack) {
         // Create an observer instance
         var observer = new MutationObserver(function(mutations,observerInstance) {
           for (var i = 0; i < mutations.length; i++) {
@@ -176,7 +176,7 @@
         };
 
         // Pass in the target node, as well as the observer options
-        observer.observe(iframe.contentDocument, config);
+        observer.observe(self.$.iframe.contentDocument, config);
       };
 
       Polymer({
@@ -244,8 +244,7 @@
 
           this.$.highlighter.targetElement = this.$.iframe.contentDocument;
 
-          observeDocumentChanges(this, this.$.iframe, function () {
-          });
+          observeDocumentChanges(this, function () {});
         },
 
         /*When the user scrolls the document onScroll is triggered. But we are interested in
