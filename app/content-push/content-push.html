@@ -53,6 +53,10 @@
     (function contentPushApp() {
       // private properties
 
+      var KIX_LINEVIEW = 'kix-lineview';
+      var KIX_LINEVIEW_CONTENT = '.kix-lineview-content';
+      var KIX_APPVIEW_EDITOR = '.kix-appview-editor';
+
       /**
        * Add an image card (gallery) for the page with ID pageId;
        * if the image card exists for this page already, do nothing.
@@ -129,7 +133,8 @@
               for (var j = 0; j < removedNodes.length; j++) {
                 var thisNode = removedNodes[j];
                 if (thisNode) {
-                  if (thisNode.className === 'kix-lineview') {
+                  if (typeof thisNode.classList !== 'undefined' &&
+                    thisNode.classList.contains(KIX_LINEVIEW)) {
                     console.log('MO:removed line');
                   }
                 }
@@ -141,10 +146,11 @@
                 var thisNode = newNodes[j];
                 if (thisNode) {
                   if (thisNode.nodeName === 'SPAN') {
-                    if (findAncestor(thisNode,"kix-lineview") !== null)
+                    if (findAncestor(thisNode, KIX_LINEVIEW) !== null)
                       console.log('MO:editing line');
                   }
-                  else if (thisNode.className === 'kix-lineview') {
+                  else if (typeof thisNode.classList !== 'undefined' &&
+                    thisNode.classList.contains(KIX_LINEVIEW)) {
                     if (thisNode.getAttribute('cp_line_id') === null) {
                       var lineIdAtt = document.createAttribute('cp_line_id');
 
@@ -228,7 +234,7 @@
 
         onLoad: function(){
           /* Get a handle to the editor DOM element */
-          this.editor = this.$.iframe.contentDocument.querySelector('.kix-appview-editor');
+          this.editor = this.$.iframe.contentDocument.querySelector(KIX_APPVIEW_EDITOR);
           /* Add a scroll event handler */
           var onScrollHandler = this.onScroll.bind(this);
           this.editor.onscroll =  onScrollHandler;
@@ -273,7 +279,7 @@
           /* Handle to the current Page */
 
           var lines = this.$.iframe.contentDocument.querySelectorAll(
-            '.kix-lineview-content');
+            KIX_LINEVIEW_CONTENT);
 
           this.fire('resetextractor', null);
 
