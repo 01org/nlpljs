@@ -137,7 +137,7 @@
         /**
          * Return all child cp-tile-image elements
          */
-        getChildren: function () {
+        getTiles: function () {
           return this.$.container.querySelectorAll('cp-tile-image');
         },
 
@@ -202,7 +202,7 @@
           this.setLayoutParams();
 
           var cellSide = this.$.container.offsetWidth / this.numColumns;
-          var imageItems = this.getChildren();
+          var imageItems = this.getTiles();
 
           // convert imageItems into shapes
           var shapes = [];

@@ -70,11 +70,8 @@
 
           // add handlers for when the image card scroll reaches the
           // bottom or replacement content is requested
-          self.imageCards[self.pageno].addEventListener('morecontent', function () {
-            self.search(self.pageno, keywordInfo);
-          });
-
-          self.imageCards[self.pageno].addEventListener('replacecontent', function () {
+          self.imageCards[self.pageno].addEventListener('moreresults', function () {
+            self.imageCards[self.pageno].loading = true;
             self.search(self.pageno, keywordInfo);
           });
 
@@ -333,16 +330,9 @@
           var keyphrase = keywordInfo.keywords[0];
 
           // append each image
-          if (keyphrase) {
-            this.$.fetcher.fetch(keyphrase.text).then(function (results) {
-              for (var i = 0; i < results.length; i++) {
-                self.imageCards[pageId].appendImage({
-                  src: results[i].src,
-                  keyphrase: keyphrase
-                });
-              }
-            });
-          }
+          this.$.fetcher.fetch(keyphrase.text).then(function (results) {
+            self.imageCards[pageId].receiveResults(results, keyphrase);
+          });
         }
       }); // Polymer()
     })();
