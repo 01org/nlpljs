@@ -335,14 +335,16 @@
           var keyphrase = keywordInfo.keywords[0];
 
           // append each image
-          this.$.fetcher.fetch(keyphrase.text).then(function (results) {
-            for (var i = 0; i < results.length; i++) {
-              self.imageCards[pageId].appendImage({
-                src: results[i].src,
-                keyphrase: keyphrase
-              });
-            }
-          });
+          if (keyphrase) {
+            this.$.fetcher.fetch(keyphrase.text).then(function (results) {
+              for (var i = 0; i < results.length; i++) {
+                self.imageCards[pageId].appendImage({
+                  src: results[i].src,
+                  keyphrase: keyphrase
+                });
+              }
+            });
+          }
         }
       }); // Polymer()
     })();
