@@ -16,6 +16,8 @@
       /* at the moment we just fetch and aggregate via the
          cp-search-wikipedia component */
       fetch: function (keyword) {
+        console.log('searching for ' + keyword);
+
         if (!keyword) {
           return [];
         }
