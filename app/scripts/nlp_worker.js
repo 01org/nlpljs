@@ -61,7 +61,6 @@ this.onmessage = function (event) {
           while (queuedMessages.length > 0)
             this.onmessage(queuedMessages.unshift());
 
-          postMessage(eventPageMessage("initdone", "initialized nlp modules"));
           console.log('Loaded libnlp module');
 	      } else {
 	        postMessage(eventPageMessage("initerror", "error loading nlp modules"));

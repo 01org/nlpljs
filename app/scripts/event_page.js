@@ -1,93 +1,47 @@
 'use strict';
+/* read the design doc for explaination on the comments */
 
-var firstClick = true;
-var nlplibReady = false;
-var worker;
-var localport;
+var nlp_worker = null;
+var port = null;
+
 var workerMessage = function (type, data) {
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
+
 var epAuth = {}; // authenticator for multiple services
 
-// Listens for the app launching then creates the window
-chrome.runtime.onInstalled.addListener(function() {
-  chrome.declarativeContent.onPageChanged.removeRules(undefined,function() {
-    chrome.declarativeContent.onPageChanged.addRules([
-      {
-        conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: {
-              urlContains: 'docs.google.com',
-              pathContains: '/document/'
-            }
-          })
-        ],
-        actions: [ new chrome.declarativeContent.ShowPageAction() ]
-      }
-    ]);
-  });
-});
-
-chrome.pageAction.onClicked.addListener(function(tab) {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    if (firstClick) {
-      firstClick = false;
-      //estabilsing communication between event_page.js <--> nlp_worker.js
-      createWorker();
-      
-      //estabilsing communication between event_page.js <--> rehost.js
-      initChannel();
-
-      //Execute the content script
-      chrome.tabs.executeScript(null, {file: "scripts/rehostPage.js"}, function(result) {
-        if (chrome.runtime.lastError) {
-          console.log('EP-MAIN:error executing content script:',chrome.runtime.lastError.message);
-        }
-      });
-    } else {
-      chrome.tabs.sendMessage(tabs[0].id, {message: "toggle"});
-    }
-  });
-});
-
 //Create a web worker for NLP tasks
-var createWorker = function() {
-  worker = new Worker("scripts/nlp_worker.js");
+function createWorker() {
+  nlp_worker = new Worker("scripts/nlp_worker.js");
 
   //TODO: Error handling & fallback.
-  worker.onmessage = function(event) {
+  nlp_worker.onmessage = function(event) {
     var message = JSON.parse(event.data);
     switch (message.type) {
-      case "initdone":
-        nlplibReady = true;
-        break;
       case "keywordlist":
-        localport.postMessage({message: message.type, data: message.data});
+        if (port) {
+          port.postMessage({message: message.type, data: message.data});
+        } else {
+          console.log("got keywords before port was initialized!");
+        }
         break;
       default:
         console.warn("nlp_worker:Unable to recognize response " + message.type);
         break;
     }
   };
-  
-  //Initialize the NLP modules
-  worker.postMessage(workerMessage("initialize", null));
+
+  //Initialize the NLP modules and start the worker.
+  nlp_worker.postMessage(workerMessage("initialize", null));
 };
 
-var initChannel = function() {
-  chrome.runtime.onConnect.addListener(function (port) {
-    if (port.name !== "ContentPushChannel")
-      return;
-    
-    localport = port;
-    /* This background page is the common link between the content script (rehost.js) and
-      the web worker. Relay the messages comming from the content script to the web worker.*/
-    port.onMessage.addListener(function (message) {
-      //relay messages from rehost.js to nlp_worker.js
-      worker.postMessage(workerMessage(message.type, message.data));
-    });
+chrome.runtime.onConnect.addListener(function(localport) {
+  port = localport;
+  port.onMessage.addListener(function (message) {
+    //relay messages from CP to nlp_worker.js
+    nlp_worker.postMessage(workerMessage(message.type, message.data));
   });
-};
+});
 
 /**
  * message routing
@@ -125,4 +79,23 @@ chrome.runtime.onMessageExternal.addListener(function(message,sender,sendRespons
   }
 
   return keepChannelOpen; // to call sendResponse asynchronously
+});
+
+chrome.runtime.onMessage.addListener( function(message, sender, sendResponse) {
+    if (message === "cp-nlpinit" ) {
+      if (nlp_worker == null)
+        createWorker();
+
+      chrome.pageAction.show(sender.tab.id);
+    }
+});
+
+
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  console.log('tab ' + tabId + ' is removed');
+  /*Could be possible to unload the worker if no tabs are using it ? */
+});
+
+chrome.pageAction.onClicked.addListener(function(tab) {
+      chrome.tabs.sendMessage(tab.id, "cp-toggle");
 });
