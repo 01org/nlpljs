@@ -1,0 +1,45 @@
+<polymer-element name="cp-scrollwatcher">
+  <template></template>
+  <script>
+    (function () {
+      var scrollableNode;
+
+      var isNodeVisible = function (node) {
+        var boundingRectangle = node.getBoundingClientRect();
+        var nodeStyle = document.defaultView.getComputedStyle(node, null);
+
+        if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
+            'hidden' === nodeStyle['visiblity'])
+          return false;
+
+        return (
+          boundingRectangle.bottom > 0 &&
+          boundingRectangle.right > 0 &&
+          boundingRectangle.left < (window.innerWidth ||
+            document.documentElement.clientWidth) &&
+          boundingRectangle.top < (window.innerHeight ||
+            document.documentElement.clientHeight)
+        );
+      };
+
+      Polymer({
+        setScrollableNode: function (node) {
+          scrollableNode = node;
+        },
+        addVisibilityCheckerFor: function (node, callback) {
+          var checkVisibility = function () {
+            callback(node, isNodeVisible(node));
+          };
+
+          if (typeof scrollableNode !== 'undefined')
+            scrollableNode.addEventListener('scroll', checkVisibility, false);
+
+          window.addEventListener('DOMContentLoaded', checkVisibility, false); 
+          window.addEventListener('load', checkVisibility, false); 
+          window.addEventListener('scroll', checkVisibility, false); 
+          window.addEventListener('resize', checkVisibility, false); 
+        }
+      });
+    })();
+  </script>
+</polymer-element>
