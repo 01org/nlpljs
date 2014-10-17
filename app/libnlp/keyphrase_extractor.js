@@ -25,7 +25,7 @@ define(['postagger'], function (postagger) {
 
         for (key in this.connections) {
           if (this.connections[key].numConnections > 0) {
-            total += this.connections[key].score / 
+            total += this.connections[key].score /
               this.connections[key].numConnections;
           }
         }
@@ -169,7 +169,7 @@ define(['postagger'], function (postagger) {
 
           graph.vertices[i].recalculateScore();
 
-          if (graph.vertices[i].score < oldScore || 
+          if (graph.vertices[i].score < oldScore ||
               graph.vertices[i].score > oldScore)
             converged = false;
         }
@@ -215,7 +215,7 @@ define(['postagger'], function (postagger) {
 
         prevEdge = graph.edges[i];
 
-        if (typeof graph.edges[i + 1] !== 'undefined' && 
+        if (typeof graph.edges[i + 1] !== 'undefined' &&
             graph.edges[i + 1].aID !== graph.edges[i].bID) {
 
           if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')

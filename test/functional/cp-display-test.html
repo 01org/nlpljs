@@ -1,0 +1,128 @@
+<link rel="import" href="../../app/content-push/cp-display.html">
+
+<!--
+test for cp-display
+-->
+<polymer-element name="cp-display-test">
+  <template>
+    <style>
+      #container {
+        width: 50%;
+        height: 600px;
+        margin-left: 25%;
+        background-color: #DDD;
+      }
+
+      cp-display {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+
+    <p>Display different states of the cp-display element.</p>
+
+    <p>
+      <button on-click="{{showPreResults}}">Show pre-results</button>
+      <button on-click="{{showPreResultsThenNoResults}}">Show pre-results -&gt; no-results</button>
+      <button on-click="{{showPreResultsThenResults}}">Show pre-results -&gt; results</button>
+      <button on-click="{{showResultFiltering}}">Load two sets of results with different filters</button>
+      <button on-click="{{showResultFilteringEmpty}}">Load results then empty results</button>
+    </p>
+
+    <p>Keyword for image: <span id="hoveredkeyword">-</span></p>
+
+    <div id="container">
+      <cp-display id="display" on-mouse-over="{{showKeyword}}"></cp-display>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      // clear out all tiles
+      reset: function () {
+        var tiles = this.$.display.getLayout().getAllTiles();
+        for (var i = 0; i < tiles.length; i++) {
+          tiles[i].parentNode.removeChild(tiles[i]);
+        }
+      },
+
+      addResults: function (num, keyphraseText) {
+        var fakeResults = [];
+
+        for (var i = 0; i < num; i++) {
+          fakeResults.push({
+            src: makeImageUrl(200, 200)
+          });
+        }
+
+        this.$.display.receiveResults(fakeResults, {text: keyphraseText});
+      },
+
+      showKeyword: function (e) {
+        var keywordText = e.detail.text;
+        this.$.hoveredkeyword.innerHTML = keywordText;
+      },
+
+      showPreResults: function () {
+        this.reset();
+        this.$.display.loading = true;
+        this.$.display.state = 'preresults';
+      },
+
+      showPreResultsThenNoResults: function () {
+        var self = this;
+
+        this.reset();
+        this.showPreResults();
+
+        setTimeout(function () {
+          self.$.display.loading = false;
+          self.$.display.state = 'noresults';
+        }, 1000);
+      },
+
+      showPreResultsThenResults: function () {
+        var self = this;
+
+        this.reset();
+        this.showPreResults();
+
+        setTimeout(function () {
+          self.addResults(10, 'battle of hastings');
+        }, 1000);
+      },
+
+      showResultFiltering: function () {
+        var self = this;
+
+        this.reset();
+        this.showPreResults();
+
+        setTimeout(function () {
+          self.addResults(10, 'battle of hastings');
+        }, 1000);
+
+        setTimeout(function () {
+          self.addResults(10, 'polly put the kettle on');
+        }, 5000);
+      },
+
+      showResultFilteringEmpty: function () {
+        var self = this;
+
+        this.reset();
+        this.showPreResults();
+
+        setTimeout(function () {
+          self.addResults(10, 'battle of hastings');
+        }, 1000);
+
+        setTimeout(function () {
+          self.addResults(0, 'polly put the kettle on');
+        }, 5000);
+      }
+    });
+  </script>
+</polymer-element>

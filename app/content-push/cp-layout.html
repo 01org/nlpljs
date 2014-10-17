@@ -1,4 +1,4 @@
-<link rel="import" href="./image-item.html">
+<link rel="import" href="./cp-tile-image.html">
 
 <polymer-element name="cp-layout">
   <template>
@@ -11,7 +11,7 @@
         position: relative;
       }
 
-      image-item {
+      cp-tile-image {
         position: absolute;
         transition-property: top, left, opacity;
         transition-duration: 0.25s, 0.25s, 1s;
@@ -19,13 +19,17 @@
       }
 
       /*
-      when an image-item displays inside this element, a margin
+      when an cp-tile-image displays inside this element, a margin
       appears to be added below the meta paragraph; I couldn't track
       this down, so this work-around removes that margin for
-      image-items only in the context of a this element
+      cp-tile-images only in the context of a this element
       */
-      image-item::shadow #meta {
+      cp-tile-image::shadow #meta {
         margin: 0 0 3px 0;
+      }
+
+      [data-show="false"] {
+        display: none !important;
       }
     </style>
 
@@ -49,11 +53,6 @@
       choosing a frame
       */
       var FRAME_CELL_SIDE = 54;
-
-      /*
-      timeout (in ms) before treating an image load as failed
-      */
-      var TIMEOUT = 5000;
 
       /*
       base URL for Google's image resizer (undocumented);
@@ -119,8 +118,12 @@
           this.lastMeasuredHeight = 0;
           this.lastMeasuredWidth = 0;
 
-          // count of the number of images currently loading
-          this.countChildrenLoading = 0;
+          // count of the number of tiles currently loading
+          this.tilesLoading = 0;
+
+          /* filter which determines the tiles to show; this is applied
+             on each layout() call to determine the visible tiles */
+          this.filter = null;
         },
 
         // set number of columns based on the gallery width
@@ -140,125 +143,101 @@
         },
 
         /**
-         * Return all child image-item elements
+         * Return all child cp-tile-image elements which are visible.
          */
-        getChildren: function () {
-          return this.$.container.querySelectorAll('image-item');
+        getVisibleTiles: function () {
+          return this.$.container.querySelectorAll('cp-tile-image[data-show="true"]');
         },
 
         /**
-        * Convenience method to append an image search result to the
-        * gallery; creates a cp-image element for the image object added.
-        *
-        * @param Object image Representation of image to add; has the
-        * format:
-        * {
-        *   src: "<url of image>",
-        *   keyphrase: {
-        *     text: "<keyphrase text>",
-        *     groupId: "<keyphrase group ID>"
-        *   }
-        * }
-        *
-        * The keyphrase groupId is assigned by the NLP engine and
-        * enables the Highlighter to identify the correct ranges
-        * in the Context when highlights are toggled.
-        *
-        * TODO If the URL already exists on an image-item inside the card,
-        * its keyphrases are updated, rather than a new image being added.
-        *
-        * @fires childrenchanged Event data:
-        * {
-        *   added: <reference to the child element which was added>,
-        *   numChildren: <total number of children>,
-        *   parent: <reference to this parent element>
-        * }
-        */
-        appendImage: function (image) {
-          var self = this;
+         * Return all child cp-tile-image elements, including the hidden ones.
+         */
+        getAllTiles: function () {
+          return this.$.container.querySelectorAll('cp-tile-image');
+        },
 
-          // for passing to Google's image resizer
-          var resizeUrl;
-
-          var keyphrase = '';
-          if (image.keyphrase) {
-            keyphrase = image.keyphrase.text;
+        // add the tile to the layout if it loaded OK
+        tileReady: function (tile) {
+          // loaded is false if the image failed to load
+          if (tile.loaded) {
+            this.frameTile(tile);
+            tile.setAttribute('data-show', 'true');
+            this.$.container.appendChild(tile);
+            this.layout();
           }
 
-          var elt = document.createElement('image-item');
-
-          this.countChildrenLoading++;
-          this.fireChildrenLoading();
-
-          // image loaded successfully
-          elt.addEventListener('load', makeImageLoadHandler(self, elt));
-
-          /*
-          image fails to load, we still need to remove it from
-          the count of loading images
-          */
-          elt.addEventListener('error', makeImageErrorHandler(self, elt));
-
-          /*
-          set a timeout so that if the image still hasn't loaded
-          (e.g. the server is down) we can clear the loading count
-          */
-          setTimeout(makeImageTimeoutHandler(self, elt), TIMEOUT);
-
-          elt.$.container.addEventListener(
-            'mouseover',
-            makeImageMouseoverHandler(self, image)
-          );
-
-          elt.$.container.addEventListener(
-            'mouseout',
-            makeImageMouseoutHandler(self, image)
-          );
-
-          // dynamically resize using Google's image resizer
-          // TODO figure out a long term solution for this
-          resizeUrl = RESIZER_BASE_URL +
-                      '?container=focus&' +
-                      'refresh=' + (60 * 60) + '&' + // cache for one hour
-                      'resize_w=600&' + // set max image width to 600px
-                      'url=' + encodeURIComponent(image.src);
-
-          elt.src = resizeUrl;
-          elt.keyword = image.keyphrase;
+          this.tilesLoading--;
+          this.fireLoadEvent();
         },
 
         /**
-         * Add the appropriate frame to the image-item img.
+        * Convenience method to add a tile to the layout.
+        *
+        * @param {cp-tile} tile Tile to add; must have the following
+        * properties:
+        *   - loaded: true if the tile can be added to the layout
+        *   - done: true if the tile is finished preparing itself
+        *   - width
+        *   - height
+        *   - ratio
+        *
+        * @fires loading or loaddone
+        */
+        addTile: function (tile) {
+          var self = this;
+
+          this.tilesLoading++;
+          this.fireLoadEvent();
+
+          if (tile.loaded) {
+            this.tileReady(tile);
+          }
+          else {
+            tile.addEventListener('done', function () {
+              self.tileReady(tile);
+            });
+          }
+        },
+
+        /**
+         * Add the appropriate frame to the cp-tile-image img.
          *
-         * @param DOMElement img image-item element
+         * @param DOMElement tile cp-tile* element
          */
-        frameImage: function (img) {
-          var frame = this.frameChooser.choose(img);
-          img.setAttribute('data-frame', frame.name);
-          img.setAttribute('data-columns', frame.columns);
-          img.setAttribute('data-rows', frame.rows);
+        frameTile: function (tile) {
+          var frame = this.frameChooser.choose(tile);
+          tile.setAttribute('data-frame', frame.name);
+          tile.setAttribute('data-columns', frame.columns);
+          tile.setAttribute('data-rows', frame.rows);
         },
 
         /**
-         * Apply layout to image-items.
+         * Apply layout to cp-tile-images which satisfy the current filter.
          */
         layout: function () {
           this.setLayoutParams();
 
           var cellSide = this.$.container.offsetWidth / this.numColumns;
-          var imageItems = this.getChildren();
+          var tiles = this.getAllTiles();
 
-          // convert imageItems into shapes
+          // convert tiles into shapes
           var shapes = [];
 
-          for (var i = 0; i < imageItems.length; i++) {
-            var imageItem = imageItems[i];
+          var hideTile;
 
-            shapes.push({
-              elt: imageItem,
-              width: parseInt(imageItem.getAttribute('data-columns'), 10),
-              height: parseInt(imageItem.getAttribute('data-rows'), 10)
-            });
+          for (var i = 0; i < tiles.length; i++) {
+            var tile = tiles[i];
+
+            hideTile = (this.filter && !this.filter(tile));
+            tile.setAttribute('data-show', !hideTile);
+
+            if (!hideTile) {
+              shapes.push({
+                elt: tile,
+                width: parseInt(tile.getAttribute('data-columns'), 10),
+                height: parseInt(tile.getAttribute('data-rows'), 10)
+              });
+            }
           }
 
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
@@ -308,37 +287,15 @@
         },
 
         /**
-         * Remove all image-item elements from the card
+         * Fire a "loading" or "loaddone" event, depending on the
+         * number of children pending.
          */
-        clear: function () {
-          var imageItems = this.getChildren();
-          for (var i = 0; i < imageItems.length; i++) {
-            imageItems[i].parentNode.removeChild(imageItems[i]);
-            imageItems[i] = null;
+        fireLoadEvent: function () {
+          if (this.tilesLoading > 0) {
+            this.fire('loading');
+          } else {
+            this.fire('loaddone');
           }
-
-          /*
-          reset the height of the container (cheap operation
-          as there are no children at this point)
-          */
-          this.layout();
-
-          this.fire('childrenchanged', {
-            cleared: true,
-            numChildren: 0,
-            parent: this
-          });
-        },
-
-        /**
-         * Fire a "childrenloading" event with a count of the number
-         * of images which are currently loading.
-         *
-         * @fires childrenloading Event data: count of the number of
-         * images which are currently loading into the component.
-         */
-        fireChildrenLoading: function () {
-          this.fire('childrenloading', this.countChildrenLoading);
         }
       })
     })();

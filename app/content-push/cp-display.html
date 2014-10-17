@@ -1,0 +1,273 @@
+<!--
+scrolling image search results component; responsible for tracking
+the state of any ongoing search, displaying loading spinners, and
+pushing new tiles into the wrapped layout
+-->
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="./cp-scroll.html">
+<link rel="import" href="./cp-layout.html">
+
+<polymer-element name="cp-display">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+      }
+
+      .fill {
+        width: 100%;
+        height: 100%;
+      }
+
+      .message-area {
+        text-align: center;
+        width: 60%;
+        margin-left: 20%;
+        box-sizing: border-box;
+      }
+
+      #preresults, #noresults {
+        padding-top: 3em;
+      }
+
+      #results {
+        position: relative;
+      }
+
+      #loading {
+        display: flex;
+        background-color: white;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        opacity: 0.6;
+      }
+
+      [data-show="false"] {
+        display: none !important;
+      }
+
+      #scroller {
+        height: 92%;
+      }
+
+      #widen {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 8%;
+        min-height: 64px;
+        background-color: white;
+      }
+
+      paper-slider {
+        width: 100%;
+        height: 100%;
+        padding: 8px 0;
+      }
+
+      /* slider colors (oh dear...) */
+      /* bar */
+      paper-slider::shadow #sliderBar::shadow #activeProgress {
+        background-color: #0f9d58;
+      }
+
+      /* knob */
+      paper-slider::shadow #sliderKnobInner {
+        background-color: #0f9d58;
+      }
+    </style>
+
+    <!--
+    states for this component:
+
+    - preresults - no search initiated, displays welcome message
+    - loading - loader overlays any existing results
+    - results - "widen" is shown with results
+    - noresults - "widen" is shown with "no results" message
+    -->
+
+    <!-- never searched -->
+    <div id="preresults" class="message-area"
+         data-show="{{state === 'preresults'}}">
+      <p>Your related content should arrive shortly.</p>
+      <paper-spinner active></paper-spinner>
+    </div>
+
+    <!-- while searching, after results are found -->
+    <div id="results" class="fill"
+         data-show="{{state === 'results' || state === 'noresults'">
+      <!-- full page loader; can overlay image display -->
+      <div id="loading" class="fill" data-show="{{loading && state !== 'preresults'}}">
+        <paper-spinner active></paper-spinner>
+      </div>
+
+      <!-- image display -->
+      <cp-scroll id="scroller" class="fill"
+                 on-scrollend="{{onScrollerScrollend}}"
+                 data-show="{{state === 'results'}}">
+        <!-- results available -->
+        <cp-layout id="layout" class="fill" on-loaddone="{{onLayoutLoaddone}}"
+                   on-loading="{{onLayoutLoading}}"
+                   data-show="{{state === 'results'}}">
+        </cp-layout>
+      </cp-scroll>
+
+      <!-- "widen the search" slider -->
+      <div id="widen" data-show="{{state !== 'preresults'}}">
+        <paper-slider min="0" max="100" value="50">
+        </paper-slider>
+      </div>
+
+      <!-- no results available -->
+      <div id="noresults" class="message-area"
+           data-show="{{state === 'noresults'}}">
+        Sorry, we couldn't find anything
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      /* base URL for Google's image resizer (undocumented);
+         see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
+      // TODO figure out a long term solution for this
+      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
+
+      Polymer({
+        state: null,
+        loading: false,
+
+        created: function () {
+          var self = this;
+
+          /* state of the results; 'preresults',
+             'results' or 'noresults' */
+          this.state = 'preresults';
+
+          /* whether we are loading or not */
+          this.loading = false;
+        },
+
+        /**
+         * Add results to the layout and set the filter to only show
+         * results whose keyphrase.text matches the passed-in
+         * keyphrase.text.
+         *
+         * keyphrase looks like:
+         * { text: <keyphrase text>, groupId: <keyphrase groupId>}
+         */
+        receiveResults: function (results, keyphrase) {
+          this.state = 'results';
+
+          // set the filter on the layout to the current keyphrase
+          this.$.layout.filter = function (tile) {
+            return tile.data.text === keyphrase.text;
+          };
+
+          if (results.length) {
+            for (var i = 0; i < results.length; i++) {
+              this.appendImage({
+                src: results[i].src,
+                keyphrase: keyphrase
+              });
+            }
+          } else {
+            /* no results, so we can immediately disable the spinner */
+            this.loading = false;
+
+            /* force a relayout, so the new filter can take effect */
+            this.$.layout.layout();
+
+            /* set the state of the result set */
+            this.setResultState();
+          }
+        },
+
+        setResultState: function () {
+          if (this.$.layout.getVisibleTiles().length) {
+            this.state = 'results';
+          } else {
+            this.state = 'noresults';
+          }
+        },
+
+        onLayoutLoaddone: function (e) {
+          this.setResultState();
+          this.loading = (this.$.layout.tilesLoading > 0);
+        },
+
+        onLayoutLoading: function (e) {
+          this.loading = (this.$.layout.tilesLoading > 0);
+        },
+
+        onScrollerScrollend: function () {
+          this.fire('moreresults');
+        },
+
+        onWidenClicked: function () {
+          this.fire('moreresults');
+        },
+
+        /**
+        * Convenience method to append an image tile to the
+        * gallery; creates a cp-tile-image element for the image
+        * object added.
+        *
+        * @param Object image Representation of image to add; has the
+        * format:
+        * {
+        *   src: "<url of image>",
+        *   keyphrase: {
+        *     text: "<keyphrase text>",
+        *     groupId: "<keyphrase group ID>"
+        *   }
+        * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        */
+        appendImage: function (image) {
+          var self = this;
+
+          var elt = document.createElement('cp-tile-image');
+
+          // dynamically resize using Google's image resizer
+          elt.src = RESIZER_BASE_URL +
+                    '?container=focus&' +
+                    'refresh=' + (60 * 60) + '&' + // cache for one hour
+                    'resize_w=600&' + // set max image width to 600px
+                    'url=' + encodeURIComponent(image.src);
+
+          elt.data = image.keyphrase;
+
+          elt.addEventListener('mouseover', function () {
+            self.fire('mouse-over', elt.data)
+          });
+
+          elt.addEventListener('mouseout', function () {
+            self.fire('mouse-out', elt.data);
+          });
+
+          this.$.layout.addTile(elt);
+        },
+
+        getLayout: function () {
+          return this.$.layout;
+        },
+
+        // layout the wrapped cp-layout
+        layout: function () {
+          this.$.layout.layout();
+        }
+      });
+    })();
+  </script>
+</polymer-element>
