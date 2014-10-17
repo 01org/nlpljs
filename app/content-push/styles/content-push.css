@@ -84,11 +84,12 @@
 }
 
 #display {
-  margin:0;
-  padding:0;
-  height:90%;
-  width:100%;
-  overflow:hidden;
+  margin: 3px;
+  padding: 0;
+  height: 90%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 #tabs {
