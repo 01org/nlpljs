@@ -244,8 +244,6 @@
           setTimeout(handler, 1000);
 
           this.$.highlighter.targetElement = this.$.iframe.contentDocument;
-
-          observeDocumentChanges(this, function () {});
         },
 
         /*When the user scrolls the document onScroll is triggered. But we are interested in
