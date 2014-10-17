@@ -1,0 +1,103 @@
+<link rel="import" href="../../app/content-push/cp-scrollwatcher.html">
+
+<polymer-element name="cp-scrollwatcher-test">
+  <template>
+    <div id="scrollableNode" class="kix-appview-editor" style="overflow-y: scroll; height: 300px;">
+      <div>
+        <div class="kix-zoomdocumentplugin-outer">
+          <div class="kix-zoomdocumentplugin-inner">
+            <div class="kix-paginateddocumentplugin">
+              <div>
+                <div class="kix-page kix-page-paginated">
+                  <div class="kix-page-content-wrapper">
+                    <div>
+                      <div>
+                        <div class="kix-paragraphrenderer">
+                          <div class="kix-lineview" cp_line_id="0" style="height: 10px; background-color: rgb(255, 0, 0); font-size: 50%;">PAGE1 LINE0</div>
+                          <div class="kix-lineview" cp_line_id="1" style="height: 100px; background-color: rgb(0, 255, 0); font-size: 50%;">PAGE1 LINE1</div>
+                          <div class="kix-lineview" cp_line_id="2" style="height: 50px; background-color: rgb(0, 0, 255); font-size: 50%;">PAGE1 LINE2</div>
+                          <div class="kix-lineview" cp_line_id="3" style="height: 75px; background-color: rgb(255, 255, 0); font-size: 50%;">PAGE1 LINE3</div>
+                          <div class="kix-lineview" cp_line_id="4" style="height: 200px; background-color: rgb(255, 0, 255); font-size: 50%;">PAGE1 LINE4</div>
+                          <div class="kix-lineview" cp_line_id="5" style="height: 25px; background-color: rgb(0, 255, 255); font-size: 50%;">PAGE1 LINE5</div>
+                          <div class="kix-lineview" cp_line_id="6" style="height: 80px; background-color: rgb(200, 100, 0); font-size: 50%;">PAGE1 LINE6</div>
+                          <div class="kix-lineview" cp_line_id="7" style="height: 17px; background-color: rgb(23, 50, 75); font-size: 50%;">PAGE1 LINE7</div>
+                          <div class="kix-lineview" cp_line_id="8" style="height: 34px; background-color: rgb(150, 13, 53); font-size: 50%;">PAGE1 LINE8</div>
+                        </div>
+                        <div class="kix-paragraphrenderer">
+                          <div class="kix-lineview" cp_line_id="9" style="height: 10px; background-color: rgb(255, 0, 0); font-size: 50%;">PAGE1 LINE9</div>
+                          <div class="kix-lineview" cp_line_id="10" style="height: 100px; background-color: rgb(0, 255, 0); font-size: 50%;">PAGE1 LINE10</div>
+                          <div class="kix-lineview" cp_line_id="11" style="height: 50px; background-color: rgb(0, 0, 255); font-size: 50%;">PAGE1 LINE11</div>
+                          <div class="kix-lineview" cp_line_id="12" style="height: 75px; background-color: rgb(255, 255, 0); font-size: 50%;">PAGE1 LINE12</div>
+                          <div class="kix-lineview" cp_line_id="13" style="height: 200px; background-color: rgb(255, 0, 255); font-size: 50%;">PAGE1 LINE13</div>
+                          <div class="kix-lineview" cp_line_id="14" style="height: 25px; background-color: rgb(0, 255, 255); font-size: 50%;">PAGE1 LINE14</div>
+                          <div class="kix-lineview" cp_line_id="15" style="height: 80px; background-color: rgb(200, 100, 0); font-size: 50%;">PAGE1 LINE15</div>
+                          <div class="kix-lineview" cp_line_id="16" style="height: 17px; background-color: rgb(23, 50, 75); font-size: 50%;">PAGE1 LINE16</div>
+                          <div class="kix-lineview" cp_line_id="17" style="height: 34px; background-color: rgb(150, 13, 53); font-size: 50%;">PAGE1 LINE17</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="kix-page kix-page-paginated">
+                  <div class="kix-page-content-wrapper">
+                    <div>
+                      <div>
+                        <div class="kix-paragraphrenderer">
+                          <div class="kix-lineview" cp_line_id="18" style="height: 10px; background-color: rgb(255, 0, 0); font-size: 50%;">PAGE2 LINE18</div>
+                          <div class="kix-lineview" cp_line_id="19" style="height: 100px; background-color: rgb(0, 255, 0); font-size: 50%;">PAGE2 LINE19</div>
+                          <div class="kix-lineview" cp_line_id="20" style="height: 50px; background-color: rgb(0, 0, 255); font-size: 50%;">PAGE2 LINE20</div>
+                          <div class="kix-lineview" cp_line_id="21" style="height: 75px; background-color: rgb(255, 255, 0); font-size: 50%;">PAGE2 LINE21</div>
+                          <div class="kix-lineview" cp_line_id="22" style="height: 200px; background-color: rgb(255, 0, 255); font-size: 50%;">PAGE2 LINE22</div>
+                          <div class="kix-lineview" cp_line_id="23" style="height: 25px; background-color: rgb(0, 255, 255); font-size: 50%;">PAGE2 LINE23</div>
+                          <div class="kix-lineview" cp_line_id="24" style="height: 80px; background-color: rgb(200, 100, 0); font-size: 50%;">PAGE2 LINE24</div>
+                          <div class="kix-lineview" cp_line_id="25" style="height: 17px; background-color: rgb(23, 50, 75); font-size: 50%;">PAGE2 LINE25</div>
+                          <div class="kix-lineview" cp_line_id="26" style="height: 34px; background-color: rgb(150, 13, 53); font-size: 50%;">PAGE2 LINE26</div>
+                        </div>
+                        <div class="kix-paragraphrenderer">
+                          <div class="kix-lineview" cp_line_id="27" style="height: 10px; background-color: rgb(255, 0, 0); font-size: 50%;">PAGE2 LINE27</div>
+                          <div class="kix-lineview" cp_line_id="28" style="height: 100px; background-color: rgb(0, 255, 0); font-size: 50%;">PAGE2 LINE28</div>
+                          <div class="kix-lineview" cp_line_id="29" style="height: 50px; background-color: rgb(0, 0, 255); font-size: 50%;">PAGE2 LINE29</div>
+                          <div class="kix-lineview" cp_line_id="30" style="height: 75px; background-color: rgb(255, 255, 0); font-size: 50%;">PAGE2 LINE30</div>
+                          <div class="kix-lineview" cp_line_id="31" style="height: 200px; background-color: rgb(255, 0, 255); font-size: 50%;">PAGE2 LINE31</div>
+                          <div class="kix-lineview" cp_line_id="32" style="height: 25px; background-color: rgb(0, 255, 255); font-size: 50%;">PAGE2 LINE32</div>
+                          <div class="kix-lineview" cp_line_id="33" style="height: 80px; background-color: rgb(200, 100, 0); font-size: 50%;">PAGE2 LINE33</div>
+                          <div class="kix-lineview" cp_line_id="34" style="height: 17px; background-color: rgb(23, 50, 75); font-size: 50%;">PAGE2 LINE34</div>
+                          <div class="kix-lineview" cp_line_id="35" style="height: 34px; background-color: rgb(150, 13, 53); font-size: 50%;">PAGE2 LINE35</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <cp-scrollwatcher id="scrollwatcher"></cp-scrollwatcher>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      ready: function () {
+        var lines =  this.$.scrollableNode.querySelectorAll(".kix-lineview");
+
+        this.$.scrollwatcher.setScrollableNode(this.$.scrollableNode);
+
+        for (var i = 0; i < lines.length; i++) {
+          this.$.scrollwatcher.addVisibilityCheckerFor(lines[i], function (node, isVisible) {
+            console.log(node.getAttribute("cp_line_id"));
+
+            if (isVisible)
+              console.log('is visible');
+            else
+              console.log('is hidden');
+          });
+        }
+      }
+    });
+  </script>
+</polymer-element>
