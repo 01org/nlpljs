@@ -16,6 +16,10 @@
       /* at the moment we just fetch and aggregate via the
          cp-search-wikipedia component */
       fetch: function (keyword) {
+        if (!keyword) {
+          return [];
+        }
+
         return this.$.searchWikipedia.fetch(keyword);
       }
     });
