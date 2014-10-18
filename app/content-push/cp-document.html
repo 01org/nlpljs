@@ -1,0 +1,279 @@
+/**
+ * cp-document
+ */
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel='import' href='./cp-scrollwatcher.html'>
+<link rel='import' href='./cp-keyword-highlighter.html'>
+
+<polymer-element
+  name='cp-document'
+  on-mouseoverimage='{{onMouseOverImage}}'
+  on-mouseoutimage='{{onMouseOutImage}}'
+  attributes='iframeurl'>
+  <template>
+    <style>
+      :host {
+        position: relative;
+      }
+
+      #iframe {
+        position: absolute;
+        display: block;
+        background-color: #f0f0f0;
+        height: 100%;
+        width: 100%;
+        border: none;
+      }
+
+      #iframe.nopointerevents {
+        pointer-events: none;
+      };
+    </style>
+    <iframe id="iframe"></iframe>
+    <cp-keyword-highlighter id='highlighter'></cp-keyword-highlighter>
+  </template>
+  <script>
+    (function cpDocument () {
+      // private *static* functions and constants
+      var LINE_CLASS = 'kix-lineview';
+      var LINE_CONTENT_SELECTOR = '.kix-lineview-content';
+      var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
+
+      /**
+       * find ancestor of node that has className
+       * for finding the ancestor with .kix-lineview of whatever line has changed
+       */
+      var findAncestor = function (node,className) {
+        var retVal=null;
+
+        var thisNode=node;
+        var cssSelectorNotFound=true;
+
+        while (cssSelectorNotFound && thisNode && thisNode.nodeName!="BODY") {
+          cssSelectorNotFound=!thisNode.classList.contains(className);
+          if (cssSelectorNotFound) {
+            // move into parent node
+            thisNode=thisNode.parentNode;
+          } else {
+            // finished
+            retVal=thisNode;
+          }
+        }
+
+        return retVal;
+      };
+
+      var observeDocumentChanges = function (self, callBack) {
+        var observer = new MutationObserver(function (mutations,observerInstance) {
+          for (var i = 0; i < mutations.length; i++) {
+            var mutation = mutations[i];
+            var newNodes = mutation.addedNodes;
+            var removedNodes = mutation.removedNodes;
+
+            if (removedNodes !== null) {
+              for (var j = 0; j < removedNodes.length; j++) {
+                var thisNode = removedNodes[j];
+                if (thisNode) {
+                  if (typeof thisNode.classList !== 'undefined' &&
+                    thisNode.classList.contains(LINE_CLASS)) {
+                    console.log('MO:removed line');
+                  }
+                }
+              }
+            }
+
+            if (newNodes !== null) {
+              for (var j = 0; j < newNodes.length; j++) {
+                var thisNode = newNodes[j];
+                if (thisNode) {
+                  if (thisNode.nodeName === 'SPAN') {
+                    if (findAncestor(thisNode, LINE_CLASS) !== null)
+                      console.log('MO:editing line');
+                  }
+                  else if (typeof thisNode.classList !== 'undefined' &&
+                    thisNode.classList.contains(LINE_CLASS)) {
+                    if (thisNode.getAttribute('cp_line_id') === null) {
+                      var lineIdAtt = document.createAttribute('cp_line_id');
+
+                      console.log('MO:new line');
+
+                      lineIdAtt.value = self.numLines;
+                      thisNode.setAttributeNode(lineIdAtt);
+                      self.numLines++;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        // Configuration of the observer:
+        var config = {
+          attributes: false,
+          childList: true,
+          subtree: true,
+          characterData: false
+        };
+
+        // Pass in the target node, as well as the observer options
+        observer.observe(self.$.iframe.contentDocument, config);
+      };
+
+      var handleIframeLoad = function (self){
+        self.editor =
+          self.$.iframe.contentDocument.querySelector(SCROLLING_ELEMENT_SELECTOR);
+
+        self.editor.onscroll = function () {
+          handleScroll(self);
+        };
+
+        self.$.highlighter.targetElement = self.$.iframe.contentDocument;
+
+        getCurrentPage(self);
+      };
+
+      var setSection = function (self) {
+        self.sectionIndex[self.currentPageNo] = self.sectionCount;
+        self.sectionCount++;
+      };
+
+      /**
+       * When the user scrolls the document onScroll is triggered. But we are interested in
+       * an event when the scroll stops. Add a timeout to onScroll, which triggers after 500ms
+       * If the event triggers, the user has stopped scrolling.
+       */
+      var handleScroll = function (self){
+        clearTimeout(self.scrollTimer);
+        self.scrollTimer = setTimeout(function () {
+          scrollStop(self);
+        }, 500);
+      };
+
+      var scrollStop = function (self) {
+        var currentPageNo = parseInt((self.editor.scrollTop/1056).toString().split('.')[0]);
+        /* Scrolling on the same page */
+        if (self.currentPageNo == (currentPageNo+1))
+          return;
+
+        self.currentPageNo = currentPageNo+1; //querySelector starts from 1. Hence add 1.
+
+        if (self.sectionIndex[self.currentPageNo] != null) {
+          // transition to the already cached content
+          self.fire('getkeywords', { pageId: self.currentPageNo });
+        } else {
+          //get the keywords and images for the new page
+          getCurrentPage(self);
+        }
+      };
+
+      var getCurrentPage = function (self) {
+        /* Handle to the current Page */
+        var lines =
+          self.$.iframe.contentDocument.querySelectorAll(LINE_CONTENT_SELECTOR);
+
+        self.fire('resetextractor', null);
+
+        for (i = self.numLines; i < lines.length; i++) {
+          var lineIdAtt = document.createAttribute('cp_line_id');
+          lineIdAtt.value = self.numLines;
+
+          lines[i].parentNode.setAttributeNode(lineIdAtt);
+          self.fire('lineadd',
+            {
+              pageId: self.currentPageNo,
+              lineId: self.numLines,
+              text: lines[i].innerText
+            }
+          );
+
+          self.numLines++;
+        }
+
+        self.fire('getkeywords', { pageId: self.currentPageNo });
+      };
+
+      /**
+       * Add an image card (gallery) for the current page;
+       * if the image card exists for this page already, do not
+       * add the element, but just set the keywordInfo.
+       */
+      var setKeywordInfo = function (self, keywordInfo) {
+        self.keywordInfo = keywordInfo;
+        self.fire('newkeywordinfo',{keywordInfo: keywordInfo});
+        self.$.highlighter.prepare(keywordInfo.ranges);
+
+      };
+
+      Polymer({
+        // functions and properties used in API and bindings
+        // life cycle handlers
+        created: function () {
+          this.iframeurl="";
+
+          this.sectionIndex = [];
+          this.sectionCount = 0;
+
+          this.scrollTimer = 0;
+
+          this.currentPageNo = 1;
+
+          this.numLines = 0;
+
+          this.editor = null;
+
+          // currently active keywords
+          this.keywordInfo = {
+            keywords: [],
+            ranges: []
+          };
+        },
+
+        ready: function () {
+          this.$.iframe.src=this.iframeurl;
+
+          // keywordlist fired from content script
+          document.addEventListener('keywordlist', function (e) {
+            setSection(self);
+            setKeywordInfo(self,e.detail);
+          });
+
+          setSection(this);
+
+          var self=this;
+          this.$.iframe.onload = function () {
+            handleIframeLoad(self);
+          };
+        },
+
+        // API functions
+        enablePointerEvents: function () {
+          this.$.iframe.classList.remove('nopointerevents');
+        },
+
+        disablePointerEvents: function () {
+          this.$.iframe.classList.add('nopointerevents');
+        },
+
+        // propertyChanged handlers
+        iframeurlChanged: function (oldValue,newValue) {
+          this.$.iframe.src=newValue;
+        },
+
+        // event handlers
+
+        onMouseOverImage: function (e) {
+          this.$.highlighter.turn(e.detail.groupId,'on');
+        },
+
+        onMouseOutImage: function (e) {
+          this.$.highlighter.turn(e.detail.groupId,'off');
+        },
+
+      }); // Polymer()
+    })();
+
+  </script>
+</polymer-element>
+
