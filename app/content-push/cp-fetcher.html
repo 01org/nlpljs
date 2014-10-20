@@ -14,12 +14,13 @@
       resultsPerFetch: 5,
 
       /* at the moment we just fetch and aggregate via the
-         cp-search-wikipedia component */
+         cp-search-wikipedia component; returns a promise
+         which resolves to an array of results or rejects with an error */
       fetch: function (keyword) {
         console.log('searching for ' + keyword);
 
         if (!keyword) {
-          return [];
+          return Promise.resolve([]);
         }
 
         return this.$.searchWikipedia.fetch(keyword);
