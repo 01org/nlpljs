@@ -75,6 +75,7 @@
       </div>
     </div>
 
+    <div id="visibleNodes"> Visible nodes: </div>
     <cp-scrollwatcher id="scrollwatcher"></cp-scrollwatcher>
   </template>
 
@@ -83,20 +84,17 @@
   <script>
     Polymer({
       ready: function () {
-        var lines =  this.$.scrollableNode.querySelectorAll(".kix-lineview");
+        var lines = this.$.scrollableNode.querySelectorAll(".kix-lineview");
+        var visibleNodesDiv = this.$.visibleNodes;
 
         this.$.scrollwatcher.setScrollableNode(this.$.scrollableNode);
+        this.$.scrollwatcher.setTargetNodes(lines);
+        this.$.scrollwatcher.addOnScrollListener(function (visibleNodes) {
+          visibleNodesDiv.innerText = "Visible nodes:";
 
-        for (var i = 0; i < lines.length; i++) {
-          this.$.scrollwatcher.addVisibilityCheckerFor(lines[i], function (node, isVisible) {
-            console.log(node.getAttribute("cp_line_id"));
-
-            if (isVisible)
-              console.log('is visible');
-            else
-              console.log('is hidden');
-          });
-        }
+          for (var i = 0; i < visibleNodes.length; i++)
+            visibleNodesDiv.innerText += ' ' + visibleNodes[i].getAttribute('cp_line_id');
+        });
       }
     });
   </script>

@@ -26,18 +26,33 @@
         setScrollableNode: function (node) {
           scrollableNode = node;
         },
-        addVisibilityCheckerFor: function (node, callback) {
-          var checkVisibility = function () {
-            callback(node, isNodeVisible(node));
+        addOnScrollListener: function (listener) {
+          var onScroll = function () {
+            var visibleNodes = [];
+            var hiddenNodes = [];
+
+            if (typeof targetNodes !== 'undefined') {
+              for (var i = 0; i < targetNodes.length; i++) {
+                if (isNodeVisible(targetNodes[i]))
+                  visibleNodes[visibleNodes.length] = targetNodes[i];
+                else
+                  hiddenNodes[hiddenNodes.length] = targetNodes[i];
+              }
+            }
+
+            listener(visibleNodes, hiddenNodes);
           };
 
           if (typeof scrollableNode !== 'undefined')
-            scrollableNode.addEventListener('scroll', checkVisibility, false);
+            scrollableNode.addEventListener('scroll', onScroll, false);
 
-          window.addEventListener('DOMContentLoaded', checkVisibility, false); 
-          window.addEventListener('load', checkVisibility, false); 
-          window.addEventListener('scroll', checkVisibility, false); 
-          window.addEventListener('resize', checkVisibility, false); 
+          window.addEventListener('DOMContentLoaded', onScroll, false); 
+          window.addEventListener('load', onScroll, false); 
+          window.addEventListener('scroll', onScroll, false); 
+          window.addEventListener('resize', onScroll, false);
+        },
+        setTargetNodes: function (nodes) {
+          targetNodes = nodes;
         }
       });
     })();
