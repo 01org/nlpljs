@@ -1,0 +1,89 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-splitter/core-splitter.html">
+<link rel="import" href="./cp-document.html">
+<link rel="import" href="./cp-panel.html">
+
+<polymer-element name="cp-main" attributes="iframeurl toggle">
+  <template>
+    <link type="text/css" rel="stylesheet" href="ClearSans/ClearSans.css">
+    <link type="text/css" rel="stylesheet" href="styles/cp-main.css">
+    <div id="container" horizontal layout>
+      <cp-document id='document'
+                   flex
+                   iframeurl='{{iframeurl}}'
+                   on-newkeywordinfo='{{onDocumentNewKeywordInfo}}'>
+      </cp-document>
+      <core-splitter id="splitter"
+                     direction="right"
+                     minSize="220px"
+                     on-down="{{onSplitterDownAction}}"
+                     on-up="{{onSplitterUpAction}}"
+                     on-track="{{onSplitterTrackAction}}">
+      </core-splitter>
+      <cp-panel id='panel'
+                on-close-panel='{{onPanelClosePanel}}'
+                on-mouseoverimage='{{onPanelMouseOverImage}}'
+                on-mouseoutimage='{{onPanelMouseOutImage}}'>
+      </cp-panel>
+    </div><!-- #container -->
+  </template>
+
+  <script>
+    (function contentPushApp () {
+      // private properties
+
+      var togglePanel = function (self) {
+        self.$.panel.classList.toggle('off');
+        self.open = !self.open;
+      };
+
+      Polymer({
+        // life cycle functions
+        created: function () {
+          this.open = true;
+        },
+
+        ready: function () {
+        },
+
+        // propertyChanged functions
+        toggleChanged: function (oldValue,newValue) {
+          this.togglePanel();
+        },
+
+        // event handlers
+        // relay newkeywordinfo from document to panel
+        onDocumentNewKeywordInfo: function (e) {
+          this.$.panel.fire('newkeywordinfo',e.detail);
+        },
+
+        onSplitterDownAction: function () {
+          this.$.document.disablePointerEvents();
+        },
+
+        onSplitterUpAction: function () {
+          this.$.document.enablePointerEvents();
+        },
+
+        onSplitterTrackAction: function () {
+          this.$.panel.layout();
+        },
+
+        onPanelMouseOverImage: function (e) {
+          this.$.document.fire(e.type,e.detail);
+        },
+
+        onPanelMouseOutImage: function (e) {
+          this.$.document.fire(e.type,e.detail);
+        },
+
+        onPanelClosePanel: function () {
+          this.$.panel.classList.add('off');
+          this.open = false;
+        },
+
+      }); // Polymer()
+    })();
+
+  </script>
+</polymer-element>

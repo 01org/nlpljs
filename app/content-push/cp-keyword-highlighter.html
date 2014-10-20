@@ -38,25 +38,27 @@
     removes the html for the given groupId, or if no groupId given, all of them.
 */
 
-<polymer-element name='keyword-highlighter' attributes='onStyle offStyle'>
+<link rel='import' href='../bower_components/polymer/polymer.html'>
+
+<polymer-element name='cp-keyword-highlighter' attributes='onStyle offStyle'>
   <script>
-    (function keywordHighlighter() {
+    (function cpKeywordHighlighter() {
       // private properties
       var hl={
-        open: function(groupId,tag) { return '<keyword-highlight debugTag="'+tag+'" group-id="'+groupId+'">'; },
-        close: function() { return '</keyword-highlight>'; }
+        open: function (groupId,tag) { return '<keyword-highlight debugTag="'+tag+'" group-id="'+groupId+'">'; },
+        close: function () { return '</keyword-highlight>'; }
       };
 
-      var nbsp='&nbsp;';
+      var NBSP='&nbsp;';
 
-      /*
-         skip any number of tags next to each other
-         eg: <tag><tag>
-         chars - the whole string
-         start - the position of the first '<'
-         returns - the position after the last '>'
+      /**
+       * skip any number of tags next to each other
+       * eg: <tag><tag>
+       * chars - the whole string
+       * start - the position of the first '<'
+       * returns - the position after the last '>'
        */
-      var skipTags = function(chars,start) {
+      var skipTags = function (chars,start) {
         var retVal=(start)?start:0;
 
         while (chars[retVal]==='<' && retVal<chars.length) {
@@ -67,23 +69,23 @@
         return retVal;
       };
 
-      /*
-         splits a string at (non-html) character position
-         ignoring html tags and counting '&nbsp;' as one character
-
-         position - the (non-html) character position to split at
-         chars - the whole string, html and all
-         endian - 'begin' if this is for the beginning of a 'range', or
-                  'end' if this is at the end of a 'range'
+      /**
+       *  splits a string at (non-html) character position
+       *  ignoring html tags and counting '&nbsp;' as one character
+       *
+       *  position - the (non-html) character position to split at
+       *  chars - the whole string, html and all
+       *  endian - 'begin' if this is for the beginning of a 'range', or
+       *           'end' if this is at the end of a 'range'
        */
-      var splitAtPosition = function(position,chars,endian) {
+      var splitAtPosition = function (position,chars,endian) {
         var retVal = {
           before: null,
           after: null
         };
 
         // replace nbsp with char 160 to make life simpler
-        var re = new RegExp('&nbsp;', 'g');
+        var re = new RegExp(NBSP, 'g');
         var fakeSpace=String.fromCharCode(160);
         chars = chars.replace(re,fakeSpace);
 
@@ -142,13 +144,13 @@
 
         // replace char 160 with nbsp again
         var re = new RegExp(fakeSpace, 'g');
-        retVal.before=chars.substr(0,currentPosition).replace(re,nbsp);
-        retVal.after=chars.substr(currentPosition).replace(re,nbsp);
+        retVal.before=chars.substr(0,currentPosition).replace(re,NBSP);
+        retVal.after=chars.substr(currentPosition).replace(re,NBSP);
 
         return retVal;
       };
 
-      var getLine = function(self,lineNo) {
+      var getLine = function (self,lineNo) {
         var retVal = self.targetElement.querySelectorAll(
           '.kix-lineview-content'
         )[lineNo];
@@ -158,7 +160,7 @@
 
       // tries to behave like html parser does
       // wrt to white space
-      var compressWhiteSpace = function(html) {
+      var compressWhiteSpace = function (html) {
         var retVal = html;
 
         // compress multiple white space into one
@@ -173,7 +175,7 @@
         return retVal;
       };
 
-      var highlightRange = function(self,rangeToHighlight) {
+      var highlightRange = function (self,rangeToHighlight) {
         var start=rangeToHighlight.start;
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
@@ -371,7 +373,7 @@
       /*
          Injects the css for the on and off style into the head.
        */
-      var injectCss = function(self, targetDocument) {
+      var injectCss = function (self, targetDocument) {
         var css=[
           'keyword-highlight,',
           'keyword-highlighter-test::shadow keyword-highlight {',
@@ -396,30 +398,30 @@
       };
 
       Polymer({
-        created: function() {
+        created: function () {
           this.offStyle='',
           this.onStyle=[
             'background-color: lightpink;'
           ].join('');
         },
 
-        ready: function() {
+        ready: function () {
         },
 
-        targetElementChanged: function(oldValue,newValue) {
+        targetElementChanged: function (oldValue,newValue) {
           var targetDocument=this.targetElement.ownerDocument ||
             this.targetElement.body.ownerDocument;
 
           injectCss(this, targetDocument);
         },
 
-        prepare: function(ranges) {
+        prepare: function (ranges) {
           for (var i=0;i<ranges.length;++i) {
             highlightRange(this,ranges[i]);
           }
         },
 
-        turn: function(groupId,state) {
+        turn: function (groupId,state) {
           if (state==='on') {
             var elements=this.targetElement.querySelectorAll(
               'keyword-highlight[group-id="'+groupId+'"]:not(.on)'
@@ -439,7 +441,7 @@
           }
         },
 
-        clear: function(groupId) {
+        clear: function (groupId) {
 
           // get the elements with the given groupId,
           // or all if non given
@@ -465,7 +467,7 @@
         },
 
         // for testing only
-        testSplitAtPosition: function(position,chars,endian) {
+        testSplitAtPosition: function (position,chars,endian) {
           return splitAtPosition(position,chars,endian);
         },
 

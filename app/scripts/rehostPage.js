@@ -13,7 +13,7 @@
     //console.log("CS: received message",message);
     if (loaded && message.message === "toggle" ) {
       //console.log("CS:toggling");
-      document.querySelector('content-push').setAttribute("toggle", open);
+      document.querySelector('cp-main').setAttribute("toggle", open);
       open = !open;
     }
   });
@@ -43,7 +43,7 @@
     // create and open panel
     var currentTabUrl=document.URL;
     var extensionUrl=chrome.extension.getURL("");
-    var cpUrl=chrome.extension.getURL("content-push/content-push.html");
+    var cpUrl=chrome.extension.getURL("content-push/cp-main.html");
     var cssUrl=chrome.extension.getURL("styles/main.css");
 
     // remove document content and add new head and body
@@ -66,7 +66,7 @@
     link.href = cpUrl;
     head.appendChild(link);
 
-    var cp = document.createElement('content-push');
+    var cp = document.createElement('cp-main');
     cp.setAttribute("iframeurl", currentTabUrl);
     cp.addEventListener('lineadd', function (e) {
       port.postMessage(eventPageMessage('lineadd', e.detail));

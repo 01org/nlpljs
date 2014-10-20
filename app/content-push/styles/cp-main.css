@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: ClearSans;
+  src: local('ClearSans'), url("../ClearSans/WOFF/ClearSans-Regular.woff");
+}
+
+* {
+  font-family: ClearSans;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+#container {
+  height: 100%;
+}
+
+#document {
+  display: block;
+  background-color: #f0f0f0;
+  height: 100%;
+  float: left;
+  border: none;
+}
+
+#splitter {
+  background-color: #202020;
+  box-shadow: none;
+  width: 8px;
+}
+
+#panel {
+  display: block;
+  background-color: #f0f0f0;
+  height: 100%;
+  width: 272px;
+  max-width: 40%;
+  min-width: 220px;
+  float: right;
+}
+
+#panel.off {
+  display: none;
+}
+
