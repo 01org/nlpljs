@@ -271,6 +271,11 @@ pushing new tiles into the wrapped layout
         // layout the wrapped cp-layout
         layout: function () {
           this.$.layout.layout();
+        },
+
+        /* reset scroller to top */
+        scrollToTop: function () {
+          this.$.scroller.scrollTop = 0;
         }
       });
     })();
