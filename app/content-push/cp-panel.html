@@ -106,7 +106,7 @@
           return;
         }
 
-        self.$.display.loading = true;
+        self.$.display.showLoadingSpinner();
 
         self.$.fetcher.fetch(self.keywordInfo).then(
           function (results) {
