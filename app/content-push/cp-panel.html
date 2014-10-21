@@ -100,17 +100,37 @@
     (function cpPanel () {
       // private *static* functions and constants
 
-      /* perform search for keyphrases and populate the image card
-        for the associated page. */
+      /* perform search for current keyphrase and add to the display */
       var search = function (self) {
-        // search for one keyphrase
-        // TODO search for all keyphrases
-        var keyphrase = self.keywordInfo.keywords[0];
+        if (!self.keywordInfo) {
+          return;
+        }
 
-        // append each image
-        self.$.fetcher.fetch(keyphrase.text).then(function (results) {
-          self.$.display.receiveResults(results, keyphrase);
-        });
+        self.$.display.showLoadingSpinner();
+
+        self.$.fetcher.fetch(self.keywordInfo).then(
+          function (results) {
+            self.$.display.receiveResults(results);
+
+            /* set filter on the display based on current keywordInfo */
+            self.$.display.setFilter({keywordInfo: self.keywordInfo});
+          }
+        );
+      };
+
+      /* test whether the keywordInfo has changed; currently this
+         just compares the first keyword text in the new
+         keywordInfo with the first keyword text in the panel's
+         keywordInfo */
+      var checkKeywordInfoChanged = function (oldKeywordInfo, newKeywordInfo) {
+        /* no keyword set yet, so definitely a change */
+        if (!oldKeywordInfo) {
+          return true;
+        }
+
+        var oldBestKeyword = oldKeywordInfo.keywords[0].text;
+        var newBestKeyword = newKeywordInfo.keywords[0].text;
+        return oldBestKeyword !== newBestKeyword;
       };
 
       Polymer({
@@ -125,14 +145,24 @@
         },
 
         // event handlers
+
+        /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
-          console.log('PA:onNewKeywordInfo',e.detail.keywordInfo);
-          this.keywordInfo = e.detail.keywordInfo;
-          search(this);
+          console.log('PA:onNewKeywordInfo', e.detail.keywordInfo);
+
+          /* if we have a new best keyword, run a fresh search */
+          if (checkKeywordInfoChanged(this.keywordInfo, e.detail.keywordInfo)) {
+            this.keywordInfo = e.detail.keywordInfo;
+
+            /* reset scroll position, as we'll be showing new results */
+            this.$.display.scrollToTop();
+
+            search(this);
+          }
         },
 
+        /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
-          this.$.display.loading = true;
           search(this);
         },
 

@@ -53,11 +53,22 @@ test for cp-display
 
         for (var i = 0; i < num; i++) {
           fakeResults.push({
-            src: makeImageUrl(200, 200)
+            src: makeImageUrl(200, 200),
+            keyword: {
+              text: keyphraseText
+            }
           });
         }
 
-        this.$.display.receiveResults(fakeResults, {text: keyphraseText});
+        this.$.display.receiveResults(fakeResults);
+
+        this.$.display.setFilter({
+          keywordInfo: {
+            keywords: [
+              { text: keyphraseText }
+            ]
+          }
+        });
       },
 
       showKeyword: function (e) {
@@ -67,7 +78,7 @@ test for cp-display
 
       showPreResults: function () {
         this.reset();
-        this.$.display.loading = true;
+        this.$.display.showLoadingSpinner();
         this.$.display.state = 'preresults';
       },
 

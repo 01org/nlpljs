@@ -1,119 +1,31 @@
 <!--
-element to return Wikipedia image search data;
+element to return Wikipedia image search data via JSONP;
 uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 -->
-<polymer-element name="cp-search-wikipedia"
-                 attributes="resultsPerSearch resultsPerFetch">
-  <script src="jsonp.js"></script>
+<link rel="import" href="./cp-search.html">
 
+<polymer-element name="cp-search-wikipedia" extends="cp-search">
+  <script src="jsonp.js"></script>
   <script>
     (function () {
-      // for testing for PDF or SVG files returned as image results
-      var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
-
-      // hard limit on search page size set by Wikipedia
+      /* hard limit on search page size set by Wikipedia */
       var MAX_RESULTS_PER_SEARCH = 50;
 
-      // private representation of the results for a single query
-      var ResultSet = function (query) {
-        // the key phrase these results relate to
-        this.query = query;
-
-        // cursor position inside the result set to retrieve from next
-        this.cursor = 0;
-
-        // offset for next search for this query
-        this.offset = 0;
-
-        /*
-        the actual image results; each is an image object with
-        a src property
-        */
-        this.results = [];
-      };
-
-      /*
-      return the next batch of results; sets the cursor so that
-      the next call to fetch gets the following batch of results
-
-      if numResults is not set, returns all the results from the
-      cursor to the end of the result set
-
-      if there are no more results, this returns an empty array
-      */
-      ResultSet.prototype.fetch = function (numResults) {
-        var maxResults = this.results.length - this.cursor;
-
-        if (numResults) {
-          numResults = Math.min(numResults, maxResults);
-        } else {
-          numResults = maxResults;
-        }
-
-        var batch = this.results.slice(this.cursor, this.cursor + numResults);
-
-        this.cursor = Math.min(
-          this.cursor + numResults,
-          this.results.length
-        );
-
-        return batch;
-      };
-
-      // add array of new results or single new result to the result set
-      ResultSet.prototype.add = function (results) {
-        if (results instanceof Array) {
-          this.results = this.results.concat(results);
-        }
-        else {
-          this.results.push(results);
-        }
-
-      };
-
-      // returns the number of results which can still be fetched
-      ResultSet.prototype.count = function () {
-        return this.results.slice(this.cursor).length;
-      };
-
-      // set the offset to the position after the last item in results
-      ResultSet.prototype.setOffsetToEnd = function () {
-        this.offset = this.results.length;
-      };
-
-      // declare the search-wikipedia element
+      /* declare the element */
       Polymer({
-        // maximum number of results to return per search
-        resultsPerSearch: 30,
-
-        // number of results to return when fetch() is invoked
-        resultsPerFetch: 10,
-
         created: function () {
-          // map from key phrases to ResultSets
-          this.queries = {};
-
-          this.resultsPerSearch = Math.max(
-            MAX_RESULTS_PER_SEARCH,
-            this.resultsPerSearch
-          );
+          this.super();
         },
 
-        /*
-        prepare results for query; returns a promise which resolves
-        to a ResultSet for the query; or rejects if there are no
-        more search results
-        */
-        search: function (query) {
+        /* prepare results for query; returns a promise which resolves
+           to a ResultSet for the query */
+        searchImpl: function (resultSet, query) {
           var self = this;
-
-          // have we searched for this before?
-          var resultSet = this.queries[query] || new ResultSet(query);
 
           var url = 'https://commons.wikimedia.org/w/api.php?action=query' +
                     '&generator=search&gsrnamespace=6' +
                     '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
-                    '&gsrlimit=' + this.resultsPerSearch +
+                    '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
                     '&gsroffset=' + resultSet.offset +
                     '&format=json&prop=imageinfo&iiprop=extmetadata|url|size';
 
@@ -121,50 +33,16 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             jsonp({
               url: url,
               cb: function (response) {
-                resultSet = self.handleResponse(resultSet, response);
-                self.queries[query] = resultSet;
+                resultSet = self.handleResponse(resultSet, query, response);
                 resolve(resultSet);
               }
             });
           });
         },
 
-        /*
-        returns a promise which resolves to the next numResults
-        images from the ResultSet associated with the key phrase query;
-        if the search hasn't been done yet, that's done first to
-        populate the ResultSet
-        */
-        fetch: function (query) {
-          var resultsPerFetch = this.resultsPerFetch;
-          var resultSet = this.queries[query];
-          var promise;
-          var results;
-
-          if (resultSet && resultSet.count() >= resultsPerFetch) {
-            results = resultSet.fetch(resultsPerFetch);
-            promise = Promise.resolve(results);
-          } else {
-            promise = this.search(query).then(
-              function (resultSet) {
-                results = resultSet.fetch(resultsPerFetch);
-                return Promise.resolve(results);
-              },
-
-              function (error) {
-                return Promise.reject(error);
-              }
-            );
-          }
-
-          return promise;
-        },
-
-        /*
-        returns the resultSet, populated with the images from
-        response
-        */
-        handleResponse: function (resultSet, response) {
+        /* returns the resultSet, populated with the images from
+           response */
+        handleResponse: function (resultSet, query, response) {
           if (response.error) {
             console.error(
               'CP:error from Wikipedia API: ',
@@ -175,31 +53,24 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
               // offset for the next search for this query (according to Wikipedia)
               var offset = response['query-continue']['search'].gsroffset;
 
-              /*
-              NB another search may have already reset the offset
-              on the ResultSet, so use the biggest value
-              */
-              resultSet.offset = Math.max(offset, resultSet.offset);
+              /* NB another search may have already reset the offset
+                 on the ResultSet, so use the biggest value */
+              resultSet.setOffset(Math.max(offset, resultSet.offset));
             } else {
               // end of result set reached
-              resultSet.setOffsetToEnd();
+              resultSet.setExhausted();
             }
 
             // results for this search
             var pages = response.query.pages;
 
-            var url;
             for (var k in pages) {
               if (pages.hasOwnProperty(k)) {
-                url = pages[k].imageinfo[0].url;
-
-                // make sure we don't include any pdfs...
-                if (!BAD_EXTENSIONS_REGEX.test(url)) {
-                  resultSet.add({
-                    src: url,
-                    raw_meta: pages[k].imageinfo[0]
-                  });
-                }
+                resultSet.add({
+                  src: pages[k].imageinfo[0].url,
+                  type: 'image',
+                  meta: pages[k].imageinfo[0]
+                });
               }
             }
           }

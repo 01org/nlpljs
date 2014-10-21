@@ -156,36 +156,64 @@ pushing new tiles into the wrapped layout
         },
 
         /**
-         * Add results to the layout and set the filter to only show
-         * results whose keyphrase.text matches the passed-in
-         * keyphrase.text.
+         * Set criteria for filtering the content of the display.
          *
-         * keyphrase looks like:
-         * { text: <keyphrase text>, groupId: <keyphrase groupId>}
+         * @param {object} criteria Criteria for the filter
+         * @param {object} criteria.keywordInfo KeywordInfo object with
+         * this structure:
+         * {
+         *   keywords: [ { text: <text>, ...}, ... ]
+         * }
+         *
+         * Right now, the first keyword in the keywordInfo.keywords
+         * array is used as the filter. Any tile whose keyword.text
+         * property matches this active keyword will be shown.
          */
-        receiveResults: function (results, keyphrase) {
-          this.state = 'results';
+        setFilter: function (criteria) {
+          var keyphrase = criteria.keywordInfo.keywords[0];
+          var activeKeywordText = keyphrase.text;
 
-          // set the filter on the layout to the current keyphrase
+          /* set the filter on the layout to the current keyphrase */
           this.$.layout.filter = function (tile) {
-            return tile.data.text === keyphrase.text;
+            return tile.keyword.text === activeKeywordText;
           };
+
+          /* force a relayout, so the new filter can take effect */
+          this.$.layout.layout();
+
+          /* set the state of the result set if nothing is loading */
+          if (!this.loading && this.$.layout.tilesLoading === 0) {
+            this.setResultState();
+          }
+        },
+
+        /**
+         * Add results to the layout.
+         *
+         * Each result in the results array should look like:
+         * {
+         *   src: <url of image>
+         *   keyword: {
+         *     text: <keyphrase text>,
+         *     groupId: <keyphrase groupId>
+         *   }
+         * }
+         */
+        receiveResults: function (results) {
+          this.state = 'results';
 
           if (results.length) {
             for (var i = 0; i < results.length; i++) {
               this.appendImage({
                 src: results[i].src,
-                keyphrase: keyphrase
+                keyword: results[i].keyword
               });
             }
           } else {
             /* no results, so we can immediately disable the spinner */
             this.loading = false;
 
-            /* force a relayout, so the new filter can take effect */
-            this.$.layout.layout();
-
-            /* set the state of the result set */
+            /* set the state of the result set immediately */
             this.setResultState();
           }
         },
@@ -199,8 +227,8 @@ pushing new tiles into the wrapped layout
         },
 
         onLayoutLoaddone: function (e) {
-          this.setResultState();
           this.loading = (this.$.layout.tilesLoading > 0);
+          this.setResultState();
         },
 
         onLayoutLoading: function (e) {
@@ -208,10 +236,6 @@ pushing new tiles into the wrapped layout
         },
 
         onScrollerScrollend: function () {
-          this.fire('moreresults');
-        },
-
-        onWidenClicked: function () {
           this.fire('moreresults');
         },
 
@@ -224,9 +248,9 @@ pushing new tiles into the wrapped layout
         * format:
         * {
         *   src: "<url of image>",
-        *   keyphrase: {
-        *     text: "<keyphrase text>",
-        *     groupId: "<keyphrase group ID>"
+        *   keyword: {
+        *       text: "<keyphrase text>",
+        *       groupId: "<keyphrase group ID>"
         *   }
         * }
         *
@@ -246,14 +270,14 @@ pushing new tiles into the wrapped layout
                     'resize_w=600&' + // set max image width to 600px
                     'url=' + encodeURIComponent(image.src);
 
-          elt.data = image.keyphrase;
+          elt.keyword = image.keyword;
 
           elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', elt.data)
+            self.fire('mouse-over', elt.keyword);
           });
 
           elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', elt.data);
+            self.fire('mouse-out', elt.keyword);
           });
 
           this.$.layout.addTile(elt);
@@ -266,6 +290,15 @@ pushing new tiles into the wrapped layout
         // layout the wrapped cp-layout
         layout: function () {
           this.$.layout.layout();
+        },
+
+        /* reset scroller to top */
+        scrollToTop: function () {
+          this.$.scroller.scrollTop = 0;
+        },
+
+        showLoadingSpinner: function () {
+          this.loading = true;
         }
       });
     })();
