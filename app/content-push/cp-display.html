@@ -157,10 +157,11 @@ pushing new tiles into the wrapped layout
 
         setFilter: function (criteria) {
           var keyphrase = criteria.keywordInfo.keywords[0];
+          var activeKeywordText = keyphrase.text;
 
           /* set the filter on the layout to the current keyphrase */
           this.$.layout.filter = function (tile) {
-            return tile.keyword.text === keyphrase.text;
+            return tile.keyword.text === activeKeywordText;
           };
 
           /* force a relayout, so the new filter can take effect */

@@ -56,9 +56,15 @@ for an example)
 
           if (resultSet) {
             if (resultSet.isExhausted) {
+              /* no results */
               promise = Promise.resolve([]);
             } else if (resultSet.count() >= resultsPerFetch) {
+              /* fetch next batch of results */
               results = resultSet.fetch(resultsPerFetch);
+              promise = Promise.resolve(results);
+            } else {
+              /* fetch all remaining results */
+              results = resultSet.fetch();
               promise = Promise.resolve(results);
             }
           } else {

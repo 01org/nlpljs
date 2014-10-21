@@ -101,26 +101,36 @@
       // private *static* functions and constants
 
       /* perform search for current keyphrase and add to the display */
-      var more = function (self) {
+      var search = function (self) {
+        if (!self.keywordInfo) {
+          return;
+        }
+
         self.$.display.loading = true;
 
         self.$.fetcher.fetch(self.keywordInfo).then(
           function (results) {
             self.$.display.receiveResults(results);
+
+            /* set filter on the display based on current keywordInfo */
+            self.$.display.setFilter({keywordInfo: self.keywordInfo});
           }
         );
       };
 
-      /* perform search for new keyword and reset filter on display */
-      var update = function (self, keywordInfo) {
-        self.keywordInfo = keywordInfo;
+      /* test whether the keywordInfo has changed; currently this
+         just compares the first keyword text in the new
+         keywordInfo with the first keyword text in the panel's
+         keywordInfo */
+      var checkKeywordInfoChanged = function (oldKeywordInfo, newKeywordInfo) {
+        /* no keyword set yet, so definitely a change */
+        if (!oldKeywordInfo) {
+          return true;
+        }
 
-        self.$.fetcher.fetch(self.keywordInfo).then(
-          function (results) {
-            self.$.display.receiveResults(results);
-            self.$.display.setFilter({keywordInfo: self.keywordInfo});
-          }
-        )
+        var oldBestKeyword = oldKeywordInfo.keywords[0].text;
+        var newBestKeyword = newKeywordInfo.keywords[0].text;
+        return oldBestKeyword !== newBestKeyword;
       };
 
       Polymer({
@@ -135,13 +145,21 @@
         },
 
         // event handlers
+
+        /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
-          console.log('PA:onNewKeywordInfo',e.detail.keywordInfo);
-          update(this, e.detail.keywordInfo);
+          console.log('PA:onNewKeywordInfo', e.detail.keywordInfo);
+
+          /* if we have a new best keyword, run a fresh search */
+          if (checkKeywordInfoChanged(this.keywordInfo, e.detail.keywordInfo)) {
+            this.keywordInfo = e.detail.keywordInfo;
+            search(this);
+          }
         },
 
+        /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
-          more(this);
+          search(this);
         },
 
         onDisplayMouseover: function (e) {
