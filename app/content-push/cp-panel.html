@@ -102,19 +102,25 @@
 
       /* perform search for current keyphrase and add to the display */
       var more = function (self) {
-        self.$.fetcher.fetch(self.keywordInfo).then(function (results) {
-          self.$.display.receiveResults(results);
-        });
+        self.$.display.loading = true;
+
+        self.$.fetcher.fetch(self.keywordInfo).then(
+          function (results) {
+            self.$.display.receiveResults(results);
+          }
+        );
       };
 
       /* perform search for new keyword and reset filter on display */
       var update = function (self, keywordInfo) {
         self.keywordInfo = keywordInfo;
 
-        self.$.fetcher.fetch(self.keywordInfo).then(function (results) {
-          self.$.display.setFilter({keywordInfo: self.keywordInfo});
-          self.$.display.receiveResults(results);
-        });
+        self.$.fetcher.fetch(self.keywordInfo).then(
+          function (results) {
+            self.$.display.receiveResults(results);
+            self.$.display.setFilter({keywordInfo: self.keywordInfo});
+          }
+        )
       };
 
       Polymer({
@@ -135,7 +141,6 @@
         },
 
         onDisplayMoreResults: function () {
-          this.$.display.loading = true;
           more(this);
         },
 

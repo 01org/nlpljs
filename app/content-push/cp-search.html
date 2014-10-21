@@ -1,0 +1,82 @@
+<!--
+superclass for elements which perform searches; subclasses of this component
+should implement a searchImpl() method (see cp-search-wikipedia.html
+for an example)
+-->
+<polymer-element name="cp-search"
+                 attributes="resultsPerFetch">
+  <script src="cp-resultset.js"></script>
+  <script>
+    (function () {
+      // declare the element
+      Polymer({
+        // number of results to return when fetch() is invoked
+        resultsPerFetch: 10,
+
+        created: function () {
+          // map from key phrases to ResultSets
+          this.queries = {};
+        },
+
+        /* does the book-keeping for tracking result sets per query;
+           searchImpl() is called inside here, and should set the
+           offset on the ResultSet so that searches can be paged */
+        search: function (query) {
+          var self = this;
+
+          // have we searched for this before?
+          var resultSet = this.queries[query] || new ResultSet(query);
+
+          var promise = this.searchImpl(resultSet, query);
+
+          return promise.then(
+            function (resultSet) {
+              self.queries[query] = resultSet;
+              return Promise.resolve(resultSet)
+            },
+
+            function (err) {
+              return Promise.reject(err);
+            }
+          );
+        },
+
+        /*
+        returns a promise which resolves to the next numResults
+        images from the ResultSet associated with the key phrase query;
+        if results aren't available, performs a search first then returns
+        results from that
+        */
+        fetch: function (query) {
+          var promise;
+          var results;
+
+          var resultsPerFetch = this.resultsPerFetch;
+          var resultSet = this.queries[query];
+
+          if (resultSet) {
+            if (resultSet.isExhausted) {
+              promise = Promise.resolve([]);
+            } else if (resultSet.count() >= resultsPerFetch) {
+              results = resultSet.fetch(resultsPerFetch);
+              promise = Promise.resolve(results);
+            }
+          } else {
+            promise = this.search(query).then(
+              function (resultSet) {
+                results = resultSet.fetch(resultsPerFetch);
+                return Promise.resolve(results);
+              },
+
+              function (error) {
+                return Promise.reject(error);
+              }
+            );
+          }
+
+          return promise;
+        }
+      });
+    })();
+  </script>
+</polymer-element>
