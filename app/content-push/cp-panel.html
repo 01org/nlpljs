@@ -100,16 +100,20 @@
     (function cpPanel () {
       // private *static* functions and constants
 
-      /* perform search for keyphrases and populate the image card
-        for the associated page. */
-      var search = function (self) {
-        // search for one keyphrase
-        // TODO search for all keyphrases
-        var keyphrase = self.keywordInfo.keywords[0];
+      /* perform search for current keyphrase and add to the display */
+      var more = function (self) {
+        self.$.fetcher.fetch(self.keywordInfo).then(function (results) {
+          self.$.display.receiveResults(results);
+        });
+      };
 
-        // append each image
-        self.$.fetcher.fetch(keyphrase.text).then(function (results) {
-          self.$.display.receiveResults(results, keyphrase);
+      /* perform search for new keyword and reset filter on display */
+      var update = function (self, keywordInfo) {
+        self.keywordInfo = keywordInfo;
+
+        self.$.fetcher.fetch(self.keywordInfo).then(function (results) {
+          self.$.display.setFilter({keywordInfo: self.keywordInfo});
+          self.$.display.receiveResults(results);
         });
       };
 
@@ -127,13 +131,12 @@
         // event handlers
         onNewKeywordInfo: function (e) {
           console.log('PA:onNewKeywordInfo',e.detail.keywordInfo);
-          this.keywordInfo = e.detail.keywordInfo;
-          search(this);
+          update(this, e.detail.keywordInfo);
         },
 
         onDisplayMoreResults: function () {
           this.$.display.loading = true;
-          search(this);
+          more(this);
         },
 
         onDisplayMouseover: function (e) {

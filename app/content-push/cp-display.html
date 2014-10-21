@@ -155,6 +155,18 @@ pushing new tiles into the wrapped layout
           this.loading = false;
         },
 
+        setFilter: function (criteria) {
+          var keyphrase = criteria.keywordInfo.keywords[0];
+
+          /* set the filter on the layout to the current keyphrase */
+          this.$.layout.filter = function (tile) {
+            return tile.keyword.text === keyphrase.text;
+          };
+
+          /* force a relayout, so the new filter can take effect */
+          this.$.layout.layout();
+        },
+
         /**
          * Add results to the layout and set the filter to only show
          * results whose keyphrase.text matches the passed-in
@@ -163,27 +175,19 @@ pushing new tiles into the wrapped layout
          * keyphrase looks like:
          * { text: <keyphrase text>, groupId: <keyphrase groupId>}
          */
-        receiveResults: function (results, keyphrase) {
+        receiveResults: function (results) {
           this.state = 'results';
-
-          // set the filter on the layout to the current keyphrase
-          this.$.layout.filter = function (tile) {
-            return tile.data.text === keyphrase.text;
-          };
 
           if (results.length) {
             for (var i = 0; i < results.length; i++) {
               this.appendImage({
                 src: results[i].src,
-                keyphrase: keyphrase
+                keyword: results[i].keyword
               });
             }
           } else {
             /* no results, so we can immediately disable the spinner */
             this.loading = false;
-
-            /* force a relayout, so the new filter can take effect */
-            this.$.layout.layout();
 
             /* set the state of the result set */
             this.setResultState();
@@ -224,9 +228,9 @@ pushing new tiles into the wrapped layout
         * format:
         * {
         *   src: "<url of image>",
-        *   keyphrase: {
-        *     text: "<keyphrase text>",
-        *     groupId: "<keyphrase group ID>"
+        *   keyword: {
+        *       text: "<keyphrase text>",
+        *       groupId: "<keyphrase group ID>"
         *   }
         * }
         *
@@ -246,14 +250,14 @@ pushing new tiles into the wrapped layout
                     'resize_w=600&' + // set max image width to 600px
                     'url=' + encodeURIComponent(image.src);
 
-          elt.data = image.keyphrase;
+          elt.keyword = image.keyword;
 
           elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', elt.data)
+            self.fire('mouse-over', elt.keyword);
           });
 
           elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', elt.data);
+            self.fire('mouse-out', elt.keyword);
           });
 
           this.$.layout.addTile(elt);

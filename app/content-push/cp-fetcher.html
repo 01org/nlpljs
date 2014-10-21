@@ -9,22 +9,47 @@
   </template>
 
   <script>
-    Polymer({
-      // number of results to fetch per call to the fetch() method
-      resultsPerFetch: 5,
+    (function () {
+      // for testing for PDF or SVG files returned as image results
+      var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
 
-      /* at the moment we just fetch and aggregate via the
-         cp-search-wikipedia component; returns a promise
-         which resolves to an array of results or rejects with an error */
-      fetch: function (keyword) {
-        console.log('searching for ' + keyword);
+      Polymer({
+        // number of results to fetch per call to the fetch() method
+        resultsPerFetch: 5,
 
-        if (!keyword) {
-          return Promise.resolve([]);
+        /* at the moment we just fetch and aggregate via the
+           cp-search-wikipedia component; returns a promise
+           which resolves to an array of results or rejects with an error */
+        fetch: function (keywordInfo) {
+          var query = keywordInfo.keywords[0].text;
+
+          console.log('searching for ' + query);
+
+          if (!query) {
+            return Promise.resolve([]);
+          }
+
+          return this.$.searchWikipedia.fetch(query).then(
+            function (results) {
+              var filteredResults = [];
+
+              for (var i = 0; i < results.length; i++) {
+                // filter out any pdfs or svg files...
+                if (!BAD_EXTENSIONS_REGEX.test(results[i].src)) {
+                  results[i].keyword = keywordInfo.keywords[0];
+                  filteredResults.push(results[i]);
+                }
+              }
+
+              return Promise.resolve(filteredResults);
+            },
+
+            function (err) {
+              return Promise.reject(err);
+            }
+          );
         }
-
-        return this.$.searchWikipedia.fetch(keyword);
-      }
-    });
+      });
+    })();
   </script>
 </polymer-element>

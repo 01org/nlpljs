@@ -8,9 +8,6 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
   <script>
     (function () {
-      // for testing for PDF or SVG files returned as image results
-      var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
-
       // hard limit on search page size set by Wikipedia
       var MAX_RESULTS_PER_SEARCH = 50;
 
@@ -188,18 +185,12 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             // results for this search
             var pages = response.query.pages;
 
-            var url;
             for (var k in pages) {
               if (pages.hasOwnProperty(k)) {
-                url = pages[k].imageinfo[0].url;
-
-                // make sure we don't include any pdfs...
-                if (!BAD_EXTENSIONS_REGEX.test(url)) {
-                  resultSet.add({
-                    src: url,
-                    raw_meta: pages[k].imageinfo[0]
-                  });
-                }
+                resultSet.add({
+                  src: pages[k].imageinfo[0].url,
+                  raw_meta: pages[k].imageinfo[0]
+                });
               }
             }
           }

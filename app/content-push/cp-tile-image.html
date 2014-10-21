@@ -96,15 +96,13 @@ size
           // true if the image is ready, whether it loaded or failed
           this.done = false;
 
-          /* any data associated with the image; for example, a
-             keyword like:
-
+          /* keyword associated with the image with structure:
              {
                text: "<keyword text>",
                groupId: "<keyword group ID>"
              }
           */
-          this.data = null;
+          this.keyword = null;
 
           // true if the image's width is less than 100px
           this.isTinyImage = false;
