@@ -3,7 +3,7 @@ element to return Wikipedia image search data;
 uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 -->
 <polymer-element name="cp-search-wikipedia"
-                 attributes="resultsPerSearch resultsPerFetch">
+                 attributes="resultsPerFetch">
   <script src="jsonp.js"></script>
 
   <script>
@@ -80,20 +80,12 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
       // declare the search-wikipedia element
       Polymer({
-        // maximum number of results to return per search
-        resultsPerSearch: 30,
-
         // number of results to return when fetch() is invoked
         resultsPerFetch: 10,
 
         created: function () {
           // map from key phrases to ResultSets
           this.queries = {};
-
-          this.resultsPerSearch = Math.max(
-            MAX_RESULTS_PER_SEARCH,
-            this.resultsPerSearch
-          );
         },
 
         /*
@@ -110,7 +102,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
           var url = 'https://commons.wikimedia.org/w/api.php?action=query' +
                     '&generator=search&gsrnamespace=6' +
                     '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
-                    '&gsrlimit=' + this.resultsPerSearch +
+                    '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
                     '&gsroffset=' + resultSet.offset +
                     '&format=json&prop=imageinfo&iiprop=extmetadata|url|size';
 
