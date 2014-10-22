@@ -1,0 +1,93 @@
+<!--
+  cp-auth
+
+  getToken(service) - initiate process for getting an auth token
+  removeCachedToken(service) - removes any cached tokens, to next getToken() will get a new one
+
+  event: accesstoken - there is a new access token, the detail provides the token and service it is for.
+-->
+<link rel='import' href='../bower_components/polymer/polymer.html'>
+<link rel='import' href='./cp-globals.html'>
+
+<polymer-element name='cp-auth'>
+  <template>
+    <cp-globals data='{{globals}}'></cp-globals>
+  </template>
+  <script>
+  (function authTest () {
+
+    var handleNewToken = function(self,detail) {
+      if (detail.component==='auth' && detail.type==='accesstoken') {
+        var detail={
+          token: detail.token,
+          service: detail.service
+        };
+        console.log('CP-AUTH:received token:',detail.token);
+        self.tokens[detail.service]=detail.token;
+        self.fire('accesstoken',detail);
+      }
+    };
+
+    Polymer({
+
+      created: function () {
+        this.tokens = {};
+      },
+
+      ready: function () {
+      },
+
+      getToken: function (service) {
+        if (!this.globals.app_id) {
+          console.log('CP-AUTH:getToken() called but app_id not set yet');
+          return;
+        }
+
+        service = service || 'google';
+        if (this.tokens[service]) {
+          console.log('CP-AUTH:already got token - sending it');
+          this.fire('accesstoken',this.tokens[service]);
+        } else {
+          console.log('CP-AUTH:getting token');
+          var message={
+            component:'auth',
+            service: service,
+            type:'gettoken'
+          };
+
+          var self=this;
+          chrome.runtime.sendMessage(this.globals.app_id,message,function(detail) {
+            if (chrome.runtime.lastError) {
+              var message=chrome.runtime.lastError.message;
+              console.log(new Error('CP-AUTH:error in responseCallback:'+message));
+            } else {
+              console.log('CP-AUTH:sendResponse invoked:',detail);
+              handleNewToken(self,detail);
+            }
+          });
+        }
+      },
+
+      removeCachedToken: function (token,service) {
+        if (!this.globals.app_id) {
+          console.log('CP-AUTH:removeCachedToken() called but app_id not set yet');
+          return;
+        }
+
+        // remove from this.tokens 
+        // need 'service' property or search the hash
+        var message={
+          component:'auth',
+          service: service,
+          type: 'removecachedtoken',
+          token: token
+        };
+        chrome.runtime.sendMessage(this.globals.app_id,message);
+      },
+
+    }); // Polymer()
+
+  })();
+
+  </script>
+</polymer-element>

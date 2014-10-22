@@ -10,6 +10,9 @@
     "management",
     "declarativeContent",
     "tabs",
+    "identity",
+    "https://www.facebook.com/",
+    "https://graph.facebook.com/",
     "<all_urls>"
   ],
   "page_action": {
@@ -22,7 +25,8 @@
   },
   "background": {
     "scripts": [
-      "scripts/event_page.js"
+      "scripts/event_page.js",
+      "scripts/ep-auth.js"
     ],
     "persistent": false
   },
@@ -36,5 +40,15 @@
     "styles/main.css",
     "bower_components/*/*",
     "libnlp/models/*"
-  ]
+  ],
+  "oauth2": {
+    "client_id": "353827414707-rt33qbe8pi3v014t9ucd5auj2a4iqfu3.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive"
+    ]
+  },
+  "externally_connectable": {
+    "matches": ["https://docs.google.com/*/document/*"]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkJNzLXCkftFZ4qFUb6abjOzkd/uqHoWl7hcNjEGybRfqCnYTQbnvj5zamYRgTL2+wxPW8Og/cASvDOZ3g7W9nvaKgRd/NTHNx0SiaC0pBF0SVwY2rzK/moCEAHkW3BW4OWRjiMxpsMNEIKgnOydjxVdmuZ0IgR/JvjmGQtZBcKrAwVMqWJGnMBIN/ec0yR8ZD+a+DsZKgNDretF8bHLJXYRe9DKwkPvZSjmGy7QgKdA30vbdJOoCwHVJe3/8TKaHblAVgyIDBGL7AAU59B4fc+nNYQdDWkF/HQg9eeVmh5iLKRk9q3Hw0MCCREXWJQ0O+gz0opSx8jw282abgpBDcwIDAQAB"
 }
