@@ -3,8 +3,12 @@
   <script>
     (function () {
       var scrollableNode;
+      var targetNodes;
+      var timeout = 500;
+      var scrollTimer;
 
       var isNodeVisible = function (node) {
+        var parentBoundingRectangle;
         var boundingRectangle = node.getBoundingClientRect();
         var nodeStyle = document.defaultView.getComputedStyle(node, null);
 
@@ -12,14 +16,25 @@
             'hidden' === nodeStyle['visiblity'])
           return false;
 
-        return (
-          boundingRectangle.bottom > 0 &&
-          boundingRectangle.right > 0 &&
-          boundingRectangle.left < (window.innerWidth ||
-            document.documentElement.clientWidth) &&
-          boundingRectangle.top < (window.innerHeight ||
-            document.documentElement.clientHeight)
-        );
+        if (typeof scrollableNode !== 'undefined') {
+          parentBoundingRectangle = scrollableNode.getBoundingClientRect();
+
+          if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
+              boundingRectangle.right > parentBoundingRectangle.right ||
+              boundingRectangle.left < parentBoundingRectangle.left ||
+              boundingRectangle.top < parentBoundingRectangle.top)
+            return false;
+        }
+
+        if (boundingRectangle.bottom < 0 ||
+            boundingRectangle.right < 0 ||
+            boundingRectangle.left > (window.innerWidth ||
+            document.documentElement.clientWidth) ||
+            boundingRectangle.top > (window.innerHeight ||
+            document.documentElement.clientHeight))
+          return false;
+
+       return true;
       };
 
       Polymer({
@@ -28,19 +43,22 @@
         },
         addOnScrollListener: function (listener) {
           var onScroll = function () {
-            var visibleNodes = [];
-            var hiddenNodes = [];
+            clearTimeout(scrollTimer);
+            scrollTimer = setTimeout(function () {
+              var visibleNodes = [];
+              var hiddenNodes = [];
 
-            if (typeof targetNodes !== 'undefined') {
-              for (var i = 0; i < targetNodes.length; i++) {
-                if (isNodeVisible(targetNodes[i]))
-                  visibleNodes[visibleNodes.length] = targetNodes[i];
-                else
-                  hiddenNodes[hiddenNodes.length] = targetNodes[i];
+              if (typeof targetNodes !== 'undefined') {
+                for (var i = 0; i < targetNodes.length; i++) {
+                  if (isNodeVisible(targetNodes[i]))
+                    visibleNodes[visibleNodes.length] = targetNodes[i];
+                  else
+                    hiddenNodes[hiddenNodes.length] = targetNodes[i];
+                }
               }
-            }
 
-            listener(visibleNodes, hiddenNodes);
+              listener(visibleNodes, hiddenNodes);
+            }, timeout);
           };
 
           if (typeof scrollableNode !== 'undefined')
@@ -53,6 +71,9 @@
         },
         setTargetNodes: function (nodes) {
           targetNodes = nodes;
+        },
+        setScrollTimeout: function (scrollTimeout) {
+          timeout = scrollTimeout;
         }
       });
     })();
