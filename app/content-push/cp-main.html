@@ -32,11 +32,6 @@
     (function contentPushApp () {
       // private properties
 
-      var togglePanel = function (self) {
-        self.$.panel.classList.toggle('off');
-        self.open = !self.open;
-      };
-
       Polymer({
         // life cycle functions
         created: function () {
@@ -47,8 +42,9 @@
         },
 
         // propertyChanged functions
-        toggleChanged: function (oldValue,newValue) {
-          this.togglePanel();
+        toggleChanged: function (oldValue, newValue) {
+          this.$.panel.classList.toggle('off');
+          this.open = !this.open;
         },
 
         // event handlers
