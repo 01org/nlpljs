@@ -196,3 +196,66 @@ This is a custom element which displays the details about a <cp-tile>
 
 Methods:<tbd>
 signals:<tbd>
+
+EXIF data
+=========
+
+As part of determining what's possible with images in Content Push,
+I did some experiments with extracting EXIF data from image files.
+The library I used for this was exif-js (https://github.com/jseidelin/exif-js).
+
+exif-js requires a Blob representing the image to be available. To
+get this, the image has to be fetched via Ajax. (See below for my
+experiments in doing this without Ajax.) The image can then be
+pushed through exif-js to extract its metadata.
+
+I figured out a way to do this using an unmodified version of exif-js,
+both from local (file://) and remote (http://) files. However, there
+is one big drawback: When loading a remote image, the server hosting
+the image must be enabled for CORS (http://enable-cors.org/). If not,
+you will see "Access origin not allowed" messages in the console when
+the app tried to load the image, and it will not be accessible via Ajax.
+
+Here's the code which will download and parse an image using exif-js,
+either from a local or remote (on a CORS-enabled server) image:
+
+  var fetchImage = function (imageUrl, cb) {
+    var http = new XMLHttpRequest();
+    http.open('GET', imageUrl, true);
+    http.responseType = 'blob';
+
+    http.onload = function () {
+      if (this.readyState === 4 && this.status < 400) {
+        var image = new Image();
+
+        image.onload = function () {
+          EXIF.getData(image, function () {
+            // EXIF data is available as "this"
+            cb(this);
+          });
+        };
+
+        var blobUrl = URL.createObjectURL(this.response);
+        image.src = blobUrl;
+      }
+      else {
+        console.error('Error fetching image');
+      }
+    };
+
+    http.send();
+  };
+
+NB there is some redundancy here, as exif-js will fire up another
+XMLHttpRequest to fetch the image in binary format before parsing it.
+(I came up with a patch which will avoid this, but I'm not sure whether
+the exif-js maintainer will want to merge it.)
+
+I experimented with loading a remote image into an Image object, then
+tried to get the binary data from it. The de facto standard way to do
+this is to write the image into a canvas; then get a data URL
+representing the content of the canvas (via canvas.getDataURL());
+then manipulate that Base64-encoded representation into a Blob. However,
+my experiments showed that this loses the EXIF data at the point where
+the canvas' data URL is retrieved. For that reason, while it works,
+it is not feasible, as the EXIF data is what we're after.
