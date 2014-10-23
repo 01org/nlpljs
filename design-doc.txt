@@ -36,10 +36,9 @@ The app is composed of multiple parts that exist in three(and a half) different 
    very few chrome apis can be used here, but if those apis aren't needed for a
    particular piece of functionality, then this is where it goes
    
-4. The content script - rehostPage.js
-   this is the 'and a half'. It lives in what is termed as an 'isolated world'.
-   It's in the web app context, but severely limited access to the web app itself, 
-   pretty much only the DOM itself.
+3.5 The content script - rehostPage.js
+   this lives in what is termed as an 'isolated world'. It's in the web app context,
+   but severely limited access to the web app itself, pretty much only the DOM itself.
    
 The extension :
 
