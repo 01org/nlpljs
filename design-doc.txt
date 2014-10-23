@@ -17,10 +17,48 @@ This document is inteded for anyone who wishes to contribute to the project, it
 dicusses the implementation details and design on the app to get you up and running.
 This document is work in progress.
 
+Overview of app structure
+=========================
+
+The app is composed of multiple parts that exist in three(and a half) different contexts :
+
+1. The extension - event_page.js
+   the 'main' of the entire app
+   all(?) chrome apis can be used here
+
+2. The web worker - nlp_worker.js
+   this is where the nlp work is done
+   no chrome apis can be used here
+
+3. The web app - cp-main.html
+   this is where the user interaction is done and is the majority of the functionality
+   of the app
+   very few chrome apis can be used here, but if those apis aren't needed for a
+   particular piece of functionality, then this is where it goes
+   
+4. The content script - rehostPage.js
+   this is the 'and a half'. It lives in what is termed as an 'isolated world'.
+   It's in the web app context, but severely limited access to the web app itself, 
+   pretty much only the DOM itself.
+   
+The extension :
+
+1. executes the content script inside the web app,
+2. starts the web worker
+3. performs tasks that require chrome apis only available in this context
+4. message passing related to the above
+
+The web worker is dedicated to nlp processing.
+
+The content script does 'editing' of the web app, and some message passing.
+
+Detail of wep app context
+=========================
+
 CP relies heavily on Google Polymer. Everything is split into custom components.
-When CP is launched, the event page record the tab URL. It throws away the current
-DOM tree. It reloaded the tab URL in a components {<cp-document>}.
-It also loads a separate components called <cp-finder> which is responsible for
+When CP is launched, the event page records the tab URL. It throws away the current
+DOM tree. It reloads the tab URL in an iframe inside a component {<cp-document>}.
+It also loads a separate component called <cp-finder> which is responsible for
 aggregating data about the contents of the URL. The <core-splitter> is used to
 keep a fluid boundry between <cp-document> and <cp-finder>.
 app/script/rehostPage.js is the content script which injects these components in
@@ -32,8 +70,8 @@ tab URL ----|-<core-splitter>
 	    |
 	    |----> <cp-finder>
 
-<cp-doument> component
-======================
+<cp-document> component
+=======================
 <cp-document> loads the tab URL contents. The reason for re-loading the URL in a
 separate component is to keep its content processing separate from the rest of the
 extension. The other advantage of a separate component is the element can be tailored
@@ -43,7 +81,7 @@ keep all the elements in sync.
 
 Methods:<tbd>
 Signals:
-1. cp-status:	Emits the curent status of the component.
+1. cp-status:	Emits the current status of the component.
    		The status values are still <tbd>.
 2. cp-keywords: Emits the keywords in the current viewport.
 
@@ -53,17 +91,17 @@ Signals:
       |
       |--> NLP
       |
-      |--> <cp-highlighter>
+      |--> <cp-keyword-highlighter>
       |
       |--> <cp-scrollwatcher>
 
 The iframe loads the tab url.
-The NLP module processes the text from the displayed content and to extract the
+The NLP module processes the text from the displayed content and extracts the
 'keywords' from it.
 
-<cp-highlighter>
-================
-This is a custom element, which is responsible to highlight specific contents in the iframe.
+<cp-keyword-highlighter>
+========================
+This is a custom element, which is responsible for highlighting specific contents inside the iframe.
 
 Methods:<tbd>
 signals:<tbd>
