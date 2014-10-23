@@ -1,10 +1,15 @@
-body, html {
-  border: 0;
-  padding: 0; 
-  margin: 0;
-  height: 100%;
+/**
+ * hide everything but cp-main
+ *
+ * this is about hiding any elements that google docs tries
+ * display on the top level body
+ * some scripts (event handlers) are attached to window and are
+ * impossible(?) to remove
+ */
+body > * {
+  display: none !important;
 }
 
-body > div, body > span {
-  display: none !important;
+cp-main, cp-globals {
+  display: block !important;
 }
