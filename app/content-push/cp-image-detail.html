@@ -1,0 +1,134 @@
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<polymer-element name="cp-image-detail" attributes="src caption source">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      #back {
+        padding: 5px 3px;
+      }
+
+      #back, #caption, #imgSize, #imgSource, #imgContainer, #visitSrc {
+        margin-top: 10px;
+        margin-left: 5%;
+        position: relative;
+        overflow: hidden;
+        width: 90%;
+        color: black;
+        text-align: left;
+      }
+
+      #container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+      }
+
+      #image {
+        width: 100%;
+        height: auto;
+      }
+
+      #backbutton {
+         background-color: #4CA8B4;
+         margin-left: 0;
+      }
+
+      #visitSrc {
+        margin-top: 10px;
+        padding-bottom: 5px;
+        text-align: right !important;
+        color: #4CA8B4;
+      }
+
+      paper-button[raised].colored {
+        background: #4285f4;
+        color: #fff;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <div id="container">
+      <div id="back">
+        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true">
+        </paper-fab>
+      </div>
+
+      <div id="imgContainer" data-show="{{loaded}}">
+        <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+      </div>
+
+      <h3 id="caption" data-show="{{caption}}">
+        <caption>{{caption}}</caption>
+      </h3>
+
+      <h4 id="imgSize" data-show="{{width > 0 && height > 0}}">
+        {{width}}x{{height}}
+      </h4>
+
+      <h4 id="imgSource" data-show="{{source}}">{{source}}</h4>
+
+      <div id="visitSrc" data-show="{{source}}">
+        <paper-button raised class="colored" on-click={{visitWebpage}}>
+          Visit web page &gt;
+        </paper-button>
+      </div>
+    </div>
+</div>
+  </template>
+
+  <script>
+    (function () {
+      /* time out for image load fail */
+      var TIMEOUT = 5000;
+
+      Polymer({
+        /* source URL of the image itself */
+        src: null,
+
+        /* where the image came from */
+        source: null,
+
+        created: function () {
+          this.caption = 'Image title';
+          this.width = null;
+          this.height = null;
+          this.loaded = false;
+          this.meta = {};
+        },
+
+        onSrcChanged: function () {
+          this.loaded = false;
+
+          /* if the image never loads, record the component as ready
+             anyway, to ensure that it will display */
+          setTimeout(function () {
+            self.loaded = true;
+          }, TIMEOUT);
+        },
+
+        onImageLoad: function () {
+          this.width = this.$.image.width;
+          this.height = this.$.image.height;
+          this.loaded = true;
+        },
+
+        visitWebpage: function () {
+          if (this.source) {
+            window.open(this.source, '_blank');
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>
