@@ -3,13 +3,14 @@
   <script>
     (function () {
       var scrollableNode;
-      var targetNodes;
+      var targetNodes = [];
       var timeout = 500;
       var scrollTimer;
 
       var isNodeVisible = function (node) {
-        var parentBoundingRectangle;
         var boundingRectangle = node.getBoundingClientRect();
+        var parentBoundingRectangle;
+
         var nodeStyle = document.defaultView.getComputedStyle(node, null);
 
         if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
@@ -26,12 +27,10 @@
             return false;
         }
 
-        if (boundingRectangle.bottom < 0 ||
-            boundingRectangle.right < 0 ||
-            boundingRectangle.left > (window.innerWidth ||
-            document.documentElement.clientWidth) ||
-            boundingRectangle.top > (window.innerHeight ||
-            document.documentElement.clientHeight))
+        if (boundingRectangle.bottom > window.innerHeight ||
+            boundingRectangle.right > window.innerWidth ||
+            boundingRectangle.left < 0 ||
+            boundingRectangle.top < 0)
           return false;
 
        return true;
@@ -69,8 +68,8 @@
           window.addEventListener('scroll', onScroll, false); 
           window.addEventListener('resize', onScroll, false);
         },
-        setTargetNodes: function (nodes) {
-          targetNodes = nodes;
+        addTargetNode: function (targetNode) {
+          targetNodes[targetNodes.length] = targetNode;
         },
         setScrollTimeout: function (scrollTimeout) {
           timeout = scrollTimeout;

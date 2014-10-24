@@ -88,7 +88,10 @@
         var visibleNodesDiv = this.$.visibleNodes;
 
         this.$.scrollwatcher.setScrollableNode(this.$.scrollableNode);
-        this.$.scrollwatcher.setTargetNodes(lines);
+
+        for (var i = 0; i < lines.length; i++)
+          this.$.scrollwatcher.addTargetNode(lines[i]);
+
         this.$.scrollwatcher.addOnScrollListener(function (visibleNodes) {
           visibleNodesDiv.innerText = "Visible nodes:";
 
