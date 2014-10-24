@@ -122,7 +122,6 @@
         </core-collapse>
       </div>
     </div>
-</div>
   </template>
 
   <script>
@@ -184,6 +183,8 @@
         },
 
         onSrcChanged: function () {
+          var self=this;
+
           this.loaded = false;
 
           /* if the image never loads, record the component as ready
