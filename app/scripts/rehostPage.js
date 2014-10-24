@@ -43,7 +43,8 @@
     // create and open panel
     var currentTabUrl=document.URL;
     var extensionUrl=chrome.extension.getURL("");
-    var cpUrl=chrome.extension.getURL("content-push/cp-main.html");
+    var cpMainUrl=chrome.extension.getURL("content-push/cp-main.html");
+    var cpGlobalsUrl=chrome.extension.getURL("content-push/cp-globals.html");
     var cssUrl=chrome.extension.getURL("styles/main.css");
 
     // remove document content and add new head and body
@@ -64,25 +65,35 @@
 
     link = document.createElement('link');
     link.rel = 'import';
-    link.href = cpUrl;
+    link.href = cpGlobalsUrl;
     head.appendChild(link);
 
-    var cp = document.createElement('cp-main');
-    cp.setAttribute('iframeurl', currentTabUrl);
-    cp.setAttribute('fit', '');
-    cp.addEventListener('lineadd', function (e) {
+    link = document.createElement('link');
+    link.rel = 'import';
+    link.href = cpMainUrl;
+    head.appendChild(link);
+
+    var cpGlobals = document.createElement('cp-globals');
+    cpGlobals.setAttribute("app_id", chrome.runtime.id);
+
+    body.appendChild(cpGlobals);
+
+    var cpMain = document.createElement('cp-main');
+    cpMain.setAttribute("iframeurl", currentTabUrl);
+    cpMain.setAttribute('fit', '');
+    cpMain.addEventListener('lineadd', function (e) {
       port.postMessage(eventPageMessage('lineadd', e.detail));
     });
 
-    cp.addEventListener('resetextractor', function (e) {
+    cpMain.addEventListener('resetextractor', function (e) {
       port.postMessage(eventPageMessage('resetextractor', e.detail));
     });
 
-    cp.addEventListener('getkeywords', function (e) {
+    cpMain.addEventListener('getkeywords', function (e) {
       port.postMessage(eventPageMessage('getkeywords', e.detail));
     });
 
-    body.appendChild(cp);
+    body.appendChild(cpMain);
 
     html.appendChild(head);
     html.appendChild(body);
