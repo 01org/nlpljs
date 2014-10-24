@@ -202,6 +202,7 @@
       var setKeywordInfo = function (self, keywordInfo) {
         self.keywordInfo = keywordInfo;
         self.fire('newkeywordinfo',{keywordInfo: keywordInfo});
+        self.$.highlighter.clear();
         self.$.highlighter.prepare(keywordInfo.ranges);
 
       };
