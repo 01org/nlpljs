@@ -48,6 +48,8 @@ test for cp-scroll
         for (var i = 0; i < numImages; i++) {
           var tile = document.createElement('cp-tile-image');
           tile.src = makeImageUrl(200, 200);
+          tile.width = 200;
+          tile.height = 200;
           this.$.gallery.addTile(tile);
         }
       },

@@ -135,11 +135,6 @@ pushing new tiles into the wrapped layout
 
   <script>
     (function () {
-      /* base URL for Google's image resizer (undocumented);
-         see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
-      // TODO figure out a long term solution for this
-      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
-
       Polymer({
         state: null,
         loading: false,
@@ -192,11 +187,14 @@ pushing new tiles into the wrapped layout
          *
          * Each result in the results array should look like:
          * {
-         *   src: <url of image>
+         *   src: <url of image>,
          *   keyword: {
          *     text: <keyphrase text>,
          *     groupId: <keyphrase groupId>
-         *   }
+         *   },
+         *   meta: { ... metadata ... },
+         *   caption: <image caption>,
+         *   source: <url of image source>
          * }
          */
         receiveResults: function (results) {
@@ -204,10 +202,7 @@ pushing new tiles into the wrapped layout
 
           if (results.length) {
             for (var i = 0; i < results.length; i++) {
-              this.appendImage({
-                src: results[i].src,
-                keyword: results[i].keyword
-              });
+              this.appendImage(results[i]);
             }
           } else {
             /* no results, so we can immediately disable the spinner */
@@ -247,7 +242,9 @@ pushing new tiles into the wrapped layout
         * @param Object image Representation of image to add; has the
         * format:
         * {
-        *   src: "<url of image>",
+        *   thumbnailSrc: "<url of image thumbnail>",
+        *   width: <width of full-size image>,
+        *   height: <height of full-size image>,
         *   keyword: {
         *       text: "<keyphrase text>",
         *       groupId: "<keyphrase group ID>"
@@ -263,13 +260,9 @@ pushing new tiles into the wrapped layout
 
           var elt = document.createElement('cp-tile-image');
 
-          // dynamically resize using Google's image resizer
-          elt.src = RESIZER_BASE_URL +
-                    '?container=focus&' +
-                    'refresh=' + (60 * 60) + '&' + // cache for one hour
-                    'resize_w=600&' + // set max image width to 600px
-                    'url=' + encodeURIComponent(image.src);
-
+          elt.src = image.thumbnailSrc;
+          elt.width = image.width;
+          elt.height = image.height;
           elt.keyword = image.keyword;
 
           elt.addEventListener('mouseover', function () {
@@ -283,6 +276,8 @@ pushing new tiles into the wrapped layout
           elt.addEventListener('click', function () {
             self.fire('mouse-down', elt);
           });
+
+          elt.image = image;
 
           this.$.layout.addTile(elt);
         },

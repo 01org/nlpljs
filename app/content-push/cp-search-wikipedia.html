@@ -11,6 +11,10 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
       /* hard limit on search page size set by Wikipedia */
       var MAX_RESULTS_PER_SEARCH = 50;
 
+      /* base URL for Google's image resizer (undocumented);
+         see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
+      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
+
       /* declare the element */
       Polymer({
         created: function () {
@@ -66,9 +70,22 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
             for (var k in pages) {
               if (pages.hasOwnProperty(k)) {
+                var data = pages[k].imageinfo[0];
+
+                var thumbnailSrc = RESIZER_BASE_URL +
+                    '?container=focus&' +
+                    'refresh=' + (60 * 60) + '&' + // cache for one hour
+                    'resize_w=600&' + // set max image width to 600px
+                    'url=' + encodeURIComponent(data.url);
+
                 resultSet.add({
-                  src: pages[k].imageinfo[0].url,
+                  src: data.url,
+                  thumbnailSrc: thumbnailSrc,
+                  width: data.width,
+                  height: data.height,
                   type: 'image',
+                  caption: data.extmetadata.ObjectName.value,
+                  source: data.descriptionurl,
                   meta: pages[k].imageinfo[0]
                 });
               }

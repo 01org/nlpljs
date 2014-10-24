@@ -36,10 +36,10 @@ test basic swapper with one sliding element
         var self = this;
 
         setTimeout(function () {
-          self.$.swapper.slideIn();
+          self.$.swapper.slideIn('detail');
 
           setTimeout(function () {
-            self.$.swapper.slideOut();
+            self.$.swapper.slideOut('detail');
           }, 1000);
         }, 1000);
       },

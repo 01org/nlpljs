@@ -32,7 +32,7 @@ Test for image-detail; Creates a image-detail panel and adds a random image with
       domReady: function () {
         // add a random image with URL from lorempixel
         this.$.detail.src = makeImageUrl(800, 600);
-        this.$.detail.caption = 'This is a test title';
+        this.$.detail.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
         this.$.detail.source = 'http://flickr.com/';
       }
     });

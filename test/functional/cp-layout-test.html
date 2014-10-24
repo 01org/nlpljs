@@ -30,6 +30,8 @@ test for cp-layout; creates a card and adds ten random images to it
         for (var i = 0; i < 10; i ++) {
           var tile = document.createElement('cp-tile-image');
           tile.src = makeImageUrl(200, 200);
+          tile.width = 200;
+          tile.height = 200;
           this.$.gallery.addTile(tile);
         }
       }

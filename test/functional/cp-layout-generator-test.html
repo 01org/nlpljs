@@ -45,6 +45,8 @@ test for cp-layout's layout algorithm
         for (var i = 0; i < imagesDimensions.length; i++) {
           var tile = document.createElement('cp-tile-image');
           tile.src = makeImageUrl(imagesDimensions[i].width, imagesDimensions[i].height);
+          tile.width = imagesDimensions[i].width;
+          tile.height = imagesDimensions[i].height;
           this.$.gallery.addTile(tile);
         }
 

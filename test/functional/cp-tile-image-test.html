@@ -18,9 +18,11 @@ different sizes
       domReady: function () {
         // add random cp-tile-images with URLs from lorempixel
         var cpImage;
-        for (var i = 50; i <= 500; i += 50) {
+        for (var i = 100; i <= 500; i += 50) {
           cpImage = document.createElement('cp-tile-image');
           cpImage.src = makeImageUrl(i, i);
+          cpImage.width = i;
+          cpImage.height = i;
           this.$.container.appendChild(cpImage);
         }
       }
