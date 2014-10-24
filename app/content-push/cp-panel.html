@@ -4,9 +4,8 @@
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/core-transition/core-transition.html">
-<link rel="import" href="../bower_components/core-animated-pages/core-animated-pages.html">
-<link rel="import" href="../bower_components/core-animated-pages/transitions/slide-from-right.html">
+<link rel="import" href="../bower_components/core-meta/core-meta.html">
+<link rel="import" href="../bower_components/core-transition/core-transition-css.html">
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-image-detail.html">
@@ -96,24 +95,15 @@
       </paper-tab>
     </paper-tabs>
 
-    <core-animated-pages id="slider"
-                         transitions="slide-from-right"
-                         selected="{{page}}"
-                         on-click="{{slide}}">
-      <section>
-        <cp-display id="display"
-                    on-moreresults="{{onDisplayMoreResults}}"
-                    on-mouse-over="{{onDisplayMouseover}}"
-                    on-mouse-out="{{onDisplayMouseout}}"
-                    on-mouse-down="{{showDetail}}">
-        </cp-display>
-      </section>
+    <cp-display id="display"
+                on-moreresults="{{onDisplayMoreResults}}"
+                on-mouse-over="{{onDisplayMouseover}}"
+                on-mouse-out="{{onDisplayMouseout}}"
+                on-mouse-down="{{showDetail}}">
+    </cp-display>
 
-      <section>
-        <cp-image-detail id="detail" on-back="{{closeDetail}}">
-        </cp-image-detail>
-      </section>
-    </core-animated-pages>
+    <cp-image-detail id="detail" on-back="{{closeDetail}}">
+    </cp-image-detail>
 
     <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
   </template>
@@ -159,16 +149,26 @@
         // functions and properties used in API and bindings
         created: function () {
           this.keywordInfo = null;
-          this.page = 0;
+        },
+
+        domReady: function () {
+          /* set up transition */
+          var meta = document.createElement('core-meta');
+          meta.type = 'transition';
+
+          this.transition = meta.byId('core-transition-right');
+          this.transition.setup(this.$.detail);
         },
 
         showDetail: function (e) {
-          console.log(e.detail);
-          this.page = 1;
+          var tileToShow = e.detail;
+          this.transition.go(this.$.detail, {opened: true});
+          console.log('open');
         },
 
         closeDetail: function () {
-          this.page = 0;
+          this.transition.go(this.$.detail, {opened: false});
+          console.log('close');
         },
 
         // called from content-push.html:trackAction() when splitter moves
@@ -211,6 +211,5 @@
         }
       }); // Polymer()
     })();
-
   </script>
 </polymer-element>
