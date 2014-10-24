@@ -161,7 +161,7 @@
 
         if (self.sectionIndex[self.currentPageNo] != null) {
           // transition to the already cached content
-          self.fire('getkeywords', { pageId: self.currentPageNo });
+          self.fire('getkeywords', { contextId: self.currentPageNo });
         } else {
           //get the keywords and images for the new page
           getCurrentPage(self);
@@ -182,7 +182,7 @@
           lines[i].parentNode.setAttributeNode(lineIdAtt);
           self.fire('lineadd',
             {
-              pageId: self.currentPageNo,
+              contextId: self.currentPageNo,
               lineId: self.numLines,
               text: lines[i].innerText
             }
@@ -191,7 +191,7 @@
           self.numLines++;
         }
 
-        self.fire('getkeywords', { pageId: self.currentPageNo });
+        self.fire('getkeywords', { contextId: self.currentPageNo });
       };
 
       /**

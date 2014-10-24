@@ -31,12 +31,12 @@ var createLine = function (lineId, lineText) {
   };
 };
 
-var pages = [];
+var contexts = {};
 
-var createPage = function (pageId) {
+var createContext = function (contextId) {
   return{
     lines: [],
-    id: pageId,
+    id: contextId,
     graph: null,
     keywords: null,
     ranges: null,
@@ -75,21 +75,21 @@ this.onmessage = function (event) {
         break;
       }
 
-      if (typeof pages[message.data.pageId] === 'undefined') {
-        pages[message.data.pageId] = createPage(message.data.pageId);
-        pages[message.data.pageId].graph =
+      if (typeof contexts[message.data.contextId] === 'undefined') {
+        contexts[message.data.contextId] = createContext(message.data.contextId);
+        contexts[message.data.contextId].graph =
               libnlp.keyphrase_extractor.getGraph();
       }
 
       var re = new RegExp(String.fromCharCode(160), "g");
       var text = message.data.text.replace(re,' ');
 
-      pages[message.data.pageId].lines[pages[message.data.pageId].lines.length] =
+      contexts[message.data.contextId].lines[contexts[message.data.contextId].lines.length] =
       createLine(message.data.lineId, text);
 
       text = text.replace(/\[\w+\]/g, '');
 
-      libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
+      libnlp.keyphrase_extractor.setGraph(contexts[message.data.contextId].graph);
       libnlp.keyphrase_extractor.addText(text);
 
       break;
@@ -99,16 +99,16 @@ this.onmessage = function (event) {
         break;
       }
 
-      if (pages[message.data.pageId].keywords !== null) {
+      if (contexts[message.data.contextId].keywords !== null) {
         postMessage(eventPageMessage("keywordlist", {
-          keywords: pages[message.data.pageId].keywords,
-          ranges: pages[message.data.pageId].ranges
+          keywords: contexts[message.data.contextId].keywords,
+          ranges: contexts[message.data.contextId].ranges
         }));
 
         break;
       }
 
-      libnlp.keyphrase_extractor.setGraph(pages[message.data.pageId].graph);
+      libnlp.keyphrase_extractor.setGraph(contexts[message.data.contextId].graph);
       var result = libnlp.keyphrase_extractor.score();
       var keywords = [];
       var ranges = [];
@@ -135,17 +135,17 @@ this.onmessage = function (event) {
           groupId: index
         };
 
-        for (j = 0; j < pages[message.data.pageId].lines.length; j++) {
-          var lineId = pages[message.data.pageId].lines[j].id;
+        for (j = 0; j < contexts[message.data.contextId].lines.length; j++) {
+          var lineId = contexts[message.data.contextId].lines[j].id;
           var prevLineId;
-          var lineText = pages[message.data.pageId].lines[j].text;
+          var lineText = contexts[message.data.contextId].lines[j].text;
           var totalText = lineText;
           var lineStart = 0;
 
           if (j > 0) {
-            prevLineId = pages[message.data.pageId].lines[j - 1].id;
-            totalText = pages[message.data.pageId].lines[j - 1].text + lineText;
-            lineStart = pages[message.data.pageId].lines[j - 1].text.length;
+            prevLineId = contexts[message.data.contextId].lines[j - 1].id;
+            totalText = contexts[message.data.contextId].lines[j - 1].text + lineText;
+            lineStart = contexts[message.data.contextId].lines[j - 1].text.length;
           }
 
           var regex = new RegExp(escapeRegExp(keyphrase), "gi");
@@ -189,9 +189,9 @@ this.onmessage = function (event) {
           groupId: index
         };
 
-        for (j = 0; j < pages[message.data.pageId].lines.length; j++) {
-          var lineId = pages[message.data.pageId].lines[j].id;
-          var lineText = pages[message.data.pageId].lines[j].text;
+        for (j = 0; j < contexts[message.data.contextId].lines.length; j++) {
+          var lineId = contexts[message.data.contextId].lines[j].id;
+          var lineText = contexts[message.data.contextId].lines[j].text;
 
           var regex = new RegExp(escapeRegExp(keyword), "gi");
           while ((search = regex.exec(lineText))) {
@@ -210,8 +210,8 @@ this.onmessage = function (event) {
         }
       }
 
-      pages[message.data.pageId].keywords = keywords;
-      pages[message.data.pageId].ranges = ranges;
+      contexts[message.data.contextId].keywords = keywords;
+      contexts[message.data.contextId].ranges = ranges;
 
       postMessage(eventPageMessage("keywordlist", {
         keywords: keywords,
