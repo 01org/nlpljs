@@ -1,0 +1,58 @@
+<link rel="import" href="../../app/content-push/cp-swapper.html">
+
+<!--
+test basic swapper with one sliding element
+-->
+<polymer-element name="cp-swapper-test">
+  <template>
+    <style>
+      cp-swapper {
+        height: 100px;
+        width: 200px;
+      }
+
+      [swapper-fix] {
+        background-color: blue;
+        color: white;
+      }
+
+      [swapper-slide] {
+        background-color: red;
+        color: white;
+      }
+    </style>
+
+    <p>Test the display/detail swapper.</p>
+
+    <cp-swapper id="swapper">
+      <div swapper-fix>Hello world</div>
+      <div swapper-slide swap-id="detail">Detail</div>
+    </cp-swapper>
+  </template>
+
+  <script>
+    Polymer({
+      slideInOut: function () {
+        var self = this;
+
+        setTimeout(function () {
+          self.$.swapper.slideIn();
+
+          setTimeout(function () {
+            self.$.swapper.slideOut();
+          }, 1000);
+        }, 1000);
+      },
+
+      domReady: function () {
+        var self = this;
+
+        this.slideInOut();
+
+        setInterval(function () {
+          self.slideInOut();
+        }, 2000);
+      }
+    });
+  </script>
+</polymer-element>

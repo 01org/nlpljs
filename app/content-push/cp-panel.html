@@ -4,8 +4,6 @@
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/core-meta/core-meta.html">
-<link rel="import" href="../bower_components/core-transition/core-transition-css.html">
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-image-detail.html">
@@ -149,26 +147,6 @@
         // functions and properties used in API and bindings
         created: function () {
           this.keywordInfo = null;
-        },
-
-        domReady: function () {
-          /* set up transition */
-          var meta = document.createElement('core-meta');
-          meta.type = 'transition';
-
-          this.transition = meta.byId('core-transition-right');
-          this.transition.setup(this.$.detail);
-        },
-
-        showDetail: function (e) {
-          var tileToShow = e.detail;
-          this.transition.go(this.$.detail, {opened: true});
-          console.log('open');
-        },
-
-        closeDetail: function () {
-          this.transition.go(this.$.detail, {opened: false});
-          console.log('close');
         },
 
         // called from content-push.html:trackAction() when splitter moves
