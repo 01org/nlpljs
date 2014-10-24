@@ -15,6 +15,18 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
          see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
       var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
 
+      /* format Wikipedia date in format "YYYY:MM:DD"
+         to "YYYY-MM-DD" */
+      var DATE_REGEX = /^(\d{4}:\d{2}:\d{2})(.*)$/;
+
+      var formatDate = function (datetime) {
+        var dateMatch = datetime.match(DATE_REGEX);
+        if (dateMatch) {
+          datetime = dateMatch[1].replace(/:/g, '-') + dateMatch[2];
+        }
+        return datetime;
+      };
+
       /* declare the element */
       Polymer({
         created: function () {
@@ -71,6 +83,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             for (var k in pages) {
               if (pages.hasOwnProperty(k)) {
                 var data = pages[k].imageinfo[0];
+                var meta = data.extmetadata;
 
                 var thumbnailSrc = RESIZER_BASE_URL +
                     '?container=focus&' +
@@ -84,9 +97,15 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                   width: data.width,
                   height: data.height,
                   type: 'image',
-                  caption: data.extmetadata.ObjectName.value,
+                  caption: (meta.ObjectName ? meta.ObjectName.value : ''),
                   source: data.descriptionurl,
-                  meta: pages[k].imageinfo[0]
+                  meta: {
+                    ExifVersion: (meta.ExifVersion ?
+                                      meta.ExifVersion.value : null),
+                    DateTime: (meta.DateTime ?
+                                  formatDate(meta.DateTime.value) : null),
+                    Camera: (meta.Model ? meta.Model.value.trim() : null)
+                  }
                 });
               }
             }
