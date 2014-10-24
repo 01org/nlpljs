@@ -52,6 +52,7 @@
     var html = document.createElement('html');
     var head = document.createElement('head');
     var body = document.createElement('body');
+    body.setAttribute('unresolved', '');
 
     var base = document.createElement('base');
     base.setAttribute('href',extensionUrl);
@@ -79,6 +80,7 @@
 
     var cpMain = document.createElement('cp-main');
     cpMain.setAttribute("iframeurl", currentTabUrl);
+    cpMain.setAttribute('fit', '');
     cpMain.addEventListener('lineadd', function (e) {
       port.postMessage(eventPageMessage('lineadd', e.detail));
     });
