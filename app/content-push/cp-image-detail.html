@@ -60,7 +60,8 @@
 
     <div id="container">
       <div id="back">
-        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true">
+        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                   on-click="{{onBackButtonClick}}">
         </paper-fab>
       </div>
 
@@ -79,7 +80,7 @@
       <h4 id="imgSource" data-show="{{source}}">{{source}}</h4>
 
       <div id="visitSrc" data-show="{{source}}">
-        <paper-button raised class="colored" on-click={{visitWebpage}}>
+        <paper-button raised class="colored" on-click="{{visitWebpage}}">
           Visit web page &gt;
         </paper-button>
       </div>
@@ -121,6 +122,10 @@
           this.width = this.$.image.width;
           this.height = this.$.image.height;
           this.loaded = true;
+        },
+
+        onBackButtonClick: function () {
+          this.fire('back');
         },
 
         visitWebpage: function () {
