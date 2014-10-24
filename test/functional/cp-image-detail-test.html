@@ -1,0 +1,40 @@
+<link rel="import" href="../../app/content-push/cp-image-detail.html">
+
+<!--
+Test for image-detail; Creates a image-detail panel and adds a random image with some info to it.
+-->
+<polymer-element name="cp-image-detail-test">
+  <template>
+    <!-- make the card span a percentage of the window to check centering -->
+    <style>
+      #container {
+        width: 300px;
+        background-color: #F0F0F0;
+        margin-left: auto;
+        margin-right: auto;
+        height: 100%;
+      }
+    </style>
+
+    <p>
+      Create a cp-image-detail with 1 random image inside it; fills 50% of
+      screen to check for centering of image inside.
+    </p>
+    <div id="container">
+    <cp-image-detail id="detail"></cp-image-detail>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        // add a random image with URL from lorempixel
+        this.$.detail.src = makeImageUrl(800, 600);
+        this.$.detail.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
+        this.$.detail.source = 'http://flickr.com/';
+      }
+    });
+  </script>
+</polymer-element>

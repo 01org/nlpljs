@@ -1,0 +1,242 @@
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+
+<polymer-element name="cp-image-detail" attributes="src caption source">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      core-collapse {
+        display: block;
+      }
+
+      #container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      #container > * {
+        margin-top: 10px;
+        margin-left: 5%;
+        position: relative;
+        overflow: hidden;
+        width: 90%;
+        color: black;
+        text-align: left;
+      }
+
+      #back {
+        padding: 5px 3px;
+      }
+
+      #imgContainer {
+        max-height: 50%;
+      }
+
+      #image {
+        width: 100%;
+        height: auto;
+      }
+
+      #backbutton {
+         background-color: #4CA8B4;
+         margin-left: 0;
+      }
+
+      #visitSrc {
+        margin-top: 10px;
+        padding-bottom: 5px;
+        text-align: right !important;
+        color: #4CA8B4;
+      }
+
+      #exifTitle {
+        display: inline;
+      }
+
+      #exifToggle {
+        float: right;
+      }
+
+      paper-button[raised].colored {
+        background: #4285f4;
+        color: #fff;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <div id="container">
+      <div id="back">
+        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                   on-click="{{onBackButtonClick}}">
+        </paper-fab>
+      </div>
+
+      <div id="imgContainer" data-show="{{loaded}}">
+        <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+      </div>
+
+      <h3 id="caption" data-show="{{caption}}">
+        <caption>{{caption|stripHTMLTags}}</caption>
+      </h3>
+
+      <h4 id="imgSize" data-show="{{width > 0 && height > 0}}">
+        {{width}}x{{height}}
+      </h4>
+
+      <h4 id="imgSource" data-show="{{source}}">{{source|getDomainFromURL}}</h4>
+
+      <div id="visitSrc" data-show="{{source}}">
+        <paper-button raised class="colored" on-click="{{visitWebpage}}">
+          Visit web page &gt;
+        </paper-button>
+      </div>
+
+      <div id="exif" data-show="{{hasEXIF}}">
+        <hr>
+        <div id="exifHeader">
+          <h4 id="exifTitle">Image info</h4>
+          <core-icon id="exifToggle" on-click="{{exifToggle}}"
+                     icon="expand-more">
+          </core-icon>
+        </div>
+
+        <core-collapse id="exifDropdown">
+          <p data-show="{{meta.Camera}}">
+            <strong>Camera:</strong> {{meta.Camera}}
+          </p>
+
+          <p data-show="{{meta.DateTime}}">
+            <strong>Date:</strong> {{meta.DateTime}}
+          </p>
+        </core-collapse>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      /* time out for image load fail */
+      var TIMEOUT = 5000;
+
+      /* regexp for HTML tags */
+      var HTML_TAG_REGEX = new RegExp('<\/?[^<>]+?\/?>', 'gm');
+
+      /* regexp to retrieve the domain from a URL */
+      var DOMAIN_REGEX = new RegExp('http[s]?:\/\/([^\/]+)\/');
+
+      Polymer({
+        /* source URL of the image itself */
+        src: null,
+
+        /* text describing the image */
+        caption: null,
+
+        /* where the image came from */
+        source: null,
+
+        /* image metadata */
+        meta: null,
+
+        /* true if the loaded image has EXIF metadata */
+        hasEXIF: null,
+
+        created: function () {
+          this.width = null;
+          this.height = null;
+          this.loaded = false;
+          this.meta = {};
+          this.hasEXIF = false;
+        },
+
+        /* clean HTML tags out of the caption */
+        stripHTMLTags: function (caption) {
+          if (caption) {
+            return caption.replace(HTML_TAG_REGEX, '');
+          } else {
+            return caption;
+          }
+        },
+
+        /* get the domain from a URL */
+        getDomainFromURL: function (source) {
+          if (source) {
+            var matches = DOMAIN_REGEX.exec(source);
+            if (matches) {
+              return matches[1];
+            } else {
+              return source;
+            }
+          } else {
+            return source;
+          }
+        },
+
+        onSrcChanged: function () {
+          var self=this;
+
+          this.loaded = false;
+
+          /* if the image never loads, record the component as ready
+             anyway, to ensure that it will display */
+          setTimeout(function () {
+            self.loaded = true;
+          }, TIMEOUT);
+        },
+
+        onImageLoad: function () {
+          this.loaded = true;
+          this.fire('done');
+        },
+
+        onBackButtonClick: function () {
+          this.fire('back');
+        },
+
+        exifToggle: function () {
+          if (this.$.exifToggle.icon === 'expand-more') {
+            this.$.exifToggle.icon = 'expand-less';
+          } else {
+            this.$.exifToggle.icon = 'expand-more';
+          }
+          this.$.exifDropdown.toggle();
+        },
+
+        visitWebpage: function () {
+          if (this.source) {
+            window.open(this.source, '_blank');
+          }
+        },
+
+        showTile: function (tile) {
+          this.src = tile.image.src;
+          this.caption = tile.image.caption;
+          this.source = tile.image.source;
+          this.meta = tile.image.meta;
+          this.width = tile.image.width;
+          this.height = tile.image.height;
+        },
+
+        /* set visibility of EXIF panel by checking metadata */
+        metaChanged: function () {
+          if (this.meta && this.meta) {
+            this.hasEXIF = !!this.meta.ExifVersion;
+          }
+          else {
+            this.hasEXIF = false;
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

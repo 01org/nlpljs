@@ -17,10 +17,14 @@ test for cp-tile-image metadata
       domReady: function () {
         var imageItemMetaHover = document.createElement('cp-tile-image');
         imageItemMetaHover.src = makeImageUrl(200, 200);
+        imageItemMetaHover.width = 200;
+        imageItemMetaHover.height = 200;
         this.$.container.appendChild(imageItemMetaHover);
 
         var imageItemMetaAlways = document.createElement('cp-tile-image');
         imageItemMetaAlways.src = makeImageUrl(200, 200);
+        imageItemMetaAlways.width = 200;
+        imageItemMetaAlways.height = 200;
         imageItemMetaAlways.revealmeta = 'always';
         this.$.container.appendChild(imageItemMetaAlways);
       }

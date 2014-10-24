@@ -6,6 +6,8 @@
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-display.html">
+<link rel="import" href="./cp-image-detail.html">
+<link rel="import" href="./cp-swapper.html">
 
 <polymer-element name='cp-panel' on-newkeywordinfo='{{onNewKeywordInfo}}'>
   <template>
@@ -57,8 +59,21 @@
         background-color: white;
       }
 
+      #slider {
+        height: 100%;
+      }
+
       core-toolbar paper-tabs {
         box-shadow: none;
+      }
+
+      cp-swapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      cp-image-detail {
+        background-color: white;
       }
 
       #tabs::shadow #selectionBar {
@@ -88,14 +103,23 @@
       </paper-tab>
     </paper-tabs>
 
-    <cp-display id="display"
-                on-moreresults="{{onDisplayMoreResults}}"
-                on-mouse-over="{{onDisplayMouseover}}"
-                on-mouse-out="{{onDisplayMouseout}}">
-    </cp-display>
+    <cp-swapper id="swapper">
+      <cp-display id="display"
+                  on-moreresults="{{onDisplayMoreResults}}"
+                  on-mouse-over="{{onDisplayMouseover}}"
+                  on-mouse-out="{{onDisplayMouseout}}"
+                  on-mouse-down="{{showDetail}}"
+                  swapper-fix>
+      </cp-display>
+
+      <cp-image-detail id="detail" on-back="{{closeDetail}}"
+                       swapper-slide swap-id="detail">
+      </cp-image-detail>
+    </cp-swapper>
 
     <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
   </template>
+
   <script>
     (function cpPanel () {
       // private *static* functions and constants
@@ -144,6 +168,15 @@
           this.$.display.layout();
         },
 
+        showDetail: function (e) {
+          this.$.detail.showTile(e.detail);
+          this.$.swapper.slideIn('detail');
+        },
+
+        closeDetail: function () {
+          this.$.swapper.slideOut('detail');
+        },
+
         // event handlers
 
         /* keywordInfo event occurred on the document */
@@ -179,6 +212,5 @@
         }
       }); // Polymer()
     })();
-
   </script>
 </polymer-element>
