@@ -1,0 +1,345 @@
+<script src="../../app/bower_components/platform/platform.js"></script>
+<link rel='import' href='../../app/bower_components/google-apis/google-apis.html'>
+<link rel='import' href='../../app/content-push/cp-auth.html'>
+
+<polymer-element name='auth-test'>
+  <template>
+    <section>
+      <h5>Google</h5>
+      <button id='google_signin' on-click='{{onGoogleSignInClick}}'>Sign in</button>
+      <template bind='{{results}}'>
+        <h5>List of text/plain files</h5>
+        <p>Number of text/plain files: {{length}}</p>
+        <ol>
+          <template repeat>
+            <li>
+              <h5>{{title}}</h5>
+              <img src='{{iconLink}}'>
+              <pre>{{responseText}}</pre>
+            </li>
+          </template>
+        </ol>
+      </template>
+
+    </section>
+
+    <section>
+      <h5>Facebook</h5>
+      <div id='facebook_user_info'></div>
+      <button id='facebook_signin' style='display:none'>Sign in</button>
+      <button id='facebook_revoke' style='display:none'>Revoke token</button>
+    </section>
+
+    <section id='photos'>
+    </section>
+
+    <cp-auth id='authorizer' on-accesstoken='{{onAccessToken}}'></cp-auth>
+
+    <google-api-loader
+      id='drive'
+      name='drive'
+      appId='{{globals.app_id}}'
+      version='v2'
+      on-google-api-load='{{onDriveLoad}}'
+      on-google-api-load-error='{{onDriveLoadError}}'>
+    </google-api-loader>
+  </template>
+
+  <script>
+  (function authTest() {
+    var SCOPES = [
+      "https://www.googleapis.com/auth/drive"
+    ];
+
+    /*
+      google apis - can specify scope in the first parameter, or just use the ones in the manifest
+      chrome.identity.getAuthToken({'interactive': true}, function(token) {
+        console.log(token);
+      });
+    */
+
+    var self = null;
+    var tokenFetcher = null;
+
+    var User = {
+      id:'',
+      firstname:'',
+      familyname:'',
+      email:''
+    };
+
+    var xhrWithAuth = function (method, url, interactive, callback) {
+      var retry = true;
+      //getToken();
+      requestStart(self);
+
+      function getToken() {
+        getTokenFromAuthorizer(function(token) {
+          self.access_token = token;
+          requestStart(self);
+        });
+      }
+
+      function requestStart(self) {
+        console.log('AT:requestStart:self.access_token:',self.access_token);
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + self.access_token);
+        xhr.onload = requestComplete;
+        xhr.send();
+      }
+
+      function requestComplete() {
+        if (this.status != 200 && retry) {
+          retry = false;
+          removeCachedTokenFromAuthorizer(self.access_token);
+          self.access_token = null;
+          getToken();
+        } else {
+          callback(this.status, this.response);
+        }
+      }
+    };
+
+    var getAlbum = function (interactive,album) {
+      xhrWithAuth('GET',
+                  'https://graph.facebook.com/v2.1/'+album.id+'/photos?access_token='+self.access_token,
+                  interactive,
+                  onAlbumFetched);
+    };
+
+    var getAlbums = function (interactive) {
+      xhrWithAuth('GET',
+                  'https://graph.facebook.com/v2.1/me/albums?access_token='+self.access_token,
+                  interactive,
+                  onAlbumsFetched);
+    };
+
+    var getUserInfo = function (interactive) {
+      xhrWithAuth('GET',
+                  'https://graph.facebook.com/me?access_token='+self.access_token,
+                  interactive,
+                  onUserInfoFetched);
+    };
+
+    // Functions updating the User Interface:
+
+    var showButton = function (button) {
+      button.style.display = 'inline';
+      button.disabled = false;
+    };
+
+    var hideButton = function (button) {
+      button.style.display = 'none';
+    };
+
+    var disableButton = function (button) {
+      button.disabled = true;
+    };
+
+    var onAlbumFetched = function (status, response) {
+      if (status == 200) {
+        var album = JSON.parse(response);
+        console.log('album:',album);
+        for(var i=0;i<album.data.length;i++) {
+          var thisImage=album.data[i].images[0].source
+          var img=document.createElement('img');
+          img.src=thisImage;
+          self.$.photos.appendChild(img);
+        }
+      } else {
+        showButton(self.$.facebook_signin);
+      }
+    };
+
+    var onAlbumsFetched = function (status, response) {
+      if (status == 200) {
+        var albums = JSON.parse(response);
+        for(var i=0;i<albums.data.length;i++) {
+          var album=albums.data[i];
+          getAlbum(true,album);
+        }
+        console.log('albums:',albums);
+      } else {
+        showButton(self.$.facebook_signin);
+      }
+    };
+
+    var onUserInfoFetched = function (status, response) {
+      if (status == 200) {
+        var user_info = JSON.parse(response);
+        // console.log("Got the following user info: " + response);
+        User.id = user_info.id;
+        User.firstname = user_info.first_name;
+        User.familyname = user_info.last_name;
+        User.email = user_info.email;
+        console.log(User);
+        self.$.facebook_user_info.innerHTML = 
+        "<b>Hello " + User.firstname + " " + User.familyname + "</b><br>"
+              + "Your email is: " + User.email + "</b><br>" + 
+              "Link to your Facebook page is:" + user_info.link;
+        hideButton(self.$.facebook_signin);
+        getAlbums(true);
+      } else {
+        showButton(self.$.facebook_signin);
+      }
+    };
+
+    var removeCachedTokenFromAuthorizer = function (token) {
+      self.$.authorizer.clearCachedToken(token);
+    };
+
+    var getTokenFromAuthorizer = function (callback) {
+      console.log('AT:getTokenFromAuthorizer');
+
+      self.callback = callback;
+
+      self.$.authorizer.getToken('facebook');
+    };
+
+    var interactiveSignIn = function () {
+      disableButton(self.$.facebook_signin);
+      getTokenFromAuthorizer(function(token) {
+        console.log('AT:got token:',token);
+        self.access_token = token;
+        getUserInfo(true);
+      });
+    };
+
+    // function revokeToken() {
+      // We are opening the web page that allows user to revoke their token.
+      // window.open('https://github.com/settings/applications');
+      // self.$.facebook_user_info.textContent = '';
+      // hideButton(self.$.facebook_revoke);
+      // showButton(self.$.facebook_signin);
+    // }
+
+    var onload = function () {
+      self.$.facebook_signin.addEventListener('click',function() {
+        console.log('AT:signin clicked');
+        interactiveSignIn();
+      });
+
+
+      // self.$.facebook_revoke.addEventListener('click',function() {
+      //   revokeToken();
+      // });
+      // console.log(self.$.facebook_signin, self.$.facebook_revoke, self.$.facebook_user_info);
+      showButton(self.$.facebook_signin);
+      // getUserInfo(false);
+    };
+
+    /**
+     * Retrieve a list of File resources.
+     *
+     * @param {Function} callback Function to call when the request is complete.
+     */
+    var retrieveAllFiles = function (self,callback) {
+      var retrievePageOfFiles = function(request, result) {
+        request.execute(function(resp) {
+          result = result.concat(resp.items);
+          var nextPageToken = resp.nextPageToken;
+          if (nextPageToken) {
+            request = gapi.client.drive.files.list({
+              'pageToken': nextPageToken
+            });
+            retrievePageOfFiles(request, result);
+          } else {
+            callback(result);
+          }
+        });
+      }
+      var initialRequest = self.$.drive.api.files.list();
+      retrievePageOfFiles(initialRequest, []);
+    };
+
+    /**
+     * Download a file's content.
+     *
+     * @param {File} file Drive File instance.
+     * @param {Function} callback Function to call when the request is complete.
+     */
+    function downloadFile(file, callback) {
+      if (file.downloadUrl) {
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', file.downloadUrl);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+          callback(xhr.responseText);
+        };
+        xhr.onerror = function() {
+          callback(null);
+        };
+        xhr.send();
+      } else {
+        callback(null);
+      }
+    }
+
+    function makeDisplayResultFunction(self,thisResult) {
+      return function(responseText) {
+        self.results.push({
+            title: thisResult.title,
+            iconLink: thisResult.iconLink,
+            responseText: responseText
+        });
+      }
+    }
+
+    Polymer({
+
+      created: function() {
+        self = this;
+        this.callback = function() {
+          console.log('AT:this should not be called');
+        };
+        this.access_token = null;
+        this.results = [];
+      },
+
+      ready: function() {
+        onload();
+      },
+
+      onGoogleSignInClick: function () {
+        this.callback=null; // we have nothing to do yet
+        this.$.authorizer.getToken('google');
+      },
+
+      onAccessToken: function (e) {
+        var self=this;
+        var token=e.detail.token;
+        this.access_token=token;
+        console.log('AT:received "accesstoken":',e.detail);
+
+        if (e.detail.service==='google') {
+          this.$.drive.auth.setToken({access_token:token});
+
+          console.log('CP-AUTH:onDriveLoad:',event);
+          retrieveAllFiles(self,function (results) {
+            console.log('CP-AUTH:RESULT:',results);
+            for (i=0;i<results.length;i++) {
+              var thisResult=results[i];
+              if (thisResult.mimeType === 'text/plain') {
+                downloadFile(thisResult,makeDisplayResultFunction(self,thisResult));
+              }
+            }
+          });
+        };
+
+        // go get some images
+        if (this.callback) {
+          this.callback(token);
+        }
+      },
+
+      onDriveLoadError: function (event) {
+        console.log('CP-AUTH:onDriveLoadError:',event);
+      },
+
+    }); // Polymer()
+  })();
+
+  </script>
+</polymer-element>

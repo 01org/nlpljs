@@ -18,7 +18,8 @@
     "lodash": "~2.4.1",
     "paper-spinner": "https://github.com/PolymerLabs/paper-spinner.git",
     "paper-slider": "Polymer/paper-slider#~0.4.2",
-    "paper-menu-button": "Polymer/paper-menu-button#~0.4.2"
+    "paper-menu-button": "Polymer/paper-menu-button#~0.4.2",
+    "google-apis": "GoogleWebComponents/google-apis#~0.3.3"
   },
   "devDependencies": {},
   "resolutions": {

@@ -13,6 +13,44 @@
  * removeCachedToken(token): remove token from cache
  */
 
+epAuth.google = (function () {
+  var cache = {
+    access_token: null
+  };
+
+  function getToken (sendResponse) {
+    // id in the manifest.json file
+    chrome.identity.getAuthToken({interactive:true},function(token) {
+      setAccessToken(token);
+    });
+
+    function setAccessToken (token) {
+      cache.access_token = token;
+      var message = {
+        component:'auth',
+        type:'accesstoken',
+        service:'google',
+        token:token
+      };
+      console.log('EP-AUTH:sending message:',message);
+      sendResponse(message);
+    };
+
+    return true; // response sent asynchronously
+  };
+
+  var removeCachedToken = function (token_to_remove) {
+    if (cache.access_token === token_to_remove) {
+      cache.access_token = null;
+    }
+  };
+
+  return {
+    getToken: getToken,
+    removeCachedToken: removeCachedToken
+  };
+})();
+
 epAuth.facebook = (function () {
   var cache = {
     access_token: null
