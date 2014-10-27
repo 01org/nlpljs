@@ -172,6 +172,14 @@
       };
 
       var highlightRange = function (self,rangeToHighlight) {
+        /*
+          TODO: this function was originally written to work on line numbers,
+          which were obtained by simply indexing into querySelectorAll() results,
+          So start and end contain a property called 'lineNo'.
+          However, functionality was changed so that lineNo actually is a
+          reference to a 'cp_line_id' attribute on each line.
+          We should change the 'lineNo' property to be 'lineId'.
+        */
         var start=rangeToHighlight.start;
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
@@ -285,15 +293,20 @@
         if (end.lineNo !== start.lineNo) {
           // # process intermediate lines
 
+          /*
+            TODO: the following two lines look wrong because {start,end}.lineNo
+            actually refer to lineIds, so we need to dereference them
+            in the lineIds array to find real lineNos
+          */
           var startIndex = self.lineIds.indexOf(start.lineNo);
           var endIndex = self.lineIds.indexOf(end.lineNo);
 
-          // 7.1 loop over intermediate lines ie lineNo=startLine+1;lineNo<endLine;lineNo++
+          // 7.1 loop over intermediate lines
           for (var lineNo=startIndex+1;lineNo<endIndex;++lineNo) {
             // 7.2.1 get line object
             var thisLine=getLine(self, self.lineIds[lineNo]);
 
-            // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
+            // 7.2.2 replace all >(*)< with >hl.open(groupId).*.hl.close()<
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
               />([^<]+)</g,
               [
