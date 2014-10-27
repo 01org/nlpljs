@@ -36,6 +36,7 @@ var contexts = {};
 var createContext = function (contextId) {
   return{
     lines: [],
+    lineIds: [],
     id: contextId,
     graph: null,
     keywords: null,
@@ -75,21 +76,25 @@ this.onmessage = function (event) {
         break;
       }
 
-      if (typeof contexts[message.data.contextId] === 'undefined') {
-        contexts[message.data.contextId] = createContext(message.data.contextId);
-        contexts[message.data.contextId].graph =
-              libnlp.keyphrase_extractor.getGraph();
+      var context = contexts[message.data.contextId];
+
+      if (typeof context === 'undefined') {
+        context = createContext(message.data.contextId);
+        context.graph = libnlp.keyphrase_extractor.getGraph();
+        contexts[message.data.contextId] = context;
       }
 
       var re = new RegExp(String.fromCharCode(160), "g");
       var text = message.data.text.replace(re,' ');
 
-      contexts[message.data.contextId].lines[contexts[message.data.contextId].lines.length] =
-      createLine(message.data.lineId, text);
+      context.lines[context.lines.length] =
+        createLine(message.data.lineId, text);
+
+      context.lineIds[context.lineIds.length] = message.data.lineId;
 
       text = text.replace(/\[\w+\]/g, '');
 
-      libnlp.keyphrase_extractor.setGraph(contexts[message.data.contextId].graph);
+      libnlp.keyphrase_extractor.setGraph(context.graph);
       libnlp.keyphrase_extractor.addText(text);
 
       break;

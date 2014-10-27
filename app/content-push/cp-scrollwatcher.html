@@ -4,6 +4,7 @@
     (function () {
       var scrollableNode;
       var targetNodes = [];
+      var targetAttributes = [];
       var timeout = 500;
       var scrollTimer;
 
@@ -40,23 +41,30 @@
         setScrollableNode: function (node) {
           scrollableNode = node;
         },
-        addOnScrollListener: function (listener) {
+        addOnScrollListener: function (listener, data) {
           var onScroll = function () {
             clearTimeout(scrollTimer);
             scrollTimer = setTimeout(function () {
               var visibleNodes = [];
-              var hiddenNodes = [];
+              var visibleId = '';
 
               if (typeof targetNodes !== 'undefined') {
                 for (var i = 0; i < targetNodes.length; i++) {
-                  if (isNodeVisible(targetNodes[i]))
+                  if (isNodeVisible(targetNodes[i])) {
                     visibleNodes[visibleNodes.length] = targetNodes[i];
-                  else
-                    hiddenNodes[hiddenNodes.length] = targetNodes[i];
+                    for (var j = 0; j < targetAttributes.length; j++) {
+                      if (targetNodes[i].hasAttribute(targetAttributes[j])) {
+                        visibleId +=
+                          targetNodes[i].getAttribute(targetAttributes[j]);
+                        if (i < targetNodes.length - 1)
+                          visibleId += ' ';
+                      }
+                    }
+                  }
                 }
               }
 
-              listener(visibleNodes, hiddenNodes);
+              listener(visibleNodes, visibleId, data);
             }, timeout);
           };
 
@@ -68,8 +76,41 @@
           window.addEventListener('scroll', onScroll, false); 
           window.addEventListener('resize', onScroll, false);
         },
+        performImmediateVisibilityCheck: function (callback, data) {
+          var visibleNodes = [];
+          var visibleId = '';
+
+          if (typeof targetNodes !== 'undefined') {
+            for (var i = 0; i < targetNodes.length; i++) {
+              if (isNodeVisible(targetNodes[i])) {
+                visibleNodes[visibleNodes.length] = targetNodes[i];
+                for (var j = 0; j < targetAttributes.length; j++) {
+                  if (targetNodes[i].hasAttribute(targetAttributes[j])) {
+                    visibleId +=
+                     targetNodes[i].getAttribute(targetAttributes[j]);
+                    if (i < targetNodes.length - 1)
+                      visibleId += ' ';
+                  }
+                }
+              }
+            }
+          }
+
+          callback(visibleNodes, visibleId, data);
+        },
+        addTargetAttribute: function (targetAttribute) {
+          targetAttributes[targetAttributes.length] = targetAttribute;
+        },
         addTargetNode: function (targetNode) {
           targetNodes[targetNodes.length] = targetNode;
+        },
+        removeTargetAttribute: function (targetAttribute) {
+          var index = targetAttributes.indexOf(targetAttribute);
+          targetAttributes.splice(index, 1);
+        },
+        removeTargetNode: function (targetNode) {
+          var index = targetNodes.indexOf(targetNode);
+          targetNodes.splice(index, 1);
         },
         setScrollTimeout: function (scrollTimeout) {
           timeout = scrollTimeout;
