@@ -153,6 +153,11 @@ pushing new tiles into the wrapped layout
          */
         setFilter: function (criteria) {
           var self = this;
+
+          if (!criteria.keywordInfo) {
+            return;
+          }
+
           var keyphrase = criteria.keywordInfo.keywords[0];
           var activeKeywordText = keyphrase.text;
 

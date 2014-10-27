@@ -30,6 +30,11 @@
       #toolbartext {
         color: #FFFFFF;
         -webkit-user-select: none;
+        font-size: 0.5em;
+      }
+
+      #toolbaricon {
+        margin-right: 0;
       }
 
       #toolbaraction {
@@ -67,8 +72,17 @@
         background-color: #4CA8B4;
       }
 
-      #menu::shadow core-icon {
+      #menu {
+        padding: 0;
+        margin-left: 0;
+      }
+
+      #menu::shadow core-icon, core-icon {
         color: white;
+      }
+
+      [data-show="false"] {
+        display: none;
       }
     </style>
 
@@ -84,13 +98,14 @@
                     data-type-filter="file"></paper-item>
         <paper-item icon="av:movie" label="Videos"
                     data-type-filter="video"></paper-item>
-        <paper-item icon="folder" label="Quotations+Images"
+        <paper-item icon="folder" label="Text+Images"
                     data-type-filter="quotation,image"></paper-item>
         <paper-item icon="apps" label="All"
                     data-type-filter="no-filter"></paper-item>
       </paper-menu-button>
 
-      <paper-item id="toolbartext" icon="" label="Content Push" flex></paper-item>
+      <core-icon id="toolbaricon" icon="" data-show="false"></core-icon>
+      <span id="toolbartext" flex>Content Push</span>
 
       <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
     </core-toolbar>
@@ -203,12 +218,14 @@
           /* switch title bar text based on menu item selection */
           if (typeFilter === 'no-filter') {
             this.typeFilter = [];
-            this.$.toolbartext.icon = '';
-            this.$.toolbartext.label = 'Content Push';
+            this.$.toolbaricon.icon = '';
+            this.$.toolbaricon.setAttribute('data-show', 'false');
+            this.$.toolbartext.innerHTML = 'Content Push';
           } else {
             this.typeFilter = typeFilter.split(',');
-            this.$.toolbartext.icon = elt.icon;
-            this.$.toolbartext.label = elt.label;
+            this.$.toolbaricon.icon = elt.icon;
+            this.$.toolbaricon.setAttribute('data-show', 'true');
+            this.$.toolbartext.innerHTML = elt.label;
           }
 
           setFilter(this);
