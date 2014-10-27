@@ -194,15 +194,21 @@
         applyTypeFilter: function (e) {
           /* only respond to events on elements with a data-type-filter
              attribute */
-          var typeFilter = e.toElement.getAttribute('data-type-filter');
+          var elt = e.toElement;
+          var typeFilter = elt.getAttribute('data-type-filter');
           if (!typeFilter) {
             return;
           }
 
+          /* switch title bar text based on menu item selection */
           if (typeFilter === 'no-filter') {
             this.typeFilter = [];
+            this.$.toolbartext.icon = '';
+            this.$.toolbartext.label = 'Content Push';
           } else {
             this.typeFilter = typeFilter.split(',');
+            this.$.toolbartext.icon = elt.icon;
+            this.$.toolbartext.label = elt.label;
           }
 
           setFilter(this);
