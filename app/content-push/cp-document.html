@@ -32,12 +32,13 @@
     </style>
     <iframe id="iframe"></iframe>
     <cp-keyword-highlighter id='highlighter'></cp-keyword-highlighter>
+    <cp-scrollwatcher id='scrollwatcher'></cp-scrollwatcher>
   </template>
   <script>
     (function cpDocument () {
       // private *static* functions and constants
-      var LINE_CLASS = 'kix-lineview';
-      var LINE_CONTENT_SELECTOR = '.kix-lineview-content';
+      var LINE_CLASS = 'kix-lineview';        /* Handle to the current Page */
+      var LINE_SELECTOR = '.kix-lineview';
       var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
 
       /**
@@ -64,7 +65,7 @@
         return retVal;
       };
 
-      var observeDocumentChanges = function (self, callBack) {
+      var observeDocumentChanges = function (self) {
         var observer = new MutationObserver(function (mutations,observerInstance) {
           for (var i = 0; i < mutations.length; i++) {
             var mutation = mutations[i];
@@ -100,6 +101,8 @@
 
                       lineIdAtt.value = self.numLines;
                       thisNode.setAttributeNode(lineIdAtt);
+
+                      self.$.scrollwatcher.addTargetNode(thisNode);
                       self.numLines++;
                     }
                   }
@@ -122,76 +125,66 @@
       };
 
       var handleIframeLoad = function (self){
+        var lines =
+          self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
+
         self.editor =
           self.$.iframe.contentDocument.querySelector(SCROLLING_ELEMENT_SELECTOR);
 
-        self.editor.onscroll = function () {
-          handleScroll(self);
-        };
-
         self.$.highlighter.targetElement = self.$.iframe.contentDocument;
 
-        getCurrentPage(self);
-      };
+        self.$.scrollwatcher.setScrollableNode(self.editor);
+        self.$.scrollwatcher.addOnScrollListener(scrollStop, self);
 
-      var setSection = function (self) {
-        self.sectionIndex[self.currentPageNo] = self.sectionCount;
-        self.sectionCount++;
-      };
+        for (var i = 0; i < lines.length; i++) {
+          addIdToLine(lines[i], self.numLines);
+          self.numLines++;
 
-      /**
-       * When the user scrolls the document onScroll is triggered. But we are interested in
-       * an event when the scroll stops. Add a timeout to onScroll, which triggers after 500ms
-       * If the event triggers, the user has stopped scrolling.
-       */
-      var handleScroll = function (self){
-        clearTimeout(self.scrollTimer);
-        self.scrollTimer = setTimeout(function () {
-          scrollStop(self);
-        }, 500);
-      };
-
-      var scrollStop = function (self) {
-        var currentPageNo = parseInt((self.editor.scrollTop/1056).toString().split('.')[0]);
-        /* Scrolling on the same page */
-        if (self.currentPageNo == (currentPageNo+1))
-          return;
-
-        self.currentPageNo = currentPageNo+1; //querySelector starts from 1. Hence add 1.
-
-        if (self.sectionIndex[self.currentPageNo] != null) {
-          // transition to the already cached content
-          self.fire('getkeywords', { pageId: self.currentPageNo });
-        } else {
-          //get the keywords and images for the new page
-          getCurrentPage(self);
+          self.$.scrollwatcher.addTargetNode(lines[i]);
         }
+
+        self.$.scrollwatcher.addTargetAttribute('cp_line_id');
+        self.$.scrollwatcher.performImmediateVisibilityCheck(scrollStop, self);
+
+        observeDocumentChanges(self);
       };
 
-      var getCurrentPage = function (self) {
-        /* Handle to the current Page */
-        var lines =
-          self.$.iframe.contentDocument.querySelectorAll(LINE_CONTENT_SELECTOR);
+      var scrollStop = function (context, contextId, self) {
+        getContext(self, contextId, context);
+      };
+
+      var addIdToLine = function (line, value) {
+        var lineIdAtt = document.createAttribute('cp_line_id');
+
+        lineIdAtt.value = value;
+        line.setAttributeNode(lineIdAtt);
+      };
+
+      var getContext = function (self, contextId, context) {
+        if (self.contextIds.indexOf(contextId) !== -1) {
+          self.fire('getkeywords', { contextId: contextId });
+          return;
+        }
 
         self.fire('resetextractor', null);
 
-        for (i = self.numLines; i < lines.length; i++) {
-          var lineIdAtt = document.createAttribute('cp_line_id');
-          lineIdAtt.value = self.numLines;
+        for (var i = 0; i < context.length; i++) {
+          var lineId;
 
-          lines[i].parentNode.setAttributeNode(lineIdAtt);
+          lineId = context[i].getAttribute('cp_line_id');
+
           self.fire('lineadd',
             {
-              pageId: self.currentPageNo,
-              lineId: self.numLines,
-              text: lines[i].innerText
+              contextId: contextId,
+              lineId: lineId,
+              text: context[i].innerText
             }
           );
-
-          self.numLines++;
         }
 
-        self.fire('getkeywords', { pageId: self.currentPageNo });
+        self.contextIds[self.contextIds.length] = contextId;
+
+        self.fire('getkeywords', { contextId: contextId });
       };
 
       /**
@@ -202,6 +195,7 @@
       var setKeywordInfo = function (self, keywordInfo) {
         self.keywordInfo = keywordInfo;
         self.fire('newkeywordinfo',{keywordInfo: keywordInfo});
+
         self.$.highlighter.clear();
         self.$.highlighter.prepare(keywordInfo.ranges);
 
@@ -210,15 +204,9 @@
       Polymer({
         // functions and properties used in API and bindings
         // life cycle handlers
+        contextIds: [],
         created: function () {
           this.iframeurl="";
-
-          this.sectionIndex = [];
-          this.sectionCount = 0;
-
-          this.scrollTimer = 0;
-
-          this.currentPageNo = 1;
 
           this.numLines = 0;
 
@@ -236,11 +224,8 @@
 
           // keywordlist fired from content script
           document.addEventListener('keywordlist', function (e) {
-            setSection(self);
             setKeywordInfo(self,e.detail);
           });
-
-          setSection(this);
 
           var self=this;
           this.$.iframe.onload = function () {

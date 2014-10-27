@@ -2,22 +2,18 @@
   <template></template>
   <script>
     (function () {
-      var scrollableNode;
-      var targetNodes;
-      var timeout = 500;
-      var scrollTimer;
-
-      var isNodeVisible = function (node) {
-        var parentBoundingRectangle;
+      var isNodeVisible = function (self, node) {
         var boundingRectangle = node.getBoundingClientRect();
+        var parentBoundingRectangle;
+
         var nodeStyle = document.defaultView.getComputedStyle(node, null);
 
         if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
             'hidden' === nodeStyle['visiblity'])
           return false;
 
-        if (typeof scrollableNode !== 'undefined') {
-          parentBoundingRectangle = scrollableNode.getBoundingClientRect();
+        if (self.scrollableNode !== null) {
+          parentBoundingRectangle = self.scrollableNode.getBoundingClientRect();
 
           if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
               boundingRectangle.right > parentBoundingRectangle.right ||
@@ -26,54 +22,102 @@
             return false;
         }
 
-        if (boundingRectangle.bottom < 0 ||
-            boundingRectangle.right < 0 ||
-            boundingRectangle.left > (window.innerWidth ||
-            document.documentElement.clientWidth) ||
-            boundingRectangle.top > (window.innerHeight ||
-            document.documentElement.clientHeight))
+        if (boundingRectangle.bottom > window.innerHeight ||
+            boundingRectangle.right > window.innerWidth ||
+            boundingRectangle.left < 0 ||
+            boundingRectangle.top < 0)
           return false;
 
-       return true;
+        return true;
       };
 
       Polymer({
+        scrollableNode: null,
+        targetNodes: [],
+        targetAttributes: [],
+        timeout: 500,
+        scrollTimer: null,
         setScrollableNode: function (node) {
-          scrollableNode = node;
+          this.scrollableNode = node;
         },
-        addOnScrollListener: function (listener) {
-          var onScroll = function () {
-            clearTimeout(scrollTimer);
-            scrollTimer = setTimeout(function () {
-              var visibleNodes = [];
-              var hiddenNodes = [];
+        addOnScrollListener: function (listener, data) {
+          var onScroll = function (self) {
+            if (self.scrollTimer !== null)
+              clearTimeout(self.scrollTimer);
 
-              if (typeof targetNodes !== 'undefined') {
-                for (var i = 0; i < targetNodes.length; i++) {
-                  if (isNodeVisible(targetNodes[i]))
-                    visibleNodes[visibleNodes.length] = targetNodes[i];
-                  else
-                    hiddenNodes[hiddenNodes.length] = targetNodes[i];
+            self.scrollTimer = setTimeout(function () {
+              var visibleNodes = [];
+              var visibleId = '';
+
+              if (self.targetNodes !== null) {
+                for (var i = 0; i < self.targetNodes.length; i++) {
+                  if (isNodeVisible(self, self.targetNodes[i])) {
+                    visibleNodes[visibleNodes.length] = self.targetNodes[i];
+                    for (var j = 0; j < self.targetAttributes.length; j++) {
+                      if (self.targetNodes[i].hasAttribute(self.targetAttributes[j])) {
+                        visibleId +=
+                          self.targetNodes[i].getAttribute(self.targetAttributes[j]);
+                        if (i < self.targetNodes.length - 1)
+                          visibleId += ' ';
+                      }
+                    }
+                  }
                 }
               }
 
-              listener(visibleNodes, hiddenNodes);
-            }, timeout);
+              listener(visibleNodes, visibleId, data);
+            }, self.timeout);
           };
 
-          if (typeof scrollableNode !== 'undefined')
-            scrollableNode.addEventListener('scroll', onScroll, false);
+          var self = this;
+          var callback = function() { onScroll(self); };
 
-          window.addEventListener('DOMContentLoaded', onScroll, false); 
-          window.addEventListener('load', onScroll, false); 
-          window.addEventListener('scroll', onScroll, false); 
-          window.addEventListener('resize', onScroll, false);
+          if (this.scrollableNode !== null)
+            this.scrollableNode.addEventListener('scroll', callback, false);
+
+          window.addEventListener('DOMContentLoaded', callback,false); 
+          window.addEventListener('load', callback, false); 
+          window.addEventListener('scroll', callback, false); 
+          window.addEventListener('resize', callback, false);
         },
-        setTargetNodes: function (nodes) {
-          targetNodes = nodes;
+        performImmediateVisibilityCheck: function (callback, data) {
+          var visibleNodes = [];
+          var visibleId = '';
+
+          if (this.targetNodes !== null) {
+            for (var i = 0; i < this.targetNodes.length; i++) {
+              if (isNodeVisible(this, this.targetNodes[i])) {
+                visibleNodes[visibleNodes.length] = this.targetNodes[i];
+                for (var j = 0; j < this.targetAttributes.length; j++) {
+                  if (this.targetNodes[i].hasAttribute(this.targetAttributes[j])) {
+                    visibleId +=
+                     this.targetNodes[i].getAttribute(this.targetAttributes[j]);
+                    if (i < this.targetNodes.length - 1)
+                      visibleId += ' ';
+                  }
+                }
+              }
+            }
+          }
+
+          callback(visibleNodes, visibleId, data);
+        },
+        addTargetAttribute: function (targetAttribute) {
+          this.targetAttributes[this.targetAttributes.length] = targetAttribute;
+        },
+        addTargetNode: function (targetNode) {
+          this.targetNodes[this.targetNodes.length] = targetNode;
+        },
+        removeTargetAttribute: function (targetAttribute) {
+          var index = this.targetAttributes.indexOf(targetAttribute);
+          this.targetAttributes.splice(index, 1);
+        },
+        removeTargetNode: function (targetNode) {
+          var index = this.targetNodes.indexOf(targetNode);
+          this.targetNodes.splice(index, 1);
         },
         setScrollTimeout: function (scrollTimeout) {
-          timeout = scrollTimeout;
+          this.timeout = scrollTimeout;
         }
       });
     })();

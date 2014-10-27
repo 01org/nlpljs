@@ -1,4 +1,4 @@
-/*
+<!--
   implements keyword highlighting functionality
 
   attributes:
@@ -36,7 +36,7 @@
 
   clear([groupId]);
     removes the html for the given groupId, or if no groupId given, all of them.
-*/
+-->
 
 <link rel='import' href='../bower_components/polymer/polymer.html'>
 
@@ -150,12 +150,8 @@
         return retVal;
       };
 
-      var getLine = function (self,lineNo) {
-        var retVal = self.targetElement.querySelectorAll(
-          '.kix-lineview-content'
-        )[lineNo];
-
-        return retVal;
+      var getLine = function (self,lineId) {
+        return self.targetElement.querySelector('[cp_line_id="' + lineId + '"]');
       };
 
       // tries to behave like html parser does
@@ -176,6 +172,14 @@
       };
 
       var highlightRange = function (self,rangeToHighlight) {
+        /*
+          TODO: this function was originally written to work on line numbers,
+          which were obtained by simply indexing into querySelectorAll() results,
+          So start and end contain a property called 'lineNo'.
+          However, functionality was changed so that lineNo actually is a
+          reference to a 'cp_line_id' attribute on each line.
+          We should change the 'lineNo' property to be 'lineId'.
+        */
         var start=rangeToHighlight.start;
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
@@ -186,7 +190,7 @@
         ].join('-');
 
         // 1. get start line object
-        var line=getLine(self,start.lineNo);
+        var line=getLine(self, start.lineNo);
 
         // abort if no line
         if (!line) {
@@ -286,15 +290,23 @@
 
 
         // 7. if end line > start line
-        if (end.lineNo>start.lineNo) {
+        if (end.lineNo !== start.lineNo) {
           // # process intermediate lines
 
-          // 7.1 loop over intermediate lines ie lineNo=startLine+1;lineNo<endLine;lineNo++
-          for (var lineNo=start.lineNo+1;lineNo<end.lineNo;++lineNo) {
-            // 7.2.1 get line object
-            var thisLine=getLine(self,lineNo);
+          /*
+            TODO: the following two lines look wrong because {start,end}.lineNo
+            actually refer to lineIds, so we need to dereference them
+            in the lineIds array to find real lineNos
+          */
+          var startIndex = self.lineIds.indexOf(start.lineNo);
+          var endIndex = self.lineIds.indexOf(end.lineNo);
 
-            // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
+          // 7.1 loop over intermediate lines
+          for (var lineNo=startIndex+1;lineNo<endIndex;++lineNo) {
+            // 7.2.1 get line object
+            var thisLine=getLine(self, self.lineIds[lineNo]);
+
+            // 7.2.2 replace all >(*)< with >hl.open(groupId).*.hl.close()<
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
               />([^<]+)</g,
               [
@@ -398,6 +410,7 @@
       };
 
       Polymer({
+        lineIds: null,
         created: function () {
           this.offStyle='',
           this.onStyle=[
@@ -416,6 +429,11 @@
         },
 
         prepare: function (ranges) {
+          var lines = this.targetElement.querySelectorAll('.kix-lineview');
+          this.lineIds = [].map.call(lines, function (element) {
+            return element.getAttribute('cp_line_id');
+          });
+
           for (var i=0;i<ranges.length;++i) {
             highlightRange(this,ranges[i]);
           }
