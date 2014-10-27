@@ -150,46 +150,9 @@
         return retVal;
       };
 
-      var getLineIndex = function (lines, lineId) {
-        if (!Array.prototype.findIndex) {
-            Array.prototype.findIndex = function(predicate) {
-            if (this == null) {
-              throw new TypeError('Array.prototype.find called on null or undefined');
-            }
-            if (typeof predicate !== 'function') {
-              throw new TypeError('predicate must be a function');
-            }
-            var list = Object(this);
-            var length = list.length >>> 0;
-            var thisArg = arguments[1];
-            var value;
-
-            for (var i = 0; i < length; i++) {
-              value = list[i];
-              if (predicate.call(thisArg, value, i, list)) {
-                return i;
-              }
-            }
-            return -1;
-          };
-        }
-
-        return lines.findIndex(function (line) {
-          var thisId = line.getAttribute('cp_line_id');
-
-          if (thisId === lineId)
-            return true;
-          else
-            return false;
-        });
-      };
-
-      var getLine = function (self,lineNo) {
-        var lines = self.targetElement.querySelectorAll('.kix-lineview');
-        var toArray = [].map.call(lines, function (element) { return element });
-        var index = getLineIndex(toArray, lineNo);
-
-        return lines[index];
+      var getLine = function (self,lineId) {
+        console.log(lineId);
+        return self.targetElement.querySelector('[cp_line_id="' + lineId + '"]');
       };
 
       // tries to behave like html parser does
@@ -220,7 +183,7 @@
         ].join('-');
 
         // 1. get start line object
-        var line=getLine(self,start.lineNo);
+        var line=getLine(self, start.lineNo);
 
         // abort if no line
         if (!line) {
@@ -322,16 +285,14 @@
         // 7. if end line > start line
         if (end.lineNo !== start.lineNo) {
           // # process intermediate lines
-          var lines = self.targetElement.querySelectorAll('.kix-lineview');
-          var toArray = [].map.call(lines, function (element) { return element });
 
-          var startIndex = getLineIndex(toArray, start.lineNo);
-          var endIndex = getLineIndex(toArray, end.lineNo);
+          var startIndex = self.lineIds.indexOf(start.lineNo);
+          var endIndex = self.lineIds.indexOf(end.lineNo);
 
           // 7.1 loop over intermediate lines ie lineNo=startLine+1;lineNo<endLine;lineNo++
           for (var lineNo=startIndex+1;lineNo<endIndex;++lineNo) {
             // 7.2.1 get line object
-            var thisLine=lines[lineNo];
+            var thisLine=getLine(self, self.lineIds[lineNo]);
 
             // 7.2.2 replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
@@ -437,6 +398,7 @@
       };
 
       Polymer({
+        lineIds: null,
         created: function () {
           this.offStyle='',
           this.onStyle=[
@@ -455,6 +417,11 @@
         },
 
         prepare: function (ranges) {
+          var lines = this.targetElement.querySelectorAll('.kix-lineview');
+          this.lineIds = [].map.call(lines, function (element) {
+            return element.getAttribute('cp_line_id');
+          });
+
           for (var i=0;i<ranges.length;++i) {
             highlightRange(this,ranges[i]);
           }
