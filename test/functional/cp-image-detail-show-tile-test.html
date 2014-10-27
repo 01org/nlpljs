@@ -16,7 +16,8 @@ Test for image-detail showing a tile.
     </style>
 
     <p>
-      Create a cp-image-detail and load a cp-tile-image into it.
+      Create a cp-image-detail and load a cp-tile-image into it. Then
+      load a new tile into it, replacing the old one.
     </p>
     <div id="container">
     <cp-image-detail id="detail"></cp-image-detail>
@@ -28,15 +29,30 @@ Test for image-detail showing a tile.
   <script>
     Polymer({
       domReady: function () {
-        var tile = document.createElement('cp-tile-image');
-        tile.image = {
+        var self = this;
+
+        var tile1 = document.createElement('cp-tile-image');
+        tile1.image = {
           src: makeImageUrl(800, 600),
           caption: '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>',
           source: 'http://flickr.com/',
           meta: {}
         };
 
-        this.$.detail.showTile(tile);
+        this.$.detail.showTile(tile1);
+
+        /* load another tile */
+        var tile2 = document.createElement('cp-tile-image');
+        tile2.image = {
+          src: makeImageUrl(400, 300),
+          caption: '<span class="fn"> <i><span style="font-weight:bold">\n<i>Some other fellow</i></span></i></span>',
+          source: 'http://flickr.com/',
+          meta: {}
+        };
+
+        setTimeout(function () {
+          self.$.detail.showTile(tile2);
+        }, 2000);
       }
     });
   </script>

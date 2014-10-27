@@ -1,3 +1,4 @@
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
@@ -38,6 +39,11 @@
 
       #imgContainer {
         max-height: 50%;
+      }
+
+      #spinner {
+        width: 100%;
+        height: 100%;
       }
 
       #image {
@@ -82,8 +88,12 @@
         </paper-fab>
       </div>
 
-      <div id="imgContainer" data-show="{{loaded}}">
-        <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+      <div id="imgContainer">
+        <div id="spinner" data-show="{{!loaded}}">
+          <paper-spinner active></paper-spinner>
+        </div>
+
+        <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
       <h3 id="caption" data-show="{{caption}}">
@@ -182,8 +192,8 @@
           }
         },
 
-        onSrcChanged: function () {
-          var self=this;
+        srcChanged: function () {
+          var self = this;
 
           this.loaded = false;
 
