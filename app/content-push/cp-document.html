@@ -41,8 +41,6 @@
       var LINE_SELECTOR = '.kix-lineview';
       var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
 
-      var contextIds = [];
-
       /**
        * find ancestor of node that has className
        * for finding the ancestor with .kix-lineview of whatever line has changed
@@ -163,7 +161,7 @@
       };
 
       var getContext = function (self, contextId, context) {
-        if (contextIds.indexOf(contextId) !== -1) {
+        if (self.contextIds.indexOf(contextId) !== -1) {
           self.fire('getkeywords', { contextId: contextId });
           return;
         }
@@ -184,7 +182,7 @@
           );
         }
 
-        contextIds[contextIds.length] = contextId;
+        self.contextIds[self.contextIds.length] = contextId;
 
         self.fire('getkeywords', { contextId: contextId });
       };
@@ -206,6 +204,7 @@
       Polymer({
         // functions and properties used in API and bindings
         // life cycle handlers
+        contextIds: [],
         created: function () {
           this.iframeurl="";
 
