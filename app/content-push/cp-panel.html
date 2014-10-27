@@ -74,6 +74,7 @@
 
     <!-- the panel is made up of a header toolbar and the display -->
     <core-toolbar id="toolbar">
+      <!-- items in this menu set the "types" part of the display filter -->
       <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
         <paper-item icon="drive-image" label="Images"
                     data-type-filter="image"></paper-item>
@@ -115,6 +116,15 @@
     (function cpPanel () {
       // private *static* functions and constants
 
+      var setFilter = function (self) {
+        /* set filter on the display based on current keywordInfo
+           and selected result types */
+        self.$.display.setFilter({
+          keywordInfo: self.keywordInfo,
+          types: self.typeFilter
+        });
+      };
+
       /* perform search for current keyphrase and add to the display */
       var search = function (self) {
         if (!self.keywordInfo) {
@@ -126,9 +136,16 @@
         self.$.fetcher.fetch(self.keywordInfo).then(
           function (results) {
             self.$.display.receiveResults(results);
+            setFilter(self);
+            self.$.display.hideLoadingSpinner();
+          },
 
-            /* set filter on the display based on current keywordInfo */
-            self.$.display.setFilter({keywordInfo: self.keywordInfo});
+          /* TODO notify user of search errors in UI */
+          function (err) {
+            self.$.display.receiveResults([]);
+            setFilter(self);
+            self.$.display.hideLoadingSpinner();
+            console.error(err);
           }
         );
       };
@@ -152,6 +169,10 @@
         // functions and properties used in API and bindings
         created: function () {
           this.keywordInfo = null;
+
+          /* an array of types of result to show in the display,
+             or empty array to have no filter set */
+          this.typeFilter = [];
         },
 
         // called from content-push.html:trackAction() when splitter moves
@@ -168,11 +189,23 @@
           this.$.swapper.slideOut('detail');
         },
 
+        /* change which types of result are displayed when a menu
+           item is clicked */
         applyTypeFilter: function (e) {
+          /* only respond to events on elements with a data-type-filter
+             attribute */
           var typeFilter = e.toElement.getAttribute('data-type-filter');
-          if (typeFilter) {
-            console.log('type filter to apply: ' + typeFilter);
+          if (!typeFilter) {
+            return;
           }
+
+          if (typeFilter === 'no-filter') {
+            this.typeFilter = [];
+          } else {
+            this.typeFilter = typeFilter.split(',');
+          }
+
+          setFilter(this);
         },
 
         /* keywordInfo event occurred on the document */

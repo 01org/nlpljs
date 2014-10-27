@@ -71,6 +71,8 @@ test for cp-display
             ]
           }
         });
+
+        this.$.display.hideLoadingSpinner();
       },
 
       showKeyword: function (e) {
@@ -91,8 +93,7 @@ test for cp-display
         this.showPreResults();
 
         setTimeout(function () {
-          self.$.display.loading = false;
-          self.$.display.state = 'noresults';
+          self.addResults(0);
         }, 1000);
       },
 
@@ -115,6 +116,7 @@ test for cp-display
 
         setTimeout(function () {
           self.addResults(10, 'battle of hastings');
+          self.$.display.showLoadingSpinner();
         }, 1000);
 
         setTimeout(function () {
@@ -130,6 +132,7 @@ test for cp-display
 
         setTimeout(function () {
           self.addResults(10, 'battle of hastings');
+          self.$.display.showLoadingSpinner();
         }, 1000);
 
         setTimeout(function () {

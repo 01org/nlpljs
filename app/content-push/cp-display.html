@@ -28,7 +28,7 @@ pushing new tiles into the wrapped layout
         box-sizing: border-box;
       }
 
-      #preresults, #noresults {
+      #preresults {
         padding-top: 3em;
       }
 
@@ -88,9 +88,7 @@ pushing new tiles into the wrapped layout
     states for this component:
 
     - preresults - no search initiated, displays welcome message
-    - loading - loader overlays any existing results
-    - results - "widen" is shown with results
-    - noresults - "widen" is shown with "no results" message
+    - results - "widen" is shown with results (or empty results)
     -->
 
     <!-- never searched -->
@@ -100,9 +98,9 @@ pushing new tiles into the wrapped layout
       <paper-spinner active></paper-spinner>
     </div>
 
-    <!-- while searching, after results are found -->
+    <!-- after results are found -->
     <div id="results" class="fill"
-         data-show="{{state === 'results' || state === 'noresults'">
+         data-show="{{state === 'results'">
       <!-- full page loader; can overlay image display -->
       <div id="loading" class="fill" data-show="{{loading && state !== 'preresults'}}">
         <paper-spinner active></paper-spinner>
@@ -112,9 +110,8 @@ pushing new tiles into the wrapped layout
       <cp-scroll id="scroller" class="fill"
                  on-scrollend="{{onScrollerScrollend}}"
                  data-show="{{state === 'results'}}">
-        <!-- results available -->
-        <cp-layout id="layout" class="fill" on-loaddone="{{onLayoutLoaddone}}"
-                   on-loading="{{onLayoutLoading}}"
+        <!-- results -->
+        <cp-layout id="layout" class="fill"
                    data-show="{{state === 'results'}}">
         </cp-layout>
       </cp-scroll>
@@ -124,31 +121,19 @@ pushing new tiles into the wrapped layout
         <paper-slider min="0" max="100" value="50">
         </paper-slider>
       </div>
-
-      <!-- no results available -->
-      <div id="noresults" class="message-area"
-           data-show="{{state === 'noresults'}}">
-        Sorry, we couldn't find anything
-      </div>
     </div>
   </template>
+
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
 
   <script>
     (function () {
       Polymer({
-        state: null,
+        /* state of the results; 'preresults' or 'results' */
+        state: 'preresults',
+
+        /* whether we are loading or not */
         loading: false,
-
-        created: function () {
-          var self = this;
-
-          /* state of the results; 'preresults',
-             'results' or 'noresults' */
-          this.state = 'preresults';
-
-          /* whether we are loading or not */
-          this.loading = false;
-        },
 
         /**
          * Set criteria for filtering the content of the display.
@@ -157,29 +142,40 @@ pushing new tiles into the wrapped layout
          * @param {object} criteria.keywordInfo KeywordInfo object with
          * this structure:
          * {
-         *   keywords: [ { text: <text>, ...}, ... ]
+         *   keywords: [ { text: <text>, ...}, ... ],
+         *   types: ['image', 'quotation', ...]
          * }
          *
          * Right now, the first keyword in the keywordInfo.keywords
          * array is used as the filter. Any tile whose keyword.text
-         * property matches this active keyword will be shown.
+         * property matches this active keyword and has a type
+         * matching one of the members of "types" will be displayed.
          */
         setFilter: function (criteria) {
+          var self = this;
           var keyphrase = criteria.keywordInfo.keywords[0];
           var activeKeywordText = keyphrase.text;
 
+          criteria.types = criteria.types || [];
+
           /* set the filter on the layout to the current keyphrase */
-          this.$.layout.filter = function (tile) {
-            return tile.keyword.text === activeKeywordText;
-          };
+          this.$.layout.setFilter(function (tile) {
+            var keywordMatches = (tile.keyword.text === activeKeywordText);
 
-          /* force a relayout, so the new filter can take effect */
-          this.$.layout.layout();
+            if (!keywordMatches) {
+              return false;
+            }
 
-          /* set the state of the result set if nothing is loading */
-          if (!this.loading && this.$.layout.tilesLoading === 0) {
-            this.setResultState();
-          }
+            var typeMatches;
+            /* no types criteria, so always matches */
+            if (criteria.types.length === 0) {
+              typeMatches = true;
+            } else {
+              typeMatches = _.contains(criteria.types, tile.image.type);
+            }
+
+            return keywordMatches && typeMatches;
+          });
         },
 
         /**
@@ -205,29 +201,8 @@ pushing new tiles into the wrapped layout
               this.appendImage(results[i]);
             }
           } else {
-            /* no results, so we can immediately disable the spinner */
-            this.loading = false;
-
-            /* set the state of the result set immediately */
-            this.setResultState();
+            this.layout();
           }
-        },
-
-        setResultState: function () {
-          if (this.$.layout.getVisibleTiles().length) {
-            this.state = 'results';
-          } else {
-            this.state = 'noresults';
-          }
-        },
-
-        onLayoutLoaddone: function (e) {
-          this.loading = (this.$.layout.tilesLoading > 0);
-          this.setResultState();
-        },
-
-        onLayoutLoading: function (e) {
-          this.loading = (this.$.layout.tilesLoading > 0);
         },
 
         onScrollerScrollend: function () {
@@ -248,7 +223,8 @@ pushing new tiles into the wrapped layout
         *   keyword: {
         *       text: "<keyphrase text>",
         *       groupId: "<keyphrase group ID>"
-        *   }
+        *   },
+        *   type: 'image'
         * }
         *
         * The keyphrase groupId is assigned by the NLP engine and
@@ -286,7 +262,7 @@ pushing new tiles into the wrapped layout
           return this.$.layout;
         },
 
-        // layout the wrapped cp-layout
+        /* layout the wrapped cp-layout */
         layout: function () {
           this.$.layout.layout();
         },
@@ -298,6 +274,10 @@ pushing new tiles into the wrapped layout
 
         showLoadingSpinner: function () {
           this.loading = true;
+        },
+
+        hideLoadingSpinner: function () {
+          this.loading = false;
         }
       });
     })();
