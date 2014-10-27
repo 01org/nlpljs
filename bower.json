@@ -6,10 +6,9 @@
     "core-splitter": "Polymer/core-splitter#~0.4.0",
     "core-header-panel": "Polymer/core-header-panel#~0.4.0",
     "core-drawer-panel": "Polymer/core-drawer-panel#~0.4.0",
-    "paper-item": "Polymer/paper-item#~0.4.0",
+    "paper-item": "Polymer/paper-item#~0.4.2",
     "core-toolbar": "Polymer/core-toolbar#~0.4.0",
     "core-ajax": "Polymer/core-ajax#~0.4.0",
-    "paper-tabs": "Polymer/paper-tabs#~0.4.0",
     "requirejs": "requirejs#~2.1.15",
     "requirejs-text": "~2.0.12",
     "paper-fab": "Polymer/paper-fab#~0.4.1",
@@ -18,7 +17,8 @@
     "core-icon-button": "Polymer/core-icon-button#~0.4.2",
     "lodash": "~2.4.1",
     "paper-spinner": "https://github.com/PolymerLabs/paper-spinner.git",
-    "paper-slider": "Polymer/paper-slider#~0.4.2"
+    "paper-slider": "Polymer/paper-slider#~0.4.2",
+    "paper-menu-button": "Polymer/paper-menu-button#~0.4.2"
   },
   "devDependencies": {},
   "resolutions": {

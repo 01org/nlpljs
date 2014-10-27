@@ -2,8 +2,11 @@
 <link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
 <link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/core-icons/av-icons.html">
+<link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-image-detail.html">
@@ -21,6 +24,7 @@
         background-color: #202020;
         margin: 0;
         padding: 0;
+        z-index: 2000;
       }
 
       #toolbartext {
@@ -33,12 +37,6 @@
         -webkit-user-select: none;
       }
 
-      #menutoolbar {
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-      }
-
       #display {
         margin: 3px;
         padding: 0;
@@ -46,17 +44,6 @@
         width: 100%;
         overflow: hidden;
         box-sizing: border-box;
-      }
-
-      #tabs {
-        width: 100%;
-        padding: 0;
-        margin: -15px 0 0 0;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        background-color: white;
       }
 
       #slider {
@@ -79,29 +66,33 @@
       #tabs::shadow #selectionBar {
         background-color: #4CA8B4;
       }
+
+      #menu::shadow core-icon {
+        color: white;
+      }
     </style>
 
-    <!-- the panel is made up of a header toolbar, a content toolbar and the display -->
+    <!-- the panel is made up of a header toolbar and the display -->
     <core-toolbar id="toolbar">
-      <div id="toolbartext" flex>Content Push</div>
+      <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
+        <paper-item icon="drive-image" label="Images"
+                    data-type-filter="image"></paper-item>
+        <paper-item icon="editor:format-color-text" label="Quotations"
+                    data-type-filter="quotation"></paper-item>
+        <paper-item icon="drive-file" label="Files"
+                    data-type-filter="file"></paper-item>
+        <paper-item icon="av:movie" label="Videos"
+                    data-type-filter="video"></paper-item>
+        <paper-item icon="folder" label="Quotations+Images"
+                    data-type-filter="quotation,image"></paper-item>
+        <paper-item icon="apps" label="All"
+                    data-type-filter="no-filter"></paper-item>
+      </paper-menu-button>
+
+      <paper-item id="toolbartext" icon="" label="Content Push" flex></paper-item>
+
       <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
     </core-toolbar>
-
-    <!--Tabs Menu-->
-    <paper-tabs id="tabs" noink>
-      <paper-tab>
-        <core-icon icon="drive-image"></core-icon>
-      </paper-tab>
-      <paper-tab>
-        <core-icon icon="drive"></core-icon>
-      </paper-tab>
-      <paper-tab>
-        <core-icon icon="subject"></core-icon>
-      </paper-tab>
-      <paper-tab>
-        <core-icon icon="more-vert"></core-icon>
-      </paper-tab>
-    </paper-tabs>
 
     <cp-swapper id="swapper">
       <cp-display id="display"
@@ -177,7 +168,12 @@
           this.$.swapper.slideOut('detail');
         },
 
-        // event handlers
+        applyTypeFilter: function (e) {
+          var typeFilter = e.toElement.getAttribute('data-type-filter');
+          if (typeFilter) {
+            console.log('type filter to apply: ' + typeFilter);
+          }
+        },
 
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
