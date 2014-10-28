@@ -49,8 +49,9 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             jsonp({
               url: url,
               cb: function (response) {
-                resultSet = self.handleResponse(resultSet, query, response);
-                resolve(resultSet);
+                self.handleResponse(resultSet, query, response).then(
+                  resolve, reject
+                );
               }
             });
           });
@@ -60,10 +61,9 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
            response */
         handleResponse: function (resultSet, query, response) {
           if (response.error) {
-            console.error(
-              'CP:error from Wikipedia API: ',
-              JSON.stringify(response)
-            );
+            var err = new Error('CP:error from Wikipedia API: ' +
+                                JSON.stringify(response));
+            return Promise.reject(err);
           } else {
             if (response['query-continue']) {
               // offset for the next search for this query (according to Wikipedia)
@@ -111,7 +111,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             }
           }
 
-          return resultSet;
+          return Promise.resolve(resultSet);
         }
       });
     })();

@@ -1,3 +1,4 @@
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="./cp-tile-image.html">
 
 <polymer-element name="cp-layout">
@@ -14,16 +15,20 @@
       cp-tile-image {
         position: absolute;
         transition-property: top, left, opacity;
-        transition-duration: 0.25s, 0.25s, 1s;
+        transition-duration: 0.25s, 0.25s, 0.25s;
         transition-timing-function: ease-out, ease-out, ease-out;
       }
 
-      /*
-      when an cp-tile-image displays inside this element, a margin
-      appears to be added below the meta paragraph; I couldn't track
-      this down, so this work-around removes that margin for
-      cp-tile-images only in the context of a this element
-      */
+      #loading, #noresults {
+        width: 100%;
+        text-align: center;
+        padding-top: 2em;
+      }
+
+      /* when an cp-tile-image displays inside this element, a margin
+         appears to be added below the meta paragraph; I couldn't track
+         this down, so this work-around removes that margin for
+         cp-tile-images only in the context of a this element */
       cp-tile-image::shadow #meta {
         margin: 0 0 3px 0;
       }
@@ -33,7 +38,15 @@
       }
     </style>
 
-    <div id="container"></div>
+    <div id="container" data-show="{{!noresults}}"></div>
+
+    <div id="noresults" data-show="{{tilesLoading < 1 && noresults}}">
+      <p>Sorry, we couldn't find anything.</p>
+    </div>
+
+    <div id="loading" data-show="{{tilesLoading > 0}}">
+      <paper-spinner active></paper-spinner>
+    </div>
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
@@ -109,26 +122,30 @@
       };
 
       Polymer({
+        /* filter which determines the tiles to show; this is applied
+           on each layout() call to determine the visible tiles;
+           if this function returns true, the tile is shown */
+        filter: null,
+
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
 
-          // cached height and width, to reduce the number of events fired
+          /* cached height and width, to reduce the number of events fired */
           this.lastMeasuredHeight = 0;
           this.lastMeasuredWidth = 0;
 
-          // count of the number of tiles currently loading
+          /* count of the number of tiles currently loading */
           this.tilesLoading = 0;
 
-          /* filter which determines the tiles to show; this is applied
-             on each layout() call to determine the visible tiles */
-          this.filter = null;
+          /* set to true if there are noresults visible */
+          this.noresults = false;
         },
 
-        // set number of columns based on the gallery width
+        /* set number of columns based on the gallery width */
         setLayoutParams: function () {
-          var width = this.$.container.offsetWidth;
+          var width = this.offsetWidth;
 
           if (width >= WIDE_BREAKPOINT) {
             this.numColumns = WIDE_NUM_COLS;
@@ -140,6 +157,11 @@
 
         domReady: function () {
           this.setLayoutParams();
+        },
+
+        setFilter: function (filter) {
+          this.filter = filter;
+          this.layout();
         },
 
         /**
@@ -156,18 +178,17 @@
           return this.$.container.querySelectorAll('cp-tile-image');
         },
 
-        // add the tile to the layout if it loaded OK
+        /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
           // loaded is false if the image failed to load
           if (tile.loaded) {
             this.frameTile(tile);
-            tile.setAttribute('data-show', 'true');
             this.$.container.appendChild(tile);
-            this.layout();
           }
 
           this.tilesLoading--;
           this.fireLoadEvent();
+          this.layout();
         },
 
         /**
@@ -191,8 +212,7 @@
 
           if (tile.loaded) {
             this.tileReady(tile);
-          }
-          else {
+          } else {
             tile.addEventListener('done', function () {
               self.tileReady(tile);
             });
@@ -215,12 +235,9 @@
          * Apply layout to cp-tile-images which satisfy the current filter.
          */
         layout: function () {
-          this.setLayoutParams();
-
-          var cellSide = this.$.container.offsetWidth / this.numColumns;
           var tiles = this.getAllTiles();
 
-          // convert tiles into shapes
+          /* convert tiles into shapes */
           var shapes = [];
 
           var hideTile;
@@ -239,6 +256,15 @@
               });
             }
           }
+
+          /* no shapes means no results */
+          this.noresults = (shapes.length === 0 && this.tilesLoading < 1);
+          if (this.noresults) {
+            return;
+          }
+
+          var cellSide = this.offsetWidth / this.numColumns;
+          this.setLayoutParams();
 
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
 
@@ -263,14 +289,12 @@
             shape.elt.style.height = height + 'px';
           });
 
-          // set the container height
+          /* set the container height */
           var height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
 
-          /*
-          fire an event to notify listeners that this element's height
-          has changed; this is required for infini-scroll to work
-          */
+          /* fire an event to notify listeners that this element's
+             height changed */
           var width = this.offsetWidth;
           var height = this.offsetHeight;
 
@@ -284,6 +308,8 @@
               height: height
             });
           }
+
+          this.fire('layout');
         },
 
         /**

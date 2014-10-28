@@ -30,6 +30,11 @@
       #toolbartext {
         color: #FFFFFF;
         -webkit-user-select: none;
+        font-size: 0.5em;
+      }
+
+      #toolbaricon {
+        margin-right: 0;
       }
 
       #toolbaraction {
@@ -50,10 +55,6 @@
         height: 100%;
       }
 
-      core-toolbar paper-tabs {
-        box-shadow: none;
-      }
-
       cp-swapper {
         width: 100%;
         height: 100%;
@@ -63,17 +64,23 @@
         background-color: white;
       }
 
-      #tabs::shadow #selectionBar {
-        background-color: #4CA8B4;
+      #menu {
+        padding: 0;
+        margin-left: 0;
       }
 
-      #menu::shadow core-icon {
+      #menu::shadow core-icon, core-icon {
         color: white;
+      }
+
+      [data-show="false"] {
+        display: none;
       }
     </style>
 
     <!-- the panel is made up of a header toolbar and the display -->
     <core-toolbar id="toolbar">
+      <!-- items in this menu set the "types" part of the display filter -->
       <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
         <paper-item icon="drive-image" label="Images"
                     data-type-filter="image"></paper-item>
@@ -83,13 +90,14 @@
                     data-type-filter="file"></paper-item>
         <paper-item icon="av:movie" label="Videos"
                     data-type-filter="video"></paper-item>
-        <paper-item icon="folder" label="Quotations+Images"
+        <paper-item icon="folder" label="Text+Images"
                     data-type-filter="quotation,image"></paper-item>
         <paper-item icon="apps" label="All"
                     data-type-filter="no-filter"></paper-item>
       </paper-menu-button>
 
-      <paper-item id="toolbartext" icon="" label="Content Push" flex></paper-item>
+      <core-icon id="toolbaricon" icon="" data-show="false"></core-icon>
+      <span id="toolbartext" flex>Content Push</span>
 
       <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
     </core-toolbar>
@@ -115,6 +123,15 @@
     (function cpPanel () {
       // private *static* functions and constants
 
+      var setFilter = function (self) {
+        /* set filter on the display based on current keywordInfo
+           and selected result types */
+        self.$.display.setFilter({
+          keywordInfo: self.keywordInfo,
+          types: self.typeFilter
+        });
+      };
+
       /* perform search for current keyphrase and add to the display */
       var search = function (self) {
         if (!self.keywordInfo) {
@@ -126,9 +143,16 @@
         self.$.fetcher.fetch(self.keywordInfo).then(
           function (results) {
             self.$.display.receiveResults(results);
+            setFilter(self);
+            self.$.display.hideLoadingSpinner();
+          },
 
-            /* set filter on the display based on current keywordInfo */
-            self.$.display.setFilter({keywordInfo: self.keywordInfo});
+          /* TODO notify user of search errors in UI */
+          function (err) {
+            self.$.display.receiveResults([]);
+            setFilter(self);
+            self.$.display.hideLoadingSpinner();
+            console.error(err);
           }
         );
       };
@@ -152,6 +176,10 @@
         // functions and properties used in API and bindings
         created: function () {
           this.keywordInfo = null;
+
+          /* an array of types of result to show in the display,
+             or empty array to have no filter set */
+          this.typeFilter = [];
         },
 
         // called from content-push.html:trackAction() when splitter moves
@@ -168,11 +196,31 @@
           this.$.swapper.slideOut('detail');
         },
 
+        /* change which types of result are displayed when a menu
+           item is clicked */
         applyTypeFilter: function (e) {
-          var typeFilter = e.toElement.getAttribute('data-type-filter');
-          if (typeFilter) {
-            console.log('type filter to apply: ' + typeFilter);
+          /* only respond to events on elements with a data-type-filter
+             attribute */
+          var elt = e.toElement;
+          var typeFilter = elt.getAttribute('data-type-filter');
+          if (!typeFilter) {
+            return;
           }
+
+          /* switch title bar text based on menu item selection */
+          if (typeFilter === 'no-filter') {
+            this.typeFilter = [];
+            this.$.toolbaricon.icon = '';
+            this.$.toolbaricon.setAttribute('data-show', 'false');
+            this.$.toolbartext.innerHTML = 'Content Push';
+          } else {
+            this.typeFilter = typeFilter.split(',');
+            this.$.toolbaricon.icon = elt.icon;
+            this.$.toolbaricon.setAttribute('data-show', 'true');
+            this.$.toolbartext.innerHTML = elt.label;
+          }
+
+          setFilter(this);
         },
 
         /* keywordInfo event occurred on the document */
