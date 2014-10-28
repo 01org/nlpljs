@@ -1,42 +1,42 @@
 (function(){
-  var loaded = false;
-  var open = true;
+/* read the design doc for explaination on the comments */
 
-  eventPageMessage = function (type, data) {
+  var open = true;
+  var port = null;
+
+  function eventPageMessage(type, data) {
     return {
       type: type,
       data: data
     };
-  };
+  }
 
   chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
-    //console.log("CS: received message",message);
-    if (loaded && message.message === "toggle" ) {
-      //console.log("CS:toggling");
+    if (message === "cp-toggle") {
       document.querySelector('cp-main').setAttribute("toggle", open);
       open = !open;
     }
   });
 
-  var port = chrome.runtime.connect({name: "ContentPushChannel"});
+  chrome.runtime.sendMessage("cp-nlpinit");
 
-  port.onMessage.addListener(function (message) {
-    switch(message.message) {
-      case "keywordlist":
-        var event = new CustomEvent("keywordlist", {
+  port = chrome.runtime.connect();
+  port.onMessage.addListener(function(message) {
+      switch(message.message) {
+        case "keywordlist":
+          var event = new CustomEvent("keywordlist", {
                       detail: message.data,
                       bubbles: true,
                       cancelable: true
                     });
 
-        document.dispatchEvent(event);
-        break;
-      default:
-        console.log("Unknown message from event page");
-    }
+          document.dispatchEvent(event);
+          break;
+        default:
+          console.log("Unknown message from event page");
+        }
   });
 
-  //Do this immediately when script is injected
   rehostPage();
 
   function rehostPage() {
@@ -98,9 +98,5 @@
     html.appendChild(head);
     html.appendChild(body);
     document.appendChild(html);
-
-    //send results back to event page
-    //console.log("CS: sending done response");
-    loaded = true;
   }
 })();

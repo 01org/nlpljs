@@ -296,3 +296,45 @@ then manipulate that Base64-encoded representation into a Blob. However,
 my experiments showed that this loses the EXIF data at the point where
 the canvas' data URL is retrieved. For that reason, while it works,
 it is not feasible, as the EXIF data is what we're after.
+
+
+Event Page, Content script and Content Push Communication
+=========================================================
+Here are the basic components of the application.
+
+          +----------------+                  +----------------+                 +-----------------+
+          | event_page.js  |                  | rehostPage.js  |                 |  <content push> |
+          +----------------+                  +----------------+                 +-----------------+
+          |                |                  |                |                 |                 |
+          |                |                  |   CONTENT      |                 |                 |
+          |     EVENT      |                  |   SCRIPT       +----------------->      POLYMER    |
+          |     PAGE       |                  |                |                 |                 |
+          |                |                  |                |   (events)      |                 |
+          |                |                  |                <-----------------+                 |
+          |                |  Channel(port)   |                |                 |                 |
+          |              <----------------------->             |                 |                 |
+ +-------->              <----------------------->             |                 |                 |
+ |-------->                |                  |                |                 |                 |
+ ||       +----------------+                  +----------------+                 +-----------------+
+ ||
+ || worker port.
+ ||
+ ||
++++---------------+             +-----------------+
+|                 |             |                 |
+| nlp_worker.js   |             |   lib NLP       |
++-----------------+             +-----------------+
+|                 |             |                 |
+|     WEB         |             |                 |
+|     WORKER      |             |      LIBRARY    |
+|                 |             |                 |
+|                 +------------->                 |
+|                 |             |                 |
+|                 <-------------+                 |
+|                 |             |                 |
+|                 |             |                 |
+|                 |             |                 |
++-----------------+             +-----------------+
+
+rehostPage is the content script which is inserted at 'document_start' using manifest.json.
+event page is the background script. There is only event_page for the entire application.
