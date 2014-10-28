@@ -38,7 +38,7 @@
   });
 
   rehostPage();
-  
+
   function rehostPage() {
     // create and open panel
     var currentTabUrl=document.URL;
