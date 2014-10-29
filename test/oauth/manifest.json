@@ -1,0 +1,48 @@
+{
+  "manifest_version": 2,
+  "name": "oauth",
+  "short_name": "oauth",
+  "description": "Description for oauth",
+  "version": "0.0.1.0",
+  "icons": {
+    "16": "images/icon_16.png",
+    "128": "images/icon_128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "management",
+    "declarativeContent",
+    "tabs",
+    "identity",
+    "https://www.facebook.com/",
+    "https://graph.facebook.com/",
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:8000/test/oauth/index.html"],
+      "run_at": "document_start",
+      "js": [ "rehostPage.js" ]
+    }
+  ],
+  "page_action": {
+    "default_icon": "images/icon-16.png"
+  },
+  "background": {
+    "scripts": [
+      "ep-main.js",
+      "ep-auth.js"
+    ],
+    "persistent": false
+  },
+  "oauth2": {
+    "client_id": "353827414707-rt33qbe8pi3v014t9ucd5auj2a4iqfu3.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive"
+    ]
+  },
+  "externally_connectable": {
+    "matches": ["http://localhost:8000/test/oauth/index.html"]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkJNzLXCkftFZ4qFUb6abjOzkd/uqHoWl7hcNjEGybRfqCnYTQbnvj5zamYRgTL2+wxPW8Og/cASvDOZ3g7W9nvaKgRd/NTHNx0SiaC0pBF0SVwY2rzK/moCEAHkW3BW4OWRjiMxpsMNEIKgnOydjxVdmuZ0IgR/JvjmGQtZBcKrAwVMqWJGnMBIN/ec0yR8ZD+a+DsZKgNDretF8bHLJXYRe9DKwkPvZSjmGy7QgKdA30vbdJOoCwHVJe3/8TKaHblAVgyIDBGL7AAU59B4fc+nNYQdDWkF/HQg9eeVmh5iLKRk9q3Hw0MCCREXWJQ0O+gz0opSx8jw282abgpBDcwIDAQAB"
+}

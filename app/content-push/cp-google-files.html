@@ -1,0 +1,139 @@
+<!--
+  cp-google-files
+
+  getFiles: gets all the files - not too sure what to do with them yet.
+
+  fires: newGoogleFile
+ -->
+<script src="../../app/bower_components/platform/platform.js"></script>
+<link rel="import" href="../../app/bower_components/google-apis/google-apis.html">
+
+<polymer-element name="cp-google-files" attributes="mimeTypeFilter">
+  <template>
+    <cp-auth id="authorizer" on-accesstoken="{{onAccessToken}}"></cp-auth>
+
+    <google-api-loader
+      id="drive"
+      name="drive"
+      appId="{{globals.app_id}}"
+      version="v2"
+      on-google-api-load="{{onDriveLoad}}"
+      on-google-api-load-error="{{onDriveLoadError}}">
+    </google-api-loader>
+  </template>
+  <script>
+    (function cpGoogleFiles() {
+      // private *static* functions and constants
+      var SCOPES = [
+        'https://www.googleapis.com/auth/drive'
+      ];
+
+      /**
+       * Retrieve a list of File resources.
+       *
+       * @param {Function} callback Function to call when the request is complete.
+       */
+      var retrieveAllFiles = function (self,callback) {
+        var retrievePageOfFiles = function(request, result) {
+          request.execute(function(resp) {
+            result = result.concat(resp.items);
+            var nextPageToken = resp.nextPageToken;
+            if (nextPageToken) {
+              request = gapi.client.drive.files.list({
+                'pageToken': nextPageToken
+              });
+              retrievePageOfFiles(request, result);
+            } else {
+              callback(result);
+            }
+          });
+        }
+        var initialRequest = self.$.drive.api.files.list();
+        retrievePageOfFiles(initialRequest, []);
+      };
+
+      /**
+       * Download a file's content.
+       *
+       * @param {File} file Drive File instance.
+       * @param {Function} callback Function to call when the request is complete.
+       */
+      function downloadFile(file, callback) {
+        if (file.downloadUrl) {
+          var accessToken = gapi.auth.getToken().access_token;
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', file.downloadUrl);
+          xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+          xhr.onload = function() {
+            callback(xhr.responseText);
+          };
+          xhr.onerror = function() {
+            callback(null);
+          };
+          xhr.send();
+        } else {
+          callback(null);
+        }
+      }
+
+      function makeDisplayResultFunction(self,thisResult) {
+        return function(responseText) {
+          self.fire('newGoogleFile',{
+              title: thisResult.title,
+              iconLink: thisResult.iconLink,
+              responseText: responseText
+          });
+        }
+      }
+
+      Polymer({
+        // functions and properties used in API and bindings
+
+        // life cycle handlers
+        created: function() {
+          this.access_token = null;
+          this.results = [];
+          this.mimeTypeFilter = null;
+        },
+
+        ready: function() {
+        },
+
+        getFiles: function() {
+          if (this.access_token) {
+            retrieveAllFiles(self,function (results) {
+              console.log('CP-GOOGLE-FILES:RESULT:',results);
+              for (i=0;i<results.length;i++) {
+                var thisResult=results[i];
+                if (!this.mimeTyleFilter || (thisResult.mimeType === this.mimeTypeFilter) ){
+                  downloadFile(thisResult,makeDisplayResultFunction(self,thisResult));
+                }
+              }
+            });
+          } else {
+            this.$.authorizer.getToken('google');
+            // arrival of token triggers onAccessToken(), which calls this function
+          }
+        },
+
+        // property changed handlers
+
+        // event handlers
+
+        onAccessToken: function (e) {
+          var self=this;
+          var token=e.detail.token;
+          this.access_token=token;
+
+          if (e.detail.service==='google') {
+            this.$.drive.auth.setToken({access_token:token});
+
+            getFiles();
+          }
+        },
+
+      }); // Polymer()
+    })();
+
+  </script>
+</polymer-element>
