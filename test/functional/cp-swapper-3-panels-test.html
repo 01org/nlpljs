@@ -1,0 +1,57 @@
+<link rel="import" href="../../app/content-push/cp-swapper.html">
+
+<!--
+test basic swapper with two sliding elements
+-->
+<polymer-element name="cp-swapper-3-panels-test">
+  <template>
+    <style>
+      cp-swapper {
+        height: 100px;
+        width: 200px;
+      }
+
+      [swapper-fix] {
+        background-color: blue;
+        color: white;
+      }
+
+      [swap-id] {
+        background-color: red;
+        color: white;
+      }
+    </style>
+
+    <p>Test the display/detail swapper with three panels.</p>
+
+    <p>
+      <button on-click="{{showFixed}}">Show fixed element</button>
+      <button on-click="{{slideDetailIn}}">Show detail panel</button>
+      <button on-click="{{slideSourcesIn}}">Show sources panel</button>
+    </p>
+
+    <cp-swapper id="swapper">
+      <div swapper-fix>Results</div>
+      <div swapper-slide swap-id="detail">Detail</div>
+      <div swapper-slide swap-id="sources">Sources</div>
+    </cp-swapper>
+  </template>
+
+  <script>
+    Polymer({
+      showFixed: function () {
+        this.$.swapper.slideOut();
+      },
+
+      slideDetailIn: function () {
+        this.$.swapper.slideOut();
+        this.$.swapper.slideIn('detail');
+      },
+
+      slideSourcesIn: function () {
+        this.$.swapper.slideOut();
+        this.$.swapper.slideIn('sources');
+      }
+    });
+  </script>
+</polymer-element>
