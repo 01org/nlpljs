@@ -50,7 +50,15 @@ define(['postagger'], function (postagger) {
 
   var textGraph = function () {
     var annotatedTokens = [];
-    var sortedVertices = [];
+
+    var vertexNames = [];
+    var vertices = [];
+
+    var edges = [];
+    var edgeNames = [];
+
+    var adjLimit = 2;
+    var numKeywords = 1 / 3;
 
     var vertexFilter = function (annotatedToken, id) {
       if ((annotatedToken.tag[0] !== 'N' &&
@@ -59,9 +67,12 @@ define(['postagger'], function (postagger) {
         if (annotatedToken.tag === 'IN' || annotatedToken.tag === 'CC') {
           if (typeof annotatedTokens[id - 1] !== 'undefined' &&
               typeof annotatedTokens[id + 1] !== 'undefined') {
-            if (/[A-Z]/.test(annotatedTokens[id - 1].token[0]) &&
-                /[A-Z]/.test(annotatedTokens[id + 1].token[0]))
+            var prevToken = annotatedTokens[id - 1];
+            var nextToken = annotatedTokens[id + 1];
+            if ((/[A-Z]/.test(prevToken.token[0]) && vertexFilter(prevToken)) &&
+                (/[A-Z]/.test(nextToken.token[0]) && vertexFilter(nextToken))) {
               return true;
+            }
           }
         }
 
@@ -71,69 +82,148 @@ define(['postagger'], function (postagger) {
       return true;
     };
 
-    return {
-      vertices: {},
-      edges: [],
-      numVertices: 0,
-      numEdges: 0,
-      addText: function (text) {
-        var tagged = postagger.tag(text);
-        var prevLength = annotatedTokens.length;
-        var adjLimit = 2;
+    var consturctGraph = function (from, to) {
+      for (var i = from; i < to; i++) {
+        var vertexIndex =
+          vertexNames.indexOf(annotatedTokens[i].token.toLowerCase());
+        var vertex;
 
-        annotatedTokens = annotatedTokens.concat(tagged);
-
-        for (i = prevLength; i < annotatedTokens.length; i++) {
-          var vertex = this.vertices[annotatedTokens[i].token.toLowerCase()];
-
-          if (vertexFilter(annotatedTokens[i], i) === true) {
-            if (typeof vertex === 'undefined') {
-              vertex = graphVertex(annotatedTokens[i].token.toLowerCase());
-              this.vertices[annotatedTokens[i].token.toLowerCase()] =
-                vertex;
-              sortedVertices[sortedVertices.length] = vertex;
-              this.numVertices++;
-            }
+        if (vertexFilter(annotatedTokens[i], i) === true) {
+          if (vertexIndex === -1) {
+            vertex = graphVertex(annotatedTokens[i].token.toLowerCase());
+            vertices[vertices.length] = vertex;
+            vertexNames[vertexNames.length] =
+              annotatedTokens[i].token.toLowerCase();
           }
           else
-            continue;
+            vertex = vertices[vertexIndex];
+        }
+        else
+          continue;
 
-          if (i > 0) {
-            var j = 1;
-            var actualJ = 0;
-            while (j <= adjLimit &&
-                   typeof annotatedTokens[i - (actualJ + 1)] !== 'undefined') {
-              actualJ++;
-              var prevToken = annotatedTokens[i - j].token.toLowerCase();
+        if (i > 0) {
+          var j = 1;
+          var actualJ = 0;
+          while (j <= adjLimit &&
+                 typeof annotatedTokens[i - (actualJ + 1)] !== 'undefined') {
+            actualJ++;
+            var prevToken = annotatedTokens[i - j].token.toLowerCase();
 
-              if (vertexFilter(annotatedTokens[i - j], i - j) === false)
+            if (vertexFilter(annotatedTokens[i - j], i - j) === false)
                 continue;
 
-              var prevVertex = this.vertices[prevToken];
+            var prevVertexIndex = vertexNames.indexOf(prevToken);
+            var prevVertex = vertices[prevVertexIndex];
 
-              if (typeof prevVertex === 'undefined')
-                continue;
+            if (typeof prevVertex === 'undefined')
+              continue;
 
-              vertex.addConnection(prevVertex);
-              prevVertex.addConnection(vertex);
+            vertex.addConnection(prevVertex);
+            prevVertex.addConnection(vertex);
 
-              if (actualJ === 1) {
-                var edge = graphEdge(prevVertex, vertex, i - j, i,
-                  annotatedTokens[i - j].tag, annotatedTokens[i].tag);
-                this.edges[this.edges.length] = edge;
+            if (actualJ === 1) {
+              var edge = graphEdge(prevVertex, vertex, i - j, i,
+                annotatedTokens[i - j].tag, annotatedTokens[i].tag);
 
-                this.numEdges++;
-              }
-              j++;
+              edges[edges.length] = edge;
+              edgeNames[edgeNames.length] = i - j + " " + i;
             }
+            j++;
           }
         }
+      }
+    };
+
+    var sortVertices = function (topN) {
+      vertices.sort(function (a, b) { return b.score - a.score; });
+      vertexNames = vertices.map(function (vertex) { return vertex.content; });
+      return vertices.slice(0, topN);
+    };
+
+    var formKeyphrases = function () {
+      var keywords = [];
+      var keyphrases = [];
+      var sorted = sortVertices(Math.floor(vertices.length * (1 / 3)));
+      var keyphrase = '';
+      var prevEdge = null;
+
+      for (var i = 0; i < sorted.length; i++)
+        keywords[i] = sorted[i].content;
+
+      for (var i = 0; i < edges.length; i++) {
+        var containsKeyword;
+        var nextContainsKeyword;
+
+        if (sorted.indexOf(edges[i].a) !== -1 ||
+            sorted.indexOf(edges[i].b) !== -1)
+          containsKeyword = true;
+
+        if (i < edges.length - 1) {
+          if ((sorted.indexOf(edges[i + 1].a) !== -1 ||
+               sorted.indexOf(edges[i + 1].b) !== -1) &&
+              edges[i + 1].aID === edges[i].bID)
+            nextContainsKeyword = true;
+        }
+
+        if (containsKeyword === false && nextContainsKeyword === false &&
+            keyphrase === '')
+          continue;
+
+        if (keyphrase === '') {
+          keyphrase += edges[i].a.content;
+
+          if (keywords.indexOf(edges[i].a.content) !== -1)
+            keywords.splice(keywords.indexOf(edges[i].a.content), 1);
+        }
+
+        keyphrase += ' ' + edges[i].b.content;
+
+        if (keywords.indexOf(edges[i].b.content) !== -1)
+          keywords.splice(keywords.indexOf(edges[i].b.content), 1);
+
+        if (i === edges.length - 1 || (i < edges.length - 1 && 
+            edges[i + 1].aID !== edges[i].bID)) {
+          if (keyphrases.indexOf(keyphrase) === -1)
+            keyphrases[keyphrases.length] = keyphrase;
+
+          keyphrase = '';
+        }
+      }
+
+      return {
+        keywords: keywords,
+        keyphrases: keyphrases
+      };
+    };
+
+    var runTextRank = function () {
+      var converged = false;
+
+      while (!converged) {
+        converged = true;
+        for (var i = 0; i < vertices.length; i++) {
+          var oldScore = vertices[i].score;
+
+          vertices[i].recalculateScore();
+
+          if (vertices[i].score < oldScore ||
+              vertices[i].score > oldScore)
+            converged = false;
+        }
+      }
+
+      return formKeyphrases();
+    };
+
+    return {
+      construct: function (text) {
+        annotatedTokens = postagger.tag(text);
+        consturctGraph(0, annotatedTokens.length);
 
         return this;
       },
-      sortVertices: function (topN) {
-        sortedVertices.sort(function (a, b) { return b.score - a.score; });
-        return sortedVertices.slice(0, topN);
+      score: function () {
+        return runTextRank();
       }
     };
   };
@@ -141,119 +231,11 @@ define(['postagger'], function (postagger) {
   var graph = null;
 
   keyword_extractor = {
-    addText: function (text) {
-      if (graph === null)
-        graph = textGraph();
-
-      graph.addText(text);
-
-      return this;
-    },
-    getGraph: function () {
-      return graph;
-    },
-    setGraph: function (newGraph) {
-      graph = newGraph;
-
-      return this;
-    },
-    score: function () {
-      var converged = false;
-      var keywords = [];
-      var keyphrases = [];
-
-      while (!converged) {
-        converged = true;
-        for (i in graph.vertices) {
-          var oldScore = graph.vertices[i].score;
-
-          graph.vertices[i].recalculateScore();
-
-          if (graph.vertices[i].score < oldScore ||
-              graph.vertices[i].score > oldScore)
-            converged = false;
-        }
-      }
-
-      var sorted = graph.sortVertices(Math.floor(graph.numVertices * (1 / 3)));
-
-      for (i = 0; i < sorted.length; i++)
-        keywords[i] = sorted[i].content;
-
-      var keyphrase;
-      var prevEdge = null;
-
-      for (i = 0; i < graph.edges.length; i++) {
-        if (prevEdge === null) {
-          if ((sorted.indexOf(graph.edges[i].a) !== -1 ||
-               sorted.indexOf(graph.edges[i].b) !== -1) ||
-              (i < graph.edges.length - 1 &&
-               sorted.indexOf(graph.edges[i + 1].b) !== -1)) {
-            if (graph.edges[i].aTag !== 'IN' && graph.edges[i].aTag !== 'CC') {
-              keyphrase = graph.edges[i].a.content;
-              var index = keywords.indexOf(graph.edges[i].a.content);
-
-              if (index !== -1)
-                keywords.splice(index, 1);
-            }
-            else
-              keyphrase = '';
-          }
-          else
-            continue;
-        }
-
-        if (keyphrase !== '')
-          keyphrase += " ";
-
-        keyphrase += graph.edges[i].b.content;
-
-        var index = keywords.indexOf(graph.edges[i].b.content);
-
-        if (index !== -1)
-          keywords.splice(index, 1);
-
-        prevEdge = graph.edges[i];
-
-        if (typeof graph.edges[i + 1] !== 'undefined' &&
-            graph.edges[i + 1].aID !== graph.edges[i].bID) {
-
-          if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
-            keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
-
-          if (keyphrases.indexOf(keyphrase) === -1)
-            keyphrases[keyphrases.length] = keyphrase;
-
-          prevEdge = null;
-        }
-      }
-
-      if (typeof keyphrase !== 'undefined' && prevEdge !== null) {
-        if (prevEdge.bTag === 'IN' || prevEdge.bTag === 'CC')
-          keyphrase = keyphrase.slice(0, keyphrase.lastIndexOf(' '));
-
-        if (keyphrases.indexOf(keyphrase) === -1)
-          keyphrases[keyphrases.length] = keyphrase;
-      }
-
-      return {
-        keywords: keywords,
-        keyphrases: keyphrases
-      };
-    },
-    reset: function () {
-      graph = textGraph();
-
-      return this;
-    },
     extractFrom: function (text) {
       graph = textGraph();
+      graph.construct(text);
 
-      graph.addText(text);
-
-      var result = this.score();
-      this.reset();
-      return result;
+      return graph.score();
     }
   };
 

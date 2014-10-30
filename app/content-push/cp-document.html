@@ -77,8 +77,19 @@
                 var thisNode = removedNodes[j];
                 if (thisNode) {
                   if (typeof thisNode.classList !== 'undefined' &&
-                    thisNode.classList.contains(LINE_CLASS)) {
+                      thisNode.classList.contains(LINE_CLASS) &&
+                      thisNode.getAttribute('cp_line_id') !== null &&
+                      self.$.scrollwatcher.isNodeVisible(thisNode)) {
                     console.log('MO:removed line');
+
+                    self.$.scrollwatcher.removeTargetNode(thisNode);
+
+                    if (self.editOverTimer !== null)
+                      clearTimeout(self.editOverTimer);
+
+                    self.editOverTimer = setTimeout(function () {
+                      self.$.scrollwatcher.getVisibleNodes(getContext, self);
+                    }, self.editOverTimeout);
                   }
                 }
               }
@@ -89,21 +100,37 @@
                 var thisNode = newNodes[j];
                 if (thisNode) {
                   if (thisNode.nodeName === 'SPAN') {
-                    if (findAncestor(thisNode, LINE_CLASS) !== null)
+                    var line = findAncestor(thisNode, LINE_CLASS);
+
+                    if (line !== null &&
+                        line.getAttribute('cp_line_id') === null &&
+                        self.$.scrollwatcher.isNodeVisible(line)) {
                       console.log('MO:editing line');
+
+                      if (self.editOverTimer !== null)
+                        clearTimeout(self.editOverTimer);
+
+                      self.editOverTimer = setTimeout(function () {
+                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
+                      }, self.editOverTimeout);
+                    }
                   }
                   else if (typeof thisNode.classList !== 'undefined' &&
-                    thisNode.classList.contains(LINE_CLASS)) {
-                    if (thisNode.getAttribute('cp_line_id') === null) {
-                      var lineIdAtt = document.createAttribute('cp_line_id');
+                           thisNode.classList.contains(LINE_CLASS) &&
+                           thisNode.getAttribute('cp_line_id') === null) {
+                    console.log('MO:new line');
+                    addIdToLine(thisNode, self.lineIdAccumulator);
+                    self.lineIdAccumulator++;
 
-                      console.log('MO:new line');
+                    self.$.scrollwatcher.addTargetNode(thisNode);
 
-                      lineIdAtt.value = self.numLines;
-                      thisNode.setAttributeNode(lineIdAtt);
+                    if (self.$.scrollwatcher.isNodeVisible(thisNode)) {
+                      if (self.editOverTimer !== null)
+                        clearTimeout(self.editOverTimer);
 
-                      self.$.scrollwatcher.addTargetNode(thisNode);
-                      self.numLines++;
+                      self.editOverTimer = setTimeout(function () {
+                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
+                      }, self.editOverTimeout);
                     }
                   }
                 }
@@ -128,29 +155,24 @@
         var lines =
           self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
 
-        self.editor =
+        var editor =
           self.$.iframe.contentDocument.querySelector(SCROLLING_ELEMENT_SELECTOR);
 
         self.$.highlighter.targetElement = self.$.iframe.contentDocument;
 
-        self.$.scrollwatcher.setScrollableNode(self.editor);
-        self.$.scrollwatcher.addOnScrollListener(scrollStop, self);
+        self.$.scrollwatcher.setScrollableNode(editor);
+        self.$.scrollwatcher.addOnScrollListener(getContext, self);
 
         for (var i = 0; i < lines.length; i++) {
-          addIdToLine(lines[i], self.numLines);
-          self.numLines++;
+          addIdToLine(lines[i], self.lineIdAccumulator);
+          self.lineIdAccumulator++;
 
           self.$.scrollwatcher.addTargetNode(lines[i]);
         }
 
-        self.$.scrollwatcher.addTargetAttribute('cp_line_id');
-        self.$.scrollwatcher.performImmediateVisibilityCheck(scrollStop, self);
+        self.$.scrollwatcher.getVisibleNodes(getContext, self);
 
         observeDocumentChanges(self);
-      };
-
-      var scrollStop = function (context, contextId, self) {
-        getContext(self, contextId, context);
       };
 
       var addIdToLine = function (line, value) {
@@ -160,31 +182,29 @@
         line.setAttributeNode(lineIdAtt);
       };
 
-      var getContext = function (self, contextId, context) {
-        if (self.contextIds.indexOf(contextId) !== -1) {
-          self.fire('getkeywords', { contextId: contextId });
-          return;
-        }
-
-        self.fire('resetextractor', null);
+      var getContext = function (context, self) {
+        self.fire('newcontext', {});
 
         for (var i = 0; i < context.length; i++) {
           var lineId;
+          var prevLineId = -1;
 
           lineId = context[i].getAttribute('cp_line_id');
 
-          self.fire('lineadd',
+          if (i > 0)
+            prevLineId = context[i - 1].getAttribute('cp_line_id');
+
+          self.fire('lineadded',
             {
-              contextId: contextId,
               lineId: lineId,
+              prevLineId: prevLineId,
               text: context[i].innerText
             }
           );
         }
 
-        self.contextIds[self.contextIds.length] = contextId;
-
-        self.fire('getkeywords', { contextId: contextId });
+        self.fire('processcontext', {});
+        self.fire('getkeywords', {});
       };
 
       /**
@@ -204,13 +224,12 @@
       Polymer({
         // functions and properties used in API and bindings
         // life cycle handlers
-        contextIds: [],
+        editOverTimeout: 500,
+        editOverTimer: null,
         created: function () {
           this.iframeurl="";
 
-          this.numLines = 0;
-
-          this.editor = null;
+          this.lineIdAccumulator = 0;
 
           // currently active keywords
           this.keywordInfo = {
