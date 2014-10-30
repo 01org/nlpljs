@@ -24,23 +24,49 @@ var libnlp;
 var queuedMessages = [];
 var loaded = false;
 
-var createLine = function (lineId, lineText) {
+var createLine = function (lineId, fromChar, toChar) {
   return {
     id: lineId,
-    text: lineText
+    fromChar: fromChar,
+    toChar: toChar
   };
 };
 
-var contexts = {};
+var currentContext = null;
 
-var createContext = function (contextId) {
+var createContext = function () {
   return{
     lines: [],
     lineIds: [],
-    id: contextId,
     graph: null,
     keywords: null,
     ranges: null,
+    text: '',
+    findLine: function (charIndex) {
+      var lineIndex = Math.floor((this.lines.length - 1) / 2);
+      var left = 0;
+      var right = this.lines.length - 1;
+      var found = false;
+
+      while (!found) {
+        var line = this.lines[lineIndex];
+
+        if (charIndex >= line.fromChar &&
+            charIndex < line.toChar) {
+          found = true;
+        } else {
+          if (charIndex < line.fromChar) {
+            right = lineIndex;
+            lineIndex = left + Math.floor((lineIndex - left) / 2);
+          } else {
+            left = lineIndex;
+            lineIndex = right - Math.floor((right - lineIndex) / 2);
+          }
+        }
+      }
+
+      return line;
+    }
   };
 };
 
@@ -48,8 +74,26 @@ var eventPageMessage = function (type, data) {
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
 
+/**
+ * Prefix characters that are special to RegExp() with a backslash
+ *     to render them inert.
+ * @param {string} str The string to escape RexExp() special characters in.
+ * @return {string} The string with escaped special characters.
+ */
+function escapeRegExp(str) {
+  // the first parameter is a list of characters that are special to RegExp()
+  // $& is the string matched in the first parameter
+  // \\ is a single backslash to escape the character
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
 this.onmessage = function (event) {
   var message = JSON.parse(event.data);
+
+  if (loaded === false && message.type !== 'initialize') {
+    queuedMessages[queuedMessages.length] = event;
+    return;
+  }
 
   switch (message.type) {
     case "initialize":
@@ -69,167 +113,119 @@ this.onmessage = function (event) {
 	      }
       });
       break;
-    case "lineadd":
-      if (loaded === false) {
-        queuedMessages[queuedMessages.length] = event;
-        break;
-      }
-
-      var context = contexts[message.data.contextId];
-
-      if (typeof context === 'undefined') {
-        context = createContext(message.data.contextId);
-        context.graph = libnlp.keyphrase_extractor.getGraph();
-        contexts[message.data.contextId] = context;
-      }
+    case "newcontext":
+      currentContext = createContext();
+      break;
+    case "lineadded":
+      var prevLineId = message.data.prevLineId;
+      var prevLineIndex = currentContext.lineIds.indexOf(prevLineId);
+      var newLine;
+      var startChar;
 
       var re = new RegExp(String.fromCharCode(160), "g");
       var text = message.data.text.replace(re,' ');
 
-      context.lines[context.lines.length] =
-        createLine(message.data.lineId, text);
+      if (prevLineIndex !== -1) {
+        newLine = createLine(message.data.lineId,
+          currentContext.lines[prevLineIndex].toChar,
+          currentContext.lines[prevLineIndex].toChar + text.length);
+        startChar = currentContext.lines[prevLineIndex].toChar;
+      } else {
+        newLine = createLine(message.data.lineId, 0, text.length);
+        startChar = 0;
+      }
 
-      context.lineIds[context.lineIds.length] = message.data.lineId;
+      currentContext.lines.splice(prevLineIndex + 1, 0, newLine);
+      currentContext.lineIds.splice(prevLineIndex + 1, 0, newLine.id);
 
-      text = text.replace(/\[\w+\]/g, '');
+      for (var i = prevLineIndex + 2; i < currentContext.lines.length; i++) {
+        currentContext.lines[i].fromChar += text.length;
+        currentContext.lines[i].toChar += text.length;
+      }
 
-      libnlp.keyphrase_extractor.setGraph(context.graph);
-      libnlp.keyphrase_extractor.addText(text);
+      currentContext.text = [currentContext.text.slice(0, startChar), text,
+        currentContext.text.slice(startChar)].join('');
 
+      console.log(currentContext.text);
       break;
-    case "getkeywords":
-      if (loaded === false) {
-        queuedMessages[queuedMessages.length] = event;
-        break;
-      }
+    case "processcontext":
+      console.log('prepare');
+      var textForExtractor = currentContext.text.replace(/\[\w+\]/g, '');
 
-      if (contexts[message.data.contextId].keywords !== null) {
-        postMessage(eventPageMessage("keywordlist", {
-          keywords: contexts[message.data.contextId].keywords,
-          ranges: contexts[message.data.contextId].ranges
-        }));
-
-        break;
-      }
-
-      libnlp.keyphrase_extractor.setGraph(contexts[message.data.contextId].graph);
-      var result = libnlp.keyphrase_extractor.score();
       var keywords = [];
       var ranges = [];
+      var result = libnlp.keyphrase_extractor.extractFrom(textForExtractor);
 
-      /**
-       * Prefix characters that are special to RegExp() with a backslash
-       *     to render them inert.
-       * @param {string} str The string to escape RexExp() special characters in.
-       * @return {string} The string with escaped special characters.
-       */
-      function escapeRegExp(str) {
-        // the first parameter is a list of characters that are special to RegExp()
-        // $& is the string matched in the first parameter
-        // \\ is a single backslash to escape the character
-        return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      }
-
-      for (i = 0; i < result.keyphrases.length; i++) {
+      for (var i = 0; i < result.keyphrases.length; i++) {
         var keyphrase = result.keyphrases[i];
         var index = keywords.length;
+        var regex = new RegExp(escapeRegExp(keyphrase), "gi");
 
         keywords[index] = {
           text: keyphrase,
           groupId: index
         };
 
-        for (j = 0; j < contexts[message.data.contextId].lines.length; j++) {
-          var lineId = contexts[message.data.contextId].lines[j].id;
-          var prevLineId;
-          var lineText = contexts[message.data.contextId].lines[j].text;
-          var totalText = lineText;
-          var lineStart = 0;
+        while ((search = regex.exec(currentContext.text))) {
+          var startChar = search.index;
+          var endChar = startChar + keyphrase.length - 1;
+          var startLine = currentContext.findLine(startChar);
+          var endLine = currentContext.findLine(endChar);
 
-          if (j > 0) {
-            prevLineId = contexts[message.data.contextId].lines[j - 1].id;
-            totalText = contexts[message.data.contextId].lines[j - 1].text + lineText;
-            lineStart = contexts[message.data.contextId].lines[j - 1].text.length;
-          }
-
-          var regex = new RegExp(escapeRegExp(keyphrase), "gi");
-          while ((search = regex.exec(totalText))) {
-            var startLine = lineId;
-            var endLine = lineId;
-            var startChar = search.index - lineStart;
-            var endChar = 0;
-
-            if (search.index < lineStart) {
-              if (search.index + keyphrase.length - 1 < lineStart)
-                continue;
-              else {
-                startChar = search.index;
-                startLine = prevLineId;
-              }
+          ranges[ranges.length] = {
+            groupId: keywords[index].groupId,
+            start: {
+              lineNo: startLine.id,
+              charNo: startChar - startLine.fromChar
+            },
+            end: {
+              lineNo: endLine.id,
+              charNo: endChar - endLine.fromChar
             }
-
-            endChar = (search.index - lineStart) + keyphrase.length - 1;
-            ranges[ranges.length] = {
-              groupId: keywords[index].groupId,
-              start: {
-                lineNo: startLine,
-                charNo: startChar
-              },
-              end: {
-                lineNo: endLine,
-                charNo: endChar
-              }
-            };
-          }
+          };
         }
       }
 
-      for (i = 0; i < result.keywords.length; i++) {
+      for (var i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
         var index = keywords.length;
+        var regex = new RegExp(escapeRegExp(keyword), "gi");
 
         keywords[index] = {
           text: keyword,
           groupId: index
         };
 
-        for (j = 0; j < contexts[message.data.contextId].lines.length; j++) {
-          var lineId = contexts[message.data.contextId].lines[j].id;
-          var lineText = contexts[message.data.contextId].lines[j].text;
+        while ((search = regex.exec(currentContext.text))) {
+          var startChar = search.index;
+          var endChar = charIndex + keyphrase.length - 1;
+          var startLine = currentContext.findLine(startChar);
+          var endLine = currentContext.findLine(endChar);
 
-          var regex = new RegExp(escapeRegExp(keyword), "gi");
-          while ((search = regex.exec(lineText))) {
-            ranges[ranges.length] = {
-              groupId: keywords[index].groupId,
-              start: {
-                lineNo: lineId,
-                charNo: search.index
-              },
-              end: {
-                lineNo: lineId,
-                charNo: search.index + (keyword.length - 1)
-              }
-            };
-          }
+          ranges[ranges.length] = {
+            groupId: keywords[index].groupId,
+            start: {
+              lineNo: startLine.id,
+              charNo: startChar - startLine.fromChar
+            },
+            end: {
+              lineNo: endLine.id,
+              charNo: endChar - endLine.fromChar
+            }
+          };
         }
       }
 
-      contexts[message.data.contextId].keywords = keywords;
-      contexts[message.data.contextId].ranges = ranges;
-
-      postMessage(eventPageMessage("keywordlist", {
-        keywords: keywords,
-        ranges: ranges
-      }));
+      currentContext.keywords = keywords;
+      currentContext.ranges = ranges;
 
       break;
-    case "resetextractor":
-      if (loaded === false) {
-        queuedMessages[queuedMessages.length] = event;
-        break;
-      }
-
-      libnlp.keyphrase_extractor.reset();
+    case "getkeywords":
+      console.log('get keywords');
+      postMessage(eventPageMessage("keywordlist", {
+        keywords: currentContext.keywords,
+        ranges: currentContext.ranges
+      }));
       break;
     default:
       console.warn("nlp_worker: " + message.type + " is not recognized");

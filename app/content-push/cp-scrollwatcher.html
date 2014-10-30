@@ -2,39 +2,9 @@
   <template></template>
   <script>
     (function () {
-      var isNodeVisible = function (self, node) {
-        var boundingRectangle = node.getBoundingClientRect();
-        var parentBoundingRectangle;
-
-        var nodeStyle = document.defaultView.getComputedStyle(node, null);
-
-        if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
-            'hidden' === nodeStyle['visiblity'])
-          return false;
-
-        if (self.scrollableNode !== null) {
-          parentBoundingRectangle = self.scrollableNode.getBoundingClientRect();
-
-          if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
-              boundingRectangle.right > parentBoundingRectangle.right ||
-              boundingRectangle.left < parentBoundingRectangle.left ||
-              boundingRectangle.top < parentBoundingRectangle.top)
-            return false;
-        }
-
-        if (boundingRectangle.bottom > window.innerHeight ||
-            boundingRectangle.right > window.innerWidth ||
-            boundingRectangle.left < 0 ||
-            boundingRectangle.top < 0)
-          return false;
-
-        return true;
-      };
-
       Polymer({
         scrollableNode: null,
         targetNodes: [],
-        targetAttributes: [],
         timeout: 500,
         scrollTimer: null,
         setScrollableNode: function (node) {
@@ -46,26 +16,7 @@
               clearTimeout(self.scrollTimer);
 
             self.scrollTimer = setTimeout(function () {
-              var visibleNodes = [];
-              var visibleId = '';
-
-              if (self.targetNodes !== null) {
-                for (var i = 0; i < self.targetNodes.length; i++) {
-                  if (isNodeVisible(self, self.targetNodes[i])) {
-                    visibleNodes[visibleNodes.length] = self.targetNodes[i];
-                    for (var j = 0; j < self.targetAttributes.length; j++) {
-                      if (self.targetNodes[i].hasAttribute(self.targetAttributes[j])) {
-                        visibleId +=
-                          self.targetNodes[i].getAttribute(self.targetAttributes[j]);
-                        if (i < self.targetNodes.length - 1)
-                          visibleId += ' ';
-                      }
-                    }
-                  }
-                }
-              }
-
-              listener(visibleNodes, visibleId, data);
+              self.getVisibleNodes(listener, data);
             }, self.timeout);
           };
 
@@ -80,45 +31,54 @@
           window.addEventListener('scroll', callback, false); 
           window.addEventListener('resize', callback, false);
         },
-        performImmediateVisibilityCheck: function (callback, data) {
+        getVisibleNodes: function (callback, data) {
           var visibleNodes = [];
           var visibleId = '';
 
           if (this.targetNodes !== null) {
             for (var i = 0; i < this.targetNodes.length; i++) {
-              if (isNodeVisible(this, this.targetNodes[i])) {
+              if (this.isNodeVisible(this.targetNodes[i]))
                 visibleNodes[visibleNodes.length] = this.targetNodes[i];
-                for (var j = 0; j < this.targetAttributes.length; j++) {
-                  if (this.targetNodes[i].hasAttribute(this.targetAttributes[j])) {
-                    visibleId +=
-                     this.targetNodes[i].getAttribute(this.targetAttributes[j]);
-                    if (i < this.targetNodes.length - 1)
-                      visibleId += ' ';
-                  }
-                }
-              }
             }
           }
 
-          callback(visibleNodes, visibleId, data);
+          callback(visibleNodes, data);
         },
-        addTargetAttribute: function (targetAttribute) {
-          this.targetAttributes[this.targetAttributes.length] = targetAttribute;
+        isNodeVisible: function (node) {
+          var boundingRectangle = node.getBoundingClientRect();
+          var parentBoundingRectangle;
+
+          var nodeStyle = document.defaultView.getComputedStyle(node, null);
+
+          if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
+              'hidden' === nodeStyle['visiblity'])
+            return false;
+
+          if (this.scrollableNode !== null) {
+            parentBoundingRectangle = this.scrollableNode.getBoundingClientRect();
+
+            if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
+                boundingRectangle.right > parentBoundingRectangle.right ||
+                boundingRectangle.left < parentBoundingRectangle.left ||
+                boundingRectangle.top < parentBoundingRectangle.top)
+              return false;
+          }
+
+          if (boundingRectangle.bottom > window.innerHeight ||
+              boundingRectangle.right > window.innerWidth ||
+              boundingRectangle.left < 0 ||
+              boundingRectangle.top < 0)
+            return false;
+
+          return true;
         },
         addTargetNode: function (targetNode) {
           this.targetNodes[this.targetNodes.length] = targetNode;
-        },
-        removeTargetAttribute: function (targetAttribute) {
-          var index = this.targetAttributes.indexOf(targetAttribute);
-          this.targetAttributes.splice(index, 1);
         },
         removeTargetNode: function (targetNode) {
           var index = this.targetNodes.indexOf(targetNode);
           this.targetNodes.splice(index, 1);
         },
-        setScrollTimeout: function (scrollTimeout) {
-          this.timeout = scrollTimeout;
-        }
       });
     })();
   </script>

@@ -81,16 +81,20 @@
     var cpMain = document.createElement('cp-main');
     cpMain.setAttribute("iframeurl", currentTabUrl);
     cpMain.setAttribute('fit', '');
-    cpMain.addEventListener('lineadd', function (e) {
-      port.postMessage(eventPageMessage('lineadd', e.detail));
+    cpMain.addEventListener('lineadded', function (e) {
+      port.postMessage(eventPageMessage('lineadded', e.detail));
     });
 
-    cpMain.addEventListener('resetextractor', function (e) {
-      port.postMessage(eventPageMessage('resetextractor', e.detail));
+    cpMain.addEventListener('newcontext', function (e) {
+      port.postMessage(eventPageMessage('newcontext', e.detail));
     });
 
     cpMain.addEventListener('getkeywords', function (e) {
       port.postMessage(eventPageMessage('getkeywords', e.detail));
+    });
+
+    cpMain.addEventListener('processcontext', function (e) {
+      port.postMessage(eventPageMessage('processcontext', e.detail));
     });
 
     body.appendChild(cpMain);
