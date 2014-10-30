@@ -103,8 +103,9 @@
                     var line = findAncestor(thisNode, LINE_CLASS);
 
                     if (line !== null &&
-                        line.getAttribute('cp_line_id') === null &&
-                        self.$.scrollwatcher.isNodeVisible(line)) {
+                        line.getAttribute('cp_line_id') !== null &&
+                        self.$.scrollwatcher.isNodeVisible(line) &&
+                        line.innerHTML.indexOf('keyword-highlight') === -1) {
                       console.log('MO:editing line');
 
                       if (self.editOverTimer !== null)
