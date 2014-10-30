@@ -151,7 +151,7 @@
       };
 
       var getLine = function (self,lineId) {
-        return self.targetElement.querySelector('[cp_line_id="' + lineId + '"]');
+        return self.targetElement.querySelector('[cp_line_id="' + lineId + '"] .kix-lineview-content');
       };
 
       // tries to behave like html parser does
@@ -183,18 +183,20 @@
         var start=rangeToHighlight.start;
         var end=rangeToHighlight.end;
         var groupId=rangeToHighlight.groupId;
+        var startLineId=start.lineNo;
+        var endLineId=end.lineNo;
 
         var tag = [
-          [start.lineNo,start.charNo].join(':'),
-          [end.lineNo,end.charNo].join(':'),
+          [startLineId,start.charNo].join(':'),
+          [endLineId,end.charNo].join(':'),
         ].join('-');
 
         // 1. get start line object
-        var line=getLine(self, start.lineNo);
+        var line=getLine(self, startLineId);
 
         // abort if no line
         if (!line) {
-          console.log('HL:ERROR, line#%d not found.',start.lineNo);
+          console.log('HL:ERROR, line#%d not found.',startLineId);
           return;
         }
 
@@ -207,7 +209,7 @@
 
         // 3. add close hl before first '<' in .after0
         var closePosition=bits0.after.indexOf('<');
-        if (end.lineNo===start.lineNo) {
+        if (endLineId===startLineId) {
           // use splitAtPosition to find
           // if the split would be before the '<'
           var tmpBits=splitAtPosition(
@@ -225,7 +227,7 @@
         ].join('');
 
         // 4. if end char is on same line as start char
-        if (end.lineNo===start.lineNo) {
+        if (endLineId===startLineId) {
           // 4.1 in .after0, split line at (end char - start char)
           var bits1=splitAtPosition(
             end.charNo-start.charNo,
@@ -233,7 +235,7 @@
             'end'
           );
 
-          // 4.2 in .before1, replace />([^>]+)</ with hl.open(groupId) \1 hl.close()
+          // 4.2 in .before1, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
           bits1.before = bits1.before.replace(
             />([^<]+)</g,
             [
@@ -290,7 +292,7 @@
 
 
         // 7. if end line > start line
-        if (end.lineNo !== start.lineNo) {
+        if (endLineId !== startLineId) {
           // # process intermediate lines
 
           /*
@@ -298,11 +300,19 @@
             actually refer to lineIds, so we need to dereference them
             in the lineIds array to find real lineNos
           */
-          var startIndex = self.lineIds.indexOf(start.lineNo);
-          var endIndex = self.lineIds.indexOf(end.lineNo);
+          var startLineNo = self.lineIds.indexOf(startLineId);
+          var endLineNo = self.lineIds.indexOf(endLineId);
+
+          if (startLineNo === -1 || endLineNo === -1 ) {
+            console.log('HL:Error: lineId not in lineIds array!');
+            console.log('HL:Error: startLineId:',startLineId);
+            console.log('HL:Error: startLineNo:',startLineNo);
+            console.log('HL:Error: endLineId:',endLineId);
+            console.log('HL:Error: endLineNo:',endLineNo);
+          }
 
           // 7.1 loop over intermediate lines
-          for (var lineNo=startIndex+1;lineNo<endIndex;++lineNo) {
+          for (var lineNo=startLineNo+1;lineNo<endLineNo;++lineNo) {
             // 7.2.1 get line object
             var thisLine=getLine(self, self.lineIds[lineNo]);
 
@@ -324,7 +334,7 @@
 
           // # process last line
           // 7.3 get last line object
-          var endLine=getLine(self,end.lineNo);
+          var endLine=getLine(self,endLineId);
 
           // 7.4 split it at the end char
           var bits=splitAtPosition(
@@ -373,7 +383,7 @@
           result.push(elements[i].innerText);
         }
         var concatResult=[result.join('')].join('');
-        if (start.lineNo===end.lineNo && concatResult.length!=(end.charNo-start.charNo+1)) {
+        if (startLineId===endLineId && concatResult.length!=(end.charNo-start.charNo+1)) {
           console.log('HL:Result: ',['/',concatResult,'/'].join(''));
           console.log('HL:Tag:',tag);
           // only checking when the same line
@@ -410,7 +420,7 @@
       };
 
       Polymer({
-        lineIds: null,
+        lineIds: [],
         created: function () {
           this.offStyle='',
           this.onStyle=[
@@ -429,14 +439,17 @@
         },
 
         prepare: function (ranges) {
-          var lines = this.targetElement.querySelectorAll('.kix-lineview');
-          this.lineIds = [].map.call(lines, function (element) {
-            return element.getAttribute('cp_line_id');
-          });
+          var lines = this.targetElement.querySelectorAll('[cp_line_id]');
+          for (var i=0;i<lines.length;i++) {
+            this.lineIds[i] = lines[i].getAttribute('cp_line_id');
+          }
 
           for (var i=0;i<ranges.length;++i) {
             highlightRange(this,ranges[i]);
           }
+
+          // finished with lineIds, so remove array
+          this.lineIds = [];
         },
 
         turn: function (groupId,state) {
