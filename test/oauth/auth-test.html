@@ -1,5 +1,6 @@
 <script src="../../app/bower_components/platform/platform.js"></script>
 <link rel='import' href='../../app/bower_components/google-apis/google-apis.html'>
+<link rel='import' href='../../app/bower_components/paper-spinner/paper-spinner.html'>
 <link rel='import' href='../../app/content-push/cp-auth.html'>
 
 <polymer-element name='auth-test'>
@@ -7,9 +8,9 @@
     <section>
       <h5>Google</h5>
       <button id='google_signin' on-click='{{onGoogleSignInClick}}'>Sign in</button>
-      <template if='{{working}}'>
-        <p>Working...</p>
-      </template>
+      <!--template if='{{working}}'-->
+      <paper-spinner active?='{{working}}'></paper-spinner>
+      <!--/template-->
       <template bind='{{results}}'>
         <h5>List of text/plain files</h5>
         <p>Number of text/plain files: {{length}}</p>
@@ -55,7 +56,7 @@
     var SCOPES = [
       "https://www.googleapis.com/auth/drive"
     ];
-    var MAXRESULTS = 10;
+    var MAXRESULTS = 100;
     /*
       google apis - can specify scope in the first parameter, or just use the ones in the manifest
       chrome.identity.getAuthToken({'interactive': true}, function(token) {
@@ -284,6 +285,7 @@
 
     function makeDisplayResultFunction(self,thisResult,i) {
       return function(responseText) {
+
         self.results.push({
             id: thisResult.id,
             title: thisResult.title,
@@ -291,9 +293,11 @@
             thumbnailLink: thisResult.thumbnailLink,
             responseText: responseText
         });
+
         if (i===self.lasti) {
           self.working = false;
         }
+
       }
     }
 
@@ -335,17 +339,31 @@
             var displayedResults=0;
             for (i=0;i<results.length;i++) {
               var thisResult=results[i];
-              if (thisResult.mimeType === 'text/plain') {
+        // TODO: really, here we want to add to the self.results array for all results
+        // and pass in the 'responseText' property to the makeDisplayResultFunction function
+        // so that it can 'fill in' the text when it is downloaded, but only for plain/text
+              //if (thisResult.mimeType === 'text/plain') {
                 console.log('CP-AUTH:RESULT:',i,thisResult);
-                downloadFile(thisResult,makeDisplayResultFunction(self,thisResult,i,results.length-1));
-                lasti=i;
+                //downloadFile(thisResult,makeDisplayResultFunction(self,thisResult,i,results.length-1));
+
+                self.results.push({
+                    id: thisResult.id,
+                    title: thisResult.title,
+                    iconLink: thisResult.iconLink,
+                    thumbnailLink: thisResult.thumbnailLink,
+                    //responseText: responseText
+                });
+
+
+                //lasti=i;
                 displayedResults++;
                 if (displayedResults>MAXRESULTS) {
                   break;
                 }
-              }
+              //}
             }
-            self.lasti=lasti;
+            //self.lasti=lasti;
+            self.working = false;
           });
         };
 
