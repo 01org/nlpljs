@@ -107,7 +107,8 @@
       <h4 id="imgSource" data-show="{{source}}">{{source|getDomainFromURL}}</h4>
 
       <div id="visitSrc" data-show="{{source}}">
-        <paper-button raised class="colored" on-click="{{visitWebpage}}">
+        <paper-button raised class="colored" on-click="{{visitWebpage}}"
+                      data-source-link="{{source}}">
           Visit web page &gt;
         </paper-button>
       </div>

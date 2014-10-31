@@ -1,10 +1,10 @@
-<link rel="import" href="./cp-search-wikipedia.html">
+<link rel="import" href="./cp-search-google-images.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
-    <cp-search-wikipedia id="searchWikipedia"
-                         resultsPerFetch="{{resultsPerFetch}}">
-    </cp-search-wikipedia>
+    <cp-search-google-images id="searchGoogleImages"
+                             resultsPerFetch="{{resultsPerFetch}}">
+    </cp-search-google-images>
   </template>
 
   <script src="./cp-filter-deduplicate.js"></script>
@@ -36,7 +36,7 @@
             return Promise.resolve([]);
           }
 
-          return this.$.searchWikipedia.fetch(query).then(
+          return this.$.searchGoogleImages.fetch(query).then(
             function (results) {
               var filteredResults = [];
 
