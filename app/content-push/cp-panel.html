@@ -110,7 +110,8 @@
                     on-moreresults="{{onDisplayMoreResults}}"
                     on-mouse-over="{{onDisplayMouseover}}"
                     on-mouse-out="{{onDisplayMouseout}}"
-                    on-mouse-down="{{showDetail}}">
+                    on-mouse-down="{{showDetail}}"
+					on-slider-change="{{sliderChange}}">
         </cp-display>
       </div>
 
@@ -132,10 +133,14 @@
       // private *static* functions and constants
 
       var setFilter = function (self) {
+        var sliderValue = self.$.display.$.slider.value;
+        var desiredNumber = Math.floor((sliderValue / (100 - sliderValue)) *
+          self.activeKeywords.length);
+
         /* set filter on the display based on current keywordInfo
            and selected result types */
         self.$.display.setFilter({
-          activeKeywords: self.activeKeywords,
+          activeKeywords: self.activeKeywords.slice(0, desiredNumber),
           types: self.typeFilter
         });
       };
@@ -265,9 +270,9 @@
             this.$.display.scrollToTop();
 
             search(this, newKeywords);
-          } else {
-            setFilter(this);
           }
+
+          setFilter(this);
         },
 
         /* search more using current keywordInfo */
@@ -285,6 +290,9 @@
 
         closePanel: function () {
           this.fire('close-panel');
+        },
+        sliderChange: function () {
+          setFilter(this);
         }
       }); // Polymer()
     })();

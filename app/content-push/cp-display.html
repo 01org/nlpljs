@@ -118,7 +118,7 @@ pushing new tiles into the wrapped layout
 
       <!-- "widen the search" slider -->
       <div id="widen" data-show="{{state !== 'preresults'}}">
-        <paper-slider min="0" max="100" value="50">
+        <paper-slider id="slider" min="0" max="100" value="50" on-change="{{sliderChanged}}">
         </paper-slider>
       </div>
     </div>
@@ -179,7 +179,7 @@ pushing new tiles into the wrapped layout
               return false;
             }
 
-            tile.ke
+
             var typeMatches;
             /* no types criteria, so always matches */
             if (criteria.types.length === 0) {
@@ -294,6 +294,10 @@ pushing new tiles into the wrapped layout
 
         hideLoadingSpinner: function () {
           this.loading = false;
+        },
+        sliderChanged: function () {
+          console.log('changed');
+          this.fire('slider-change');
         }
       });
     })();
