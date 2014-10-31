@@ -11,6 +11,7 @@
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-image-detail.html">
 <link rel="import" href="./cp-swapper.html">
+<link rel="import" href="./cp-sources-groups.html">
 
 <polymer-element name='cp-panel' on-newkeywordinfo='{{onNewKeywordInfo}}'>
   <template>
@@ -24,7 +25,7 @@
         background-color: #202020;
         margin: 0;
         padding: 0;
-        z-index: 2000;
+        z-index: 500;
       }
 
       #toolbartext {
@@ -77,43 +78,50 @@
         display: none;
       }
     </style>
-
-    <!-- the panel is made up of a header toolbar and the display -->
-    <core-toolbar id="toolbar">
-      <!-- items in this menu set the "types" part of the display filter -->
-      <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
-        <paper-item icon="drive-image" label="Images"
-                    data-type-filter="image"></paper-item>
-        <paper-item icon="editor:format-color-text" label="Quotations"
-                    data-type-filter="quotation"></paper-item>
-        <paper-item icon="drive-file" label="Files"
-                    data-type-filter="file"></paper-item>
-        <paper-item icon="av:movie" label="Videos"
-                    data-type-filter="video"></paper-item>
-        <paper-item icon="folder" label="Text+Images"
-                    data-type-filter="quotation,image"></paper-item>
-        <paper-item icon="apps" label="All"
-                    data-type-filter="no-filter"></paper-item>
-      </paper-menu-button>
-
-      <core-icon id="toolbaricon" icon="" data-show="false"></core-icon>
-      <span id="toolbartext" flex>Content Push</span>
-
-      <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
-    </core-toolbar>
-
     <cp-swapper id="swapper">
-      <cp-display id="display"
-                  on-moreresults="{{onDisplayMoreResults}}"
-                  on-mouse-over="{{onDisplayMouseover}}"
-                  on-mouse-out="{{onDisplayMouseout}}"
-                  on-mouse-down="{{showDetail}}"
-                  swapper-fix>
-      </cp-display>
+      <div swapper-fix>
+        <!-- the panel is made up of a header toolbar and the display -->
+        <core-toolbar id="toolbar">
+          <!-- items in this menu set the "types" part of the display filter -->
+          <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
+            <paper-item icon="drive-image" label="Images"
+                        data-type-filter="image"></paper-item>
+            <paper-item icon="editor:format-color-text" label="Quotations"
+                        data-type-filter="quotation"></paper-item>
+            <paper-item icon="drive-file" label="Files"
+                        data-type-filter="file"></paper-item>
+            <paper-item icon="av:movie" label="Videos"
+                        data-type-filter="video"></paper-item>
+            <paper-item icon="folder" label="Text+Images"
+                        data-type-filter="quotation,image"></paper-item>
+            <paper-item icon="apps" label="All"
+                        data-type-filter="no-filter"></paper-item>
+            <paper-item icon="editor:mode-edit" label="EDIT SOURCES"
+                        data-type-filter="edit"></paper-item>
+          </paper-menu-button>
+
+          <core-icon id="toolbaricon" icon="" data-show="false"></core-icon>
+          <span id="toolbartext" flex>Content Push</span>
+
+          <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
+        </core-toolbar>
+
+        <cp-display id="display"
+                    on-moreresults="{{onDisplayMoreResults}}"
+                    on-mouse-over="{{onDisplayMouseover}}"
+                    on-mouse-out="{{onDisplayMouseout}}"
+                    on-mouse-down="{{showDetail}}">
+        </cp-display>
+      </div>
 
       <cp-image-detail id="detail" on-back="{{closeDetail}}"
                        swapper-slide swap-id="detail">
       </cp-image-detail>
+
+      <cp-sources-groups id="groups"
+                  on-back="{{closeGroups}}"
+                  swapper-slide swap-id="groups">
+      </cp-sources-groups>
     </cp-swapper>
 
     <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
@@ -196,6 +204,10 @@
           this.$.swapper.slideOut('detail');
         },
 
+        closeGroups: function () {
+          this.$.swapper.slideOut('groups');
+        },
+
         /* change which types of result are displayed when a menu
            item is clicked */
         applyTypeFilter: function (e) {
@@ -204,6 +216,12 @@
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
           if (!typeFilter) {
+            return;
+          }
+
+          if (typeFilter === 'edit') {
+            console.log('edit sources');
+            this.$.swapper.slideIn('groups');
             return;
           }
 

@@ -1,0 +1,81 @@
+<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/core-icons/av-icons.html">
+<link rel="import" href="../bower_components/core-icons/editor-icons.html">
+<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../bower_components/core-item/core-item.html">
+
+<polymer-element name="cp-sources-groups">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+        background-color: white;
+      }
+
+      #panel {
+        height: 100%;
+      }
+
+      #header {
+        background-color: #4CA8B4;
+        text-align: left;
+        color: white;
+        padding-top: 30px;
+      }
+
+      #headertext {
+        margin: 0; 
+        font-size: 1.1em;
+      }
+
+      #subheading {
+        font-size: 0.8em;
+      }
+
+      core-item {
+        border-bottom-style: solid;
+        border-height: 0.5px;
+        border-color:#f8f8f8;
+        -webkit-user-select: none;
+        font-size: 1.1em;
+        cursor: pointer;
+        margin: 5px 0;
+      }
+    </style>
+
+    <core-header-panel id="panel" flex>
+      <core-toolbar id="header" class="medium-tall">
+        <core-icon-button icon="arrow-back"
+                          on-tap="{{onBackButtonClick}}">
+        </core-icon-button>
+
+        <div flex>
+          <div id="headertext">Groups</div>
+          <span id="subheading">Filter content by selecting your sources.</span>
+        </div>
+      </core-toolbar>
+
+      <core-item icon="drive-image" label="Images"></core-item>
+      <core-item icon="editor:format-color-text" label="Quotations"></core-item>
+      <core-item icon="drive-file" label="Files"></core-item>
+      <core-item icon="av:movie" label="Videos"></core-item>
+      <core-item icon="folder" label="Text+Images"></core-item>
+    </core-header-panel>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        onBackButtonClick: function () {
+          this.fire('back');
+        }
+      });
+    })();
+  </script>
+</polymer-element>
