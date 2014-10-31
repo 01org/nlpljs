@@ -156,36 +156,6 @@ this.onmessage = function (event) {
       var ranges = [];
       var result = libnlp.keyphrase_extractor.extractFrom(textForExtractor);
 
-      for (var i = 0; i < result.keyphrases.length; i++) {
-        var keyphrase = result.keyphrases[i];
-        var index = keywords.length;
-        var regex = new RegExp(escapeRegExp(keyphrase), "gi");
-
-        keywords[index] = {
-          text: keyphrase,
-          groupId: index
-        };
-
-        while ((search = regex.exec(currentContext.text))) {
-          var startChar = search.index;
-          var endChar = startChar + keyphrase.length - 1;
-          var startLine = currentContext.findLine(startChar);
-          var endLine = currentContext.findLine(endChar);
-
-          ranges[ranges.length] = {
-            groupId: keywords[index].groupId,
-            start: {
-              lineNo: startLine.id,
-              charNo: startChar - startLine.fromChar
-            },
-            end: {
-              lineNo: endLine.id,
-              charNo: endChar - endLine.fromChar
-            }
-          };
-        }
-      }
-
       for (var i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
         var index = keywords.length;
@@ -193,12 +163,13 @@ this.onmessage = function (event) {
 
         keywords[index] = {
           text: keyword,
-          groupId: index
+          groupId: index,
+          score: result.scores[i]
         };
 
         while ((search = regex.exec(currentContext.text))) {
           var startChar = search.index;
-          var endChar = charIndex + keyphrase.length - 1;
+          var endChar = startChar + keyword.length - 1;
           var startLine = currentContext.findLine(startChar);
           var endLine = currentContext.findLine(endChar);
 

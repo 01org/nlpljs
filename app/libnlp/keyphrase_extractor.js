@@ -142,13 +142,17 @@ define(['postagger'], function (postagger) {
 
     var formKeyphrases = function () {
       var keywords = [];
-      var keyphrases = [];
+      var scores = [];
       var sorted = sortVertices(Math.floor(vertices.length * (1 / 3)));
       var keyphrase = '';
       var prevEdge = null;
+      var phraseScore = 0;
+      var phraseLength = 0;
 
-      for (var i = 0; i < sorted.length; i++)
+      for (var i = 0; i < sorted.length; i++) {
         keywords[i] = sorted[i].content;
+        scores[i] = sorted[i].score;
+      }
 
       for (var i = 0; i < edges.length; i++) {
         var containsKeyword;
@@ -170,29 +174,57 @@ define(['postagger'], function (postagger) {
           continue;
 
         if (keyphrase === '') {
+          var index = keywords.indexOf(edges[i].a.content);
           keyphrase += edges[i].a.content;
+          phraseScore += edges[i].a.score;
+          phraseLength++;
 
-          if (keywords.indexOf(edges[i].a.content) !== -1)
-            keywords.splice(keywords.indexOf(edges[i].a.content), 1);
+          if (index !== -1) {
+            keywords.splice(index, 1);
+            scores.splice(index, 1);
+          }
         }
 
+        var index = keywords.indexOf(edges[i].b.content);
+
         keyphrase += ' ' + edges[i].b.content;
+        phraseScore += edges[i].b.score;
+        phraseLength++;
 
-        if (keywords.indexOf(edges[i].b.content) !== -1)
-          keywords.splice(keywords.indexOf(edges[i].b.content), 1);
+        if (index !== -1) {
+          keywords.splice(index, 1);
+          scores.splice(index, 1);
+        }
 
-        if (i === edges.length - 1 || (i < edges.length - 1 && 
+        if (i === edges.length - 1 || (i < edges.length - 1 &&
             edges[i + 1].aID !== edges[i].bID)) {
-          if (keyphrases.indexOf(keyphrase) === -1)
-            keyphrases[keyphrases.length] = keyphrase;
+          if (keywords.indexOf(keyphrase) === -1) {
+            keywords[keywords.length] = keyphrase;
+            scores[scores.length] = phraseScore / phraseLength;
+          }
 
           keyphrase = '';
+          phraseScore = 0;
+          phraseLength = 0;
         }
       }
 
+      console.log(keywords);
+      console.log(scores);
+
+      sorted = keywords.slice(0);
+
+      sorted.sort(function (a, b) {
+        var aScore = scores[keywords.indexOf(a)];
+        var bScore = scores[keywords.indexOf(b)];
+        return bScore - aScore;
+      });
+
+      scores.sort(function (a, b) { return  b - a });
+
       return {
-        keywords: keywords,
-        keyphrases: keyphrases
+        keywords: sorted,
+        scores: scores
       };
     };
 
