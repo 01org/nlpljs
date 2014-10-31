@@ -4,7 +4,7 @@ search using a Google custom search engine
 <link rel="import" href="./cp-search.html">
 <polymer-element name="cp-search-google-images" extends="cp-search">
   <script src="jsonp.js"></script>
-
+  <script src="cp-thumbnailer.js"></script>
   <script>
     (function () {
       /* maximum number of results Google will return per search */
@@ -85,7 +85,7 @@ search using a Google custom search engine
 
               resultSet.add({
                 src: data.link,
-                thumbnailSrc: data.image.thumbnailLink,
+                thumbnailSrc: Thumbnailer.getGoogleURL(data.link),
                 width: data.image.width,
                 height: data.image.height,
                 type: 'image',

@@ -6,14 +6,11 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
 <polymer-element name="cp-search-wikipedia" extends="cp-search">
   <script src="jsonp.js"></script>
+  <script src="cp-thumbnailer.js"></script>
   <script>
     (function () {
       /* hard limit on search page size set by Wikipedia */
       var MAX_RESULTS_PER_SEARCH = 50;
-
-      /* base URL for Google's image resizer (undocumented);
-         see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
-      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
 
       /* format Wikipedia date in format "YYYY:MM:DD"
          to "YYYY-MM-DD" */
@@ -84,12 +81,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
               if (pages.hasOwnProperty(k)) {
                 var data = pages[k].imageinfo[0];
                 var meta = data.extmetadata;
-
-                var thumbnailSrc = RESIZER_BASE_URL +
-                    '?container=focus&' +
-                    'refresh=' + (60 * 60) + '&' + // cache for one hour
-                    'resize_w=600&' + // set max image width to 600px
-                    'url=' + encodeURIComponent(data.url);
+                var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
 
                 resultSet.add({
                   src: data.url,
