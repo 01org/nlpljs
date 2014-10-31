@@ -11,6 +11,7 @@
     "declarativeContent",
     "tabs",
     "identity",
+    "storage",
     "https://www.facebook.com/",
     "https://graph.facebook.com/",
     "<all_urls>"
@@ -22,7 +23,7 @@
     {
       "matches": ["https://docs.google.com/*/document/*"],
       "run_at": "document_start",
-      "js": ["scripts/rehostPage.js"]
+      "js": ["scripts/rehostPage.js", "scripts/sources.js"]
     }
   ],
   "icons": {
