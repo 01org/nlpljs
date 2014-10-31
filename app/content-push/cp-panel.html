@@ -135,34 +135,36 @@
         /* set filter on the display based on current keywordInfo
            and selected result types */
         self.$.display.setFilter({
-          keywordInfo: self.keywordInfo,
+          activeKeywords: self.activeKeywords,
           types: self.typeFilter
         });
       };
 
       /* perform search for current keyphrase and add to the display */
-      var search = function (self) {
-        if (!self.keywordInfo) {
+      var search = function (self, newKeywords) {
+        if (!self.activeKeywords) {
           return;
         }
 
         self.$.display.showLoadingSpinner();
 
-        self.$.fetcher.fetch(self.keywordInfo).then(
-          function (results) {
-            self.$.display.receiveResults(results);
-            setFilter(self);
-            self.$.display.hideLoadingSpinner();
-          },
+        for (var i = 0; i < newKeywords.length; i++) {
+          self.$.fetcher.fetch(newKeywords[i]).then(
+            function (results) {
+              self.$.display.receiveResults(results);
+              setFilter(self);
+              self.$.display.hideLoadingSpinner();
+            },
 
-          /* TODO notify user of search errors in UI */
-          function (err) {
-            self.$.display.receiveResults([]);
-            setFilter(self);
-            self.$.display.hideLoadingSpinner();
-            console.error(err);
-          }
-        );
+            /* TODO notify user of search errors in UI */
+            function (err) {
+              self.$.display.receiveResults([]);
+              setFilter(self);
+              self.$.display.hideLoadingSpinner();
+              console.error(err);
+            }
+          );
+        }
       };
 
       /* test whether the keywordInfo has changed; currently this
@@ -172,18 +174,26 @@
       var checkKeywordInfoChanged = function (oldKeywordInfo, newKeywordInfo) {
         /* no keyword set yet, so definitely a change */
         if (!oldKeywordInfo) {
-          return true;
+          return newKeywordInfo.keywords;
         }
 
-        var oldBestKeyword = oldKeywordInfo.keywords[0].text;
-        var newBestKeyword = newKeywordInfo.keywords[0].text;
-        return oldBestKeyword !== newBestKeyword;
+        var newKeywords = [];
+        var keywords = oldKeywordInfo.map(function (keyword) {
+          return keyword.text;
+        });
+
+        for (var i = 0; i < newKeywordInfo.keywords.length; i++) {
+          if (keywords.indexOf(newKeywordInfo.keywords[i].text) === -1)
+            newKeywords[newKeywords.length] = newKeywordInfo.keywords[i];
+        }
+
+        return newKeywords;
       };
 
       Polymer({
         // functions and properties used in API and bindings
         created: function () {
-          this.keywordInfo = null;
+          this.activeKeywords = null;
 
           /* an array of types of result to show in the display,
              or empty array to have no filter set */
@@ -245,28 +255,32 @@
         onNewKeywordInfo: function (e) {
           console.log('PA:onNewKeywordInfo', e.detail.keywordInfo);
 
-          /* if we have a new best keyword, run a fresh search */
-          if (checkKeywordInfoChanged(this.keywordInfo, e.detail.keywordInfo)) {
-            this.keywordInfo = e.detail.keywordInfo;
+          var newKeywords =
+            checkKeywordInfoChanged(this.activeKeywords, e.detail.keywordInfo);
 
+          this.activeKeywords = e.detail.keywordInfo.keywords;
+          /* if we have a new best keyword, run a fresh search */
+          if (newKeywords.length > 0) {
             /* reset scroll position, as we'll be showing new results */
             this.$.display.scrollToTop();
 
-            search(this);
+            search(this, newKeywords);
+          } else {
+            setFilter(this);
           }
         },
 
         /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
-          search(this);
+          search(this, this.activeKeywords);
         },
 
         onDisplayMouseover: function (e) {
-          this.fire('mouseoverimage', {groupId: e.detail.groupId});
+          this.fire('mouseoverimage', e.detail);
         },
 
         onDisplayMouseout: function (e) {
-          this.fire('mouseoutimage', {groupId: e.detail.groupId});
+          this.fire('mouseoutimage', e.detail);
         },
 
         closePanel: function () {

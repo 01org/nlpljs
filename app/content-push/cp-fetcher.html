@@ -25,10 +25,10 @@
         /* at the moment we just fetch and aggregate via the
            cp-search-wikipedia component; returns a promise
            which resolves to an array of results or rejects with an error */
-        fetch: function (keywordInfo) {
+        fetch: function (keyword) {
           var self = this;
 
-          var query = keywordInfo.keywords[0].text;
+          var query = keyword.text;
 
           console.log('searching for ' + query);
 
@@ -44,7 +44,7 @@
                 /* filter out any pdfs or svg files */
                 if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
                     self.urlDeduplicator.test(results[i].src)) {
-                  results[i].keyword = keywordInfo.keywords[0];
+                  results[i].keyword = keyword;
 
                   /* record the URL for future deduplication */
                   self.urlDeduplicator.addComparisonValue(results[i].src);
