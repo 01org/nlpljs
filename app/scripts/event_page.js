@@ -8,7 +8,7 @@ var workerMessage = function (type, data) {
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
 
-var epAuth = {}; // authenticator for multiple services
+var epAuth = epAuth || {}; // authenticator for multiple services
 
 //Create a web worker for NLP tasks
 function createWorker() {
@@ -96,6 +96,8 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   /*Could be possible to unload the worker if no tabs are using it ? */
 });
 
-chrome.pageAction.onClicked.addListener(function(tab) {
-      chrome.tabs.sendMessage(tab.id, "cp-toggle");
-});
+if (chrome.pageAction) {
+  chrome.pageAction.onClicked.addListener(function(tab) {
+    chrome.tabs.sendMessage(tab.id, "cp-toggle");
+  });
+}
