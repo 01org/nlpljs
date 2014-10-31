@@ -3,7 +3,7 @@
  *
  * getToken() - initiate the process to get a token from Facebook
  *
- * message sent to content script: 
+ * message sent to content script:
  *   component:'auth',
  *   type:'accesstoken',
  *   data: {
@@ -12,6 +12,8 @@
  *
  * removeCachedToken(token): remove token from cache
  */
+
+var epAuth = epAuth || {};
 
 epAuth.google = (function () {
   var cache = {
