@@ -59,15 +59,14 @@ for an example)
               /* no results */
               promise = Promise.resolve([]);
             } else if (resultSet.count() >= resultsPerFetch) {
-              /* fetch next batch of results */
+              /* fetch next batch of results (no search required) */
               results = resultSet.fetch(resultsPerFetch);
               promise = Promise.resolve(results);
-            } else {
-              /* fetch all remaining results */
-              results = resultSet.fetch();
-              promise = Promise.resolve(results);
             }
-          } else {
+          }
+
+          if (!promise || !promise.resolved) {
+            /* get more results */
             promise = this.search(query).then(
               function (resultSet) {
                 results = resultSet.fetch(resultsPerFetch);

@@ -1,7 +1,7 @@
 (function () {
   /**
    * Send a jsonp request (useful for cross-domain requests) by
-   * inserting a <script> into the head of the page
+   * inserting a <script> into the page.
    *
    * @param {string} opts.url (REQUIRED)  Request URL
    * @param {function} opts.cb (REQUIRED)  Callback which will receive
@@ -15,52 +15,43 @@
    * NB <script> elements are inserted into the body of the page
    */
 
-  // unique identifier for callbacks, incremented each time we create one
+  /* unique identifier for callbacks, incremented each time we create one */
   var cbId = 1;
 
-  // namespace on window object for our callbacks
+  /* prefix for our callbacks (which are attached to the window) */
   var cbKey = '_contentpush_jsonp';
 
   var jsonp = function (opts) {
     var thisCbId = cbId;
 
-    /*
-    used to store callbacks; these have to be on the global scope
-    otherwise they can't be invoked when the script returns (as the
-    <script> element is in global scope)
-    */
-    window[cbKey] = window[cbKey] || {};
-
     var url = opts.url +
-              // if no question mark, add one
+              /* if no question mark, add one */
               (/\?/.test(opts.url) ? '' : '?') +
 
-              // if at least one character in querystring, add '&'
+              /* if at least one character in querystring, add '&' */
               (/\?.+/.test(opts.url) ? '&' : '') +
 
               (opts.cbParam || 'callback') +
-              '=' + cbKey + '[\'' + thisCbId + '\']';
+              '=' + cbKey + thisCbId;
 
     var script = document.createElement('script');
     script.setAttribute('data-cb' + cbKey + '-id', thisCbId);
     script.src = url;
 
-    /*
-    we make a uniquely-named callback function, globally visible,
-    which will be invoked with the object parsed from the response
-    */
-    window[cbKey][thisCbId] = function (obj) {
-      // invoke the original callback
+    /* we make a uniquely-named callback function, globally visible,
+       which will be invoked with the object parsed from the response */
+    window[cbKey + thisCbId] = function (obj) {
+      /* invoke the original callback */
       opts.cb(obj);
 
-      // remove _this_ global callback
-      window[cbKey][thisCbId] = null;
+      /* remove _this_ global callback */
+      window[cbKey + thisCbId] = null;
     };
 
-    // make the magic happen
+    /* make the magic happen */
     document.body.appendChild(script);
 
-    // increment the counter ready to make the next callback
+    /* increment the counter ready to create the next callback */
     cbId++;
 
     return thisCbId;
