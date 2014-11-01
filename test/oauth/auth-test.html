@@ -335,6 +335,7 @@
           self.working = true;
 
           var lasti=0;
+
           retrieveAllFiles(self,function (results) {
             var displayedResults=0;
             for (i=0;i<results.length;i++) {
@@ -365,6 +366,7 @@
             //self.lasti=lasti;
             self.working = false;
           });
+
         };
 
         // go get some images

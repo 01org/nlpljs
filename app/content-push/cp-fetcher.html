@@ -1,14 +1,21 @@
 <link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-images.html">
+<link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
     <cp-search-wikipedia id="searchWikipedia"
                          resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-wikipedia>
+
     <cp-search-google-images id="searchGoogleImages"
                                resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-images>
+
+    <cp-search-google-files id="searchGoogleFiles"
+                               resultsPerFetch="{{resultsPerFetch}}">
+    </cp-search-google-files>
+
   </template>
 
   <script src="./cp-filter-deduplicate.js"></script>
@@ -41,16 +48,19 @@
           }
 
           var promises = [
-            this.$.searchWikipedia.fetch(query),
-            this.$.searchGoogleImages.fetch(query)
+            //this.$.searchWikipedia.fetch(query),
+            this.$.searchGoogleImages.fetch(query),
+            this.$.searchGoogleFiles.fetch(query),
           ];
 
           return Promise.all(promises).then(
             function (allResults) {
               var filteredResults = [];
 
+              console.log('CP-FETCHER:allResults.length:',allResults.length);
               for (var j = 0; j < allResults.length; j++) {
                 var results=allResults[j];
+                console.log('CP-FETCHER:results.length:',results.length);
                 for (var i = 0; i < results.length; i++) {
                   /* filter out any pdfs or svg files */
                   if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
@@ -64,6 +74,8 @@
                   }
                 }
               }
+
+              console.log('CP-FETCHER:filteredResults.length:',filteredResults.length);
 
               return Promise.resolve(filteredResults);
             },
