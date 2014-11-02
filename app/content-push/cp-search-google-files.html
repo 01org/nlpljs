@@ -3,19 +3,16 @@ search users files on Google Drive
 -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/google-apis/google-apis.html">
-<link rel="import" href="./cp-globals.html">
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-search.html">
 <polymer-element name="cp-search-google-files" extends="cp-search">
   <template>
     <cp-auth id="authorizer"></cp-auth>
-    <cp-globals id="globals"></cp-globals>
 
     <google-api-loader
       id="drive"
       name="drive"
       version="v2"
-      on-google-api-load="{{onDriveLoad}}"
       on-google-api-load-error="{{onDriveLoadError}}">
     </google-api-loader>
   </template>
@@ -42,21 +39,25 @@ search users files on Google Drive
         var retrievePageOfFiles = function (request, result) {
 
           request.execute( function(response) {
-            result = result.concat(response.items);
-
-            var nextPageToken = response.nextPageToken;
-            if (nextPageToken) {
-              request = gapi.client.drive.files.list({
-                pageToken: nextPageToken,
-                q: q
-              });
-
-              retrievePageOfFiles(request, result);
+            if (response.error) {
+              callback(response);
             } else {
-              callback(result);
+              result = result.concat(response.items);
+
+              var nextPageToken = response.nextPageToken;
+              if (nextPageToken) {
+                request = gapi.client.drive.files.list({
+                  pageToken: nextPageToken,
+                  q: q
+                });
+
+                retrievePageOfFiles(request, result);
+              } else {
+                callback(result);
+              }
             }
           });
-        }
+        };
 
         var initialRequest = self.$.drive.api.files.list({q:q});
 
@@ -66,28 +67,35 @@ search users files on Google Drive
       function handleResponse (self,resultSet,query) {
         var promise = new Promise( function(resolve,reject) {
 
-          retrieveAllFiles(self,query,function (results) {
-            for (var i=0,
-                     noResults=Math.min(results.length,MAXRESULTS);
-                 i<noResults;
-                 i++) {
-              var thisResult=results[i];
-              console.log('CP-AUTH:RESULT:',i,thisResult);
+          retrieveAllFiles(self,query,function (response) {
+            if (response.error) {
+              console.log('CP-SEARCH-GOOGLE-FILES:error:',response.error.message);
+              reject('CP-SEARCH-GOOGLE-FILES: '+response.error.message);
+            } else {
+              var results=response;
 
-              resultSet.add({
-                  //type: 'file',
-                  type: 'image',
-                  title: thisResult.title,
-                  iconLink: thisResult.iconLink,
-                  src: thisResult.thumbnailLink,
-                  thumbnailSrc: thisResult.thumbnailLink,
-                  width: 500, // HACK
-                  height: 500, // HACK
-                  keyword: query, // HACK
-              });
+              console.log('CP-SEARCH-GOOGLE-FILES:results.length:',results.length);
+              for (var i=0,
+                       noResults=Math.min(results.length,MAXRESULTS);
+                   i<noResults;
+                   i++) {
+                var thisResult=results[i];
+                console.log('CP-SEARCH-GOOGLE-FILES:RESULT:',i,thisResult);
+
+                resultSet.add({
+                    type: 'file',
+                    title: thisResult.title,
+                    iconLink: thisResult.iconLink,
+                    src: thisResult.thumbnailLink,
+                    thumbnailSrc: thisResult.thumbnailLink,
+                    width: 500, // HACK
+                    height: 500, // HACK
+                    keyword: query, // HACK
+                });
+              }
+
+              resolve(resultSet);
             }
-
-            resolve(resultSet);
           });
         });
 
@@ -97,10 +105,30 @@ search users files on Google Drive
       Polymer({
         created: function () {
           this.super();
+          this.access_token=null;
+          this.access_token_promise=null;
+          this.ready_promise=null;
         },
 
         ready: function () {
-          //this.app_id = this.$.globals.data.app_id;
+          var self=this;
+          this.ready_promise = new Promise(function(resolve,reject) {
+            self.$.authorizer.addEventListener('accesstoken',function(e) {
+              if (e.detail.service==='google') {
+                console.log('CP-SEARCH-GOOGLE-FILES: received token');
+                self.access_token=e.detail.token;
+                resolve();
+              }
+            });
+            self.$.authorizer.getToken('google');
+          }).then(new Promise(function(resolve,reject) {
+            self.$.drive.addEventListener('google-api-load',function(e) {
+              console.log('CP-SEARCH-GOOGLE-FILES: drive api loaded:',e);
+              console.log('CP-SEARCH-GOOGLE-FILES: setting token in gapi.auth');
+              gapi.auth.setToken({access_token:self.access_token});
+              resolve();
+            });
+          }));
         },
 
         /* prepare results for query; returns a promise which resolves
@@ -108,33 +136,9 @@ search users files on Google Drive
         searchImpl: function (resultSet, query) {
           var self = this;
 
-          return new Promise(function (resolve, reject) {
-
-            /* Google image results count from 1, whereas resultSet
-               offsets start from 0 */
-            var start = resultSet.offset + 1;
-
-            // get ready for incoming auth token
-            self.$.authorizer.addEventListener('accesstoken',function(e) {
-              if (e.detail.service==='google') {
-                gapi.auth.setToken({access_token:e.detail.token});
-
-                // perform query
-                handleResponse(self,resultSet,query).then(resolve,reject);
-
-                // we've got the token, so remove the listener
-                self.$.authorizer.removeEventListener(this);
-              }
-
-            });
-
-            // get the auth token
-            self.$.authorizer.getToken('google');
+          return this.ready_promise.then(function (resolve,reject) {
+              handleResponse(self,resultSet,query).then(resolve,reject);
           });
-        },
-
-        onDriveLoad: function() {
-          console.log('CP-SEARCH-GOOGLE-FILES: drive api loaded');
         },
 
         onDriveLoadError: function() {
