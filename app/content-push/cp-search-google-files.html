@@ -46,9 +46,14 @@ search users files on Google Drive
 
               var nextPageToken = response.nextPageToken;
               if (nextPageToken) {
-                request = gapi.client.drive.files.list({
-                  pageToken: nextPageToken,
-                  q: q
+                request = gapi.client.request({
+                  path: '/drive/v2/files',
+                  method: 'GET',
+                  params: {
+                    pageToken: nextPageToken,
+                  //  maxResults: MAXRESULTS,
+                    q: q
+                  }
                 });
 
                 retrievePageOfFiles(request, result);
@@ -59,7 +64,14 @@ search users files on Google Drive
           });
         };
 
-        var initialRequest = self.$.drive.api.files.list({q:q});
+        var initialRequest = gapi.client.request({
+          path: '/drive/v2/files',
+          method: 'GET',
+          params: {
+          //  maxResults: MAXRESULTS,
+            q:q
+          }
+        });
 
         retrievePageOfFiles(initialRequest, []);
       };
@@ -136,8 +148,8 @@ search users files on Google Drive
         searchImpl: function (resultSet, query) {
           var self = this;
 
-          return this.ready_promise.then(function (resolve,reject) {
-              handleResponse(self,resultSet,query).then(resolve,reject);
+          return this.ready_promise.then(function () {
+              return handleResponse(self,resultSet,query);
           });
         },
 
