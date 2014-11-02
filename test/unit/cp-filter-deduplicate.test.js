@@ -1,7 +1,7 @@
 var chai = require('chai');
 chai.should();
 var expect = chai.expect;
-var FilterDeduplicate = require('./../../app/content-push/cp-filter-deduplicate');
+var FilterDeduplicate = require('./../../app/content_push/cp-filter-deduplicate');
 
 describe('FilterDeduplicate', function () {
 

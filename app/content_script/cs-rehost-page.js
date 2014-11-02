@@ -43,8 +43,8 @@
     // create and open panel
     var currentTabUrl=document.URL;
     var extensionUrl=chrome.extension.getURL("");
-    var cpMainUrl=chrome.extension.getURL("content-push/cp-main.html");
-    var cpGlobalsUrl=chrome.extension.getURL("content-push/cp-globals.html");
+    var cpMainUrl=chrome.extension.getURL("content_push/cp-main.html");
+    var cpGlobalsUrl=chrome.extension.getURL("content_push/cp-globals.html");
     var cssUrl=chrome.extension.getURL("styles/main.css");
 
     // remove document content and add new head and body
