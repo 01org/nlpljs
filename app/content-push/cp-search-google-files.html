@@ -96,13 +96,17 @@ search users files on Google Drive
 
                 resultSet.add({
                     type: 'file',
-                    title: thisResult.title,
+                    caption: thisResult.title,
                     iconLink: thisResult.iconLink,
                     src: thisResult.thumbnailLink,
                     thumbnailSrc: thisResult.thumbnailLink,
                     width: 500, // HACK
                     height: 500, // HACK
                     keyword: query, // HACK
+                    meta: { // HACK
+                      id: thisResult.id, // HACK
+                      ExifVersion: 1, // HACK
+                    }
                 });
               }
 
