@@ -174,11 +174,11 @@ this.onmessage = function (event) {
           ranges[ranges.length] = {
             groupId: keywords[index].groupId,
             start: {
-              lineNo: startLine.id,
+              lineId: startLine.id,
               charNo: startChar - startLine.fromChar
             },
             end: {
-              lineNo: endLine.id,
+              lineId: endLine.id,
               charNo: endChar - endLine.fromChar
             }
           };
