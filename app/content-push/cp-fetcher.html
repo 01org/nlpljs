@@ -9,7 +9,7 @@
     </cp-search-wikipedia>
 
     <cp-search-google-images id="searchGoogleImages"
-                               resultsPerFetch="{{resultsPerFetch}}">
+                             resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-images>
 
     <cp-search-google-files id="searchGoogleFiles"
@@ -49,7 +49,7 @@
 
           var promises = [
             //this.$.searchWikipedia.fetch(query),
-            this.$.searchGoogleImages.fetch(query),
+            //this.$.searchGoogleImages.fetch(query),
             this.$.searchGoogleFiles.fetch(query),
           ];
 
@@ -58,22 +58,38 @@
               var filteredResults = [];
 
               for (var j = 0; j < allResults.length; j++) {
+                console.log('CP-FETCHER:allResults[%d].length=%d',j,allResults[j].length);
                 var results=allResults[j];
                 for (var i = 0; i < results.length; i++) {
                   var thisResult = results[i];
+
+                  var uniqueField;
+                  switch (thisResult.type) {
+                  case 'image':
+                    uniqueField=thisResult.src;
+                    break;
+                  case 'file':
+                    uniqueField=thisResult.meta.id;
+                    break;
+                  default:
+                    console.error(new Error('Unhandled asset type:'+thisType));
+                    break;
+                  };
+
                   /* filter out any pdfs or svg files */
                   if (!BAD_EXTENSIONS_REGEX.test(thisResult.src) &&
-                      self.urlDeduplicator.test(thisResult.src)) {
+                      self.urlDeduplicator.test(uniqueField)) {
                     thisResult.keyword = keyword;
 
                     /* record the URL for future deduplication */
-                    self.urlDeduplicator.addComparisonValue(thisResult.src);
+                    self.urlDeduplicator.addComparisonValue(uniqueField);
 
                     filteredResults.push(thisResult);
                   }
                 }
               }
 
+              console.log('CP-FETCHER:numFilteredResults=%d',filteredResults.length);
               return Promise.resolve(filteredResults);
             },
 
