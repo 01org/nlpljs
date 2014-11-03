@@ -3,14 +3,13 @@
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-panel.html">
 
-<polymer-element name="cp-main" attributes="iframeurl toggle">
+<polymer-element name="cp-main" attributes="toggle">
   <template>
     <link type="text/css" rel="stylesheet" href="ClearSans/ClearSans.css">
     <link type="text/css" rel="stylesheet" href="styles/cp-main.css">
     <div id="container" horizontal layout>
       <cp-document id='document'
                    flex
-                   iframeurl='{{iframeurl}}'
                    on-newkeywordinfo='{{onDocumentNewKeywordInfo}}'>
       </cp-document>
       <core-splitter id="splitter"
