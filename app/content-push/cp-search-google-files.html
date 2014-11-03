@@ -6,7 +6,7 @@ search users files on Google Drive
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element name="cp-search-google-files">
+<polymer-element name="cp-search-google-files" attributes="resultsPerFetch">
   <template>
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
@@ -20,9 +20,6 @@ search users files on Google Drive
   </template>
   <script>
     (function () {
-      // the number of results fetch() returns at a time
-      var MAXRESULTS = 5;
-
       /**
        * Retrieve a list of File resources.
        *
@@ -85,12 +82,15 @@ search users files on Google Drive
               console.log('CP-SEARCH-GOOGLE-FILES:error:',response.error.message);
               reject('CP-SEARCH-GOOGLE-FILES: '+response.error.message);
             } else {
+              self.results[query]=[];
+              self.cursor[query]=0;
+
               // convert responses into results
               for (var i=0;i<response.length;i++) {
                 var thisResponse=response[i];
-                console.log('CP-SEARCH-GOOGLE-FILES:thisResponse:',thisResponse);
+                console.log('CP-SEARCH-GOOGLE-FILES:query \'%s\' thisResponse:',query,thisResponse);
                 if (thisResponse.id!==self.$.globals.documentId) {
-                  self.results.push({
+                  self.results[query].push({
                     type: 'file',
                     caption: thisResponse.title,
                     source: thisResponse.alternateLink,
@@ -108,7 +108,13 @@ search users files on Google Drive
                 }
               }
 
-              resolve(self.results);
+              var numResults=self.results[query].length;
+              var from=0;
+              var to  =Math.min(numResults-1,self.cursor[query]+self.resultsPerFetch);
+              var resultsToReturn=self.results[query].slice(from,to);
+              self.cursor[query]+=(to-from);
+
+              resolve(resultsToReturn);
             }
           });
         });
@@ -120,7 +126,8 @@ search users files on Google Drive
         created: function () {
           this.access_token=null;
           this.ready_promise=null;
-          this.results=[];
+          this.results={}; // this.results[query]=[...results...]
+          this.cursor={};  // this.cursor[query]=0..length-1
         },
 
         ready: function () {
@@ -142,8 +149,17 @@ search users files on Google Drive
         },
 
         fetch: function (query) {
-          if (this.results.length){
-            return Promise.resolve(this.results.splice(0,MAXRESULTS));
+          if (this.results[query]){
+            var resultsToReturn=[];
+            var numResults=this.results[query].length;
+            if (this.cursor[query]<numResults) {
+              var from=this.cursor[query];
+              var to  =Math.min(numResults-1,this.cursor[query]+this.resultsPerFetch);
+              resultsToReturn=this.results[query].slice(from,to);
+              this.cursor[query]+=(to-from);
+            }
+            console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results',query,resultsToReturn.length);
+            return resultsToReturn;
           } else {
             var self = this;
 
