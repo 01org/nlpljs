@@ -11,7 +11,7 @@
 
 <polymer-element name='cp-auth'>
   <template>
-    <cp-globals data='{{globals}}'></cp-globals>
+    <cp-globals id="globals"></cp-globals>
   </template>
   <script>
   (function authTest () {
@@ -38,7 +38,7 @@
       },
 
       getToken: function (service) {
-        if (!this.globals.app_id) {
+        if (!this.$.globals.data.app_id) {
           console.log('CP-AUTH:getToken() called but app_id not set yet');
           return;
         }
@@ -56,7 +56,7 @@
           };
 
           var self=this;
-          chrome.runtime.sendMessage(this.globals.app_id,message,function(detail) {
+          chrome.runtime.sendMessage(this.$.globals.data.app_id,message,function(detail) {
             if (chrome.runtime.lastError) {
               var message=chrome.runtime.lastError.message;
               console.log(new Error('CP-AUTH:error in responseCallback:'+message));
@@ -69,7 +69,7 @@
       },
 
       removeCachedToken: function (token,service) {
-        if (!this.globals.app_id) {
+        if (!this.$.globals.data.app_id) {
           console.log('CP-AUTH:removeCachedToken() called but app_id not set yet');
           return;
         }
@@ -82,7 +82,7 @@
           type: 'removecachedtoken',
           token: token
         };
-        chrome.runtime.sendMessage(this.globals.app_id,message);
+        chrome.runtime.sendMessage(this.$.globals.data.app_id,message);
       },
 
     }); // Polymer()

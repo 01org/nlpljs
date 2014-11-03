@@ -64,7 +64,6 @@
     head.appendChild(link);
 
     // work around for a google-apis bug
-    // might as well be plaform.js
     var script = document.createElement('script');
     head.appendChild(script);
 

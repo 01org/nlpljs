@@ -1,19 +1,14 @@
-<link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-images.html">
 <link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
-    <cp-search-wikipedia id="searchWikipedia"
-                         resultsPerFetch="{{resultsPerFetch}}">
-    </cp-search-wikipedia>
-
     <cp-search-google-images id="searchGoogleImages"
-                               resultsPerFetch="{{resultsPerFetch}}">
+                             resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-images>
 
     <cp-search-google-files id="searchGoogleFiles"
-                               resultsPerFetch="{{resultsPerFetch}}">
+                            resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-files>
 
   </template>
@@ -48,8 +43,6 @@
           }
 
           var promises = [
-            //this.$.searchWikipedia.fetch(query),
-            this.$.searchGoogleImages.fetch(query),
             this.$.searchGoogleFiles.fetch(query),
           ];
 
@@ -57,15 +50,13 @@
             function (allResults) {
               var filteredResults = [];
 
-              console.log('CP-FETCHER:allResults.length:',allResults.length);
               for (var j = 0; j < allResults.length; j++) {
                 var results=allResults[j];
-                console.log('CP-FETCHER:results.length:',results.length);
                 for (var i = 0; i < results.length; i++) {
                   var thisResult = results[i];
                   /* filter out any pdfs or svg files */
-                  if (!BAD_EXTENSIONS_REGEX.test(thisResults.src) &&
-                      self.urlDeduplicator.test(thisResults.src)) {
+                  if (!BAD_EXTENSIONS_REGEX.test(thisResult.src) &&
+                      self.urlDeduplicator.test(thisResult.src)) {
                     thisResult.keyword = keyword;
 
                     /* record the URL for future deduplication */
@@ -75,8 +66,6 @@
                   }
                 }
               }
-
-              console.log('CP-FETCHER:filteredResults.length:',filteredResults.length);
 
               return Promise.resolve(filteredResults);
             },
