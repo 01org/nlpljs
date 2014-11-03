@@ -146,10 +146,8 @@ this.onmessage = function (event) {
       currentContext.text = [currentContext.text.slice(0, startChar), text,
         currentContext.text.slice(startChar)].join('');
 
-      console.log(currentContext.text);
       break;
     case "processcontext":
-      console.log('prepare');
       var textForExtractor = currentContext.text.replace(/\[\w+\]/g, '');
 
       var keywords = [];
@@ -192,7 +190,6 @@ this.onmessage = function (event) {
 
       break;
     case "getkeywords":
-      console.log('get keywords');
       postMessage(eventPageMessage("keywordlist", {
         keywords: currentContext.keywords,
         ranges: currentContext.ranges

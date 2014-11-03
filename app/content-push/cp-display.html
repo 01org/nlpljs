@@ -118,7 +118,7 @@ pushing new tiles into the wrapped layout
 
       <!-- "widen the search" slider -->
       <div id="widen" data-show="{{state !== 'preresults'}}">
-        <paper-slider min="0" max="100" value="50">
+        <paper-slider id="slider" min="0" max="100" value="50" on-change="{{sliderChanged}}">
         </paper-slider>
       </div>
     </div>
@@ -139,12 +139,7 @@ pushing new tiles into the wrapped layout
          * Set criteria for filtering the content of the display.
          *
          * @param {object} criteria Criteria for the filter
-         * @param {object} criteria.keywordInfo KeywordInfo object with
-         * this structure:
-         * {
-         *   keywords: [ { text: <text>, ...}, ... ],
-         *   types: ['image', 'quotation', ...]
-         * }
+         * @param {object} criteria.activeKeywords an array of active keywords
          *
          * Right now, the first keyword in the keywordInfo.keywords
          * array is used as the filter. Any tile whose keyword.text
@@ -154,22 +149,31 @@ pushing new tiles into the wrapped layout
         setFilter: function (criteria) {
           var self = this;
 
-          if (!criteria.keywordInfo) {
+          if (!criteria.activeKeywords) {
             return;
           }
 
-          var keyphrase = criteria.keywordInfo.keywords[0];
-          var activeKeywordText = keyphrase.text;
+          var keywords = criteria.activeKeywords.map(function (keyword) {
+            return keyword.text;
+          });
 
           criteria.types = criteria.types || [];
 
           /* set the filter on the layout to the current keyphrase */
           this.$.layout.setFilter(function (tile) {
-            var keywordMatches = (tile.keyword.text === activeKeywordText);
+            var keywordMatches = false;
+            for (var i = 0; i < tile.keywords.length; i++) {
+              var index = keywords.indexOf(tile.keywords[i].text);
+              if (index !== -1) {
+                keywordMatches = true;
+                tile.keywords[i] = criteria.activeKeywords[index];
+              }
+            }
 
             if (!keywordMatches) {
               return false;
             }
+
 
             var typeMatches;
             /* no types criteria, so always matches */
@@ -244,14 +248,16 @@ pushing new tiles into the wrapped layout
           elt.src = image.thumbnailSrc;
           elt.width = image.width;
           elt.height = image.height;
-          elt.keyword = image.keyword;
+
+          if (elt.keywords.indexOf(image.keyword) === -1)
+            elt.keywords[elt.keywords.length] = image.keyword;
 
           elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', elt.keyword);
+            self.fire('mouse-over', elt.keywords);
           });
 
           elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', elt.keyword);
+            self.fire('mouse-out', elt.keywords);
           });
 
           elt.addEventListener('click', function () {
@@ -283,6 +289,10 @@ pushing new tiles into the wrapped layout
 
         hideLoadingSpinner: function () {
           this.loading = false;
+        },
+        sliderChanged: function () {
+          console.log('changed');
+          this.fire('slider-change');
         }
       });
     })();

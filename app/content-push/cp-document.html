@@ -270,11 +270,13 @@
         // event handlers
 
         onMouseOverImage: function (e) {
-          this.$.highlighter.turn(e.detail.groupId,'on');
+          for (var i = 0; i < e.detail.length; i++)
+            this.$.highlighter.turn(e.detail[i].groupId,'on');
         },
 
         onMouseOutImage: function (e) {
-          this.$.highlighter.turn(e.detail.groupId,'off');
+          for (var i = 0; i < e.detail.length; i++)
+            this.$.highlighter.turn(e.detail[i].groupId,'off');
         },
 
       }); // Polymer()
