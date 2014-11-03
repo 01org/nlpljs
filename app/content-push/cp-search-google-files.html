@@ -1,0 +1,181 @@
+<!--
+search users files on Google Drive
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/google-apis/google-apis.html">
+<link rel="import" href="./cp-auth.html">
+<link rel="import" href="./cp-globals.html">
+
+<polymer-element name="cp-search-google-files" attributes="resultsPerFetch">
+  <template>
+    <cp-auth id="authorizer"></cp-auth>
+    <cp-globals id="globals"></cp-globals>
+
+    <google-api-loader
+      id="drive"
+      name="drive"
+      version="v2"
+      on-google-api-load-error="{{onDriveLoadError}}">
+    </google-api-loader>
+  </template>
+  <script>
+    (function () {
+      /**
+       * Retrieve a list of File resources.
+       *
+       * @param {Function} callback Function to call when the request is complete.
+       */
+      var retrieveAllFiles = function (self,query,callback) {
+
+        var q="fullText contains '" + query + "' and trashed = false";
+
+        var retrievePageOfFiles = function (request, result) {
+
+          request.execute( function(response) {
+            if (response.error) {
+              callback(response);
+            } else {
+              result = result.concat(response.items);
+
+              var nextPageToken = response.nextPageToken;
+              if (nextPageToken) {
+                request = gapi.client.request({
+                  path: '/drive/v2/files',
+                  method: 'GET',
+                  params: {
+                    pageToken: nextPageToken,
+                    q: q
+                  }
+                });
+
+                retrievePageOfFiles(request, result);
+              } else {
+                callback(result);
+              }
+            }
+          });
+        };
+
+        var initialRequest = gapi.client.request({
+          path: '/drive/v2/files',
+          method: 'GET',
+          params: {
+            q:q
+          }
+        });
+
+        retrievePageOfFiles(initialRequest, []);
+      };
+
+      /**
+       * searches user's files for files containing 'query', adds  them in resultSet.
+       * returns a promise that is resolved when finished searching.
+       */
+      function searchForFiles (self,query) {
+        var promise = new Promise( function(resolve,reject) {
+
+          retrieveAllFiles(self,query,function (response) {
+            if (response.error) {
+              console.log('CP-SEARCH-GOOGLE-FILES:error:',response.error.message);
+              reject('CP-SEARCH-GOOGLE-FILES: '+response.error.message);
+            } else {
+              self.results[query]=[];
+              self.cursor[query]=0;
+
+              // convert responses into results
+              for (var i=0;i<response.length;i++) {
+                var thisResponse=response[i];
+                console.log('CP-SEARCH-GOOGLE-FILES:query \'%s\' thisResponse:',query,thisResponse);
+                if (thisResponse.id!==self.$.globals.documentId) {
+                  self.results[query].push({
+                    type: 'file',
+                    caption: thisResponse.title,
+                    source: thisResponse.alternateLink,
+                    iconLink: thisResponse.iconLink,
+                    src: thisResponse.thumbnailLink,
+                    thumbnailSrc: thisResponse.thumbnailLink,
+                    width: 500, // HACK
+                    height: 500, // HACK
+                    keyword: query, // HACK
+                    meta: { // HACK
+                      id: thisResponse.id, // HACK
+                      ExifVersion: 1, // HACK
+                    }
+                  });
+                }
+              }
+
+              var numResults=self.results[query].length;
+              var from=0;
+              var to  =Math.min(numResults-1,self.cursor[query]+self.resultsPerFetch);
+              var resultsToReturn=self.results[query].slice(from,to);
+              self.cursor[query]+=(to-from);
+
+              resolve(resultsToReturn);
+            }
+          });
+        });
+
+        return promise;
+      }
+
+      Polymer({
+        created: function () {
+          this.access_token=null;
+          this.ready_promise=null;
+          this.results={}; // this.results[query]=[...results...]
+          this.cursor={};  // this.cursor[query]=0..length-1
+        },
+
+        ready: function () {
+          var self=this;
+          this.ready_promise = new Promise(function(resolve,reject) {
+            self.$.authorizer.addEventListener('accesstoken',function(e) {
+              if (e.detail.service==='google') {
+                self.access_token=e.detail.token;
+                resolve();
+              }
+            });
+            self.$.authorizer.getToken('google');
+          }).then(new Promise(function(resolve,reject) {
+            self.$.drive.addEventListener('google-api-load',function(e) {
+              gapi.auth.setToken({access_token:self.access_token});
+              resolve();
+            });
+          }));
+        },
+
+        fetch: function (query) {
+          if (this.results[query]){
+            var resultsToReturn=[];
+            var numResults=this.results[query].length;
+            if (this.cursor[query]<numResults) {
+              var from=this.cursor[query];
+              var to  =Math.min(numResults-1,this.cursor[query]+this.resultsPerFetch);
+              resultsToReturn=this.results[query].slice(from,to);
+              this.cursor[query]+=(to-from);
+            }
+            console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results',query,resultsToReturn.length);
+            return resultsToReturn;
+          } else {
+            var self = this;
+
+            return this.ready_promise.then(
+              function () {
+                return searchForFiles(self,query);
+              },
+              function(error) {
+                return Promise.reject(error);
+              }
+            );
+          }
+        },
+
+        onDriveLoadError: function() {
+          console.error('CP-SEARCH-GOOGLE-FILES: failed to load drive api');
+        },
+
+      });
+    })();
+  </script>
+</polymer-element>
