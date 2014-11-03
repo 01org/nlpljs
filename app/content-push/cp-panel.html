@@ -172,10 +172,9 @@
         }
       };
 
-      /* test whether the keywordInfo has changed; currently this
-         just compares the first keyword text in the new
-         keywordInfo with the first keyword text in the panel's
-         keywordInfo */
+      /* tests whether the active keywords have changed;
+       * returns an array of new keywords.
+       */
       var checkKeywordInfoChanged = function (oldKeywordInfo, newKeywordInfo) {
         /* no keyword set yet, so definitely a change */
         if (!oldKeywordInfo) {
