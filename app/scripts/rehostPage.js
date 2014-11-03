@@ -80,11 +80,11 @@
 
     var cpGlobals = document.createElement('cp-globals');
     cpGlobals.setAttribute("app_id", chrome.runtime.id);
+    cpGlobals.setAttribute("iframeurl", currentTabUrl);
 
     body.appendChild(cpGlobals);
 
     var cpMain = document.createElement('cp-main');
-    cpMain.setAttribute("iframeurl", currentTabUrl);
     cpMain.setAttribute('fit', '');
     cpMain.addEventListener('lineadded', function (e) {
       port.postMessage(eventPageMessage('lineadded', e.detail));
