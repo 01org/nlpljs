@@ -5,12 +5,12 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel='import' href='./cp-scrollwatcher.html'>
 <link rel='import' href='./cp-keyword-highlighter.html'>
+<link rel="import" href="./cp-globals.html">
 
 <polymer-element
   name='cp-document'
   on-mouseoverimage='{{onMouseOverImage}}'
-  on-mouseoutimage='{{onMouseOutImage}}'
-  attributes='iframeurl'>
+  on-mouseoutimage='{{onMouseOutImage}}'>
   <template>
     <style>
       :host {
@@ -33,6 +33,7 @@
     <iframe id="iframe"></iframe>
     <cp-keyword-highlighter id='highlighter'></cp-keyword-highlighter>
     <cp-scrollwatcher id='scrollwatcher'></cp-scrollwatcher>
+    <cp-globals id="globals"></cp-globals>
   </template>
   <script>
     (function cpDocument () {
@@ -228,8 +229,6 @@
         editOverTimeout: 500,
         editOverTimer: null,
         created: function () {
-          this.iframeurl="";
-
           this.lineIdAccumulator = 0;
 
           // currently active keywords
@@ -240,7 +239,7 @@
         },
 
         ready: function () {
-          this.$.iframe.src=this.iframeurl;
+          this.$.iframe.src = this.$.globals.data.iframeurl;
 
           // keywordlist fired from content script
           document.addEventListener('keywordlist', function (e) {
@@ -270,11 +269,13 @@
         // event handlers
 
         onMouseOverImage: function (e) {
-          this.$.highlighter.turn(e.detail.groupId,'on');
+          for (var i = 0; i < e.detail.length; i++)
+            this.$.highlighter.turn(e.detail[i].groupId,'on');
         },
 
         onMouseOutImage: function (e) {
-          this.$.highlighter.turn(e.detail.groupId,'off');
+          for (var i = 0; i < e.detail.length; i++)
+            this.$.highlighter.turn(e.detail[i].groupId,'off');
         },
 
       }); // Polymer()

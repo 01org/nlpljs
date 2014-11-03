@@ -64,7 +64,6 @@
     head.appendChild(link);
 
     // work around for a google-apis bug
-    // might as well be plaform.js
     var script = document.createElement('script');
     head.appendChild(script);
 
@@ -80,11 +79,11 @@
 
     var cpGlobals = document.createElement('cp-globals');
     cpGlobals.setAttribute("app_id", chrome.runtime.id);
+    cpGlobals.setAttribute("iframeurl", currentTabUrl);
 
     body.appendChild(cpGlobals);
 
     var cpMain = document.createElement('cp-main');
-    cpMain.setAttribute("iframeurl", currentTabUrl);
     cpMain.setAttribute('fit', '');
     cpMain.addEventListener('lineadded', function (e) {
       port.postMessage(eventPageMessage('lineadded', e.detail));
