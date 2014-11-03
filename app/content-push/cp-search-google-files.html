@@ -27,11 +27,7 @@ search users files on Google Drive
        */
       var retrieveAllFiles = function (self,query,callback) {
 
-        var q=[
-            'fullText', 'contains', '\''+query+'\'',
-            'and',
-            'trashed', '=', 'false'
-          ].join(' ');
+        var q="fullText contains '" + query + "' and trashed = false";
 
         console.log('CP-SEARCH-GOOGLE-FILES:query:',query);
         console.log('CP-SEARCH-GOOGLE-FILES:q:',q);
@@ -51,7 +47,7 @@ search users files on Google Drive
                   method: 'GET',
                   params: {
                     pageToken: nextPageToken,
-                  //  maxResults: MAXRESULTS,
+                    maxResults: MAXRESULTS,
                     q: q
                   }
                 });
@@ -68,7 +64,7 @@ search users files on Google Drive
           path: '/drive/v2/files',
           method: 'GET',
           params: {
-          //  maxResults: MAXRESULTS,
+            maxResults: MAXRESULTS,
             q:q
           }
         });
