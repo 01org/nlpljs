@@ -4,10 +4,12 @@ search users files on Google Drive
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/google-apis/google-apis.html">
 <link rel="import" href="./cp-auth.html">
-<link rel="import" href="./cp-search.html">
-<polymer-element name="cp-search-google-files" extends="cp-search">
+<link rel="import" href="./cp-globals.html">
+
+<polymer-element name="cp-search-google-files">
   <template>
     <cp-auth id="authorizer"></cp-auth>
+    <cp-globals id="globals"></cp-globals>
 
     <google-api-loader
       id="drive"
@@ -18,7 +20,8 @@ search users files on Google Drive
   </template>
   <script>
     (function () {
-      var MAXRESULTS = 10;
+      // the number of results fetch() returns at a time
+      var MAXRESULTS = 5;
 
       /**
        * Retrieve a list of File resources.
@@ -47,7 +50,6 @@ search users files on Google Drive
                   method: 'GET',
                   params: {
                     pageToken: nextPageToken,
-                    maxResults: MAXRESULTS,
                     q: q
                   }
                 });
@@ -64,7 +66,6 @@ search users files on Google Drive
           path: '/drive/v2/files',
           method: 'GET',
           params: {
-            maxResults: MAXRESULTS,
             q:q
           }
         });
@@ -76,7 +77,7 @@ search users files on Google Drive
        * searches user's files for files containing 'query', adds  them in resultSet.
        * returns a promise that is resolved when finished searching.
        */
-      function searchForFiles (self,resultSet,query) {
+      function searchForFiles (self,query) {
         var promise = new Promise( function(resolve,reject) {
 
           retrieveAllFiles(self,query,function (response) {
@@ -84,33 +85,30 @@ search users files on Google Drive
               console.log('CP-SEARCH-GOOGLE-FILES:error:',response.error.message);
               reject('CP-SEARCH-GOOGLE-FILES: '+response.error.message);
             } else {
-              var results=response;
-
-              console.log('CP-SEARCH-GOOGLE-FILES:results.length:',results.length);
-              for (var i=0,
-                       numResults=Math.min(results.length,MAXRESULTS);
-                   i<numResults;
-                   i++) {
-                var thisResult=results[i];
-                console.log('CP-SEARCH-GOOGLE-FILES:RESULT:',i,thisResult);
-
-                resultSet.add({
+              // convert responses into results
+              for (var i=0;i<response.length;i++) {
+                var thisResponse=response[i];
+                console.log('CP-SEARCH-GOOGLE-FILES:thisResponse:',thisResponse);
+                if (thisResponse.id!==self.$.globals.documentId) {
+                  self.results.push({
                     type: 'file',
-                    caption: thisResult.title,
-                    iconLink: thisResult.iconLink,
-                    src: thisResult.thumbnailLink,
-                    thumbnailSrc: thisResult.thumbnailLink,
+                    caption: thisResponse.title,
+                    source: thisResponse.alternateLink,
+                    iconLink: thisResponse.iconLink,
+                    src: thisResponse.thumbnailLink,
+                    thumbnailSrc: thisResponse.thumbnailLink,
                     width: 500, // HACK
                     height: 500, // HACK
                     keyword: query, // HACK
                     meta: { // HACK
-                      id: thisResult.id, // HACK
+                      id: thisResponse.id, // HACK
                       ExifVersion: 1, // HACK
                     }
-                });
+                  });
+                }
               }
 
-              resolve(resultSet);
+              resolve(self.results);
             }
           });
         });
@@ -120,10 +118,9 @@ search users files on Google Drive
 
       Polymer({
         created: function () {
-          this.super();
           this.access_token=null;
-          this.access_token_promise=null;
           this.ready_promise=null;
+          this.results=[];
         },
 
         ready: function () {
@@ -131,7 +128,6 @@ search users files on Google Drive
           this.ready_promise = new Promise(function(resolve,reject) {
             self.$.authorizer.addEventListener('accesstoken',function(e) {
               if (e.detail.service==='google') {
-                console.log('CP-SEARCH-GOOGLE-FILES: received token');
                 self.access_token=e.detail.token;
                 resolve();
               }
@@ -139,22 +135,27 @@ search users files on Google Drive
             self.$.authorizer.getToken('google');
           }).then(new Promise(function(resolve,reject) {
             self.$.drive.addEventListener('google-api-load',function(e) {
-              console.log('CP-SEARCH-GOOGLE-FILES: drive api loaded:',e);
-              console.log('CP-SEARCH-GOOGLE-FILES: setting token in gapi.auth');
               gapi.auth.setToken({access_token:self.access_token});
               resolve();
             });
           }));
         },
 
-        /* prepare results for query; returns a promise which resolves
-           to a ResultSet for the query */
-        searchImpl: function (resultSet, query) {
-          var self = this;
+        fetch: function (query) {
+          if (this.results.length){
+            return Promise.resolve(this.results.splice(0,MAXRESULTS));
+          } else {
+            var self = this;
 
-          return this.ready_promise.then(function () {
-              return searchForFiles(self,resultSet,query);
-          });
+            return this.ready_promise.then(
+              function () {
+                return searchForFiles(self,query);
+              },
+              function(error) {
+                return Promise.reject(error);
+              }
+            );
+          }
         },
 
         onDriveLoadError: function() {
