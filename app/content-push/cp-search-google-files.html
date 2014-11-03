@@ -84,8 +84,8 @@ search users files on Google Drive
 
               console.log('CP-SEARCH-GOOGLE-FILES:results.length:',results.length);
               for (var i=0,
-                       noResults=Math.min(results.length,MAXRESULTS);
-                   i<noResults;
+                       numResults=Math.min(results.length,MAXRESULTS);
+                   i<numResults;
                    i++) {
                 var thisResult=results[i];
                 console.log('CP-SEARCH-GOOGLE-FILES:RESULT:',i,thisResult);
