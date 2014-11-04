@@ -1,21 +1,20 @@
-<link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-images.html">
+<link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
-    <cp-search-wikipedia id="searchWikipedia"
-                         resultsPerFetch="{{resultsPerFetch}}">
-    </cp-search-wikipedia>
-
     <cp-search-google-images id="searchGoogleImages"
                              resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-images>
 
-    <cp-search-google-files id="searchGoogleFiles"
+    <cp-search-wikipedia id="searchWikipedia"
+                         resultsPerFetch="{{resultsPerFetch}}">
+    </cp-search-wikipedia>
+
+    <cp-search-google-files id="searchDrive"
                             resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-files>
-
   </template>
 
   <script src="./cp-filter-deduplicate.js"></script>
@@ -36,10 +35,12 @@
         /* at the moment we just fetch and aggregate via the
            cp-search-wikipedia component; returns a promise
            which resolves to an array of results or rejects with an error */
-        fetch: function (keyword) {
+        fetch: function (keyword, preferredService) {
           var self = this;
 
           var query = keyword.text;
+
+          var source;
 
           console.log('searching for ' + query);
 
@@ -47,49 +48,39 @@
             return Promise.resolve([]);
           }
 
-          var promises = [
-            //this.$.searchWikipedia.fetch(query),
-            //this.$.searchGoogleImages.fetch(query),
-            this.$.searchGoogleFiles.fetch(query),
-          ];
+          switch (preferredService) {
+            case "Google Image Search":
+              source = this.$.searchGoogleImages;
+              break;
+            case "Wikipedia Image Search":
+              source = this.$.searchWikipedia;
+              break;
+            case "Google Drive Search":
+              source = this.$.searchDrive;
+              break;
+            default:
+              console.warn("cp-fetcher: Unrecognized preferred service!");
+              return Promise.resolve([]);
+          }
 
-          return Promise.all(promises).then(
-            function (allResults) {
+          console.log(source);
+          return source.fetch(query).then(
+            function (results) {
               var filteredResults = [];
 
-              for (var j = 0; j < allResults.length; j++) {
-                console.log('CP-FETCHER:allResults[%d].length=%d',j,allResults[j].length);
-                var results=allResults[j];
-                for (var i = 0; i < results.length; i++) {
-                  var thisResult = results[i];
+              for (var i = 0; i < results.length; i++) {
+                /* filter out any pdfs or svg files */
+                if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
+                    self.urlDeduplicator.test(results[i].source)) {
+                  results[i].keyword = keyword;
 
-                  var uniqueField;
-                  switch (thisResult.type) {
-                  case 'image':
-                    uniqueField=thisResult.src;
-                    break;
-                  case 'file':
-                    uniqueField=thisResult.meta.id;
-                    break;
-                  default:
-                    console.error(new Error('Unhandled asset type:'+thisType));
-                    break;
-                  };
+                  /* record the URL for future deduplication */
+                  self.urlDeduplicator.addComparisonValue(results[i].source);
 
-                  /* filter out any pdfs or svg files */
-                  if (!BAD_EXTENSIONS_REGEX.test(thisResult.src) &&
-                      self.urlDeduplicator.test(uniqueField)) {
-                    thisResult.keyword = keyword;
-
-                    /* record the URL for future deduplication */
-                    self.urlDeduplicator.addComparisonValue(uniqueField);
-
-                    filteredResults.push(thisResult);
-                  }
+                  filteredResults.push(results[i]);
                 }
               }
 
-              console.log('CP-FETCHER:numFilteredResults=%d',filteredResults.length);
               return Promise.resolve(filteredResults);
             },
 
