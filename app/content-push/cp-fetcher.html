@@ -65,11 +65,11 @@
               for (var i = 0; i < results.length; i++) {
                 /* filter out any pdfs or svg files */
                 if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
-                    self.urlDeduplicator.test(results[i].src)) {
+                    self.urlDeduplicator.test(results[i].source)) {
                   results[i].keyword = keyword;
 
                   /* record the URL for future deduplication */
-                  self.urlDeduplicator.addComparisonValue(results[i].src);
+                  self.urlDeduplicator.addComparisonValue(results[i].source);
 
                   filteredResults.push(results[i]);
                 }
