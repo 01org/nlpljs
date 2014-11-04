@@ -35,69 +35,53 @@
 
           var query = keyword.text;
 
+          var source;
+
           console.log('searching for ' + query);
 
           if (!query) {
             return Promise.resolve([]);
           }
 
-          if (preferredService === "Google Image Search") {
-            return this.$.searchGoogleImages.fetch(query).then(
-              function (results) {
-                var filteredResults = [];
-
-                for (var i = 0; i < results.length; i++) {
-                  /* filter out any pdfs or svg files */
-                  if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
-                      self.urlDeduplicator.test(results[i].src)) {
-                    results[i].keyword = keyword;
-
-                    /* record the URL for future deduplication */
-                    self.urlDeduplicator.addComparisonValue(results[i].src);
-
-                    filteredResults.push(results[i]);
-                  }
-                }
-
-                return Promise.resolve(filteredResults);
-              },
-
-              function (err) {
-                return Promise.reject(err);
-              }
-            );
-          } else if (preferredService === "Wikipedia Image Search") {
-            return this.$.searchWikipedia.fetch(query).then(
-              function (results) {
-                var filteredResults = [];
-
-                for (var i = 0; i < results.length; i++) {
-                  /* filter out any pdfs or svg files */
-                  if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
-                      self.urlDeduplicator.test(results[i].src)) {
-                    results[i].keyword = keyword;
-
-                    /* record the URL for future deduplication */
-                    self.urlDeduplicator.addComparisonValue(results[i].src);
-
-                    filteredResults.push(results[i]);
-                  }
-                }
-
-                return Promise.resolve(filteredResults);
-              },
-
-              function (err) {
-                return Promise.reject(err);
-              }
-            );
-          } else if (preferredService === "Google Drive Search") {
-            console.log("cp-fetcher: Support for Google Drive coming soon!");
-            return Promise.resolve([]);
-          } else {
-            console.warn("cp-fetcher: Unrecognized preferred service!");
-            return Promise.resolve([]);
+          switch (preferredService) {
+            case "Google Image Search":
+              source = this.$.searchGoogleImages;
+              break;
+            case "Wikipedia Image Search":
+              source = this.$.searchWikipedia;
+              break;
+            case "Google Drive Search":
+              console.log("cp-fetcher: Support for Google Drive coming soon!");
+              return Promise.resolve([]);
+            default:
+              console.warn("cp-fetcher: Unrecognized preferred service!");
+              return Promise.resolve([]);
           }
+
+          return source.fetch(query).then(
+            function (results) {
+              var filteredResults = [];
+
+              for (var i = 0; i < results.length; i++) {
+                /* filter out any pdfs or svg files */
+                if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
+                    self.urlDeduplicator.test(results[i].src)) {
+                  results[i].keyword = keyword;
+
+                  /* record the URL for future deduplication */
+                  self.urlDeduplicator.addComparisonValue(results[i].src);
+
+                  filteredResults.push(results[i]);
+                }
+              }
+
+              return Promise.resolve(filteredResults);
+            },
+
+            function (err) {
+              return Promise.reject(err);
+            }
+          );
         }
       });
     })();
