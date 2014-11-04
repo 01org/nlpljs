@@ -1,0 +1,219 @@
+<!--
+wrapper for a Google Drive file thumbnail
+-->
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+
+<polymer-element name="cp-tile-file" attributes="src loaded done">
+  <template>
+    <link rel="stylesheet" href="styles/cp-tile.css">
+    <style>
+      .paleyellow {
+        background-color: #fafab2;
+      }
+
+      .paleblue {
+        background-color: #d8e2f1;
+      }
+
+      .palepink {
+        background-color: #fbd4d5;
+      }
+
+      .palegrey {
+        background-color: #b2b2b2;
+      }
+
+      #meta {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        margin-bottom: 3px;
+        color: black;
+        text-align: left;
+        padding: 0.5em;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #caption {
+        margin-top: 0;
+        margin-bottom: 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      #filedetails {
+        margin-top: 0.25em;
+      }
+
+      #filedetails {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+      }
+
+      #filedetails > * {
+        padding-right: 0.5em;
+      }
+
+      #filedetails * {
+        font-size: 0.5em;
+      }
+
+      #createdDate {
+        width: 50%;
+        text-align: right;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <div id="container">
+      <img id="image" src="{{src}}" on-load="{{imageLoaded}}" on-error="{{imageError}}">
+      <div id="meta">
+        <h2 id="caption">{{caption}}</h2>
+        <div id="filedetails">
+          <div data-show="{{!!icon}}">
+            <core-icon icon="{{icon}}"></core-icon>
+          </div>
+          <div data-show="{{!!service}}">
+            {{service}}
+          </div>
+          <div id="createdDate" data-show="{{!!createdDate}}">
+            {{createdDate|formatDate}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      // timeout (in ms) before treating an image load as failed
+      var TIMEOUT = 5000;
+
+      /* regex to test padding-left and padding-right values to ensure they
+         have px suffixes; this is necessary so we can accurately
+         measure the size of the actual container we need to fit
+         the meta into */
+      var PX_REGEX = /px$/;
+
+      /* random background colours for the tile */
+      var BACKGROUND_COLOURS = [
+        'paleyellow',
+        'paleblue',
+        'palepink',
+        'palegrey'
+      ];
+
+      /* icons for services which can serve files */
+      var SERVICE_ICONS = {
+        'Drive': 'drive'
+      };
+
+      Polymer({
+        created: function () {
+          /* URL for the file thumbnail to be displayed */
+          this.src = null;
+
+          /* width, height and ratio are set manually to force the
+             file tile to be rendered as a small square; NB these
+             have no effect on the size the thumbnail is shown at,
+             other than fixing the frame size */
+          this.width = 1;
+          this.height = 1;
+          this.ratio = 1;
+
+          /* we always set loaded to true, so that file tiles are
+             loaded into cp-display regardless of whether their related
+             thumbnail loads */
+          this.loaded = true;
+
+          /* file tiles are always ready */
+          this.done = true;
+
+          /* keyword associated with the image with structure:
+             {
+               text: "<keyword text>",
+               groupId: "<keyword group ID>"
+             }
+          */
+          this.keywords = [];
+
+          /* title to show at the bottom of the tile */
+          this.caption = '';
+
+          /* datetime when file was created */
+          this.createdDate = null;
+
+          /* the service which holds this file; used to choose the icon
+             to display; should be one of the keys in SERVICE_ICONS */
+          this.service = null;
+
+          /* icon to display */
+          this.icon = null;
+
+          /* the original data used to construct the tile, as
+             returned by an image search */
+          this.file = {};
+        },
+
+        domReady: function () {
+          /* set background colour for the container at random */
+          var bgChoice = parseInt(Math.random() * BACKGROUND_COLOURS.length, 10);
+          this.$.meta.classList.add(BACKGROUND_COLOURS[bgChoice]);
+
+          /* because the meta is absolutely-positioned, but has to
+             fit inside the container, and there seems to be no way
+             to do this with CSS, manually set its size from the
+             container size minus the left+right padding */
+          var containerStyles = window.getComputedStyle(this.$.container);
+
+          var paddingLeft = containerStyles.paddingLeft;
+          var paddingRight = containerStyles.paddingLeft;
+
+          /* ensure the container padding-left and padding-right styles
+             are both pixel values, to prevent any tinkering with
+             the stylesheet */
+          if (!(PX_REGEX.test(paddingLeft) && PX_REGEX.test(paddingRight))) {
+            console.error('padding-left and padding-right for #container ' +
+                          'must be set using px values');
+          }
+
+          paddingLeft = parseInt(paddingLeft, 10);
+          paddingRight = parseInt(paddingRight, 10);
+
+          var metaWidth = this.$.container.offsetWidth - paddingLeft - paddingRight;
+          this.$.meta.style.width = metaWidth + 'px';
+        },
+
+        /* the service sets the icon */
+        serviceChanged: function () {
+          this.icon = SERVICE_ICONS[this.service];
+        },
+
+        /* format a date string in format '2014-09-08T10:05:15.497Z'
+           and return just the YYYY-MM-DD */
+        formatDate: function (dateStr) {
+          try {
+            var dt = new Date(dateStr);
+            var month = dt.getMonth();
+            var day = dt.getDay();
+
+            month = (month < 10 ? '0' + month : month);
+            day = (day < 10 ? '0' + day : day);
+
+            return dt.getFullYear() + '-' + month + '-' + day;
+          } catch (e) {
+            return 'unknown';
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>
