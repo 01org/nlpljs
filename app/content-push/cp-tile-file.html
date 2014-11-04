@@ -1,0 +1,217 @@
+<!--
+wrapper for a Google Drive file thumbnail
+-->
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+
+<polymer-element name="cp-tile-file" attributes="src loaded done">
+  <template>
+    <link rel="stylesheet" href="styles/cp-tile.css">
+    <style>
+      .paleyellow {
+        background-color: #fafab2;
+      }
+
+      .paleblue {
+        background-color: #d8e2f1;
+      }
+
+      .palepink {
+        background-color: #fbd4d5;
+      }
+
+      .palegrey {
+        background-color: #b2b2b2;
+      }
+
+      #meta {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        color: black;
+        text-align: left;
+        padding: 0.5em;
+        box-sizing: border-box;
+        width: 100%;
+      }
+
+      #caption {
+        margin-top: 0;
+        margin-bottom: 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 1.2em;
+      }
+
+      #filedetails {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        margin-top: 0.25em;
+      }
+
+      #filedetails span {
+        font-size: 0.5em;
+        padding-right: 0.5em;
+      }
+
+      #service {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        width: 50%;
+      }
+
+      #createdDate {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        width: 50%;
+      }
+
+      #createdDate span {
+        text-align: right;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <div id="container">
+      <img id="image" src="{{src}}">
+
+      <div id="overlay"></div>
+
+      <div id="meta">
+        <h2 id="caption">{{caption}}</h2>
+        <div id="filedetails">
+          <div id="service">
+            <span data-show="{{!!icon}}">
+              <core-icon icon="{{icon}}"></core-icon>
+            </span>
+            <span data-show="{{!!service}}">
+              {{service}}
+            </span>
+          </div>
+          <div id="createdDate" data-show="{{!!createdDate}}">
+            <span>{{createdDate|formatDate}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    (function () {
+      // timeout (in ms) before treating an image load as failed
+      var TIMEOUT = 5000;
+
+      /* regex to test padding-left and padding-right values to ensure they
+         have px suffixes; this is necessary so we can accurately
+         measure the size of the actual container we need to fit
+         the meta into */
+      var PX_REGEX = /px$/;
+
+      /* random background colours for the tile */
+      var BACKGROUND_COLOURS = [
+        'paleyellow',
+        'paleblue',
+        'palepink',
+        'palegrey'
+      ];
+
+      /* icons for services which can serve files */
+      var SERVICE_ICONS = {
+        'Drive': 'drive'
+      };
+
+      Polymer({
+        created: function () {
+          /* THESE PROPERTIES SHOULD BE SET */
+
+          /* URL for the file thumbnail to be displayed */
+          this.src = null;
+
+          /* title to show at the bottom of the tile */
+          this.caption = '';
+
+          /* datetime when file was created */
+          this.createdDate = null;
+
+          /* the service which holds this file; used to choose the icon
+             to display; should be one of the keys in SERVICE_ICONS */
+          this.service = null;
+
+          /* the original data used to construct the tile, as
+             returned by a file search */
+          this.file = {};
+
+          /* keyword associated with the image with structure:
+             {
+               text: "<keyword text>",
+               groupId: "<keyword group ID>"
+             }
+          */
+          this.keywords = [];
+
+          /* type of object used to create the tile */
+          this.type = 'file';
+
+          /* PROPERTIES BELOW DON'T NEED TO BE SET */
+
+          /* icon to display */
+          this.icon = null;
+
+          /* width, height and ratio are set manually to force the
+             file tile to be rendered as a small square; NB these
+             have no effect on the size the thumbnail is shown at,
+             other than fixing the frame size */
+          this.width = 1;
+          this.height = 1;
+          this.ratio = 1;
+
+          /* we always set loaded to true, so that file tiles are
+             loaded into cp-display regardless of whether their related
+             thumbnail loads */
+          this.loaded = true;
+
+          /* file tiles are always ready */
+          this.done = true;
+        },
+
+        domReady: function () {
+          /* set background colour for the container at random */
+          var bgChoice = parseInt(Math.random() * BACKGROUND_COLOURS.length, 10);
+          this.$.meta.classList.add(BACKGROUND_COLOURS[bgChoice]);
+        },
+
+        /* the service sets the icon */
+        serviceChanged: function () {
+          this.icon = SERVICE_ICONS[this.service];
+        },
+
+        /* format a date string in format '2014-09-08T10:05:15.497Z'
+           and return just the YYYY-MM-DD */
+        formatDate: function (dateStr) {
+          try {
+            var dt = new Date(dateStr);
+            var month = dt.getMonth();
+            var day = dt.getDay();
+
+            month = (month < 10 ? '0' + month : month);
+            day = (day < 10 ? '0' + day : day);
+
+            return dt.getFullYear() + '-' + month + '-' + day;
+          } catch (e) {
+            return 'unknown';
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

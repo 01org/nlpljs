@@ -34,10 +34,4 @@ describe('FrameChooser', function () {
     expect(frame).to.eql(frameChooser.getFrameByName('landscape1'));
   });
 
-  it('should choose the landscape2 frame correctly', function () {
-    var landscapeImage = makeStubImageItem(350, 250);
-    var frame = frameChooser.choose(landscapeImage);
-    expect(frame).to.eql(frameChooser.getFrameByName('landscape2'));
-  });
-
 });

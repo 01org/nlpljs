@@ -1,5 +1,5 @@
 <!--
-wrapper for a single img element plus related elements for
+wrapper for a single image from a search result plus related elements for
 metadata; metadata elements are revealed by user interaction
 (mouse hover);
 the smallest image which will display OK is about 50x50px; any smaller
@@ -8,31 +8,12 @@ size
 -->
 <polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
   <template>
+    <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
-      :host {
-        display: inline-block;
-        -webkit-animation: fadein 2s;
-      }
-
-      #container {
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 3px 3px 3px 3px;
-      }
-
-      #container:hover {
-        background-color: #01bcd4;
-      }
-
       [data-revealed="true"] {
         display: block;
         position: absolute;
         bottom: 0;
-        margin-bottom: 3px;
         background-color: black;
         color: white;
         min-width: 3em;
@@ -44,25 +25,17 @@ size
         display: none;
       }
 
-      #image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: 0 0;
-      }
-
-      @-webkit-keyframes fadein {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-      }
-
       #meta {
         max-width: 100%;
+        margin: 0;
       }
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
       <img id="image" src="{{src}}" on-load="{{imageLoaded}}" on-error="{{imageError}}">
+
+      <div id="overlay"></div>
+
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
         {{width}}x{{height}}
       </p>
@@ -111,6 +84,9 @@ size
           // set to 'on' to reveal metadata; set to 'off' to hide it;
           // set to 'always' if metadata should always be visible
           this.revealmeta = 'off';
+
+          /* type of object used to create the tile: 'image' */
+          this.type = 'image';
 
           /* the original data used to construct the tile, as
              returned by an image search */

@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
 
 <polymer-element name="cp-layout">
@@ -12,7 +13,7 @@
         position: relative;
       }
 
-      cp-tile-image {
+      cp-tile-image, cp-tile-file {
         position: absolute;
         transition-property: top, left, opacity;
         transition-duration: 0.25s, 0.25s, 0.25s;
@@ -25,7 +26,7 @@
         padding-top: 2em;
       }
 
-      /* when an cp-tile-image displays inside this element, a margin
+      /* when a cp-tile-image displays inside this element, a margin
          appears to be added below the meta paragraph; I couldn't track
          this down, so this work-around removes that margin for
          cp-tile-images only in the context of a this element */
@@ -165,17 +166,17 @@
         },
 
         /**
-         * Return all child cp-tile-image elements which are visible.
+         * Return all child cp-tile* elements which are visible.
          */
         getVisibleTiles: function () {
-          return this.$.container.querySelectorAll('cp-tile-image[data-show="true"]');
+          return this.$.container.querySelectorAll('[data-tile="true"][data-show="true"]');
         },
 
         /**
-         * Return all child cp-tile-image elements, including the hidden ones.
+         * Return all child cp-tile* elements, including the hidden ones.
          */
         getAllTiles: function () {
-          return this.$.container.querySelectorAll('cp-tile-image');
+          return this.$.container.querySelectorAll('[data-tile="true"]');
         },
 
         /* add the tile to the layout if it loaded OK */
@@ -183,6 +184,7 @@
           // loaded is false if the image failed to load
           if (tile.loaded) {
             this.frameTile(tile);
+            tile.setAttribute('data-tile', 'true');
             this.$.container.appendChild(tile);
           }
 
@@ -220,7 +222,7 @@
         },
 
         /**
-         * Add the appropriate frame to the cp-tile-image img.
+         * Add the appropriate frame to the cp-tile*.
          *
          * @param DOMElement tile cp-tile* element
          */
@@ -232,7 +234,7 @@
         },
 
         /**
-         * Apply layout to cp-tile-images which satisfy the current filter.
+         * Apply layout to cp-tile*s which satisfy the current filter.
          */
         layout: function () {
           var tiles = this.getAllTiles();
