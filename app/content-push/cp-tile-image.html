@@ -8,26 +8,8 @@ size
 -->
 <polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
   <template>
+    <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
-      :host {
-        display: inline-block;
-        -webkit-animation: fadein 2s;
-      }
-
-      #container {
-        display: inline-block;
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 3px 3px 3px 3px;
-      }
-
-      #container:hover {
-        background-color: #01bcd4;
-      }
-
       [data-revealed="true"] {
         display: block;
         position: absolute;
@@ -42,18 +24,6 @@ size
 
       [data-revealed="false"] {
         display: none;
-      }
-
-      #image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: 0 0;
-      }
-
-      @-webkit-keyframes fadein {
-        from { opacity: 0; }
-        to   { opacity: 1; }
       }
 
       #meta {
