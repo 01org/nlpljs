@@ -1,0 +1,44 @@
+<link rel="import" href="./cp-fetcher.html">
+
+<polymer-element name="cp-aggregator">
+  <template>
+    <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
+  </template>
+
+  <script>
+    (function () {
+      var getResultsFromSource = function (self, searchTerm, source) {
+        self.$.fetcher.fetch(searchTerm, source).then(
+          function (results) {
+            self.fire("receivedresults", {
+              source: source,
+              searchTerm: searchTerm,
+              results: results
+            });
+          },
+
+          function (err) {
+            self.fire("searchfailed", {
+              source: source,
+              searchTerm: searchTerm,
+              error: err
+            });
+          }
+        );
+      };
+
+      Polymer({
+        created: function () {
+          this.sources = ["Google Image Search", 
+            "Google Drive Search"];
+        },
+        aggregate: function (searchTerms) {
+          for (var i = 0; i < searchTerms.length; i++) {
+            for (var j = 0; j < this.sources.length; j++)
+             getResultsFromSource(this, searchTerms[i], this.sources[j]);
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>
