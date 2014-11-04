@@ -1,0 +1,36 @@
+<link rel="import" href="../../app/content-push/cp-tile-file.html">
+
+<!--
+test for cp-tile-file
+-->
+<polymer-element name="cp-tile-file-test">
+  <template>
+    <style>
+      cp-tile-file {
+        width: 200px;
+        height: 200px;
+      }
+    </style>
+    <p>Create 10 cp-tile-file elements.</p>
+    <div id="container"></div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        // add random cp-tile-files with URLs from lorempixel
+        var cpTileFile;
+        for (var i = 0; i < 10; i++) {
+          cpTileFile = document.createElement('cp-tile-file');
+          cpTileFile.src = makeImageUrl(300, 200);
+          cpTileFile.service = 'Drive';
+          cpTileFile.caption = 'foo bar foo bar baz ooh';
+          cpTileFile.createdDate = '2014-09-08T10:05:15.497Z';
+          this.$.container.appendChild(cpTileFile);
+        }
+      }
+    });
+  </script>
+</polymer-element>
