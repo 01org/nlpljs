@@ -89,6 +89,7 @@
                 if (thisResponse.id !== self.$.globals.documentId) {
                   self.results[query].push({
                     type: 'file',
+                    service: 'Drive',
                     caption: thisResponse.title,
                     source: thisResponse.alternateLink,
                     iconLink: thisResponse.iconLink,

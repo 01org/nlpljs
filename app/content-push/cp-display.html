@@ -7,6 +7,8 @@ pushing new tiles into the wrapped layout
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="./cp-scroll.html">
 <link rel="import" href="./cp-layout.html">
+<link rel="import" href="./cp-tile-file.html">
+<link rel="import" href="./cp-tile-image.html">
 
 <polymer-element name="cp-display">
   <template>
@@ -174,13 +176,12 @@ pushing new tiles into the wrapped layout
               return false;
             }
 
-
             var typeMatches;
             /* no types criteria, so always matches */
             if (criteria.types.length === 0) {
               typeMatches = true;
             } else {
-              typeMatches = _.contains(criteria.types, tile.image.type);
+              typeMatches = _.contains(criteria.types, tile.type);
             }
 
             return keywordMatches && typeMatches;
@@ -207,7 +208,11 @@ pushing new tiles into the wrapped layout
 
           if (results.length) {
             for (var i = 0; i < results.length; i++) {
-              this.appendImage(results[i]);
+              if (results[i].type === 'image') {
+                this.appendImage(results[i]);
+              } else if (results[i].type === 'file') {
+                this.appendFile(results[i]);
+              }
             }
           } else {
             this.layout();
@@ -216,6 +221,35 @@ pushing new tiles into the wrapped layout
 
         onScrollerScrollend: function () {
           this.fire('moreresults');
+        },
+
+        /**
+         * Add a cp-tile* element to the layout, attaching handlers
+         * at the same time and associating the keyword with it.
+         *
+         * @param {DOMElement} tile cp-tile* element to add to the
+         * layout inside this display.
+         * @param {string} keyword Keyword to associate with this tile.
+         */
+        addTile: function (tile, keyword) {
+          var self = this;
+
+          if (tile.keywords.indexOf(keyword) === -1)
+            tile.keywords[tile.keywords.length] = keyword;
+
+          tile.addEventListener('mouseover', function () {
+            self.fire('mouse-over', tile.keywords);
+          });
+
+          tile.addEventListener('mouseout', function () {
+            self.fire('mouse-out', tile.keywords);
+          });
+
+          tile.addEventListener('click', function () {
+            self.fire('mouse-down', tile);
+          });
+
+          this.$.layout.addTile(tile);
         },
 
         /**
@@ -241,32 +275,48 @@ pushing new tiles into the wrapped layout
         * in the Context when highlights are toggled.
         */
         appendImage: function (image) {
-          var self = this;
+          var tile = document.createElement('cp-tile-image');
 
-          var elt = document.createElement('cp-tile-image');
+          tile.src = image.thumbnailSrc;
+          tile.width = image.width;
+          tile.height = image.height;
+          tile.image = image;
 
-          elt.src = image.thumbnailSrc;
-          elt.width = image.width;
-          elt.height = image.height;
+          this.addTile(tile, image.keyword);
+        },
 
-          if (elt.keywords.indexOf(image.keyword) === -1)
-            elt.keywords[elt.keywords.length] = image.keyword;
+        /**
+        * Convenience method to append a file tile to the
+        * gallery; creates a cp-tile-file element for the file
+        * object added.
+        *
+        * @param Object file Representation of file to add; has the
+        * format:
+        * {
+        *   thumbnailSrc: "<url of file thumbnail>",
+        *   keyword: {
+        *       text: "<keyphrase text>",
+        *       groupId: "<keyphrase group ID>"
+        *   },
+        *   caption: "<file caption>",
+        *   createdDate: <date in format '2014-09-08T10:05:15.497Z'>,
+        *   type: 'file'
+        * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        */
+        appendFile: function (file) {
+          var tile = document.createElement('cp-tile-file');
 
-          elt.addEventListener('mouseover', function () {
-            self.fire('mouse-over', elt.keywords);
-          });
+          tile.src = file.thumbnailSrc;
+          tile.caption = file.caption;
+          tile.createdDate = file.createdDate;
+          tile.service = file.service;
+          tile.file = file;
 
-          elt.addEventListener('mouseout', function () {
-            self.fire('mouse-out', elt.keywords);
-          });
-
-          elt.addEventListener('click', function () {
-            self.fire('mouse-down', elt);
-          });
-
-          elt.image = image;
-
-          this.$.layout.addTile(elt);
+          this.addTile(tile, file.keyword);
         },
 
         getLayout: function () {
@@ -290,8 +340,8 @@ pushing new tiles into the wrapped layout
         hideLoadingSpinner: function () {
           this.loading = false;
         },
+
         sliderChanged: function () {
-          console.log('changed');
           this.fire('slider-change');
         }
       });
