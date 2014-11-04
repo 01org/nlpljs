@@ -56,27 +56,22 @@ test for cp-display
             thumbnailSrc: makeImageUrl(200, 200),
             width: 200,
             height: 200,
-            keyword: {
-              text: keyphraseText
-            }
+            type: 'image',
+            keyword: { text: keyphraseText }
           });
         }
 
         this.$.display.receiveResults(fakeResults);
 
         this.$.display.setFilter({
-          keywordInfo: {
-            keywords: [
-              { text: keyphraseText }
-            ]
-          }
+          activeKeywords: [{text: keyphraseText}]
         });
 
         this.$.display.hideLoadingSpinner();
       },
 
       showKeyword: function (e) {
-        var keywordText = e.detail.text;
+        var keywordText = e.detail[0].text;
         this.$.hoveredkeyword.innerHTML = keywordText;
       },
 
