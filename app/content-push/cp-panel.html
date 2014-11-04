@@ -7,7 +7,7 @@
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
 <link rel="import" href="../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
-<link rel="import" href="./cp-fetcher.html">
+<link rel="import" href="./cp-result-aggregator.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-image-detail.html">
 <link rel="import" href="./cp-swapper.html">
@@ -111,7 +111,7 @@
                     on-mouse-over="{{onDisplayMouseover}}"
                     on-mouse-out="{{onDisplayMouseout}}"
                     on-mouse-down="{{showDetail}}"
-					on-slider-change="{{sliderChange}}">
+                    on-slider-change="{{sliderChange}}">
         </cp-display>
       </div>
 
@@ -125,7 +125,10 @@
       </cp-sources-groups>
     </cp-swapper>
 
-    <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
+    <cp-result-aggregator id="aggregator"
+                          on-receivedresults="{{onReceivedResults}}"
+                          on-searchfailed="{{onSearchFailed}}">
+    </cp-result-aggregator>
   </template>
 
   <script>
@@ -152,24 +155,7 @@
         }
 
         self.$.display.showLoadingSpinner();
-
-        for (var i = 0; i < newKeywords.length; i++) {
-          self.$.fetcher.fetch(newKeywords[i]).then(
-            function (results) {
-              self.$.display.receiveResults(results);
-              setFilter(self);
-              self.$.display.hideLoadingSpinner();
-            },
-
-            /* TODO notify user of search errors in UI */
-            function (err) {
-              self.$.display.receiveResults([]);
-              setFilter(self);
-              self.$.display.hideLoadingSpinner();
-              console.error(err);
-            }
-          );
-        }
+        self.$.aggregator.aggregate(newKeywords);
       };
 
       /* tests whether the active keywords have changed;
@@ -285,6 +271,20 @@
 
         onDisplayMouseout: function (e) {
           this.fire('mouseoutimage', e.detail);
+        },
+
+        onReceivedResults: function (e) {
+          this.$.display.receiveResults(e.detail.results);
+          setFilter(this);
+          this.$.display.hideLoadingSpinner();
+        },
+
+        onSearchFailed: function (e) {
+          /* TODO notify user of search errors in UI */
+          this.$.display.receiveResults([]);
+          setFilter(this);
+          this.$.display.hideLoadingSpinner();
+          console.error(e.detail.error);
         },
 
         closePanel: function () {

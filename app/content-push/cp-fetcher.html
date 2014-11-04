@@ -1,10 +1,15 @@
 <link rel="import" href="./cp-search-google-images.html">
+<link rel="import" href="./cp-search-wikipedia.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
     <cp-search-google-images id="searchGoogleImages"
                              resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-google-images>
+
+    <cp-search-wikipedia id="searchWikipedia"
+                         resultsPerFetch="{{resultsPerFetch}}">
+    </cp-search-wikipedia>
   </template>
 
   <script src="./cp-filter-deduplicate.js"></script>
@@ -25,7 +30,7 @@
         /* at the moment we just fetch and aggregate via the
            cp-search-wikipedia component; returns a promise
            which resolves to an array of results or rejects with an error */
-        fetch: function (keyword) {
+        fetch: function (keyword, preferredService) {
           var self = this;
 
           var query = keyword.text;
@@ -36,30 +41,63 @@
             return Promise.resolve([]);
           }
 
-          return this.$.searchGoogleImages.fetch(query).then(
-            function (results) {
-              var filteredResults = [];
+          if (preferredService === "Google Image Search") {
+            return this.$.searchGoogleImages.fetch(query).then(
+              function (results) {
+                var filteredResults = [];
 
-              for (var i = 0; i < results.length; i++) {
-                /* filter out any pdfs or svg files */
-                if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
-                    self.urlDeduplicator.test(results[i].src)) {
-                  results[i].keyword = keyword;
+                for (var i = 0; i < results.length; i++) {
+                  /* filter out any pdfs or svg files */
+                  if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
+                      self.urlDeduplicator.test(results[i].src)) {
+                    results[i].keyword = keyword;
 
-                  /* record the URL for future deduplication */
-                  self.urlDeduplicator.addComparisonValue(results[i].src);
+                    /* record the URL for future deduplication */
+                    self.urlDeduplicator.addComparisonValue(results[i].src);
 
-                  filteredResults.push(results[i]);
+                    filteredResults.push(results[i]);
+                  }
                 }
+
+                return Promise.resolve(filteredResults);
+              },
+
+              function (err) {
+                return Promise.reject(err);
               }
+            );
+          } else if (preferredService === "Wikipedia Image Search") {
+            return this.$.searchWikipedia.fetch(query).then(
+              function (results) {
+                var filteredResults = [];
 
-              return Promise.resolve(filteredResults);
-            },
+                for (var i = 0; i < results.length; i++) {
+                  /* filter out any pdfs or svg files */
+                  if (!BAD_EXTENSIONS_REGEX.test(results[i].src) &&
+                      self.urlDeduplicator.test(results[i].src)) {
+                    results[i].keyword = keyword;
 
-            function (err) {
-              return Promise.reject(err);
-            }
-          );
+                    /* record the URL for future deduplication */
+                    self.urlDeduplicator.addComparisonValue(results[i].src);
+
+                    filteredResults.push(results[i]);
+                  }
+                }
+
+                return Promise.resolve(filteredResults);
+              },
+
+              function (err) {
+                return Promise.reject(err);
+              }
+            );
+          } else if (preferredService === "Google Drive Search") {
+            console.log("cp-fetcher: Support for Google Drive coming soon!");
+            return Promise.resolve([]);
+          } else {
+            console.warn("cp-fetcher: Unrecognized preferred service!");
+            return Promise.resolve([]);
+          }
         }
       });
     })();
