@@ -1,5 +1,6 @@
 <link rel="import" href="./cp-search-google-images.html">
 <link rel="import" href="./cp-search-wikipedia.html">
+<link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
@@ -10,6 +11,10 @@
     <cp-search-wikipedia id="searchWikipedia"
                          resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-wikipedia>
+
+    <cp-search-google-files id="searchDrive"
+                            resultsPerFetch="{{resultsPerFetch}}">
+    </cp-search-google-files>
   </template>
 
   <script src="./cp-filter-deduplicate.js"></script>
@@ -51,8 +56,8 @@
               source = this.$.searchWikipedia;
               break;
             case "Google Drive Search":
-              console.log("cp-fetcher: Support for Google Drive coming soon!");
-              return Promise.resolve([]);
+              source = this.$.searchDrive;
+              break;
             default:
               console.warn("cp-fetcher: Unrecognized preferred service!");
               return Promise.resolve([]);
