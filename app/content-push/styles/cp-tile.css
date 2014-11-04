@@ -2,6 +2,8 @@
 :host {
   display: inline-block;
   -webkit-animation: fadein 1s;
+  border: 1px solid white;
+  box-sizing: border-box;
 }
 
 #container {
@@ -11,11 +13,22 @@
   height: 100%;
   width: 100%;
   box-sizing: border-box;
-  padding: 3px 3px 3px 3px;
 }
 
-#container:hover {
-  background-color: #01bcd4;
+#overlay {
+  display: block;
+  top: 0;
+  left: 0;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#overlay:hover {
+  border: 3px solid #01bcd4;
 }
 
 #image {

@@ -14,7 +14,6 @@ size
         display: block;
         position: absolute;
         bottom: 0;
-        margin-bottom: 3px;
         background-color: black;
         color: white;
         min-width: 3em;
@@ -28,11 +27,15 @@ size
 
       #meta {
         max-width: 100%;
+        margin: 0;
       }
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
       <img id="image" src="{{src}}" on-load="{{imageLoaded}}" on-error="{{imageError}}">
+
+      <div id="overlay"></div>
+
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
         {{width}}x{{height}}
       </p>

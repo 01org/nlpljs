@@ -28,7 +28,6 @@ wrapper for a Google Drive file thumbnail
         display: block;
         position: absolute;
         bottom: 0;
-        margin-bottom: 3px;
         color: black;
         text-align: left;
         padding: 0.5em;
@@ -85,6 +84,9 @@ wrapper for a Google Drive file thumbnail
 
     <div id="container">
       <img id="image" src="{{src}}">
+
+      <div id="overlay"></div>
+
       <div id="meta">
         <h2 id="caption">{{caption}}</h2>
         <div id="filedetails">
