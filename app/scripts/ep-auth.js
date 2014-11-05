@@ -15,6 +15,39 @@
 
 var epAuth = epAuth || {};
 
+/**
+ * message routing
+ *  component: ('auth'||...)
+ */
+chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
+  console.log('EP-AUTH:got message:',message);
+  var keepChannelOpen=false;
+
+  if (message.component === 'auth') {
+    var service = message.service;
+
+    if (epAuth.hasOwnProperty(service)) {
+      var type = message.type;
+      switch (type) {
+        case 'gettoken':
+          keepChannelOpen = epAuth[service].getToken(sendResponse);
+          break;
+        case 'removecachedtoken':
+          var token = message.token;
+          epAuth[service].removeCachedToken(token);
+          break;
+        default:
+          console.log(new Error('EP-AUTH:unknown message type:'+type));
+          break;
+      }
+    } else {
+      console.log(new Error('EP-AUTH:unknown service:'+service));
+    }
+  }
+
+  return keepChannelOpen; // to call sendResponse asynchronously
+});
+
 epAuth.google = (function () {
   var cache = {
     access_token: null

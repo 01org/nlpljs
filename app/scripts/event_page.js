@@ -8,8 +8,6 @@ var workerMessage = function (type, data) {
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
 
-var epAuth = epAuth || {}; // authenticator for multiple services
-
 //Create a web worker for NLP tasks
 function createWorker() {
   nlp_worker = new Worker("scripts/nlp_worker.js");
@@ -43,44 +41,6 @@ chrome.runtime.onConnect.addListener(function(localport) {
   });
 });
 
-/**
- * message routing
- *  component: ('auth'||...)
- */
-chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
-  console.log('EP-MAIN:got message:',message);
-  var keepChannelOpen=false;
-  var component = message.component;
-  switch (component) {
-    case 'auth':
-      var service = message.service;
-
-      if (epAuth.hasOwnProperty(service)) {
-        var type = message.type;
-        switch (type) {
-          case 'gettoken':
-            keepChannelOpen = epAuth[service].getToken(sendResponse);
-            break;
-          case 'removecachedtoken':
-            var token = message.token;
-            epAuth[service].removeCachedToken(token);
-            break;
-          default:
-            console.log(new Error('EP-MAIN:unknown message type:'+type));
-            break;
-        }
-      } else {
-        console.log(new Error('EP-MAIN:unknown service:'+service));
-      }
-      break;
-    default:
-      console.log(new Error('EP-MAIN:unknown component:'+component));
-      break;
-  }
-
-  return keepChannelOpen; // to call sendResponse asynchronously
-});
-
 chrome.runtime.onMessage.addListener( function(message, sender, sendResponse) {
     if (message === "cp-nlpinit" ) {
       if (nlp_worker == null)
@@ -89,7 +49,6 @@ chrome.runtime.onMessage.addListener( function(message, sender, sendResponse) {
       chrome.pageAction.show(sender.tab.id);
     }
 });
-
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   console.log('tab ' + tabId + ' is removed');
