@@ -20,11 +20,11 @@
       {
         groupId: 1,
         start: {
-          lineId: 2,
+          lineId: '2',
           charNo: 5
         },
         end: {
-          lineId: 2,
+          lineId: '2',
           charNo: 15
         }
       },
@@ -383,11 +383,11 @@
       var injectCss = function (self, targetDocument) {
         var css=[
           'keyword-highlight,',
-          'keyword-highlighter-test::shadow keyword-highlight {',
+          'cp-keyword-highlighter-test::shadow keyword-highlight {',
             self.offStyle,
           '}',
           'keyword-highlight.on,',
-          'keyword-highlighter-test::shadow keyword-highlight.on {',
+          'cp-keyword-highlighter-test::shadow keyword-highlight.on {',
             self.onStyle,
           '}',
         ].join('\n');
@@ -405,12 +405,10 @@
       };
 
       Polymer({
-        lineIds: [],
         created: function () {
-          this.offStyle='',
-          this.onStyle=[
-            'background-color: lightpink;'
-          ].join('');
+          this.lineIds = [];
+          this.offStyle = '';
+          this.onStyle = 'background-color: lightpink;';
         },
 
         ready: function () {
@@ -458,7 +456,6 @@
         },
 
         clear: function (groupId) {
-
           // get the elements with the given groupId,
           // or all if non given
           var elements=this.targetElement.querySelectorAll([

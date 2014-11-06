@@ -18,39 +18,39 @@
       var testInput=[
 
         {
-          groupId: 0,
+          groupId: '0',
           start: {
             charNo: 0,
-            lineNo: 0,
+            lineId:  '0',
           },
           end: {
             charNo: 10,
-            lineNo: 0,
+            lineId:  '0',
           },
         },
 
         {
-          groupId: 5,
+          groupId: '5',
           start: {
             charNo: 2,
-            lineNo: 0,
+            lineId:  '0',
           },
           end: {
             charNo: 6,
-            lineNo: 0,
+            lineId:  '0',
           },
         },
 
         // same line
         // in group 1
         {
-          groupId: 1,
+          groupId: '1',
           start: {
-            lineNo: 0,
+            lineId:  '0',
             charNo: 4
           },
           end: {
-            lineNo: 0,
+            lineId:  '0',
             charNo: 10
           }
         },
@@ -58,13 +58,13 @@
         // two lines
         // in group 1
         {
-          groupId: 1,
+          groupId: '1',
           start: {
-            lineNo: 2,
+            lineId:  '2',
             charNo: 5
           },
           end: {
-            lineNo: 2,
+            lineId:  '2',
             charNo: 15
           }
         },
@@ -74,11 +74,11 @@
         {
           groupId: 2,
           start: {
-            lineNo: 6,
+            lineId:  '6',
             charNo: 4
           },
           end: {
-            lineNo: 9,
+            lineId:  '9',
             charNo: 2
           }
         },
@@ -90,22 +90,22 @@
       this.$.highlighter.prepare(testInput);
 
       // turn on group 1
-      this.$.highlighter.turn(1,'on');
+      this.$.highlighter.turn('1','on');
 
       var self=this;
       // after two seconds, turn on group 2
       setTimeout(function() {
-        self.$.highlighter.turn(2,'on');
+        self.$.highlighter.turn('2','on');
       },2000);
 
       // 5 seconds later, remove groupId=1 elements
       setTimeout(function() {
-        self.$.highlighter.clear(1);
+        self.$.highlighter.clear('1');
       }, 5000);
 
       // ten seconds later, remove groupId=2 elements
       setTimeout(function() {
-        self.$.highlighter.clear(2);
+        self.$.highlighter.clear('2');
       }, 10000);
 
     },
