@@ -7,9 +7,21 @@
 
   <script>
     (function () {
+      var logSearch = function (self) {
+        self.pendingSearches--;
+
+        /* if there are no pending searches, fire event */
+        if (self.pendingSearches < 1) {
+          console.log('CP-AGGREGATOR: no pending searches');
+          self.fire('nopendingsearches');
+        }
+      };
+
       var getResultsFromSource = function (self, searchTerm, source) {
         self.$.fetcher.fetch(searchTerm, source).then(
           function (results) {
+            logSearch(self);
+
             self.fire("receivedresults", {
               source: source,
               searchTerm: searchTerm,
@@ -18,6 +30,8 @@
           },
 
           function (err) {
+            logSearch(self);
+
             self.fire("searchfailed", {
               source: source,
               searchTerm: searchTerm,
@@ -29,13 +43,20 @@
 
       Polymer({
         created: function () {
-          this.sources = ["Google Image Search", 
-            "Google Drive Search"];
+          this.sources = [
+            "Google Image Search",
+            "Google Drive Search"
+          ];
+
+          this.pendingSearches = 0;
         },
+
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            for (var j = 0; j < this.sources.length; j++)
-             getResultsFromSource(this, searchTerms[i], this.sources[j]);
+            for (var j = 0; j < this.sources.length; j++) {
+              this.pendingSearches++;
+              getResultsFromSource(this, searchTerms[i], this.sources[j]);
+            }
           }
         }
       });

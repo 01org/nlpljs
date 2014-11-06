@@ -21,7 +21,9 @@
       }
 
       #toolbar {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        height: 7%;
         background-color: #202020;
         margin: 0;
         padding: 0;
@@ -46,14 +48,10 @@
       #display {
         margin: 3px;
         padding: 0;
-        height: 90%;
+        height: 93%;
         width: 100%;
         overflow: hidden;
         box-sizing: border-box;
-      }
-
-      #slider {
-        height: 100%;
       }
 
       cp-swapper {
@@ -131,7 +129,8 @@
 
     <cp-aggregator id="aggregator"
                    on-receivedresults="{{onReceivedResults}}"
-                   on-searchfailed="{{onSearchFailed}}">
+                   on-searchfailed="{{onSearchFailed}}"
+                   on-nopendingsearches="{{onNoPendingSearches}}">
     </cp-aggregator>
   </template>
 
@@ -140,6 +139,10 @@
       // private *static* functions and constants
 
       var setFilter = function (self) {
+        if (!self.activeKeywords) {
+          return;
+        }
+
         var sliderValue = self.$.display.$.slider.value;
         var desiredNumber = Math.floor((sliderValue / (100 - sliderValue)) *
           self.activeKeywords.length);
@@ -158,7 +161,7 @@
           return;
         }
 
-        self.$.display.showLoadingSpinner();
+        self.$.display.wait();
         self.$.aggregator.aggregate(newKeywords);
       };
 
@@ -253,15 +256,12 @@
             checkKeywordInfoChanged(this.activeKeywords, e.detail.keywordInfo);
 
           this.activeKeywords = e.detail.keywordInfo.keywords;
-          /* if we have a new best keyword, run a fresh search */
-          if (newKeywords.length > 0) {
-            /* reset scroll position, as we'll be showing new results */
-            this.$.display.scrollToTop();
 
+          /* if we have new keywords, run a fresh search */
+          if (newKeywords.length > 0) {
+            this.$.display.scrollToTop();
             search(this, newKeywords);
           }
-
-          setFilter(this);
         },
 
         /* search more using current keywordInfo */
@@ -277,23 +277,32 @@
           this.fire('mouseoutimage', e.detail);
         },
 
+        /* the first result which loads successfully into a tile
+           will turn off the waiting indicator on cp-display */
         onReceivedResults: function (e) {
           this.$.display.receiveResults(e.detail.results);
           setFilter(this);
-          this.$.display.hideLoadingSpinner();
         },
 
         onSearchFailed: function (e) {
           /* TODO notify user of search errors in UI */
           this.$.display.receiveResults([]);
-          setFilter(this);
-          this.$.display.hideLoadingSpinner();
           console.error(e.detail.error);
+          setFilter(this);
+        },
+
+        /* if the aggregator has finished searching, ensure the
+           waiting indicator on cp-display is off, even if no results
+           were found */
+        onNoPendingSearches: function () {
+          console.log('CP-PANEL: got nopendingsearches');
+          this.$.display.stopWaiting();
         },
 
         closePanel: function () {
           this.fire('close-panel');
         },
+
         sliderChange: function () {
           setFilter(this);
         }
