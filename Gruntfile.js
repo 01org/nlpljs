@@ -86,7 +86,7 @@ module.exports = function (grunt) {
                     '<%= config.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
                     '<%= config.app %>/manifest.json',
                     '<%= config.app %>/_locales/{,*/}*.json',
-                    "<%= config.app %>/content-push/styles/content-push.less"
+                    "<%= config.app %>/content_push/styles/content-push.less"
                 ]
             }
         },
@@ -94,16 +94,16 @@ module.exports = function (grunt) {
         less: {
             development: {
                 options: {
-                    paths: ["<%= config.app %>/content-push/styles"]
+                    paths: ["<%= config.app %>/content_push/styles"]
                 },
-                files: {"<%= config.app %>/content-push/styles/content-push.css": "<%= config.app %>/content-push/styles/content-push.less"}
+                files: {"<%= config.app %>/content_push/styles/content-push.css": "<%= config.app %>/content_push/styles/content-push.less"}
             },
             production: {
                 options: {
-                    paths: ["<%= config.app %>/content-push/styles"],
+                    paths: ["<%= config.app %>/content_push/styles"],
                     cleancss: true
                 },
-                files: {"<%= config.app %>/content-push/styles/content-push.css": "<%= config.app %>/content-push/styles/content-push.less"}
+                files: {"<%= config.app %>/content_push/styles/content-push.css": "<%= config.app %>/content_push/styles/content-push.less"}
             }
         },
 

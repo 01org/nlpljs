@@ -10,7 +10,7 @@ var workerMessage = function (type, data) {
 
 //Create a web worker for NLP tasks
 function createWorker() {
-  nlp_worker = new Worker("scripts/nlp_worker.js");
+  nlp_worker = new Worker("worker/nlp_worker.js");
 
   //TODO: Error handling & fallback.
   nlp_worker.onmessage = function(event) {

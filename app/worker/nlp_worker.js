@@ -1,7 +1,7 @@
 /*
  * This file is a webworker (https://developer.mozilla.org/en/docs/Web/Guide/Performance/Using_web_workers).
- * It acts as an interface between the content script (event_page.js) and NLP modules.
- * The content script initialized the worker with var worker =  new Worker(file);
+ * It acts as an interface between the event page (event_page/ep-main.js) and NLP modules.
+ * The event page initializes the worker with var worker =  new Worker(file);
  * It sends messages to the worker using worker.postMessage() and listens to messages by worker.onmessage() listener.
  * The web worker processes the following messages:
  * initialize: Initialize the NLP modules. Respone is 'initdone' or 'initerror'
