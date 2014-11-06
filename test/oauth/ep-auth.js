@@ -1,1 +1,1 @@
-../../app/scripts/ep-auth.js
+../../app/event_page/ep-auth.js
