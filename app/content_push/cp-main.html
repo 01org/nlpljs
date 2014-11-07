@@ -10,7 +10,9 @@
     <div id="container" horizontal layout>
       <cp-document id='document'
                    flex
-                   on-newkeywordinfo='{{onDocumentNewKeywordInfo}}'>
+                   on-newkeywordinfo='{{onDocumentNewKeywordInfo}}'
+                   on-nlpstart="{{onNlpStart}}"
+                   on-nlpstop="{{onNlpStop}}">
       </cp-document>
       <core-splitter id="splitter"
                      direction="right"
@@ -50,6 +52,16 @@
         // relay newkeywordinfo from document to panel
         onDocumentNewKeywordInfo: function (e) {
           this.$.panel.fire('newkeywordinfo',e.detail);
+        },
+
+        onNlpStart: function () {
+          console.log('CP-MAIN: NLP processing start');
+          this.$.panel.fire('nlpstart');
+        },
+
+        onNlpStop: function () {
+          console.log('CP-MAIN: NLP processing stop');
+          this.$.panel.fire('nlpstop');
         },
 
         onSplitterDownAction: function () {

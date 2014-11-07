@@ -19,12 +19,25 @@
     "paper-spinner": "https://github.com/PolymerLabs/paper-spinner.git",
     "paper-slider": "Polymer/paper-slider#~0.4.2",
     "paper-menu-button": "Polymer/paper-menu-button#~0.4.2",
-    "google-apis": "GoogleWebComponents/google-apis#~0.3.3"
+    "google-apis": "GoogleWebComponents/google-apis#~0.3.3",
+    "paper-progress": "Polymer/paper-progress#master"
   },
   "devDependencies": {},
   "resolutions": {
-    "polymer": "~0.4.2",
-    "platform": "^0.4.0",
-    "core-component-page": "^0.4.0"
+    "paper-progress": "master",
+    "polymer": "master",
+    "platform": "master",
+    "core-component-page": "master",
+    "core-iconset": "master",
+    "core-meta": "master",
+    "paper-ripple": "master",
+    "font-roboto": "master",
+    "paper-button": "master",
+    "paper-shadow": "master",
+    "core-icon": "master",
+    "core-icons": "master",
+    "core-input": "master",
+    "core-range": "master",
+    "core-iconset-svg": "master"
   }
 }

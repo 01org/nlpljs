@@ -46,7 +46,14 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             jsonp({
               url: url,
               cb: function (response) {
-                self.handleResponse(resultSet, query, response).then(
+                self.handleResponse(resultSet, query, response)
+                .catch(
+                  function (e) {
+                    console.error('CP-SEARCH-WIKIPEDIA ERROR: ' + e.message);
+                    reject(e);
+                  }
+                )
+                .then(
                   resolve, reject
                 );
               }
@@ -62,7 +69,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                                 JSON.stringify(response));
             return Promise.reject(err);
           } else {
-            if (response['query-continue']) {
+            if (response['query-continue'] && response['query-continue'].search) {
               // offset for the next search for this query (according to Wikipedia)
               var offset = response['query-continue']['search'].gsroffset;
 

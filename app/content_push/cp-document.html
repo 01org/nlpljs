@@ -239,11 +239,18 @@
         },
 
         ready: function () {
+          var self = this;
           this.$.iframe.src = this.$.globals.data.iframeurl;
+
+          // preparecontext fired from content script
+          this.addEventListener('processcontext', function (e) {
+            self.fire('nlpstart');
+          });
 
           // keywordlist fired from content script
           document.addEventListener('keywordlist', function (e) {
             setKeywordInfo(self,e.detail);
+            self.fire('nlpstop');
           });
 
           var self=this;

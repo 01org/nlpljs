@@ -20,10 +20,17 @@
         transition-timing-function: ease-out, ease-out, ease-out;
       }
 
-      #loading, #noresults {
+      #loading {
         width: 100%;
         text-align: center;
         padding-top: 2em;
+      }
+
+      #noresults {
+        width: 100%;
+        overflow: hidden;
+        padding-top: 2em;
+        text-align: center;
       }
 
       /* when a cp-tile-image displays inside this element, a margin
@@ -39,14 +46,15 @@
       }
     </style>
 
-    <div id="container" data-show="{{!noresults}}"></div>
-
-    <div id="noresults" data-show="{{tilesLoading < 1 && noresults}}">
-      <p>Sorry, we couldn't find anything.</p>
-    </div>
+    <div id="container" data-show="{{visibleTiles > 0}}"></div>
 
     <div id="loading" data-show="{{tilesLoading > 0}}">
       <paper-spinner active></paper-spinner>
+    </div>
+
+    <!-- no results -->
+    <div id="noresults" data-show="{{visibleTiles < 1 && !pending}}">
+      No results available
     </div>
   </template>
 
@@ -67,12 +75,6 @@
       choosing a frame
       */
       var FRAME_CELL_SIDE = 54;
-
-      /*
-      base URL for Google's image resizer (undocumented);
-      see http://carlo.zottmann.org/2013/04/14/google-image-resizer/
-      */
-      var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
 
       var makeImageLoadHandler = function (layout, elt) {
         return function () {
@@ -140,8 +142,12 @@
           /* count of the number of tiles currently loading */
           this.tilesLoading = 0;
 
-          /* set to true if there are noresults visible */
-          this.noresults = false;
+          /* tiles currently visible */
+          this.visibleTiles = 0;
+        },
+
+        setPending: function (val) {
+          this.pending = val;
         },
 
         /* set number of columns based on the gallery width */
@@ -150,8 +156,7 @@
 
           if (width >= WIDE_BREAKPOINT) {
             this.numColumns = WIDE_NUM_COLS;
-          }
-          else {
+          } else {
             this.numColumns = NARROW_NUM_COLS;
           }
         },
@@ -166,10 +171,10 @@
         },
 
         /**
-         * Return all child cp-tile* elements which are visible.
+         * Return count of child cp-tile* elements which are visible.
          */
-        getVisibleTiles: function () {
-          return this.$.container.querySelectorAll('[data-tile="true"][data-show="true"]');
+        getCountVisibleTiles: function () {
+          return this.visibleTiles;
         },
 
         /**
@@ -181,14 +186,16 @@
 
         /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
+          this.tilesLoading--;
+
           // loaded is false if the image failed to load
           if (tile.loaded) {
             this.frameTile(tile);
             tile.setAttribute('data-tile', 'true');
             this.$.container.appendChild(tile);
+            this.fire('tileadded', tile);
           }
 
-          this.tilesLoading--;
           this.fireLoadEvent();
           this.layout();
         },
@@ -237,6 +244,9 @@
          * Apply layout to cp-tile*s which satisfy the current filter.
          */
         layout: function () {
+          /* assume all tiles are hidden by default */
+          var visibleTiles = 0;
+
           var tiles = this.getAllTiles();
 
           /* convert tiles into shapes */
@@ -248,6 +258,10 @@
             var tile = tiles[i];
 
             hideTile = (this.filter && !this.filter(tile));
+
+            /* only show loaded tiles */
+            hideTile = (hideTile && tile.loaded);
+
             tile.setAttribute('data-show', !hideTile);
 
             if (!hideTile) {
@@ -256,14 +270,12 @@
                 width: parseInt(tile.getAttribute('data-columns'), 10),
                 height: parseInt(tile.getAttribute('data-rows'), 10)
               });
+
+              visibleTiles++;
             }
           }
 
-          /* no shapes means no results */
-          this.noresults = (shapes.length === 0 && this.tilesLoading < 1);
-          if (this.noresults) {
-            return;
-          }
+          this.visibleTiles = visibleTiles;
 
           var cellSide = this.offsetWidth / this.numColumns;
           this.setLayoutParams();

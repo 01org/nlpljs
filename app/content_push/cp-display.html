@@ -1,6 +1,6 @@
 <!--
 scrolling image search results component; responsible for tracking
-the state of any ongoing search, displaying loading spinners, and
+the state of any ongoing search, displaying waiting spinners, and
 pushing new tiles into the wrapped layout
 -->
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
@@ -34,11 +34,21 @@ pushing new tiles into the wrapped layout
         padding-top: 3em;
       }
 
-      #results {
-        position: relative;
+      #scroller {
+        width: 100%;
+        height: 100%;
+        margin-bottom: 48px; /* for the slider */
       }
 
-      #loading {
+      #results {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        height: 100%;
+      }
+
+      #waiting {
         display: flex;
         background-color: white;
         flex-direction: column;
@@ -48,30 +58,45 @@ pushing new tiles into the wrapped layout
         top: 0;
         left: 0;
         z-index: 1000;
-        opacity: 0.6;
+        -webkit-animation-duration: 0.25s;
+        animation-duration: 0.25s;
+        -webkit-animation-timing-function: ease-out;
+        animation-timing-function: ease-out;
+      }
+
+      #waiting.fadein {
+        -webkit-animation-name: fadein;
+        animation-name: fadein;
+      }
+
+      #waiting.fadeout {
+        -webkit-animation-name: fadeout;
+        animation-name: fadeout;
+      }
+
+      @-webkit-keyframes fadein {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+
+      @-webkit-keyframes fadeout {
+        from { opacity: 1; }
+        to   { opacity: 0; }
       }
 
       [data-show="false"] {
         display: none !important;
       }
 
-      #scroller {
-        height: 92%;
-      }
-
-      #widen {
+      paper-slider {
         position: absolute;
         bottom: 0;
         width: 100%;
-        height: 8%;
-        min-height: 64px;
-        background-color: white;
-      }
-
-      paper-slider {
-        width: 100%;
-        height: 100%;
+        max-height: 48px;
+        min-height: 48px;
         padding: 8px 0;
+        background-color: white;
+        box-sizing: border-box;
       }
 
       /* slider colors (oh dear...) */
@@ -90,7 +115,7 @@ pushing new tiles into the wrapped layout
     states for this component:
 
     - preresults - no search initiated, displays welcome message
-    - results - "widen" is shown with results (or empty results)
+    - results - slider is shown with results (or empty results)
     -->
 
     <!-- never searched -->
@@ -101,28 +126,27 @@ pushing new tiles into the wrapped layout
     </div>
 
     <!-- after results are found -->
-    <div id="results" class="fill"
-         data-show="{{state === 'results'">
+    <div id="results" class="fill">
       <!-- full page loader; can overlay image display -->
-      <div id="loading" class="fill" data-show="{{loading && state !== 'preresults'}}">
+      <div id="waiting" class="fill" data-show="{{waiting && state !== 'preresults'}}">
         <paper-spinner active></paper-spinner>
       </div>
 
       <!-- image display -->
-      <cp-scroll id="scroller" class="fill"
+      <cp-scroll id="scroller"
                  on-scrollend="{{onScrollerScrollend}}"
                  data-show="{{state === 'results'}}">
         <!-- results -->
-        <cp-layout id="layout" class="fill"
-                   data-show="{{state === 'results'}}">
+        <cp-layout id="layout"
+                   data-show="{{state === 'results'}}"
+                   on-layout="{{onLayoutLayout}}">
         </cp-layout>
       </cp-scroll>
 
       <!-- "widen the search" slider -->
-      <div id="widen" data-show="{{state !== 'preresults'}}">
-        <paper-slider id="slider" min="0" max="100" value="50" on-change="{{sliderChanged}}">
-        </paper-slider>
-      </div>
+      <paper-slider id="slider" min="0" max="100" value="50"
+                    on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
+      </paper-slider>
     </div>
   </template>
 
@@ -130,12 +154,21 @@ pushing new tiles into the wrapped layout
 
   <script>
     (function () {
+      /* maximum time in ms to wait for a tile to load for a query */
+      var TIMEOUT = 5000;
+
       Polymer({
         /* state of the results; 'preresults' or 'results' */
         state: 'preresults',
 
-        /* whether we are loading or not */
-        loading: false,
+        /* whether we are waiting for a tile to load or not */
+        waiting: false,
+
+        ready: function () {
+          /* timeout to clear the waiting element if no tile is loaded
+             successfully */
+          this.waitTimeout = null;
+        },
 
         /**
          * Set criteria for filtering the content of the display.
@@ -204,18 +237,12 @@ pushing new tiles into the wrapped layout
          * }
          */
         receiveResults: function (results) {
-          this.state = 'results';
-
-          if (results.length) {
-            for (var i = 0; i < results.length; i++) {
-              if (results[i].type === 'image') {
-                this.appendImage(results[i]);
-              } else if (results[i].type === 'file') {
-                this.appendFile(results[i]);
-              }
+          for (var i = 0; i < results.length; i++) {
+            if (results[i].type === 'image') {
+              this.appendImage(results[i]);
+            } else if (results[i].type === 'file') {
+              this.appendFile(results[i]);
             }
-          } else {
-            this.layout();
           }
         },
 
@@ -250,6 +277,15 @@ pushing new tiles into the wrapped layout
           });
 
           this.$.layout.addTile(tile);
+        },
+
+        /* when a layout happens, check whether any tiles are visible
+           and stop waiting indicator if they are */
+        onLayoutLayout: function () {
+          if (this.$.layout.getCountVisibleTiles() > 0) {
+            this.state = 'results';
+            this.stopWaiting();
+          }
         },
 
         /**
@@ -333,12 +369,51 @@ pushing new tiles into the wrapped layout
           this.$.scroller.scrollTop = 0;
         },
 
-        showLoadingSpinner: function () {
-          this.loading = true;
+        /* start the waiting sequence (fade in overlay) */
+        wait: function () {
+          var self = this;
+
+          if (this.waiting) {
+            return;
+          }
+
+          this.waiting = true;
+          this.$.waiting.classList.remove('fadeout');
+          this.$.waiting.classList.add('fadein');
+
+          /* ensure that the waiting indicator is removed even if
+             no new tiles are added */
+          this.waitTimeout = setTimeout(function () {
+            self.stopWaiting();
+          }, TIMEOUT);
         },
 
-        hideLoadingSpinner: function () {
-          this.loading = false;
+        /* immediately fade out the waiting overlay */
+        stopWaiting: function () {
+          var self = this;
+
+          if (!this.waiting) {
+            return;
+          }
+
+          if (this.waitTimeout) {
+            clearTimeout(this.waitTimeout);
+            this.waitTimeout = null;
+          }
+
+          /* when the animation ends, set waiting=false */
+          var animationEndCb = function () {
+            self.waiting = false;
+            self.layout();
+            self.$.waiting.removeEventListener('animationend', animationEndCb);
+            self.$.waiting.removeEventListener('webkitAnimationEnd', animationEndCb);
+          };
+
+          this.$.waiting.addEventListener('animationend', animationEndCb);
+          this.$.waiting.addEventListener('webkitAnimationEnd', animationEndCb);
+
+          this.$.waiting.classList.remove('fadein');
+          this.$.waiting.classList.add('fadeout');
         },
 
         sliderChanged: function () {

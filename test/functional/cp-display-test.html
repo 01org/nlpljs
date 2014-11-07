@@ -67,7 +67,7 @@ test for cp-display
           activeKeywords: [{text: keyphraseText}]
         });
 
-        this.$.display.hideLoadingSpinner();
+        this.$.display.stopWaiting();
       },
 
       showKeyword: function (e) {
@@ -77,7 +77,7 @@ test for cp-display
 
       showPreResults: function () {
         this.reset();
-        this.$.display.showLoadingSpinner();
+        this.$.display.wait();
         this.$.display.state = 'preresults';
       },
 
@@ -88,6 +88,7 @@ test for cp-display
         this.showPreResults();
 
         setTimeout(function () {
+          self.$.display.state = 'results';
           self.addResults(0);
         }, 1000);
       },
@@ -111,7 +112,7 @@ test for cp-display
 
         setTimeout(function () {
           self.addResults(10, 'battle of hastings');
-          self.$.display.showLoadingSpinner();
+          self.$.display.wait();
         }, 1000);
 
         setTimeout(function () {
@@ -127,7 +128,7 @@ test for cp-display
 
         setTimeout(function () {
           self.addResults(10, 'battle of hastings');
-          self.$.display.showLoadingSpinner();
+          self.$.display.wait();
         }, 1000);
 
         setTimeout(function () {
