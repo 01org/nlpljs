@@ -102,12 +102,18 @@ pushing new tiles into the wrapped layout
       /* slider colors (oh dear...) */
       /* bar */
       paper-slider::shadow #sliderBar::shadow #activeProgress {
-        background-color: #0f9d58;
+        background-color: #0f9d58 !important;
       }
 
       /* knob */
       paper-slider::shadow #sliderKnobInner {
-        background-color: #0f9d58;
+        background-color: #0f9d58 !important;
+        border: none !important;
+      }
+
+      /* pin */
+      paper-slider::shadow #sliderKnobInner::before {
+        background-color: #0f9d58 !important;
       }
     </style>
 
@@ -144,7 +150,7 @@ pushing new tiles into the wrapped layout
       </cp-scroll>
 
       <!-- "widen the search" slider -->
-      <paper-slider id="slider" min="0" max="100" value="50"
+      <paper-slider id="slider" min="1" max="100" value="50" pin step="1"
                     on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
       </paper-slider>
     </div>
@@ -188,7 +194,13 @@ pushing new tiles into the wrapped layout
             return;
           }
 
-          var keywords = criteria.activeKeywords.map(function (keyword) {
+          this.setSliderRange(criteria.activeKeywords);
+
+          /* only show the selected number of the active keywords */
+          var numKeywords = this.$.slider.immediateValue;
+          var keywordsToUse = criteria.activeKeywords.slice(0, numKeywords);
+
+          var keywords = keywordsToUse.map(function (keyword) {
             return keyword.text;
           });
 
@@ -416,8 +428,33 @@ pushing new tiles into the wrapped layout
           this.$.waiting.classList.add('fadeout');
         },
 
-        sliderChanged: function () {
+        sliderChanged: function (e) {
           this.fire('slider-change');
+        },
+
+        /* set the slider range to the number of keywords available
+           in the current context; the position of the slider is
+           set based on the position of the slider with the previous
+           number of keywords: e.g. if there were 4 active keywords
+           before this method call, and 2 were selected by the slider,
+           set the slider value to select 50% of the new set of
+           keywords */
+        setSliderRange: function (newKeywords) {
+          /* don't do anything if the number of newKeywords matches
+             the max value of the slider */
+          if (newKeywords.length === this.$.slider.max) {
+            return;
+          }
+
+          var currentValueFraction = Math.max(this.$.slider.immediateValue, 1) /
+                                     Math.max(this.$.slider.max, 1);
+
+          var newValue = Math.floor(
+            newKeywords.length * currentValueFraction
+          );
+
+          this.$.slider.value = Math.max(newValue, 1);
+          this.$.slider.max = Math.max(newKeywords.length, 1);
         }
       });
     })();

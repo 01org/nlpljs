@@ -168,14 +168,10 @@
           return;
         }
 
-        var sliderValue = self.$.display.$.slider.value;
-        var desiredNumber = Math.floor((sliderValue / (100 - sliderValue)) *
-          self.activeKeywords.length);
-
         /* set filter on the display based on current keywordInfo
            and selected result types */
         self.$.display.setFilter({
-          activeKeywords: self.activeKeywords.slice(0, desiredNumber),
+          activeKeywords: self.activeKeywords,
           types: self.typeFilter
         });
       };
