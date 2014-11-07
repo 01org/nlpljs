@@ -44,7 +44,6 @@
     <google-api-loader
       id='drive'
       name='drive'
-      appId='{{globals.app_id}}'
       version='v2'
       on-google-api-load='{{onDriveLoad}}'
       on-google-api-load-error='{{onDriveLoadError}}'>
@@ -53,9 +52,6 @@
 
   <script>
   (function authTest() {
-    var SCOPES = [
-      "https://www.googleapis.com/auth/drive"
-    ];
     var MAXRESULTS = 100;
     /*
       google apis - can specify scope in the first parameter, or just use the ones in the manifest
