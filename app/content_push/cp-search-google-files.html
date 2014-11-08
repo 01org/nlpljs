@@ -74,6 +74,8 @@
       function searchForFiles (self, query) {
         var promise = new Promise(function (resolve, reject) {
 
+          console.log('CP-SEARCH-GOOGLE-FILES: searching for ', query);
+
           retrieveAllFiles(self, query, function (response) {
             if (response.error) {
               console.log('CP-SEARCH-GOOGLE-FILES:error:', response.error.message);
@@ -101,10 +103,11 @@
               }
 
               var numResults = self.results[query].length;
-              var to  = Math.min(numResults-1, self.cursor[query] + self.resultsPerFetch);
+              var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
               var resultsToReturn = self.results[query].slice(0, to);
               self.cursor[query] += to;
 
+              console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results', query, resultsToReturn.length);
               resolve(resultsToReturn);
             }
           });
@@ -147,12 +150,12 @@
             var numResults = this.results[query].length;
             if (this.cursor[query] < numResults) {
               var from = this.cursor[query];
-              var to   = Math.min(numResults-1, this.cursor[query] + this.resultsPerFetch);
+              var to   = Math.min(numResults, this.cursor[query] + this.resultsPerFetch);
               resultsToReturn = this.results[query].slice(from, to);
               this.cursor[query] += (to-from);
             }
             console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results', query, resultsToReturn.length);
-            return resultsToReturn;
+            return Promise.resolve(resultsToReturn);
           } else {
             var self = this;
 
