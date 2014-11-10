@@ -2,6 +2,11 @@
  * This file is a webworker (https://developer.mozilla.org/en/docs/Web/Guide/Performance/Using_web_workers).
  * It acts as an interface between the event page (event_page/ep-main.js) and NLP modules.
  * The event page initializes the worker with var worker =  new Worker(file);
+ *
+ * Note that this script should only be invoked once (in effect, treat
+ * it like a singleton), otherwise the IDs assigned to keywords may
+ * get muddled between different instances.
+ *
  * It sends messages to the worker using worker.postMessage() and listens to messages by worker.onmessage() listener.
  * The web worker processes the following messages:
  * initialize: Initialize the NLP modules. Respone is 'initdone' or 'initerror'
@@ -23,6 +28,9 @@ require.config({
 var libnlp;
 var queuedMessages = [];
 var loaded = false;
+
+/* used to assign unique IDs to keywords */
+var counter = 1;
 
 var createLine = function (lineId, fromChar, toChar) {
   return {
@@ -156,7 +164,20 @@ this.onmessage = function (event) {
 
       for (var i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
-        var index = keywords.length;
+
+        /* if we've seen this keyword before, reuse its groupId;
+           otherwise create a new one for it */
+        var index;
+
+        for (var i = 0; i < keywords.length; i++) {
+          if (keywords[i].text === keyword) {
+            index = keywords[i].groupId;
+            break;
+          }
+        }
+
+        index = index || counter++;
+
         var regex = new RegExp(escapeRegExp(keyword), "gi");
 
         keywords[index] = {

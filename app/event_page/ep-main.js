@@ -1,5 +1,5 @@
 'use strict';
-/* read the design doc for explaination on the comments */
+/* read the design doc for explanation of the comments */
 
 var nlp_worker = null;
 var port = null;
