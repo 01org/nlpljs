@@ -49,7 +49,9 @@
     <div id="container" data-show="{{visibleTiles > 0}}"></div>
 
     <div id="loading" data-show="{{tilesLoading > 0}}">
-      <paper-spinner active></paper-spinner>
+      <template if="{{tilesLoading > 0}}">
+        <paper-spinner active></paper-spinner>
+      </template>
     </div>
 
     <!-- no results -->

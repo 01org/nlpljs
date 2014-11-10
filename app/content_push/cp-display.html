@@ -128,14 +128,18 @@ pushing new tiles into the wrapped layout
     <div id="preresults" class="message-area"
          data-show="{{state === 'preresults'}}">
       <p>Your related content should arrive shortly.</p>
-      <paper-spinner active></paper-spinner>
+      <template if="{{state === 'preresults'}}">
+        <paper-spinner active></paper-spinner>
+      </template>
     </div>
 
     <!-- after results are found -->
     <div id="results" class="fill">
       <!-- full page loader; can overlay image display -->
       <div id="waiting" class="fill" data-show="{{waiting && state !== 'preresults'}}">
-        <paper-spinner active></paper-spinner>
+        <template if="{{waiting && state !== 'preresults'}}">
+          <paper-spinner active></paper-spinner>
+        </template>
       </div>
 
       <!-- image display -->

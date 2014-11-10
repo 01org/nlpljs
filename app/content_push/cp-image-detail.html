@@ -90,7 +90,9 @@
 
       <div id="imgContainer">
         <div id="spinner" data-show="{{!loaded}}">
-          <paper-spinner active></paper-spinner>
+          <template if="{{!loaded}}">
+            <paper-spinner active></paper-spinner>
+          </template>
         </div>
 
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
