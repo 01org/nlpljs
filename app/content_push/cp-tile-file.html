@@ -107,6 +107,7 @@ wrapper for a Google Drive file thumbnail
   </template>
 
   <script src="./cp-constants.js"></script>
+  <script src="./cp-formatter.js"></script>
 
   <script>
     (function () {
@@ -189,22 +190,7 @@ wrapper for a Google Drive file thumbnail
           this.icon = CP_CONSTANTS.SERVICE_ICONS[this.service];
         },
 
-        /* format a date string in format '2014-09-08T10:05:15.497Z'
-           and return just the YYYY-MM-DD */
-        formatDate: function (dateStr) {
-          try {
-            var dt = new Date(dateStr);
-            var month = dt.getMonth();
-            var day = dt.getDay();
-
-            month = (month < 10 ? '0' + month : month);
-            day = (day < 10 ? '0' + day : day);
-
-            return dt.getFullYear() + '-' + month + '-' + day;
-          } catch (e) {
-            return 'unknown';
-          }
-        }
+        formatDate: Formatter.formatDate
       });
     })();
   </script>
