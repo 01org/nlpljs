@@ -107,6 +107,14 @@
           this.hasEXIF = false;
         },
 
+        domReady: function () {
+          var self = this;
+
+          this.$.exifDropdown.addEventListener('core-collapse-open', function (e) {
+            self.onExifDropdownOpenedChanged(e);
+          });
+        },
+
         /* clean HTML tags out of the caption */
         stripHTMLTags: Formatter.stripHTMLTags,
 
@@ -134,12 +142,24 @@
           this.fire('back');
         },
 
-        exifToggle: function () {
-          if (this.$.exifToggle.icon === 'expand-more') {
+        onExifDropdownOpenedChanged: function (e) {
+          var open = e.detail;
+
+          if (open) {
             this.$.exifToggle.icon = 'expand-less';
           } else {
             this.$.exifToggle.icon = 'expand-more';
           }
+        },
+
+        /* close exif details when detail panel closes */
+        close: function () {
+          if (this.$.exifDropdown.opened) {
+            this.$.exifDropdown.toggle();
+          }
+        },
+
+        exifToggle: function () {
           this.$.exifDropdown.toggle();
         },
 
