@@ -10,7 +10,8 @@
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
-<link rel="import" href="./cp-image-detail.html">
+<link rel="import" href="./cp-detail-file.html">
+<link rel="import" href="./cp-detail-image.html">
 <link rel="import" href="./cp-swapper.html">
 <link rel="import" href="./cp-sources-groups.html">
 
@@ -82,7 +83,7 @@
         height: 100%;
       }
 
-      cp-image-detail {
+      [swapper-slide] {
         background-color: white;
       }
 
@@ -142,9 +143,13 @@
         </cp-display>
       </div>
 
-      <cp-image-detail id="detail" on-back="{{closeDetail}}"
-                       swapper-slide swap-id="detail">
-      </cp-image-detail>
+      <cp-detail-image id="detailImage" on-back="{{closeDetail}}"
+                       swapper-slide swap-id="detailimage">
+      </cp-detail-image>
+
+      <cp-detail-file id="detailFile" on-back="{{closeDetail}}"
+                      swapper-slide swap-id="detailfile">
+      </cp-detail-file>
 
       <cp-sources-groups id="groups"
                   on-back="{{closeGroups}}"
@@ -224,12 +229,19 @@
         },
 
         showDetail: function (e) {
-          this.$.detail.showTile(e.detail);
-          this.$.swapper.slideIn('detail');
+          var tile = e.detail;
+          if (tile.type === 'image') {
+            this.$.detailImage.showTile(tile);
+            this.$.swapper.slideIn('detailimage');
+          } else if (tile.type === 'file') {
+            this.$.detailFile.showTile(tile);
+            this.$.swapper.slideIn('detailfile');
+          }
         },
 
         closeDetail: function () {
-          this.$.swapper.slideOut('detail');
+          this.$.swapper.activeElt.close();
+          this.$.swapper.slideOut();
         },
 
         closeGroups: function () {

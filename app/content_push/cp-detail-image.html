@@ -5,62 +5,12 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/core-collapse/core-collapse.html">
 
-<polymer-element name="cp-image-detail" attributes="src caption source">
+<polymer-element name="cp-detail-image" attributes="src caption source">
   <template>
+    <link rel="stylesheet" href="./styles/cp-detail.css">
     <style>
-      :host {
-        display: block;
-      }
-
       core-collapse {
         display: block;
-      }
-
-      #container {
-        position: relative;
-        height: 100%;
-        width: 100%;
-        overflow-y: auto;
-      }
-
-      #container > * {
-        margin-top: 10px;
-        margin-left: 5%;
-        position: relative;
-        overflow: hidden;
-        width: 90%;
-        color: black;
-        text-align: left;
-      }
-
-      #back {
-        padding: 5px 3px;
-      }
-
-      #imgContainer {
-        max-height: 50%;
-      }
-
-      #spinner {
-        width: 100%;
-        height: 100%;
-      }
-
-      #image {
-        width: 100%;
-        height: auto;
-      }
-
-      #backbutton {
-         background-color: #4CA8B4;
-         margin-left: 0;
-      }
-
-      #visitSrc {
-        margin-top: 10px;
-        padding-bottom: 5px;
-        text-align: right !important;
-        color: #4CA8B4;
       }
 
       #exifTitle {
@@ -69,15 +19,6 @@
 
       #exifToggle {
         float: right;
-      }
-
-      paper-button[raised].colored {
-        background: #4285f4;
-        color: #fff;
-      }
-
-      [data-show="false"] {
-        display: none;
       }
     </style>
 
@@ -106,7 +47,7 @@
         {{width}}x{{height}}
       </h4>
 
-      <h4 id="imgSource" data-show="{{source}}">{{source|getDomainFromURL}}</h4>
+      <h4 id="imgSource" data-show="{{source}}">{{source|domainFromURL}}</h4>
 
       <div id="visitSrc" data-show="{{source}}">
         <paper-button raised class="colored" on-click="{{visitWebpage}}"
@@ -137,17 +78,11 @@
     </div>
   </template>
 
+  <script src="./cp-formatter.js"></script>
+  <script src="./cp-constants.js"></script>
+
   <script>
     (function () {
-      /* time out for image load fail */
-      var TIMEOUT = 5000;
-
-      /* regexp for HTML tags */
-      var HTML_TAG_REGEX = new RegExp('<\/?[^<>]+?\/?>', 'gm');
-
-      /* regexp to retrieve the domain from a URL */
-      var DOMAIN_REGEX = new RegExp('http[s]?:\/\/([^\/]+)\/');
-
       Polymer({
         /* source URL of the image itself */
         src: null,
@@ -172,28 +107,19 @@
           this.hasEXIF = false;
         },
 
-        /* clean HTML tags out of the caption */
-        stripHTMLTags: function (caption) {
-          if (caption) {
-            return caption.replace(HTML_TAG_REGEX, '');
-          } else {
-            return caption;
-          }
+        domReady: function () {
+          var self = this;
+
+          this.$.exifDropdown.addEventListener('core-collapse-open', function (e) {
+            self.onExifDropdownOpenedChanged(e);
+          });
         },
 
+        /* clean HTML tags out of the caption */
+        stripHTMLTags: Formatter.stripHTMLTags,
+
         /* get the domain from a URL */
-        getDomainFromURL: function (source) {
-          if (source) {
-            var matches = DOMAIN_REGEX.exec(source);
-            if (matches) {
-              return matches[1];
-            } else {
-              return source;
-            }
-          } else {
-            return source;
-          }
-        },
+        domainFromURL: Formatter.domainFromURL,
 
         srcChanged: function () {
           var self = this;
@@ -204,7 +130,7 @@
              anyway, to ensure that it will display */
           setTimeout(function () {
             self.loaded = true;
-          }, TIMEOUT);
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         onImageLoad: function () {
@@ -216,12 +142,24 @@
           this.fire('back');
         },
 
-        exifToggle: function () {
-          if (this.$.exifToggle.icon === 'expand-more') {
+        onExifDropdownOpenedChanged: function (e) {
+          var open = e.detail;
+
+          if (open) {
             this.$.exifToggle.icon = 'expand-less';
           } else {
             this.$.exifToggle.icon = 'expand-more';
           }
+        },
+
+        /* close exif details when detail panel closes */
+        close: function () {
+          if (this.$.exifDropdown.opened) {
+            this.$.exifDropdown.toggle();
+          }
+        },
+
+        exifToggle: function () {
           this.$.exifDropdown.toggle();
         },
 

@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+#container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}
+
+#container > * {
+  margin-top: 10px;
+  margin-left: 5%;
+  position: relative;
+  overflow: hidden;
+  width: 90%;
+  color: black;
+  text-align: left;
+}
+
+#back {
+  padding: 5px 3px;
+}
+
+#imgContainer {
+  max-height: 50%;
+}
+
+#spinner {
+  width: 100%;
+  height: 100%;
+}
+
+#image {
+  width: 100%;
+  height: auto;
+}
+
+#backbutton {
+   background-color: #4CA8B4;
+   margin-left: 0;
+}
+
+#visitSrc {
+  margin-top: 10px;
+  padding-bottom: 5px;
+  text-align: right !important;
+  color: #4CA8B4;
+}
+
+paper-button[raised].colored {
+  background: #4285f4;
+  color: #fff;
+}
+
+[data-show="false"] {
+  display: none;
+}
