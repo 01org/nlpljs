@@ -49,10 +49,6 @@ chrome.runtime.onMessageExternal.addListener(function(message,sender,sendRespons
 });
 
 epAuth.google = (function () {
-  var cache = {
-    access_token: null
-  };
-
   function getToken (sendResponse) {
     // id in the manifest.json file
     chrome.identity.getAuthToken({interactive:true},function(token) {
@@ -60,7 +56,6 @@ epAuth.google = (function () {
     });
 
     function setAccessToken (token) {
-      cache.access_token = token;
       var message = {
         component:'auth',
         type:'accesstoken',
@@ -74,15 +69,8 @@ epAuth.google = (function () {
     return true; // response sent asynchronously
   };
 
-  var removeCachedToken = function (token_to_remove) {
-    if (cache.access_token === token_to_remove) {
-      cache.access_token = null;
-    }
-  };
-
   return {
-    getToken: getToken,
-    removeCachedToken: removeCachedToken
+    getToken: getToken
   };
 })();
 

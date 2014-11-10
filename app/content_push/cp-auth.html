@@ -23,19 +23,11 @@
           service: detail.service
         };
         console.log('CP-AUTH:received token:',detail.token);
-        self.tokens[detail.service]=detail.token;
         self.fire('accesstoken',detail);
       }
     };
 
     Polymer({
-
-      created: function () {
-        this.tokens = {};
-      },
-
-      ready: function () {
-      },
 
       getToken: function (service) {
         if (!this.$.globals.data.app_id) {
@@ -44,28 +36,23 @@
         }
 
         service = service || 'google';
-        if (this.tokens[service]) {
-          console.log('CP-AUTH:already got token - sending it');
-          this.fire('accesstoken',this.tokens[service]);
-        } else {
-          console.log('CP-AUTH:getting token');
-          var message={
-            component:'auth',
-            service: service,
-            type:'gettoken'
-          };
+        console.log('CP-AUTH:getting token');
+        var message={
+          component:'auth',
+          service: service,
+          type:'gettoken'
+        };
 
-          var self=this;
-          chrome.runtime.sendMessage(this.$.globals.data.app_id,message,function(detail) {
-            if (chrome.runtime.lastError) {
-              var message=chrome.runtime.lastError.message;
-              console.log(new Error('CP-AUTH:error in responseCallback:'+message));
-            } else {
-              console.log('CP-AUTH:sendResponse invoked:',detail);
-              handleNewToken(self,detail);
-            }
-          });
-        }
+        var self=this;
+        chrome.runtime.sendMessage(this.$.globals.data.app_id,message,function(detail) {
+          if (chrome.runtime.lastError) {
+            var message=chrome.runtime.lastError.message;
+            console.log(new Error('CP-AUTH:error in responseCallback:'+message));
+          } else {
+            console.log('CP-AUTH:sendResponse invoked:',detail);
+            handleNewToken(self,detail);
+          }
+        });
       },
 
       removeCachedToken: function (token,service) {
@@ -74,7 +61,6 @@
           return;
         }
 
-        // remove from this.tokens 
         // need 'service' property or search the hash
         var message={
           component:'auth',
