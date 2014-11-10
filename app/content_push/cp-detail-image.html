@@ -47,7 +47,7 @@
         {{width}}x{{height}}
       </h4>
 
-      <h4 id="imgSource" data-show="{{source}}">{{source|getDomainFromURL}}</h4>
+      <h4 id="imgSource" data-show="{{source}}">{{source|domainFromURL}}</h4>
 
       <div id="visitSrc" data-show="{{source}}">
         <paper-button raised class="colored" on-click="{{visitWebpage}}"
@@ -78,16 +78,12 @@
     </div>
   </template>
 
+  <script src="./cp-formatter.js"></script>
+
   <script>
     (function () {
       /* time out for image load fail */
       var TIMEOUT = 5000;
-
-      /* regexp for HTML tags */
-      var HTML_TAG_REGEX = new RegExp('<\/?[^<>]+?\/?>', 'gm');
-
-      /* regexp to retrieve the domain from a URL */
-      var DOMAIN_REGEX = new RegExp('http[s]?:\/\/([^\/]+)\/');
 
       Polymer({
         /* source URL of the image itself */
@@ -114,27 +110,10 @@
         },
 
         /* clean HTML tags out of the caption */
-        stripHTMLTags: function (caption) {
-          if (caption) {
-            return caption.replace(HTML_TAG_REGEX, '');
-          } else {
-            return caption;
-          }
-        },
+        stripHTMLTags: Formatter.stripHTMLTags,
 
         /* get the domain from a URL */
-        getDomainFromURL: function (source) {
-          if (source) {
-            var matches = DOMAIN_REGEX.exec(source);
-            if (matches) {
-              return matches[1];
-            } else {
-              return source;
-            }
-          } else {
-            return source;
-          }
-        },
+        domainFromURL: Formatter.domainFromURL,
 
         srcChanged: function () {
           var self = this;
