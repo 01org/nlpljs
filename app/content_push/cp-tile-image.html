@@ -42,11 +42,10 @@ size
     </div>
   </template>
 
+  <script src="./cp-constants.js"></script>
+
   <script>
     (function () {
-      // timeout (in ms) before treating an image load as failed
-      var TIMEOUT = 5000;
-
       var setRatio = function (self) {
         if (self.width > 0 && self.height > 0) {
           self.ratio = self.width / self.height;
@@ -120,7 +119,7 @@ size
               self.done = true;
               self.fire('done');
             }
-          }, TIMEOUT);
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         widthChanged: function () {

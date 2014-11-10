@@ -79,12 +79,10 @@
   </template>
 
   <script src="./cp-formatter.js"></script>
+  <script src="./cp-constants.js"></script>
 
   <script>
     (function () {
-      /* time out for image load fail */
-      var TIMEOUT = 5000;
-
       Polymer({
         /* source URL of the image itself */
         src: null,
@@ -124,7 +122,7 @@
              anyway, to ensure that it will display */
           setTimeout(function () {
             self.loaded = true;
-          }, TIMEOUT);
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         onImageLoad: function () {

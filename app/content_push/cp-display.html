@@ -161,12 +161,10 @@ pushing new tiles into the wrapped layout
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="./cp-constants.js"></script>
 
   <script>
     (function () {
-      /* maximum time in ms to wait for a tile to load for a query */
-      var TIMEOUT = 5000;
-
       Polymer({
         /* state of the results; 'preresults' or 'results' */
         state: 'preresults',
@@ -401,7 +399,7 @@ pushing new tiles into the wrapped layout
              no new tiles are added */
           this.waitTimeout = setTimeout(function () {
             self.stopWaiting();
-          }, TIMEOUT);
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         /* immediately fade out the waiting overlay */
