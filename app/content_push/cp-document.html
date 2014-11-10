@@ -276,8 +276,9 @@
         // event handlers
 
         onMouseOverImage: function (e) {
-          for (var i = 0; i < e.detail.length; i++)
+          for (var i = 0; i < e.detail.length; i++) {
             this.$.highlighter.turn(e.detail[i].groupId,'on');
+          }
         },
 
         onMouseOutImage: function (e) {
