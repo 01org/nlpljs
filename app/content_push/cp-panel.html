@@ -10,7 +10,7 @@
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
-<link rel="import" href="./cp-image-detail.html">
+<link rel="import" href="./cp-detail-image.html">
 <link rel="import" href="./cp-swapper.html">
 <link rel="import" href="./cp-sources-groups.html">
 
@@ -82,7 +82,7 @@
         height: 100%;
       }
 
-      cp-image-detail {
+      cp-detail-image {
         background-color: white;
       }
 
@@ -142,9 +142,9 @@
         </cp-display>
       </div>
 
-      <cp-image-detail id="detail" on-back="{{closeDetail}}"
+      <cp-detail-image id="detail" on-back="{{closeDetail}}"
                        swapper-slide swap-id="detail">
-      </cp-image-detail>
+      </cp-detail-image>
 
       <cp-sources-groups id="groups"
                   on-back="{{closeGroups}}"
