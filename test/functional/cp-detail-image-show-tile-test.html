@@ -1,9 +1,9 @@
-<link rel="import" href="../../app/content_push/cp-image-detail.html">
+<link rel="import" href="../../app/content_push/cp-detail-image.html">
 
 <!--
 Test for image-detail showing a tile.
 -->
-<polymer-element name="cp-image-detail-show-tile-test">
+<polymer-element name="cp-detail-image-show-tile-test">
   <template>
     <style>
       #container {
@@ -16,11 +16,11 @@ Test for image-detail showing a tile.
     </style>
 
     <p>
-      Create a cp-image-detail and load a cp-tile-image into it. Then
+      Create a cp-detail-image and load a cp-tile-image into it. Then
       load a new tile into it, replacing the old one.
     </p>
     <div id="container">
-    <cp-image-detail id="detail"></cp-image-detail>
+    <cp-detail-image id="detail"></cp-detail-image>
     </div>
   </template>
 
@@ -33,7 +33,7 @@ Test for image-detail showing a tile.
 
         var tile1 = document.createElement('cp-tile-image');
         tile1.image = {
-          src: makeImageUrl(800, 600),
+          src: makeImageUrl(200, 200),
           caption: '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>',
           source: 'http://flickr.com/',
           meta: {}
@@ -52,7 +52,7 @@ Test for image-detail showing a tile.
 
         setTimeout(function () {
           self.$.detail.showTile(tile2);
-        }, 2000);
+        }, 5000);
       }
     });
   </script>
