@@ -24,6 +24,10 @@ var libnlp;
 var queuedMessages = [];
 var loaded = false;
 
+/* for tracking group IDs */
+var groupIds = {};
+var nextGroupId = 0;
+
 var createLine = function (lineId, fromChar, toChar) {
   return {
     id: lineId,
@@ -156,14 +160,21 @@ this.onmessage = function (event) {
 
       for (var i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
-        var index = keywords.length;
         var regex = new RegExp(escapeRegExp(keyword), "gi");
 
-        keywords[index] = {
+        /* if we've seen this keyword before, use the existing groupId */
+        var groupId = groupIds[keyword];
+        if (typeof index === 'undefined') {
+          groupId = nextGroupId;
+          groupIds[keyword] = groupId;
+          nextGroupId++;
+        }
+
+        keywords.push({
           text: keyword,
-          groupId: index,
+          groupId: groupId,
           score: result.scores[i]
-        };
+        });
 
         while ((search = regex.exec(currentContext.text))) {
           var startChar = search.index;
@@ -172,7 +183,7 @@ this.onmessage = function (event) {
           var endLine = currentContext.findLine(endChar);
 
           ranges[ranges.length] = {
-            groupId: keywords[index].groupId,
+            groupId: groupId,
             start: {
               lineId: startLine.id,
               charNo: startChar - startLine.fromChar
