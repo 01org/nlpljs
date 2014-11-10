@@ -69,13 +69,8 @@ epAuth.google = (function () {
     return true; // response sent asynchronously
   };
 
-  var removeCachedToken = function (token_to_remove) {
-    // token not cached, so nothing to remove
-  };
-
   return {
-    getToken: getToken,
-    removeCachedToken: removeCachedToken
+    getToken: getToken
   };
 })();
 
