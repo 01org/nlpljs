@@ -2,7 +2,7 @@
   search users files on Google Drive
 -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/google-apis/google-apis.html">
+<link rel='import' href='../bower_components/core-ajax/core-ajax.html'>
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
 
@@ -11,60 +11,92 @@
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
 
-    <google-api-loader
+    <core-ajax
       id="drive"
-      name="drive"
-      version="v2"
-      on-google-api-load-error="{{onDriveLoadError}}">
-    </google-api-loader>
+      auto
+      handleAs="json">
+    </core-ajax>
   </template>
   <script>
     (function () {
+
+      var onCoreResponse = function (self, query, url, e, handler, callback) {
+        var response = e.detail.response;
+
+        if (response.error) {
+          callback(response.error.message);
+        } else {
+          // accumulate the response items as results
+          for (var i=0; i<response.items.length; i++) {
+            var thisItem = response.items[i];
+
+            if (thisItem.id !== self.$.globals.documentId) {
+              self.results[query].push({
+                type: 'file',
+                service: 'Drive',
+                caption: thisItem.title,
+                source: thisItem.alternateLink,
+                iconLink: thisItem.iconLink,
+                src: thisItem.thumbnailLink,
+                thumbnailSrc: thisItem.thumbnailLink,
+                createdDate: thisItem.createdDate
+              });
+            } else {
+              console.log('CP-SEARCH-GOOGLE-FILES: ignoring this file');
+            }
+          }
+
+          var nextPageToken = response.nextPageToken;
+          if (nextPageToken) {
+            // get the next page
+            self.$.drive.url = url+'&pageToken='+nextPageToken;
+
+            self.$.drive.go();
+          } else {
+            self.$.drive.removeEventListener('core-response', handler);
+
+            var numResults = self.results[query].length;
+            var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
+            var resultsToReturn = self.results[query].slice(0, to);
+            self.cursor[query] += to;
+
+            callback(resultsToReturn);
+          }
+        }
+      };
+
+      /**
+       * make an event handler for the core ajax response
+       *
+       * adds in handler to the parameter list so that it can
+       * be removed when the query ends
+       **/
+      var makeEventHandler = function(self, query, url, callback) {
+        var handler = function(e) {
+          onCoreResponse(self, query, url, e, handler, callback);
+        };
+
+        return handler;
+      };
+
       /**
        * Retrieve a list of File resources.
        *
        * @param {Function} callback Function to call when the request is complete.
        */
-      var retrieveAllFiles = function (self,query,callback) {
+      var retrieveAllFiles = function (self, query, callback) {
 
-        var q = "fullText contains '" + query + "' and trashed = false";
+        var q = encodeURIComponent("fullText contains '" + query + "' and trashed = false");
 
-        var requestOptions = {
-          path: '/drive/v2/files',
-          method: 'GET',
-          params: {
-            q: q
-          }
-        };
+        self.$.drive.url =
+          'https://www.googleapis.com/drive/v2/files?'+
+            'access_token='+self.access_token+'&'+
+            'q='+q;
 
-        console.log('CP-SEARCH-GOOGLE-FILES:query:',query);
-        console.log('CP-SEARCH-GOOGLE-FILES:q:',q);
+        var thisEventHandler = makeEventHandler(self, query, self.$.drive.url, callback);
+        self.$.drive.addEventListener('core-response', thisEventHandler);
 
-        var retrievePageOfFiles = function (request, result) {
-
-          request.execute( function (response) {
-            if (response.error) {
-              callback(response);
-            } else {
-              result = result.concat(response.items);
-
-              var nextPageToken = response.nextPageToken;
-              if (nextPageToken) {
-                requestOptions.params.pageToken = nextPageToken;
-
-                request = gapi.client.request(requestOptions);
-
-                retrievePageOfFiles(request, result);
-              } else {
-                callback(result);
-              }
-            }
-          });
-        };
-
-        var initialRequest = gapi.client.request(requestOptions);
-
-        retrievePageOfFiles(initialRequest, []);
+        self.$.drive.go();
       };
 
       /**
@@ -72,43 +104,15 @@
        * returns a promise that is resolved when finished searching.
        */
       function searchForFiles (self, query) {
+        self.results[query] = [];
+        self.cursor[query] = 0;
+
         var promise = new Promise(function (resolve, reject) {
-
-          console.log('CP-SEARCH-GOOGLE-FILES: searching for ', query);
-
-          retrieveAllFiles(self, query, function (response) {
-            if (response.error) {
-              console.log('CP-SEARCH-GOOGLE-FILES:error:', response.error.message);
-              reject('CP-SEARCH-GOOGLE-FILES: ' + response.error.message);
+          retrieveAllFiles(self, query, function(results) {
+            if (results.error) {
+              reject(results.error);
             } else {
-              self.results[query] = [];
-              self.cursor[query] = 0;
-
-              // convert responses into results
-              for (var i=0; i < response.length; i++) {
-                var thisResponse = response[i];
-                console.log('CP-SEARCH-GOOGLE-FILES:query \'%s\' thisResponse:', query, thisResponse);
-                if (thisResponse.id !== self.$.globals.documentId) {
-                  self.results[query].push({
-                    type: 'file',
-                    service: 'Drive',
-                    caption: thisResponse.title,
-                    source: thisResponse.alternateLink,
-                    iconLink: thisResponse.iconLink,
-                    src: thisResponse.thumbnailLink,
-                    thumbnailSrc: thisResponse.thumbnailLink,
-                    createdDate: thisResponse.createdDate
-                  });
-                }
-              }
-
-              var numResults = self.results[query].length;
-              var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
-              var resultsToReturn = self.results[query].slice(0, to);
-              self.cursor[query] += to;
-
-              console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results', query, resultsToReturn.length);
-              resolve(resultsToReturn);
+              resolve(results);
             }
           });
         });
@@ -129,19 +133,12 @@
           this.ready_promise = new Promise(function (resolve, reject) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
               if (e.detail.service === 'google') {
-                self.access_token = e.detail.token;
+                self.access_token=e.detail.token;
                 resolve();
               }
             });
             self.$.authorizer.getToken('google');
-          }).then(new Promise(function (resolve, reject) {
-            self.$.drive.addEventListener('google-api-load', function (e) {
-              gapi.auth.setToken({
-                access_token: self.access_token
-              });
-              resolve();
-            });
-          }));
+          });
         },
 
         fetch: function (query) {
@@ -154,7 +151,6 @@
               resultsToReturn = this.results[query].slice(from, to);
               this.cursor[query] += (to-from);
             }
-            console.log('CP-SEARCH-GOOGLE-FILES: query %s returning %d results', query, resultsToReturn.length);
             return Promise.resolve(resultsToReturn);
           } else {
             var self = this;
@@ -168,10 +164,6 @@
               }
             );
           }
-        },
-
-        onDriveLoadError: function () {
-          console.error('CP-SEARCH-GOOGLE-FILES: failed to load drive api');
         },
 
       });
