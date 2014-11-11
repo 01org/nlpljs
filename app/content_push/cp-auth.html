@@ -7,23 +7,38 @@
   event: accesstoken - there is a new access token, the detail provides the token and service it is for.
 -->
 <link rel='import' href='../bower_components/polymer/polymer.html'>
+<link rel='import' href='../bower_components/core-ajax/core-ajax.html'>
 <link rel='import' href='./cp-globals.html'>
 
 <polymer-element name='cp-auth'>
   <template>
     <cp-globals id="globals"></cp-globals>
+
+    <core-ajax
+      id="verifier"
+      auto
+      handleAs="json"
+      on-core-response="{{handleVerifierResponse}}">
+    </core-ajax>
+
   </template>
   <script>
   (function authTest () {
 
-    var handleNewToken = function(self,detail) {
+    var verifyToken = function (self, detail) {
+      self.$.verifier.url = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + detail.token;
+      self.$.verifier.go();
+    };
+
+    var handleNewToken = function (self, detail) {
       if (detail.component==='auth' && detail.type==='accesstoken') {
-        var detail={
+        var detail = {
           token: detail.token,
           service: detail.service
         };
-        console.log('CP-AUTH:received token:',detail.token);
-        self.fire('accesstoken',detail);
+        self.temp = detail;
+        verifyToken(self, detail);
+        console.log('CP-AUTH:received token:', detail.token);
       }
     };
 
@@ -37,25 +52,31 @@
 
         service = service || 'google';
         console.log('CP-AUTH:getting token');
-        var message={
-          component:'auth',
+        var message = {
+          component: 'auth',
           service: service,
-          type:'gettoken'
+          type: 'gettoken'
         };
 
-        var self=this;
-        chrome.runtime.sendMessage(this.$.globals.data.app_id,message,function(detail) {
+        var self = this;
+        chrome.runtime.sendMessage(this.$.globals.data.app_id, message, function(detail) {
           if (chrome.runtime.lastError) {
-            var message=chrome.runtime.lastError.message;
+            var message = chrome.runtime.lastError.message;
             console.log(new Error('CP-AUTH:error in responseCallback:'+message));
           } else {
-            console.log('CP-AUTH:sendResponse invoked:',detail);
-            handleNewToken(self,detail);
+            console.log('CP-AUTH:sendResponse invoked:', detail);
+            handleNewToken(self, detail);
           }
         });
       },
 
-      removeCachedToken: function (token,service) {
+      handleVerifierResponse: function (e) {
+        console.log('CP-AUTH:handleVerifierResponse():e:', e);
+        this.temp.verifierDetail = e.detail.response;
+        this.fire('accesstoken', this.temp);
+      },
+
+      removeCachedToken: function (token, service) {
         if (!this.$.globals.data.app_id) {
           console.log('CP-AUTH:removeCachedToken() called but app_id not set yet');
           return;
@@ -63,12 +84,12 @@
 
         // need 'service' property or search the hash
         var message={
-          component:'auth',
+          component: 'auth',
           service: service,
           type: 'removecachedtoken',
           token: token
         };
-        chrome.runtime.sendMessage(this.$.globals.data.app_id,message);
+        chrome.runtime.sendMessage(this.$.globals.data.app_id, message);
       },
 
     }); // Polymer()
