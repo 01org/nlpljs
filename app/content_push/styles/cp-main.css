@@ -43,3 +43,9 @@
 #panel.off {
   display: none;
 }
+
+/* fix icon alignment inside core-icon elements; work-around
+   for https://github.com/Polymer/paper-button/issues/7 */
+:host /deep/ paper-fab::shadow core-icon {
+  vertical-align: baseline;
+}
