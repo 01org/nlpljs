@@ -45,10 +45,6 @@
         font-size: 0.75em;
       }
 
-      #toolbaricon {
-        margin-right: 0;
-      }
-
       #toolbaraction {
         color: #FFFFFF;
         -webkit-user-select: none;
@@ -126,7 +122,6 @@
                         data-type-filter="edit"></paper-item>
           </paper-menu-button>
 
-          <core-icon id="toolbaricon" icon="" data-show="false"></core-icon>
           <span id="toolbartext" flex>Content Push</span>
 
           <core-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}"></core-icon-button>
@@ -268,13 +263,9 @@
           /* switch title bar text based on menu item selection */
           if (typeFilter === 'no-filter') {
             this.typeFilter = [];
-            this.$.toolbaricon.icon = '';
-            this.$.toolbaricon.setAttribute('data-show', 'false');
             this.$.toolbartext.innerHTML = 'Content Push';
           } else {
             this.typeFilter = typeFilter.split(',');
-            this.$.toolbaricon.icon = elt.icon;
-            this.$.toolbaricon.setAttribute('data-show', 'true');
             this.$.toolbartext.innerHTML = elt.label;
           }
 
