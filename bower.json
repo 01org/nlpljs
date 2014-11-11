@@ -39,6 +39,7 @@
     "core-icons": "master",
     "core-input": "master",
     "core-range": "master",
-    "core-iconset-svg": "master"
+    "core-iconset-svg": "master",
+    "webcomponentsjs": "master"
   }
 }
