@@ -10,25 +10,29 @@
 }
 
 #container > * {
-  margin-top: 10px;
-  margin-left: 5%;
+  margin: 10px;
   position: relative;
   overflow: hidden;
-  width: 90%;
+  width: calc(100% - 20px);
   color: black;
   text-align: left;
 }
 
-#back {
-  padding: 5px 3px;
-}
-
 #imgContainer {
   max-height: 50%;
+  width: 100% !important;
+  margin-left: 0;
+}
+
+#back {
+  width: calc(100% - 10px);
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 #spinner {
-  width: 100%;
+  margin-left: 10px;
+  width: calc(100% - 10px);
   height: 100%;
 }
 
