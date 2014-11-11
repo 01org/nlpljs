@@ -6,15 +6,6 @@
   box-sizing: border-box;
 }
 
-@font-face {
-  font-family: ClearSans;
-  src: local('ClearSans'), url("../ClearSans/WOFF/ClearSans-Regular.woff");
-}
-
-* {
-  font-family: ClearSans;
-}
-
 *,
 *:before,
 *:after {
@@ -52,4 +43,3 @@
 #panel.off {
   display: none;
 }
-
