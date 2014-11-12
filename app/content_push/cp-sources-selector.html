@@ -50,7 +50,7 @@
         align-items: center;
       }
 
-      #sources paper-checkbox {
+      paper-checkbox {
         margin-right: 15px;
         margin-left: 15px;
       }
@@ -72,12 +72,44 @@
         margin-right: 15%;
         margin-left: 15%;
       }
+
+      #select_all {
+        padding-top:45px;
+        padding-bottom:45px;
+        border-bottom:solid black 1px;
+      }
+
+      #title-back {
+        align-items:center;
+        margin-top:50px;
+      }
+
+      #add_dialog_wrapper {
+        width:100%;
+        height:100%;
+        align-items:center;
+      }
+
+      #add_dialog_button_wrapper {
+        width:100%;
+        height:30%;
+      }
+
+      #cancel {
+        margin-left:15%;
+        margin-right:0px;
+      }
+
+      #done {
+        margin-right:15%;
+        margin-left:0px;
+      }
     </style>
 
     <core-header-panel id="panel" flex>
       <core-toolbar id="header" class="medium-tall">
         <div vertical layout>
-          <div horizontal layout style="align-items:center; margin-top:50px;">
+          <div id="title-back" horizontal layout>
             <core-icon-button icon="arrow-back"
                               on-tap="{{onBackButtonClick}}">
             </core-icon-button>
@@ -90,15 +122,15 @@
         </div>
       </core-toolbar>
 
-      <div id="select_all" horizontal layout style="padding-top:45px; padding-bottom:45px; border-bottom:solid black 1px;">
-        <paper-checkbox style="margin-left:15px; margin-right:15px;" on-change="{{enableAllSources}}"></paper-checkbox>
+      <div id="select_all" horizontal layout>
+        <paper-checkbox on-change="{{enableAllSources}}"></paper-checkbox>
         <div flex>Select All</div>
       </div>
 
       <div id="sources" vertical layout></div>
 
       <paper-dialog id="add_dialog" transition="paper-dialog-transition-center">
-        <div vertical layout style="width:100%; height:100%; align-items:center;">
+        <div id="add_dialog_wrapper" vertical layout>
           <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
             <input is="core-input" required>
           </paper-input-decorator>
@@ -107,9 +139,9 @@
             <input is="core-input" required>
           </paper-input-decorator>
 
-          <div horizontal justified layout style="width:100%; height:30%;">
-            <paper-button dismissive style="margin-left:15%; margin-right:0px;" on-click="{{onAddCancelClick}}">CANCEL</paper-button>
-            <paper-button style="margin-right:15%; margin-left:0px;" on-click="{{onAddDoneClick}}">DONE</paper-button>
+          <div id="add_dialog_button_wrapper" horizontal justified layout>
+            <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">CANCEL</paper-button>
+            <paper-button id="done" on-click="{{onAddDoneClick}}">DONE</paper-button>
           </div>
         </div>
       </paper-dialog>
