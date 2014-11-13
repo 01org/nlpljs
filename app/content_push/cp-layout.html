@@ -231,12 +231,14 @@
         },
 
         /**
-         * Add the appropriate frame to the cp-tile*.
+         * Add the appropriate frame to the cp-tile*. If tile already
+         * has a "frame" property referencing a frame object,
+         * the frame is set to that.
          *
          * @param DOMElement tile cp-tile* element
          */
         frameTile: function (tile) {
-          var frame = this.frameChooser.choose(tile);
+          var frame = tile.frame || this.frameChooser.choose(tile);
           tile.setAttribute('data-frame', frame.name);
           tile.setAttribute('data-columns', frame.columns);
           tile.setAttribute('data-rows', frame.rows);
