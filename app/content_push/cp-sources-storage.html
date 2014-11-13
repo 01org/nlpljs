@@ -1,0 +1,92 @@
+/**
+ * cp-sources
+ */
+
+<link rel="import" href="cp-globals.html">
+
+<polymer-element name="cp-sources-storage">
+  <template>
+    <cp-globals id="globals"></cp-globals>
+  </template>
+  <script>
+    (function cpSources() {
+      // private *static* functions and constants
+
+      // property changed handlers
+      function notifyEpSourcesStorage (self) {
+        console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage()');
+
+        if (!self.$.globals.data.app_id) {
+          console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage() called but app_id not set yet');
+          return;
+        }
+
+        console.log('CP-SOURCES-STORAGE:sending new sources to ep-sources:', self.data);
+        var message = {
+          component: 'sources',
+          action: 'set',
+          url: self.$.globals.data.iframeurl,
+          data: self.data
+        };
+
+        chrome.runtime.sendMessage(self.$.globals.data.app_id, message, function(detail) {
+          if (chrome.runtime.lastError) {
+            var message = chrome.runtime.lastError.message;
+            console.log(new Error('CP-SOURCES-STORAGE:error in responseCallback:'+message));
+          } else {
+            console.log('CP-SOURCES-STORAGE:sendResponse invoked:', detail);
+          }
+        });
+      }
+
+      function epSourcesListener (self, detail) {
+        self.data=detail.data;
+      }
+
+      Polymer({
+        // functions and properties used in API and bindings
+
+        // life cycle handlers
+        ready: function() {
+          this.data = this.data || {};
+          if (!this.$.globals.data.app_id) {
+            console.log('CP-SOURCES-STORAGE:ready() called but app_id not set yet');
+            return;
+          }
+
+          var self = this;
+
+          this.port = chrome.runtime.connect(this.$.globals.data.app_id);
+          this.port.onMessage.addListener(function(detail) {
+            if (detail.component==='sources') {
+              // new sources to set them and notify listeners
+              epSourcesListener(self, detail);
+            }
+          });
+
+          console.log('CP-SOURCES-STORAGE:getting sources');
+          var message = {
+            component: 'sources',
+            action: 'get',
+            url: this.$.globals.data.iframeurl,
+          };
+
+          // get first set of sources
+          this.port.postMessage(message);
+        },
+
+        get sources() {
+          return this.data;
+        },
+
+        set sources(sources) {
+          console.log('CP-SOURCES-STORAGE:setting sources from cp-main to:',sources);
+          this.data=sources;
+          notifyEpSourcesStorage(this);
+        },
+
+      }); // Polymer()
+    })();
+
+  </script>
+</polymer-element>

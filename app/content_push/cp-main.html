@@ -3,9 +3,11 @@
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-panel.html">
 <link rel="import" href="./cp-font.html">
+<link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name="cp-main" attributes="toggle">
   <template>
+    <cp-sources-storage id="sources"></cp-sources-storage>
     <link type="text/css" rel="stylesheet" href="./styles/cp-main.css">
 
     <div id="container" horizontal layout>
@@ -41,9 +43,16 @@
         },
 
         ready: function () {
+          this.sources = this.sources || {};
+          var self = this;
+          this.job('job1', function() {
+            var tmp=self.$.sources.sources;
+            tmp.Images.enabled='MAXMAXMAX';
+            console.log("CP-MAIN changing sources to:",tmp);
+            self.$.sources.sources=tmp;
+          },10000);
         },
 
-        // propertyChanged functions
         toggleChanged: function (oldValue, newValue) {
           this.$.panel.classList.toggle('off');
           this.open = !this.open;
