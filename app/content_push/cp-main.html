@@ -40,9 +40,6 @@
           this.open = true;
         },
 
-        ready: function () {
-        },
-
         // propertyChanged functions
         toggleChanged: function (oldValue, newValue) {
           this.$.panel.classList.toggle('off');
@@ -88,8 +85,7 @@
         onPanelClosePanel: function () {
           this.$.panel.classList.add('off');
           this.open = false;
-        },
-
+        }
       }); // Polymer()
     })();
 
