@@ -161,8 +161,6 @@
         }
 
       }
-
-      return keepChannelOpen;
     });
   });
 

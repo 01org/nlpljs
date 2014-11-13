@@ -1,7 +1,16 @@
 /**
  * cp-sources
+ *
+ * <cp-sources-storage id="storage" on-new-sources="{{onNewSources}}"></cp-sources-storage>
+ * ...
+ * this.$.storage.sources = { bla bla };
+ * sources = this.$.storage.sources;
+ * onNewSources: function(newSource) {
+ *   // do something with them - eg update UI
+ * }
  */
 
+<link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="cp-globals.html">
 
 <polymer-element name="cp-sources-storage">
@@ -41,6 +50,7 @@
 
       function epSourcesListener (self, detail) {
         self.data=detail.data;
+        self.fire('new-sources',self.data);
       }
 
       Polymer({
@@ -48,6 +58,7 @@
 
         // life cycle handlers
         ready: function() {
+          console.log('CP-SOURCES-STORAGE:ready');
           this.data = this.data || {};
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:ready() called but app_id not set yet');
