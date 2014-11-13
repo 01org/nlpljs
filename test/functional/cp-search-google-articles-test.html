@@ -1,0 +1,74 @@
+<link rel="import" href="../../app/content_push/cp-search-google.html">
+
+<!--
+test for searching Google articles
+-->
+<polymer-element name="cp-search-google-articles-test">
+  <template>
+    <style>
+      .tile {
+        width: 200px;
+        display: inline-block;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+      }
+
+      #error {
+        color: red;
+      }
+
+      [data-show="false"] {
+        display: none;
+      }
+    </style>
+
+    <p>Search Google and display articles 10 at a time. This either
+    displays the image for the article or its snipper if no image
+    is available.</p>
+
+    <p><button id="fetch" on-click="{{fetchResults}}">Fetch results</button></p>
+
+    <cp-search-google id="searchGoogleArticles" searchType="article">
+    </cp-search-google>
+
+    <p id="error" data-show="false">No more results</p>
+
+    <div id="container"></div>
+  </template>
+
+  <script>
+    Polymer({
+      fetchResults: function () {
+        var self = this;
+        var query = 'angelica';
+
+        this.$.searchGoogleArticles.fetch(query)
+        .then(
+          function (results) {
+            if (results.length) {
+              for (var i = 0; i < results.length; i++) {
+                var tile = document.createElement('div');
+                tile.classList.add('tile');
+
+                if (results[i].src) {
+                  var img = document.createElement('img');
+                  img.src = results[i].src;
+                  tile.appendChild(img);
+                } else {
+                  tile.innerHTML = results[i].snippet;
+                }
+
+                self.$.container.appendChild(tile);
+              }
+            } else {
+              self.$.error.setAttribute('data-show', 'true');
+            }
+          }
+        );
+      }
+    });
+  </script>
+</polymer-element>

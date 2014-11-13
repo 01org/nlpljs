@@ -82,31 +82,54 @@ search using a Google custom search engine
               resultSet.setExhausted();
             }
 
-            var data;
             for (var i = 0; i < response.items.length; i++) {
-              data = response.items[i];
+              var data = response.items[i];
+              var result;
 
-              /* TODO doesn't seem to be any EXIF data on Google images */
-              var meta = {};
+              if (searchType === 'image') {
+                /* TODO doesn't seem to be any EXIF data on Google images */
+                var meta = {};
 
-              resultSet.add({
-                src: data.link,
-                thumbnailSrc: Thumbnailer.getGoogleURL(data.link),
-                width: data.image.width,
-                height: data.image.height,
-                type: searchType,
-                caption: data.title,
-                source: data.image.contextLink,
-                meta: {
-                  ExifVersion: (meta.ExifVersion ?
-                                    meta.ExifVersion.value : null),
-                  DateTime: (meta.DateTime ?
-                                formatDate(meta.DateTime.value) : null),
-                  Camera: (meta.Model ? meta.Model.value.trim() : null)
+                result = {
+                  caption: data.title,
+                  src: data.link,
+                  thumbnailSrc: Thumbnailer.getGoogleURL(data.link),
+                  width: data.image.width,
+                  height: data.image.height,
+                  type: searchType,
+                  source: data.image.contextLink,
+                  meta: {
+                    ExifVersion: (meta.ExifVersion ?
+                                      meta.ExifVersion.value : null),
+                    DateTime: (meta.DateTime ?
+                                  formatDate(meta.DateTime.value) : null),
+                    Camera: (meta.Model ? meta.Model.value.trim() : null)
+                  }
+                };
+              } else if (searchType === 'article') {
+                var thumbnailSrc;
+                var src = data.pagemap['cse_image'];
+
+                if (src) {
+                  src = src[0].src;
+                  thumbnailSrc = Thumbnailer.getGoogleURL(src);
+                } else {
+                  src = null;
+                  thumbnailSrc = null;
                 }
-              });
-            }
 
+                result = {
+                  caption: data.title,
+                  src: src,
+                  thumbnailSrc: thumbnailSrc,
+                  type: searchType,
+                  source: data.link,
+                  snippet: data.snippet
+                };
+              }
+
+              resultSet.add(result);
+            }
           } else {
             /* end of result set reached */
             resultSet.setExhausted();
