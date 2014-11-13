@@ -12,14 +12,27 @@
       :host {
         display: block;
         position: relative;
+        display: inline-block;
         height: 100%;
         width: 100%;
         overflow-y: auto;
         background-color: white;
       }
 
+      #panel_overlay {
+        position:absolute;
+        top:0px;
+        left:0px;
+        bottom:0px;
+        right:0px;
+        background-color:rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        visibility: hidden;
+      }
+
       #panel {
         height: 100%;
+        width: 100%;
       }
 
       #header {
@@ -44,6 +57,17 @@
         color: black;
       }
 
+      #select_all {
+        padding-top:45px;
+        padding-bottom:45px;
+        border-bottom:solid black 1px;
+      }
+
+      #title-back {
+        align-items:center;
+        margin-top:50px;
+      }
+
       #sources div {
         padding-top:15px;
         padding-bottom:15px;
@@ -60,53 +84,59 @@
       }
 
       paper-dialog {
-        width: 70%;
-        height: 30%;
-        left: 15%;
-        top: 35%;
+        left: 5%;
+        right: 5%;
+        top: 40%;
+        bottom: 40%;
+        background-color:white;
+        display: flex;
       }
 
-      #dialog paper-input {
+      #add_dialog::shadow #container {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #main {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #actions {
+        padding: 0;
+      }
+
+      #add_dialog paper-input-decorator {
+        padding: 0;
         width: 70%;
         height: 35%;
-        margin-right: 15%;
-        margin-left: 15%;
-      }
-
-      #select_all {
-        padding-top:45px;
-        padding-bottom:45px;
-        border-bottom:solid black 1px;
-      }
-
-      #title-back {
-        align-items:center;
-        margin-top:50px;
-      }
-
-      #add_dialog_wrapper {
-        width:100%;
-        height:100%;
-        align-items:center;
+        margin: auto;
+        font-size: 70%;
       }
 
       #add_dialog_button_wrapper {
-        width:100%;
+        width:70%;
         height:30%;
+        margin: auto;
       }
 
-      #cancel {
-        margin-left:15%;
-        margin-right:0px;
-      }
-
-      #done {
-        margin-right:15%;
-        margin-left:0px;
+      #add_dialog_button_wrapper paper-button {
+        font-size: 70%;
+        text-align: center;
+        width: 30%;
+        height: 70%;
+        margin: auto;
       }
     </style>
 
-    <core-header-panel id="panel" flex>
+    <div id="panel_overlay"></div>
+    <core-header-panel id="panel">
       <core-toolbar id="header" class="medium-tall">
         <div vertical layout>
           <div id="title-back" horizontal layout>
@@ -129,20 +159,18 @@
 
       <div id="sources" vertical layout></div>
 
-      <paper-dialog id="add_dialog" transition="paper-dialog-transition-center">
-        <div id="add_dialog_wrapper" vertical layout>
-          <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
-            <input is="core-input" required>
-          </paper-input-decorator>
+      <paper-dialog id="add_dialog" flex transition="paper-dialog-transition-center" autoCloseDisabled="{{true}}">
+        <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
+          <input is="core-input" required>
+        </paper-input-decorator>
 
-          <paper-input-decorator label="Source URL" floatingLabel error="input is required!">
-            <input is="core-input" required>
-          </paper-input-decorator>
+        <paper-input-decorator label="Source URL" floatingLabel error="input is required!">
+          <input is="core-input" required>
+        </paper-input-decorator>
 
-          <div id="add_dialog_button_wrapper" horizontal justified layout>
-            <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">CANCEL</paper-button>
-            <paper-button id="done" on-click="{{onAddDoneClick}}">DONE</paper-button>
-          </div>
+        <div id="add_dialog_button_wrapper" horizontal justified layout>
+          <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">Cancel</paper-button>
+          <paper-button id="done" on-click="{{onAddDoneClick}}">Done</paper-button>
         </div>
       </paper-dialog>
     </core-header-panel>
@@ -256,6 +284,7 @@
             this.$.sources.removeChild(this.$.sources.lastChild);
         },
         onAddClick: function () {
+          this.$.panel_overlay.style.visibility = "visible";
           this.$.add_dialog.toggle();
         },
         onAddDoneClick: function () {
@@ -272,16 +301,15 @@
           }
 
           if (valid === true) {
-            inputFields[0].querySelector("input").value = '';
-            inputFields[1].querySelector("input").value = '';
-
-            inputFields[0].querySelector("input").commit();
-            inputFields[1].querySelector("input").commit();
-
-            inputFields[0].focusedChanged();
-            inputFields[1].focusedChanged();
+            for (var i = 0; i < inputFields.length; i++) {
+              inputFields[i].querySelector("input").value = '';
+              inputFields[i].querySelector("input").commit();
+              inputFields[i].focusedChanged();
+            }
 
             this.$.add_dialog.toggle();
+            this.$.panel_overlay.style.visibility = "hidden";
+
             this.addSource(name, url);
 
             this.fire("sourceadded", {
@@ -294,14 +322,14 @@
         onAddCancelClick: function () {
           var inputFields = this.$.add_dialog.querySelectorAll("paper-input-decorator");
 
-          inputFields[0].querySelector("input").value = '';
-          inputFields[1].querySelector("input").value = '';
+          this.$.panel_overlay.style.visibility = "hidden";
 
-          inputFields[0].querySelector("input").commit();
-          inputFields[1].querySelector("input").commit();
-
-          inputFields[0].focusedChanged();
-          inputFields[1].focusedChanged();
+          for (var i = 0; i < inputFields.length; i++) {
+            inputFields[i].querySelector("input").value = '';
+            inputFields[i].querySelector("input").commit();
+            inputFields[i].isInvalid = false;
+            inputFields[i].focusedChanged();
+          }
         }
       });
     })();
