@@ -1,0 +1,338 @@
+<link rel="import" href="../bower_components/core-icon-button/core-icon-button.html">>
+<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+
+<polymer-element name="cp-sources-selector">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+        background-color: white;
+      }
+
+      #panel_overlay {
+        position:absolute;
+        top:0px;
+        left:0px;
+        bottom:0px;
+        right:0px;
+        background-color:rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        visibility: hidden;
+      }
+
+      #panel {
+        height: 100%;
+        width: 100%;
+      }
+
+      #header {
+        background-color: #ff8b00;
+        text-align: left;
+        color: white;
+        padding-top: 30px;
+      }
+
+      #headertext {
+        margin-left: 15px;
+        font-size: 1.1em;
+      }
+
+      #add {
+        background-color: #ffcd97;
+        bottom:-20px;
+        z-index:1;
+      }
+
+      #add::shadow core-icon, core-icon {
+        color: black;
+      }
+
+      #select_all {
+        padding-top:45px;
+        padding-bottom:45px;
+        border-bottom:solid black 1px;
+      }
+
+      #title-back {
+        margin-top:50px;
+      }
+
+      #sources div {
+        padding-top:15px;
+        padding-bottom:15px;
+        align-items: center;
+      }
+
+      paper-checkbox {
+        margin-right: 15px;
+        margin-left: 15px;
+      }
+
+      #sources core-icon {
+        color: gray;
+      }
+
+      paper-dialog {
+        left: 0;
+        right: 0;
+        width: 200px;
+        height: 150px;
+        margin: auto;
+        background-color:white;
+        display: flex;
+      }
+
+      #add_dialog::shadow #container {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #main {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #actions {
+        padding: 0;
+      }
+
+      #add_dialog paper-input-decorator {
+        padding: 0;
+        width: 70%;
+        height: 35%;
+        margin: auto;
+        font-size: 70%;
+      }
+
+      #add_dialog_button_wrapper {
+        width:70%;
+        height:30%;
+        margin: auto;
+      }
+
+      #add_dialog_button_wrapper paper-button {
+        font-size: 70%;
+        text-align: center;
+        width: 30%;
+        height: 70%;
+        margin: auto;
+      }
+    </style>
+
+    <div id="panel_overlay"></div>
+    <core-header-panel id="panel">
+      <core-toolbar id="header" class="medium-tall">
+        <div vertical layout>
+          <div id="title-back" horizontal layout center>
+            <core-icon-button icon="arrow-back"
+                              on-tap="{{onBackButtonClick}}">
+            </core-icon-button>
+
+            <div flex>
+              <div id="headertext">Groups</div>
+            </div>
+          </div>
+          <paper-fab id="add" icon="add" on-click="{{onAddClick}}"></paper-fab>
+        </div>
+      </core-toolbar>
+
+      <div id="select_all" horizontal layout>
+        <paper-checkbox on-change="{{enableAllSources}}"></paper-checkbox>
+        <div flex>Select All</div>
+      </div>
+
+      <div id="sources" vertical layout></div>
+
+      <paper-dialog id="add_dialog" flex transition="paper-dialog-transition-center" autoCloseDisabled="{{true}}">
+        <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
+          <input is="core-input" required>
+        </paper-input-decorator>
+
+        <paper-input-decorator label="Source URL" floatingLabel error="input is required!">
+          <input is="core-input" required>
+        </paper-input-decorator>
+
+        <div id="add_dialog_button_wrapper" horizontal justified layout>
+          <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">Cancel</paper-button>
+          <paper-button id="done" on-click="{{onAddDoneClick}}">Done</paper-button>
+        </div>
+      </paper-dialog>
+    </core-header-panel>
+  </template>
+
+  <script>
+    (function () {
+      var onAddSource = function (self, name, url, type) {
+        var wrapper = document.createElement("div");
+        var checkbox = document.createElement("paper-checkbox");
+        var listItem = document.createElement("div");
+        var trash = document.createElement("core-icon");
+        var icon = document.createAttribute("icon");
+
+        listItem.innerText = name;
+        listItem.setAttributeNode(document.createAttribute("flex"));
+
+        icon.value = "delete";
+        trash.setAttributeNode(icon);
+
+        wrapper.setAttributeNode(document.createAttribute("horizontal"));
+        wrapper.setAttributeNode(document.createAttribute("layout"));
+
+        checkbox.addEventListener("change", function () {
+          onCheckboxToggled(self, name, url, type,
+            checkbox.getAttribute("checked") !== null);
+        });
+
+        trash.addEventListener("click", function () {
+          onRemoveSource(self, name, url, type, wrapper);
+        });
+
+        wrapper.appendChild(checkbox);
+        wrapper.appendChild(listItem);
+        wrapper.appendChild(trash);
+
+        self.$.sources.appendChild(wrapper);
+      };
+
+      var onRemoveSource = function (self, name, url, type, sourceWrapper) {
+        self.$.sources.removeChild(sourceWrapper);
+        self.fire("sourceremoved", {
+          name: name,
+          url: url,
+          type: type
+        });
+      };
+
+      var onCheckboxToggled = function (self, sourceName, sourceUrl, sourceType, isChecked) {
+        if (isChecked) {
+          var checkboxes = self.$.sources.querySelectorAll("paper-checkbox");
+          var allEnabled = true;
+
+          for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].getAttribute("checked") === null) {
+              allEnabled = false;
+              break;
+            }
+          }
+
+          if (allEnabled === true) {
+            self.$.select_all.querySelector("paper-checkbox").setAttributeNode(
+              document.createAttribute("checked"));
+          }
+
+          self.fire("sourceenabled", {
+            name: sourceName,
+            url: sourceUrl,
+            type: sourceType
+          });
+        } else {
+          var allCheckbox = self.$.select_all.querySelector("paper-checkbox");
+
+          if (allCheckbox.getAttribute("checked") !== null)
+            allCheckbox.removeAttribute("checked");
+
+          self.fire("sourcedisabled", {
+            name: sourceName,
+            url: sourceUrl,
+            type: sourceType
+          });
+        }
+      };
+
+      Polymer({
+        setSources: function (type, sources) {
+          this.$.headertext.innerText = type;
+
+          for (var i = 0; i < sources.length; i++)
+            this.addSource(sources[i].name, sources[i].url, type);
+        },
+        addSource: function (name, url, type) {
+          onAddSource(this, name, url, type);
+        },
+        enableAllSources: function () {
+          var allCheckbox = this.$.select_all.querySelector("paper-checkbox");
+          var checkboxes = this.$.sources.querySelectorAll("paper-checkbox");
+          var allEnabled = allCheckbox.getAttribute("checked") !== null;
+
+          for (var i = 0; i < checkboxes.length; i++) {
+            var sourceEnabled = checkboxes[i].getAttribute("checked") !== null;
+
+            if ((allEnabled === true && sourceEnabled === false) ||
+                (allEnabled === false && sourceEnabled === true))
+              checkboxes[i].toggle();
+          };
+        },
+        onBackButtonClick: function () {
+          this.fire('close');
+
+          while (this.$.sources.hasChildNodes())
+            this.$.sources.removeChild(this.$.sources.lastChild);
+        },
+        onAddClick: function () {
+          this.$.panel_overlay.style.visibility = "visible";
+          this.$.add_dialog.toggle();
+        },
+        onAddDoneClick: function () {
+          var inputFields = this.$.add_dialog.querySelectorAll("paper-input-decorator");
+          var valid = true;
+          var name = inputFields[0].querySelector("input").committedValue;
+          var url = inputFields[1].querySelector("input").committedValue;
+
+          for (var i = 0; i < inputFields.length; i++) {
+            inputFields[i].isInvalid = !inputFields[i].querySelector("input").validity.valid;
+
+            if (inputFields[i].isInvalid)
+              valid = false;
+          }
+
+          if (valid === true) {
+            for (var i = 0; i < inputFields.length; i++) {
+              inputFields[i].querySelector("input").value = '';
+              inputFields[i].querySelector("input").commit();
+              inputFields[i].focusedChanged();
+            }
+
+            this.$.add_dialog.toggle();
+            this.$.panel_overlay.style.visibility = "hidden";
+
+            this.addSource(name, url);
+
+            this.fire("sourceadded", {
+              name: name,
+              url: url,
+              type: this.$.headertext.innerText
+            });
+          }
+        },
+        onAddCancelClick: function () {
+          var inputFields = this.$.add_dialog.querySelectorAll("paper-input-decorator");
+
+          this.$.panel_overlay.style.visibility = "hidden";
+
+          for (var i = 0; i < inputFields.length; i++) {
+            inputFields[i].querySelector("input").value = '';
+            inputFields[i].querySelector("input").commit();
+            inputFields[i].isInvalid = false;
+            inputFields[i].focusedChanged();
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>
