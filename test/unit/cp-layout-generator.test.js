@@ -14,7 +14,7 @@ describe('LayoutGenerator', function () {
 
      results in the 4x4 tile being underneath both 4x2 tiles
   */
-  it('should choose lay out large square tiles correctly with landscape tiles', function () {
+  it('should lay out large square tiles correctly with landscape tiles', function () {
     var testShapes = [
       {width: 4, height: 4},
       {width: 4, height: 2},
@@ -45,6 +45,25 @@ describe('LayoutGenerator', function () {
     ];
 
     var actual = layoutGenerator.generate(testShapes, gridWidth);
+
+    actual.placements.should.eql(expectedPlacements);
+  });
+
+  it('should lay out a single shape', function () {
+    var testShape = {width: 4, height: 4};
+
+    var gridWidth = 4;
+
+    var expectedPlacements = [
+      {
+        shape: testShape,
+        position: {
+          rows: [0,1,2,3], columns: [0,1,2,3]
+        }
+      }
+    ];
+
+    var actual = layoutGenerator.generate([testShape], gridWidth);
 
     actual.placements.should.eql(expectedPlacements);
   });
