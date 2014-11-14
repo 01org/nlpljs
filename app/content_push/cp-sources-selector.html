@@ -199,12 +199,12 @@
         wrapper.setAttributeNode(document.createAttribute("layout"));
 
         checkbox.addEventListener("change", function () {
-          onCheckboxToggled(self, name, url, type,
+          onCheckboxToggled(self, name, type,
             checkbox.getAttribute("checked") !== null);
         });
 
         trash.addEventListener("click", function () {
-          onRemoveSource(self, name, url, type, wrapper);
+          onRemoveSource(self, name, type, wrapper);
         });
 
         if (enabled === true) {
@@ -232,7 +232,7 @@
         }
       };
 
-      var onRemoveSource = function (self, name, url, type, sourceWrapper) {
+      var onRemoveSource = function (self, name, type, sourceWrapper) {
         self.$.sources.removeChild(sourceWrapper);
 
         delete self.sources[type].sources[name];
@@ -241,12 +241,11 @@
 
         self.fire("sourceremoved", {
           name: name,
-          url: url,
           type: type
         });
       };
 
-      var onCheckboxToggled = function (self, sourceName, sourceUrl, sourceType, isChecked) {
+      var onCheckboxToggled = function (self, sourceName, sourceType, isChecked) {
         var selectAll = self.$.select_all.querySelector("paper-checkbox");
         var allEnabled = true
 
@@ -262,7 +261,6 @@
 
           self.fire("sourceenabled", {
             name: sourceName,
-            url: sourceUrl,
             type: sourceType
           });
         } else {
@@ -270,7 +268,6 @@
 
           self.fire("sourcedisabled", {
             name: sourceName,
-            url: sourceUrl,
             type: sourceType
           });
         }
@@ -338,7 +335,6 @@
               if (source.enabled === true) {
                 this.fire("sourceenabled", {
                   name: source.title,
-                  url: source.url,
                   type: i
                 });
               }
