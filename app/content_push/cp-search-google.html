@@ -108,7 +108,10 @@ search using a Google custom search engine
                 };
               } else if (searchType === 'article') {
                 var thumbnailSrc;
-                var src = data.pagemap['cse_image'];
+                var src = null;
+                if (data.pagemap && data.pagemap['cse_image']) {
+                  src = data.pagemap['cse_image'];
+                }
 
                 if (src) {
                   src = src[0].src;

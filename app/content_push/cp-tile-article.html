@@ -6,6 +6,10 @@ tile for a general web page (article)
     <link rel="stylesheet" href="styles/cp-tile.css">
 
     <style>
+      h2 {
+        font-size: 1.2em;
+      }
+
       h3 {
         font-size: 0.875em;
       }
@@ -20,7 +24,7 @@ tile for a general web page (article)
       }
 
       #text > * {
-        margin: 0 16px;
+        margin: 0 8px;
       }
 
       #image {
@@ -30,10 +34,6 @@ tile for a general web page (article)
       img {
         height: 100%;
         width: auto;
-      }
-
-      #caption, #snippet {
-        padding-top: 8px;
       }
 
       .text-elide {
@@ -74,10 +74,12 @@ tile for a general web page (article)
 
         <div id="text" class="{{src === null ? '' : 'right'}}">
           <h2 id="caption" class="text-elide">
-            {{caption}}
+            {{caption|stripHTMLTags}}
           </h2>
 
-          <h3 id="snippet" class="text-elide">{{snippet}}</h3>
+          <h3 id="snippet" class="text-elide">
+            {{snippet|stripHTMLTags}}
+          </h3>
 
           <div id="meta">
             <p id="source">{{source|domainFromURL}}</p>
@@ -126,7 +128,8 @@ tile for a general web page (article)
           /* type of object used to create the tile */
           this.type = 'article';
 
-          this.frame = null
+          /* always use the landscape frame */
+          this.frame = FrameChooser.FRAMES['landscape1'];
 
           /* we always set loaded to true, so that article tiles are
              loaded into cp-display regardless of whether their related
@@ -137,25 +140,9 @@ tile for a general web page (article)
           this.done = true;
         },
 
-        domReady: function () {
-          this.selectFrame();
-        },
+        domainFromURL: Formatter.domainFromURL,
 
-        srcChanged: function () {
-          this.selectFrame();
-        },
-
-        /* if the tile has an image, use landscape1 frame; otherwise use
-           the default frame (large_square) */
-        selectFrame: function () {
-          if (this.src) {
-            this.frame = FrameChooser.FRAMES['landscape1'];
-          } else {
-            this.frame = FrameChooser.FRAMES['large_square'];
-          }
-        },
-
-        domainFromURL: Formatter.domainFromURL
+        stripHTMLTags: Formatter.stripHTMLTags
       });
     })();
   </script>
