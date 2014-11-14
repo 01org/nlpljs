@@ -362,6 +362,10 @@
           for (var i = 0; i < inputFields.length; i++) {
             inputFields[i].isInvalid = !inputFields[i].querySelector("input").validity.valid;
 
+            if (typeof this.sources[this.currentType].sources[name] !==
+                'undefined' && i === 0)
+              inputFields[i].isInvalid = true;
+
             if (inputFields[i].isInvalid)
               valid = false;
           }
