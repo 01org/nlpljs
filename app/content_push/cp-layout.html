@@ -33,14 +33,6 @@
         text-align: center;
       }
 
-      /* when a cp-tile-image displays inside this element, a margin
-         appears to be added below the meta paragraph; I couldn't track
-         this down, so this work-around removes that margin for
-         cp-tile-images only in the context of a this element */
-      cp-tile-image::shadow #meta {
-        margin: 0 0 3px 0;
-      }
-
       [data-show="false"] {
         display: none !important;
       }
