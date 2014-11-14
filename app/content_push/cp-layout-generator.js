@@ -1,4 +1,4 @@
-(function () {
+(function (_) {
   var EMPTY = 0;
   var FULL = 1;
 
@@ -176,12 +176,15 @@
       var commonColumnSequences = intersect(_.values(columnSequencesByRow));
 
       // data structure looks like this:
-      // { rows: [ '0', '1', '2' ], columns: [ [ 3, 4 ], [ 4, 5 ] ] }
+      // { rows: [ 0, 1, 2 ], columns: [ [ 3, 4 ], [ 4, 5 ] ] }
       // meaning "(columns 3 and 4) or (columns 4 and 5) in rows 0, 1 and
       // 2 provide enough space to fit width x height"
       _.each(commonColumnSequences, function (seq) {
         candidates.push({
-          rows: _.keys(columnSequencesByRow),
+          rows: _.reduce(columnSequencesByRow, function (memo, val, key) {
+            memo.push(parseInt(key, 10));
+            return memo;
+          }, []),
           columns: seq
         });
       });
@@ -226,7 +229,7 @@
   }
 
   position describes the rows, and the columns in those rows, which the
-  shape will occupy
+  shape will occupy; both are zero-indexed
   */
   var findLayout = function (shapes, gridWidth, grid, placements) {
     grid = grid || [];
@@ -270,4 +273,4 @@
   else {
     window.LayoutGenerator = LayoutGenerator;
   }
-})();
+})(typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.js') : _);

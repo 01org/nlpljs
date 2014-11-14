@@ -15,6 +15,14 @@
     this.rowHeight = rowHeight || 1;
   };
 
+  /* expose FRAMES so we can reference it directly
+     from tile implementations (if a particular tile should always
+     have a fixed size frame) */
+  FrameChooser.FRAMES = {};
+  for (var i = 0; i < FRAMES.length; i++) {
+    FrameChooser.FRAMES[FRAMES[i].name] = FRAMES[i];
+  }
+
   /**
    * Convenience function to get a frame by name (inefficient).
    *
@@ -23,15 +31,7 @@
    * @returns null if named frame is not found
    */
   FrameChooser.prototype.getFrameByName = function (frameName) {
-    for (var key in FRAMES) {
-      if (FRAMES.hasOwnProperty(key)) {
-        if (FRAMES[key].name === frameName) {
-          return FRAMES[key];
-        }
-      }
-    }
-
-    return null;
+    return FrameChooser.FRAMES[frameName] || null;
   };
 
   /**

@@ -1,12 +1,18 @@
-<link rel="import" href="./cp-search-google-images.html">
+<link rel="import" href="./cp-search-google.html">
 <link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
-    <cp-search-google-images id="searchGoogleImages"
-                             resultsPerFetch="{{resultsPerFetch}}">
-    </cp-search-google-images>
+    <cp-search-google id="searchGoogleImages"
+                      resultsPerFetch="{{resultsPerFetch}}"
+                      searchType="image">
+    </cp-search-google>
+
+    <cp-search-google id="searchGoogleArticles"
+                      resultsPerFetch="{{resultsPerFetch}}"
+                      searchType="article">
+    </cp-search-google>
 
     <cp-search-wikipedia id="searchWikipedia"
                          resultsPerFetch="{{resultsPerFetch}}">
@@ -51,6 +57,9 @@
           switch (preferredService) {
             case "Google Image Search":
               source = this.$.searchGoogleImages;
+              break;
+            case "Google Article Search":
+              source = this.$.searchGoogleArticles;
               break;
             case "Wikipedia Image Search":
               source = this.$.searchWikipedia;

@@ -76,16 +76,10 @@ wrapper for a Google Drive file thumbnail
       #createdDate span {
         text-align: right;
       }
-
-      [data-show="false"] {
-        display: none;
-      }
     </style>
 
     <div id="container">
       <img id="image" src="{{src}}">
-
-      <div id="overlay"></div>
 
       <div id="meta">
         <h2 id="caption">{{caption}}</h2>
@@ -108,6 +102,7 @@ wrapper for a Google Drive file thumbnail
 
   <script src="./cp-constants.js"></script>
   <script src="./cp-formatter.js"></script>
+  <script src="./cp-layout-frame-chooser.js"></script>
 
   <script>
     (function () {
@@ -162,13 +157,8 @@ wrapper for a Google Drive file thumbnail
           /* icon to display */
           this.icon = null;
 
-          /* width, height and ratio are set manually to force the
-             file tile to be rendered as a small square; NB these
-             have no effect on the size the thumbnail is shown at,
-             other than fixing the frame size */
-          this.width = 500;
-          this.height = 500;
-          this.ratio = 1;
+          /* hard-code the frame for file tiles */
+          this.frame = FrameChooser.FRAMES['large_square'];
 
           /* we always set loaded to true, so that file tiles are
              loaded into cp-display regardless of whether their related
