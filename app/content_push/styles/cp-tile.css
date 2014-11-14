@@ -13,21 +13,10 @@
   height: 100%;
   width: 100%;
   box-sizing: border-box;
+  border: 3px solid rgba(0, 0, 0, 0);
 }
 
-#overlay {
-  display: block;
-  top: 0;
-  left: 0;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0);
-  z-index: 10;
-  height: 100%;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-#overlay:hover {
+#container:hover {
   border: 3px solid #01bcd4;
 }
 
