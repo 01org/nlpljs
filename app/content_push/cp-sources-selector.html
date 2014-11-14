@@ -5,6 +5,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name="cp-sources-selector">
   <template>
@@ -136,6 +137,9 @@
     </style>
 
     <div id="panel_overlay"></div>
+
+    <cp-sources-storage id="storage" on-new-sources="{{onNewSources}}"></cp-sources-storage>
+
     <core-header-panel id="panel">
       <core-toolbar id="header" class="medium-tall">
         <div vertical layout>
@@ -178,7 +182,7 @@
 
   <script>
     (function () {
-      var onAddSource = function (self, name, url, type) {
+      var onAddSource = function (self, name, url, type, enabled) {
         var wrapper = document.createElement("div");
         var checkbox = document.createElement("paper-checkbox");
         var listItem = document.createElement("div");
@@ -203,6 +207,11 @@
           onRemoveSource(self, name, url, type, wrapper);
         });
 
+        if (enabled === true) {
+          checkbox.toggle();
+          checkbox.fire("change");
+        }
+
         wrapper.appendChild(checkbox);
         wrapper.appendChild(listItem);
         wrapper.appendChild(trash);
@@ -210,8 +219,26 @@
         self.$.sources.appendChild(wrapper);
       };
 
+      var onAddDialogClose = function (self) {
+        var inputFields = self.$.add_dialog.querySelectorAll("paper-input-decorator");
+
+        self.$.panel_overlay.style.visibility = "hidden";
+
+        for (var i = 0; i < inputFields.length; i++) {
+          inputFields[i].querySelector("input").value = '';
+          inputFields[i].querySelector("input").commit();
+          inputFields[i].isInvalid = false;
+          inputFields[i].focusedChanged();
+        }
+      };
+
       var onRemoveSource = function (self, name, url, type, sourceWrapper) {
         self.$.sources.removeChild(sourceWrapper);
+
+        delete self.sources[type].sources[name];
+
+        self.$.storage.sources = self.sources;
+
         self.fire("sourceremoved", {
           name: name,
           url: url,
@@ -220,9 +247,11 @@
       };
 
       var onCheckboxToggled = function (self, sourceName, sourceUrl, sourceType, isChecked) {
+        var selectAll = self.$.select_all.querySelector("paper-checkbox");
+        var allEnabled = true
+
         if (isChecked) {
           var checkboxes = self.$.sources.querySelectorAll("paper-checkbox");
-          var allEnabled = true;
 
           for (var i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].getAttribute("checked") === null) {
@@ -231,21 +260,13 @@
             }
           }
 
-          if (allEnabled === true) {
-            self.$.select_all.querySelector("paper-checkbox").setAttributeNode(
-              document.createAttribute("checked"));
-          }
-
           self.fire("sourceenabled", {
             name: sourceName,
             url: sourceUrl,
             type: sourceType
           });
         } else {
-          var allCheckbox = self.$.select_all.querySelector("paper-checkbox");
-
-          if (allCheckbox.getAttribute("checked") !== null)
-            allCheckbox.removeAttribute("checked");
+          allEnabled = false;
 
           self.fire("sourcedisabled", {
             name: sourceName,
@@ -253,17 +274,37 @@
             type: sourceType
           });
         }
+
+        if ((selectAll.getAttribute("checked") === null &&
+             allEnabled === true) ||
+            (selectAll.getAttribute("checked") !== null &&
+             allEnabled === false)) {
+          selectAll.toggle();
+        }
+
+        self.sources[sourceType].sources[sourceName].enabled = isChecked;
+        self.$.storage.sources = self.sources;
       };
 
       Polymer({
-        setSources: function (type, sources) {
-          this.$.headertext.innerText = type;
+        sources: null,
 
-          for (var i = 0; i < sources.length; i++)
-            this.addSource(sources[i].name, sources[i].url, type);
+        currentType: '',
+
+        setSources: function (type) {
+          this.$.headertext.innerText = type;
+          this.currentType = type;
+
+          if (this.currentType !== '' && this.sources !== null &&
+              typeof this.sources[type] !== 'undefined') {
+            for (i in this.sources[type].sources) {
+              var source = this.sources[type].sources[i];
+              this.addSource(source.title, source.url, type, source.enabled);
+            }
+          }
         },
-        addSource: function (name, url, type) {
-          onAddSource(this, name, url, type);
+        addSource: function (name, url, type, enabled) {
+          onAddSource(this, name, url, type, enabled);
         },
         enableAllSources: function () {
           var allCheckbox = this.$.select_all.querySelector("paper-checkbox");
@@ -274,12 +315,40 @@
             var sourceEnabled = checkboxes[i].getAttribute("checked") !== null;
 
             if ((allEnabled === true && sourceEnabled === false) ||
-                (allEnabled === false && sourceEnabled === true))
+                (allEnabled === false && sourceEnabled === true)) {
               checkboxes[i].toggle();
+              checkboxes[i].fire("change");
+            }
           };
+        },
+        onNewSources: function () {
+          this.sources = this.$.storage.sources;
+          this.setSources(this.currentType);
+
+          for (i in this.sources) {
+            for (j in this.sources[i].sources) {
+              var source = this.sources[i].sources[j];
+
+              this.fire("sourceadded", {
+                name: source.title,
+                url: source.url,
+                type: i
+              });
+
+              if (source.enabled === true) {
+                this.fire("sourceenabled", {
+                  name: source.title,
+                  url: source.url,
+                  type: i
+                });
+              }
+            }
+          }
         },
         onBackButtonClick: function () {
           this.fire('close');
+
+          this.currentType = '';
 
           while (this.$.sources.hasChildNodes())
             this.$.sources.removeChild(this.$.sources.lastChild);
@@ -302,35 +371,37 @@
           }
 
           if (valid === true) {
-            for (var i = 0; i < inputFields.length; i++) {
-              inputFields[i].querySelector("input").value = '';
-              inputFields[i].querySelector("input").commit();
-              inputFields[i].focusedChanged();
+            this.$.add_dialog.toggle();
+
+            onAddDialogClose(this);
+
+            if (typeof this.sources[this.currentType] === "undefined") {
+              this.sources[this.currentType] = {
+                enabled: true,
+                sources: {},
+                title: this.currentType
+              };
             }
 
-            this.$.add_dialog.toggle();
-            this.$.panel_overlay.style.visibility = "hidden";
+            this.sources[this.currentType].sources[name] = {
+              enabled: true,
+              title: name,
+              url: url
+            };
 
-            this.addSource(name, url);
+            this.$.storage.sources = this.sources;
 
             this.fire("sourceadded", {
               name: name,
               url: url,
               type: this.$.headertext.innerText
             });
+
+            this.addSource(name, url, this.currentType, true);
           }
         },
         onAddCancelClick: function () {
-          var inputFields = this.$.add_dialog.querySelectorAll("paper-input-decorator");
-
-          this.$.panel_overlay.style.visibility = "hidden";
-
-          for (var i = 0; i < inputFields.length; i++) {
-            inputFields[i].querySelector("input").value = '';
-            inputFields[i].querySelector("input").commit();
-            inputFields[i].isInvalid = false;
-            inputFields[i].focusedChanged();
-          }
+          onAddDialogClose(this);
         }
       });
     })();
