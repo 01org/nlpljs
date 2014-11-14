@@ -146,6 +146,9 @@
 
           /* tiles currently visible */
           this.visibleTiles = 0;
+
+          /* layout promise */
+          this.layoutInProgress = Promise.resolve();
         },
 
         setPending: function (val) {
@@ -252,7 +255,7 @@
         /**
          * Apply layout to cp-tile*s which satisfy the current filter.
          */
-        layout: function () {
+        doLayout: function () {
           /* assume all tiles are hidden by default */
           var visibleTiles = 0;
 
@@ -333,6 +336,27 @@
           }
 
           this.fire('layout');
+        },
+
+        layout: function () {
+          var self = this;
+
+          this.layoutInProgress = this.layoutInProgress.then(
+            function () {
+              return new Promise(function (resolve, reject) {
+                var layoutDoneCb = function () {
+                  resolve();
+                  self.removeEventListener('layout', layoutDoneCb);
+                };
+
+                self.addEventListener('layout', layoutDoneCb);
+
+                self.doLayout();
+              });
+            }
+          );
+
+          return this.layoutInProgress;
         },
 
         /**
