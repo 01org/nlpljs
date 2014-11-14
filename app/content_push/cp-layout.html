@@ -13,7 +13,7 @@
         position: relative;
       }
 
-      cp-tile-image, cp-tile-file {
+      [data-tile="true"] {
         position: absolute;
         transition-property: top, left, opacity;
         transition-duration: 0.25s, 0.25s, 0.25s;
@@ -194,6 +194,11 @@
           if (tile.loaded) {
             this.frameTile(tile);
             tile.setAttribute('data-tile', 'true');
+
+            if (this.filter && !this.filter(tile)) {
+              tile.setAttribute('data-show', 'false');
+            }
+
             this.$.container.appendChild(tile);
             this.fire('tileadded', tile);
           }
@@ -294,11 +299,11 @@
             position = placement.position;
 
             width = position.columns.length * cellSide;
-            firstCol = _.first(position.columns);
+            firstCol = position.columns[0];
             x = firstCol * cellSide;
 
             height = position.rows.length * cellSide;
-            firstRow = _.first(position.rows);
+            firstRow = position.rows[0];
             y = firstRow * cellSide;
 
             shape.elt.style.left = x + 'px';

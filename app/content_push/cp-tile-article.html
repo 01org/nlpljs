@@ -27,6 +27,11 @@ tile for a general web page (article)
         overflow: hidden;
       }
 
+      img {
+        height: 100%;
+        width: auto;
+      }
+
       #caption, #snippet {
         padding-top: 8px;
       }
@@ -121,8 +126,7 @@ tile for a general web page (article)
           /* type of object used to create the tile */
           this.type = 'article';
 
-          /* hard code frame for article tiles */
-          this.frame = FrameChooser.FRAMES['large_square'];
+          this.frame = null
 
           /* we always set loaded to true, so that article tiles are
              loaded into cp-display regardless of whether their related
@@ -133,9 +137,17 @@ tile for a general web page (article)
           this.done = true;
         },
 
+        domReady: function () {
+          this.selectFrame();
+        },
+
+        srcChanged: function () {
+          this.selectFrame();
+        },
+
         /* if the tile has an image, use landscape1 frame; otherwise use
            the default frame (large_square) */
-        srcChanged: function () {
+        selectFrame: function () {
           if (this.src) {
             this.frame = FrameChooser.FRAMES['landscape1'];
           } else {

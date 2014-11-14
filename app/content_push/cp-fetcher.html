@@ -9,6 +9,11 @@
                       searchType="image">
     </cp-search-google>
 
+    <cp-search-google id="searchGoogleArticles"
+                      resultsPerFetch="{{resultsPerFetch}}"
+                      searchType="article">
+    </cp-search-google>
+
     <cp-search-wikipedia id="searchWikipedia"
                          resultsPerFetch="{{resultsPerFetch}}">
     </cp-search-wikipedia>
@@ -52,6 +57,9 @@
           switch (preferredService) {
             case "Google Image Search":
               source = this.$.searchGoogleImages;
+              break;
+            case "Google Article Search":
+              source = this.$.searchGoogleArticles;
               break;
             case "Wikipedia Image Search":
               source = this.$.searchWikipedia;

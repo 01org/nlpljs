@@ -9,6 +9,7 @@ pushing new tiles into the wrapped layout
 <link rel="import" href="./cp-layout.html">
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
+<link rel="import" href="./cp-tile-article.html">
 
 <polymer-element name="cp-display">
   <template>
@@ -256,6 +257,8 @@ pushing new tiles into the wrapped layout
               this.appendImage(results[i]);
             } else if (results[i].type === 'file') {
               this.appendFile(results[i]);
+            } else if (results[i].type === 'article') {
+              this.appendArticle(results[i]);
             }
           }
         },
@@ -367,6 +370,44 @@ pushing new tiles into the wrapped layout
           tile.file = file;
 
           this.addTile(tile, file.keyword);
+        },
+
+        /**
+        * Convenience method to append an article tile to the
+        * gallery; creates a cp-tile-article element for the article
+        * object added.
+        *
+        * @param Object article Representation of article to add; has the
+        * format:
+        * {
+        *   thumbnailSrc: "<url of article image thumbnail>",
+        *   src: "<url of article image>",
+        *   keyword: {
+        *       text: "<keyphrase text>",
+        *       groupId: "<keyphrase group ID>"
+        *   },
+        *   caption: "<file caption>",
+        *   source: "http://website.url/",
+        *   snippet: "snippet of text from the article",
+        *   type: "article"
+        * }
+        *
+        * The keyphrase groupId is assigned by the NLP engine and
+        * enables the Highlighter to identify the correct ranges
+        * in the Context when highlights are toggled.
+        */
+        appendArticle: function (article) {
+          var tile = document.createElement('cp-tile-article');
+
+          tile.src = article.thumbnailSrc;
+          tile.caption = article.caption;
+          tile.source = article.source;
+          tile.snippet = article.snippet;
+          tile.article = article;
+
+          tile.selectFrame();
+
+          this.addTile(tile, article.keyword);
         },
 
         getLayout: function () {
