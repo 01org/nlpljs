@@ -74,7 +74,7 @@
   // findSequences([FULL, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, FULL, EMPTY, EMPTY, EMPTY], fn, 3)
   // should return [ [1, 2, 3], [2, 3, 4], [3, 4, 5], [7, 8, 9] ]
   // (i.e. all sub-arrays of length 3 where all the elements === EMPTY)
-  var findSequences = function (arr, fn, length) {
+  var findSequences = function (arr, startIndex, fn, length) {
     // final sequences of length <length>
     var sequences = [];
 
@@ -89,7 +89,7 @@
     // sequences currently in progress
     var inProgress = [];
 
-    arr.forEach(function (item, index) {
+    for (var index = startIndex; index < arr.length; index++) {
       item = arr[index];
 
       if (fn(item)) {
@@ -108,7 +108,7 @@
 
       // add all sequences of correct length to output sequences
       sequences = sequences.concat(_.remove(inProgress, completeSequences));
-    });
+    }
 
     return sequences;
   };
@@ -116,7 +116,8 @@
   // find all continuous sequences of EMPTY cells in row
   // with length <width>
   var findColumnSequences = function (row, width) {
-    return findSequences(row, function (item) { return !item; }, width);
+    var startColumn = 0;
+    return findSequences(row, startColumn, function (item) { return !item; }, width);
   };
 
   // find a sequence of row numbers in <grid> with the same length as
@@ -124,7 +125,16 @@
   // this provides candidate groups of rows which can be tested for
   // EMPTY sequences of columns
   var findRowSequences = function (grid, height) {
-    return findSequences(grid, function (row) {
+    // HACK: only consider a fraction of all the rows in the grid,
+    // to reduce the search space; this produces a significant
+    // performance increase at the expense of a few gaps in the layout;
+    // 5 is an arbitrary number: increasing it makes the algorithm
+    // consider more of the grid; decreasing it to 0 would make the
+    // algorithm only consider the last row of the grid
+    var lastGridRow = grid.length - 1;
+    var startRow = Math.max(0, lastGridRow - (height * 4));
+
+    return findSequences(grid, startRow, function (row) {
       var emptyCell = _.find(row, function (cell) {
         return cell === EMPTY;
       });
