@@ -125,11 +125,11 @@
   // EMPTY sequences of columns
   var findRowSequences = function (grid, height) {
     return findSequences(grid, function (row) {
-      var emptyCells = _.select(row, function (cell) {
-        return !cell;
+      var emptyCell = _.find(row, function (cell) {
+        return cell === EMPTY;
       });
 
-      return !!emptyCells.length;
+      return emptyCell === EMPTY;
     }, height);
   };
 
