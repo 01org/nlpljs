@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<polymer-element name="cp-detail-article" attributes="src caption source">
+  <template>
+    <link rel="stylesheet" href="./styles/cp-detail.css">
+
+    <div id="container">
+      <div id="back">
+        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                   on-click="{{onBackButtonClick}}">
+        </paper-fab>
+      </div>
+
+      <div id="imgContainer" data-show="{{!!src}}">
+        <div id="spinner" data-show="{{!loaded}}">
+          <template if="{{!loaded}}">
+            <paper-spinner active></paper-spinner>
+          </template>
+        </div>
+
+        <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+      </div>
+
+      <h3 id="caption" data-show="{{caption}}">
+        <caption>{{caption|stripHTMLTags}}</caption>
+      </h3>
+
+      <h4 id="articleSource" data-show="{{source}}">
+        {{source|domainFromURL}}
+      </h4>
+
+      <div id="visitSrc" data-show="{{source}}">
+        <paper-button raised class="colored" on-click="{{visitWebpage}}"
+                      data-source-link="{{source}}">
+          Visit webpage
+        </paper-button>
+      </div>
+
+      <div id="snippet" data-show="{{snippet}}">
+        {{snippet|stripHTMLTags}}
+      </div>
+    </div>
+  </template>
+
+  <script src="./cp-constants.js"></script>
+  <script src="./cp-formatter.js"></script>
+
+  <script>
+    (function () {
+      Polymer({
+        /* source URL of the file thumbnail */
+        src: null,
+
+        /* text describing the file */
+        caption: null,
+
+        /* where the file came from */
+        source: null,
+
+        /* extract from the article */
+        snippet: null,
+
+        created: function () {
+          this.loaded = false;
+        },
+
+        stripHTMLTags: Formatter.stripHTMLTags,
+
+        domainFromURL: Formatter.domainFromURL,
+
+        srcChanged: function () {
+          var self = this;
+
+          this.loaded = false;
+
+          /* if the image never loads, record the component as ready
+             anyway, to ensure that it will display */
+          setTimeout(function () {
+            self.loaded = true;
+          }, CP_CONSTANTS.TIMEOUT);
+        },
+
+        onImageLoad: function () {
+          this.loaded = true;
+          this.fire('done');
+        },
+
+        onBackButtonClick: function () {
+          this.fire('back');
+        },
+
+        showTile: function (tile) {
+          this.src = tile.article.src;
+          this.caption = tile.article.caption;
+          this.source = tile.article.source;
+          this.snippet = tile.article.snippet;
+        },
+
+        visitWebpage: function () {
+          if (this.source) {
+            window.open(this.source, '_blank');
+          }
+        },
+
+        /* no clean-up necessary, but needed by the API */
+        close: function () {}
+      });
+    })();
+  </script>
+</polymer-element>
