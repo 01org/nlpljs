@@ -58,7 +58,7 @@
         color: black;
       }
 
-      #select_all {
+      #select_all_container {
         padding-top:45px;
         padding-bottom:45px;
         border-bottom:solid black 1px;
@@ -156,8 +156,8 @@
         </div>
       </core-toolbar>
 
-      <div id="select_all" horizontal layout>
-        <paper-checkbox on-change="{{enableAllSources}}"></paper-checkbox>
+      <div id="select_all_container" horizontal layout>
+        <paper-checkbox id="select_all" on-change="{{enableAllSources}}"></paper-checkbox>
         <div flex>Select All</div>
       </div>
 
@@ -182,14 +182,14 @@
 
   <script>
     (function () {
-      var onAddSource = function (self, name, url, type, enabled) {
+      var onAddSource = function (self, name, title, url, type, enabled) {
         var wrapper = document.createElement("div");
         var checkbox = document.createElement("paper-checkbox");
         var listItem = document.createElement("div");
         var trash = document.createElement("core-icon");
         var icon = document.createAttribute("icon");
 
-        listItem.innerText = name;
+        listItem.innerText = title;
         listItem.setAttributeNode(document.createAttribute("flex"));
 
         icon.value = "delete";
@@ -246,7 +246,7 @@
       };
 
       var onCheckboxToggled = function (self, sourceName, sourceType, isChecked) {
-        var selectAll = self.$.select_all.querySelector("paper-checkbox");
+        var selectAll = self.$.select_all;
         var allEnabled = true
 
         if (isChecked) {
@@ -294,19 +294,35 @@
 
           if (this.currentType !== '' && this.sources !== null &&
               typeof this.sources[type] !== 'undefined') {
+            var allDisabled = true;
+            var allEnabled = true;
+
             for (i in this.sources[type].sources) {
               var source = this.sources[type].sources[i];
-              this.addSource(source.title, source.url, type, source.enabled);
+              this.addSource(i, source.title, source.url, type, source.enabled);
+              if (source.enabled) {
+                allDisabled = false;
+              } else {
+                allEnabled = false;
+              }
+            }
+
+            if (allEnabled) {
+              this.$.select_all.setAttribute('checked','');
+            } else
+            if (allDisabled) {
+              this.$.select_all.removeAttribute('checked');
             }
           }
         },
-        addSource: function (name, url, type, enabled) {
-          onAddSource(this, name, url, type, enabled);
+
+        addSource: function (name, title, url, type, enabled) {
+          onAddSource(this, name, title, url, type, enabled);
         },
+
         enableAllSources: function () {
-          var allCheckbox = this.$.select_all.querySelector("paper-checkbox");
           var checkboxes = this.$.sources.querySelectorAll("paper-checkbox");
-          var allEnabled = allCheckbox.getAttribute("checked") !== null;
+          var allEnabled = this.$.select_all.getAttribute("checked") !== null;
 
           for (var i = 0; i < checkboxes.length; i++) {
             var sourceEnabled = checkboxes[i].getAttribute("checked") !== null;
@@ -318,6 +334,7 @@
             }
           };
         },
+
         onNewSources: function () {
           this.sources = this.$.storage.sources;
           this.setSources(this.currentType);
@@ -327,20 +344,23 @@
               var source = this.sources[i].sources[j];
 
               this.fire("sourceadded", {
-                name: source.title,
+                name: j,
+                title: source.title,
                 url: source.url,
                 type: i
               });
 
               if (source.enabled === true) {
                 this.fire("sourceenabled", {
-                  name: source.title,
+                  name: j,
+                  title: source.title,
                   type: i
                 });
               }
             }
           }
         },
+
         onBackButtonClick: function () {
           this.fire('close');
 
@@ -349,10 +369,12 @@
           while (this.$.sources.hasChildNodes())
             this.$.sources.removeChild(this.$.sources.lastChild);
         },
+
         onAddClick: function () {
           this.$.panel_overlay.style.visibility = "visible";
           this.$.add_dialog.toggle();
         },
+
         onAddDoneClick: function () {
           var inputFields = this.$.add_dialog.querySelectorAll("paper-input-decorator");
           var valid = true;
@@ -363,11 +385,13 @@
             inputFields[i].isInvalid = !inputFields[i].querySelector("input").validity.valid;
 
             if (typeof this.sources[this.currentType].sources[name] !==
-                'undefined' && i === 0)
+                'undefined' && i === 0) {
               inputFields[i].isInvalid = true;
+            }
 
-            if (inputFields[i].isInvalid)
+            if (inputFields[i].isInvalid) {
               valid = false;
+            }
           }
 
           if (valid === true) {
@@ -400,6 +424,7 @@
             this.addSource(name, url, this.currentType, true);
           }
         },
+
         onAddCancelClick: function () {
           onAddDialogClose(this);
         }
