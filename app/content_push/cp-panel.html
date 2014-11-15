@@ -10,6 +10,7 @@
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
+<link rel="import" href="./cp-detail-article.html">
 <link rel="import" href="./cp-detail-file.html">
 <link rel="import" href="./cp-detail-image.html">
 <link rel="import" href="./cp-swapper.html">
@@ -155,6 +156,10 @@
         </cp-display>
       </div>
 
+      <cp-detail-article id="detailArticle" on-back="{{closeDetail}}"
+                         swapper-slide swap-id="detailarticle">
+      </cp-detail-article>
+
       <cp-detail-image id="detailImage" on-back="{{closeDetail}}"
                        swapper-slide swap-id="detailimage">
       </cp-detail-image>
@@ -277,6 +282,9 @@
           } else if (tile.type === 'file') {
             this.$.detailFile.showTile(tile);
             this.$.swapper.slideIn('detailfile');
+          } else if (tile.type === 'article') {
+            this.$.detailArticle.showTile(tile);
+            this.$.swapper.slideIn('detailarticle');
           }
         },
 
