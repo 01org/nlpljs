@@ -108,6 +108,18 @@
     }
   }
 
+  function saveSources(url, sources) {
+    currentItem[url] = sources;
+
+    chrome.storage.sync.set(currentItem, function() {
+      if (chrome.runtime.lastError) {
+        console.log('EP-SOURCES-STORAGE:error storing defaults:', chrome.runtime.lastError);
+      } else {
+        console.log('EP-SOURCES-STORAGE:sources saved successfully.');
+      }
+    });
+  }
+
   function dumpCurrentItem(url) {
     console.log('EP-SOURCES-STORAGE:Sources selection for:' + url);
     for (var key in currentItem[url]) {
@@ -146,20 +158,10 @@
 
         } else
         if (message.action === 'set') {
+          saveSources(url, message.data);
         } else {
           console.error(new Error('EP-SOURCES-STORAGE:unknown action:'+message.action));
-          var obj = {};
-          obj[url] = message.data;
-          chrome.storage.sync.set(obj, function() {
-            if (chrome.runtime.lastError) {
-              console.log('EP-SOURCES-STORAGE:error storing defaults:', chrome.runtime.lastError);
-            }
-          });
-          chrome.storage.sync.get(url, function(result) {
-            loadSources(url,result);
-          });
         }
-
       }
     });
   });

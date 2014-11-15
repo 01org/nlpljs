@@ -41,12 +41,12 @@
         /* at the moment we just fetch and aggregate via the
            cp-search-wikipedia component; returns a promise
            which resolves to an array of results or rejects with an error */
-        fetch: function (keyword, preferredService) {
+        fetch: function (keyword, preferredService, source) {
           var self = this;
 
           var query = keyword.text;
 
-          var source;
+          var service;
 
           console.log('searching for ' + query);
 
@@ -56,23 +56,25 @@
 
           switch (preferredService) {
             case "Google Image Search":
-              source = this.$.searchGoogleImages;
+              service = this.$.searchGoogleImages;
+              this.$.searchGoogleImages.sourceURL = source;
               break;
             case "Google Article Search":
-              source = this.$.searchGoogleArticles;
+              service = this.$.searchGoogleArticles;
+              this.$.searchGoogleImages.sourceURL = source;
               break;
             case "Wikipedia Image Search":
-              source = this.$.searchWikipedia;
+              service = this.$.searchWikipedia;
               break;
             case "Google Drive Search":
-              source = this.$.searchDrive;
+              service = this.$.searchDrive;
               break;
             default:
               console.warn("cp-fetcher: Unrecognized preferred service!");
               return Promise.resolve([]);
           }
 
-          return source.fetch(query).then(
+          return service.fetch(query).then(
             function (results) {
               var filteredResults = [];
 

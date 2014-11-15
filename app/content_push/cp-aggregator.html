@@ -17,13 +17,13 @@
         }
       };
 
-      var getResultsFromSource = function (self, searchTerm, source) {
-        self.$.fetcher.fetch(searchTerm, source).then(
+      var getResultsFromSource = function (self, searchTerm, service, source) {
+        self.$.fetcher.fetch(searchTerm, service, source).then(
           function (results) {
             logSearch(self);
 
             self.fire("receivedresults", {
-              source: source,
+              service: service,
               searchTerm: searchTerm,
               results: results
             });
@@ -33,7 +33,7 @@
             logSearch(self);
 
             self.fire("searchfailed", {
-              source: source,
+              service: service,
               searchTerm: searchTerm,
               error: err
             });
@@ -43,7 +43,8 @@
 
       Polymer({
         created: function () {
-          this.sources = [
+          this.sources = {};
+          this.services = [
             "Google Image Search",
             "Google Article Search",
             "Google Drive Search"
@@ -52,12 +53,67 @@
           this.pendingSearches = 0;
         },
 
+        addSource: function (type, name, url) {
+          if (typeof this.sources[type] === 'undefined')
+            this.sources[type] = { sources: {} };
+
+          this.sources[type].sources[name] = {
+            name: name,
+            url: url,
+            enabled: false
+          };
+
+          console.log("CP-AGGREGATOR: Added source: " + name + " " + url);
+        },
+
+        removeSource: function (type, name) {
+          delete this.sources[type].sources[name];
+
+          console.log("CP-AGGREGATOR: Removed source: " + name);
+        },
+
+        enableSource: function (type, name) {
+          this.sources[type].sources[name].enabled = true;
+
+          console.log("CP-AGGREGATOR: Enabled source: " + name);
+        },
+
+        disableSource: function (type, name) {
+          this.sources[type].sources[name].enabled = false;
+
+          console.log("CP-AGGREGATOR: Disabled source: " + name);
+        },
+
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            for (var j = 0; j < this.sources.length; j++) {
+            if (typeof this.sources["Images"] !== 'undefined') {
+              for (var j in this.sources["Images"].sources) {
+                if (this.sources["Images"].sources[j].enabled === true) {
+                  this.pendingSearches++;
+                  getResultsFromSource(this, searchTerms[i],
+                  this.services[0], this.sources["Images"].sources[j].url);
+                }
+              }
+            } else {
               this.pendingSearches++;
-              getResultsFromSource(this, searchTerms[i], this.sources[j]);
+              getResultsFromSource(this, searchTerms[i], this.services[0], '');
             }
+
+            if (typeof this.sources["Articles"] !== 'undefined') {
+              for (var j in this.sources["Articles"].sources) {
+                if (this.sources["Articles"].sources[j].enabled === true) {
+                  this.pendingSearches++;
+                  getResultsFromSource(this, searchTerms[i],
+                    this.services[1], this.sources["Articles"].sources[j].url);
+                }
+              }
+            } else {
+              this.pendingSearches++;
+              getResultsFromSource(this, searchTerms[i], this.services[1], '');
+            }
+
+            this.pendingSearches++;
+            getResultsFromSource(this, searchTerms[i], this.services[2]);
           }
         }
       });

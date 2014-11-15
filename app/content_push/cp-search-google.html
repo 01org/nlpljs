@@ -16,15 +16,13 @@ search using a Google custom search engine
         key: "AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE",
         cx: "010167764530769062315:196d4y__4ss",
 
-        /* only one type of licence can be specified at a time
-           (I discovered this through trial and error)... */
-        rights: "cc_publicdomain",
-
         /* search safe level */
         safe: 'high',
 
         /* search type: 'image' or 'article' */
         searchType: 'image',
+
+        sourceURL: '',
 
         created: function () {
           this.super();
@@ -45,9 +43,13 @@ search using a Google custom search engine
                     'cx=' + this.cx + '&' +
                     'safe=' + this.safe + '&' +
                     'num=' + MAX_RESULTS_PER_SEARCH + '&' +
-                    'rights=' + this.rights + '&' +
                     'start=' + start + '&' +
                     'q=%22' + query + '%22';
+
+          if (this.sourceURL !== '') {
+            url += '+site:' + this.sourceURL;
+            console.log(url);
+          }
 
           return new Promise(function (resolve, reject) {
             jsonp({

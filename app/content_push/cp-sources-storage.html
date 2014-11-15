@@ -38,14 +38,7 @@
           data: self.data
         };
 
-        chrome.runtime.sendMessage(self.$.globals.data.app_id, message, function(detail) {
-          if (chrome.runtime.lastError) {
-            var message = chrome.runtime.lastError.message;
-            console.log(new Error('CP-SOURCES-STORAGE:error in responseCallback:'+message));
-          } else {
-            console.log('CP-SOURCES-STORAGE:sendResponse invoked:', detail);
-          }
-        });
+        self.port.postMessage(message);
       }
 
       function epSourcesListener (self, detail) {
