@@ -38,7 +38,6 @@ pushing new tiles into the wrapped layout
       #scroller {
         width: 100%;
         height: 100%;
-        margin-bottom: 48px; /* for the slider */
       }
 
       #results {
@@ -90,31 +89,57 @@ pushing new tiles into the wrapped layout
       }
 
       paper-slider {
-        position: absolute;
-        bottom: 0;
         width: 100%;
         max-height: 48px;
         min-height: 48px;
         padding: 8px 0;
-        background-color: white;
         box-sizing: border-box;
       }
 
       /* slider colors (oh dear...) */
       /* bar */
       paper-slider::shadow #sliderBar::shadow #activeProgress {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
       }
 
       /* knob */
       paper-slider::shadow #sliderKnobInner {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
         border: none !important;
       }
 
       /* pin */
       paper-slider::shadow #sliderKnobInner::before {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
+      }
+
+      #slider_wrapper {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        align-items: center;
+        height: 48px;
+        background-color: #e6e6e6;
+        transition: height 0.2s linear 0.2s;
+      }
+
+      #slider_wrapper:hover {
+        height: 80px;
+      }
+
+      #label_wrapper {
+        width: 90%;
+        height: 32px;
+        margin-left: 5%;
+        margin-right: 5%;
+      }
+
+      #label_wrapper div {
+        color: gray;
+      }
+
+      .hide {
+        visibility: hidden;
       }
     </style>
 
@@ -154,10 +179,17 @@ pushing new tiles into the wrapped layout
         </cp-layout>
       </cp-scroll>
 
-      <!-- "widen the search" slider -->
-      <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
-                    on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
-      </paper-slider>
+      <div id="slider_wrapper" class="hide" vertical justified layout>
+        <!-- "widen the search" slider -->
+        <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
+                      on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
+        </paper-slider>
+
+        <div id="label_wrapper" horizontal justified layout>
+          <div>FOCUS</div>
+          <div>WANDER</div>
+        </div>
+      </div>
     </div>
   </template>
 
@@ -467,6 +499,8 @@ pushing new tiles into the wrapped layout
 
           this.$.waiting.classList.remove('fadein');
           this.$.waiting.classList.add('fadeout');
+
+          this.$.slider_wrapper.classList.remove('hide');
         },
 
         sliderChanged: function (e) {
