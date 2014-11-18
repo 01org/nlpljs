@@ -4,11 +4,13 @@
  * getToken() - initiate the process to get a token from Facebook
  *
  * message sent to content script:
+ * {
  *   component:'auth',
  *   type:'accesstoken',
  *   data: {
  *     token:token
  *   }
+ * }
  *
  * removeCachedToken(token): remove token from cache
  */
@@ -20,10 +22,10 @@ var epAuth = epAuth || {};
  *  component: ('auth'||...)
  */
 chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
+  console.log('EP-AUTH:got message:',message);
   var keepChannelOpen=false;
 
   if (message.component === 'auth') {
-    console.log('EP-AUTH:got message:',message);
     var service = message.service;
 
     if (epAuth.hasOwnProperty(service)) {

@@ -1,7 +1,7 @@
 {
   "name": "__MSG_appName__",
   "description": "__MSG_appDescription__",
-  "version": "0.0.1.5",
+  "version": "0.0.1.4",
   "manifest_version": 2,
   "minimum_chrome_version": "23",
   "default_locale": "en",
@@ -36,9 +36,10 @@
   },
   "background": {
     "scripts": [
-      "event_page/ep-main.js",
+      "event_page/ep-http.js",
       "event_page/ep-auth.js",
-      "event_page/ep-sources-storage.js"
+      "event_page/ep-sources-storage.js",
+      "event_page/ep-main.js"
     ],
     "persistent": false
   },

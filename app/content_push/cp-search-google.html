@@ -4,6 +4,10 @@ search using a Google custom search engine
 <link rel="import" href="./cp-search.html">
 <polymer-element name="cp-search-google" extends="cp-search"
                  attributes="searchType">
+  <template>
+    <cp-globals id="globals"></cp-globals>
+  </template>
+
   <script src="jsonp.js"></script>
   <script src="cp-thumbnailer.js"></script>
   <script>
@@ -26,6 +30,10 @@ search using a Google custom search engine
 
         created: function () {
           this.super();
+        },
+
+        domReady: function () {
+          this.appId = this.$.globals.data.app_id;
         },
 
         /* prepare results for query; returns a promise which resolves
@@ -52,12 +60,16 @@ search using a Google custom search engine
           }
 
           return new Promise(function (resolve, reject) {
-            jsonp({
-              url: url,
-              cb: function (response) {
-                self.handleResponse(resultSet, query, self.searchType, response)
-                .then(resolve, reject);
-              }
+            var message = {
+              component: 'http',
+              url: url
+            };
+
+            chrome.runtime.sendMessage(self.appId, message, function (response) {
+              self.handleResponse(resultSet, query, self.searchType, response)
+              .then(
+                resolve, reject
+              );
             });
           });
         },
@@ -84,8 +96,9 @@ search using a Google custom search engine
               resultSet.setExhausted();
             }
 
+            var data;
             for (var i = 0; i < response.items.length; i++) {
-              var data = response.items[i];
+              data = response.items[i];
               var result;
 
               if (searchType === 'image') {

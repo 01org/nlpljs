@@ -38,7 +38,9 @@
       }
     </style>
 
-    <div id="container" data-show="{{visibleTiles > 0}}"></div>
+    <div id="container" data-show="{{visibleTiles > 0}}"
+         data-total-tiles="{{totalTiles}}"
+         data-visible-tiles="{{visibleTiles}}"></div>
 
     <div id="loading" data-show="{{tilesLoading > 0}}">
       <template if="{{tilesLoading > 0}}">
@@ -251,6 +253,8 @@
           /* assume all tiles are hidden by default */
           var visibleTiles = 0;
 
+          var totalTiles = 0;
+
           var tiles = this.getAllTiles();
 
           /* convert tiles into shapes */
@@ -259,6 +263,8 @@
           var hideTile;
 
           for (var i = 0; i < tiles.length; i++) {
+            totalTiles++;
+
             var tile = tiles[i];
 
             hideTile = (this.filter && !this.filter(tile));
@@ -280,6 +286,7 @@
           }
 
           this.visibleTiles = visibleTiles;
+          this.totalTiles = totalTiles;
 
           var cellSide = this.offsetWidth / this.numColumns;
           this.setLayoutParams();
