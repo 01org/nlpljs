@@ -37,7 +37,8 @@ pushing new tiles into the wrapped layout
 
       #scroller {
         width: 100%;
-        height: 100%;
+        height: calc(100% - 48px);
+        transition: height 0.2s linear 0.2s;
       }
 
       #results {
@@ -179,7 +180,9 @@ pushing new tiles into the wrapped layout
         </cp-layout>
       </cp-scroll>
 
-      <div id="slider_wrapper" class="hide" vertical justified layout>
+      <div id="slider_wrapper" class="hide" vertical justified layout
+           on-mouseover="{{onSliderMouseOver}}"
+           on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
         <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
                       on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
@@ -335,6 +338,14 @@ pushing new tiles into the wrapped layout
             this.state = 'results';
             this.stopWaiting();
           }
+        },
+
+        onSliderMouseOver: function () {
+          this.$.scroller.style.height = "calc(100% - 80px)";
+        },
+
+        onSliderMouseOut: function () {
+          this.$.scroller.style.height = "calc(100% - 48px)";
         },
 
         /**
