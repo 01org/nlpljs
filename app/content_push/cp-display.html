@@ -37,8 +37,15 @@ pushing new tiles into the wrapped layout
 
       #scroller {
         width: 100%;
-        height: calc(100% - 32px);
         transition: height 0.2s linear 0.2s;
+      }
+
+      .full-size {
+        height: calc(100% - 32px);
+      }
+
+      .shrunk {
+        height: calc(100% - 64px);
       }
 
       #results {
@@ -172,7 +179,8 @@ pushing new tiles into the wrapped layout
       <!-- image display -->
       <cp-scroll id="scroller"
                  on-scrollend="{{onScrollerScrollend}}"
-                 data-show="{{state === 'results'}}">
+                 data-show="{{state === 'results'}}"
+                 class="full-size">
         <!-- results -->
         <cp-layout id="layout"
                    data-show="{{state === 'results'}}"
@@ -341,11 +349,13 @@ pushing new tiles into the wrapped layout
         },
 
         onSliderMouseOver: function () {
-          this.$.scroller.style.height = "calc(100% - 64px)";
+          this.$.scroller.classList.remove('full-size');
+          this.$.scroller.classList.add('shrunk');
         },
 
         onSliderMouseOut: function () {
-          this.$.scroller.style.height = "calc(100% - 32px)";
+          this.$.scroller.classList.remove('shrunk');
+          this.$.scroller.classList.add('full-size');
         },
 
         /**
