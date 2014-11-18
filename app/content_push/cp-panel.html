@@ -333,7 +333,7 @@
           var newKeywords =
             checkKeywordInfoChanged(this.activeKeywords, e.detail.keywordInfo);
 
-          this.activeKeywords = e.detail.keywordInfo.keywords;
+          this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
 
           /* if we have new keywords, run a fresh search */
           if (newKeywords.length > 0) {
