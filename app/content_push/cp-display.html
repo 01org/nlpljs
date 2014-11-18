@@ -37,7 +37,7 @@ pushing new tiles into the wrapped layout
 
       #scroller {
         width: 100%;
-        height: calc(100% - 48px);
+        height: calc(100% - 32px);
         transition: height 0.2s linear 0.2s;
       }
 
@@ -91,9 +91,9 @@ pushing new tiles into the wrapped layout
 
       paper-slider {
         width: 100%;
-        max-height: 48px;
-        min-height: 48px;
-        padding: 8px 0;
+        max-height: 32px;
+        min-height: 32px;
+        padding: 0 0 8px 0;
         box-sizing: border-box;
       }
 
@@ -119,13 +119,13 @@ pushing new tiles into the wrapped layout
         bottom: 0;
         width: 100%;
         align-items: center;
-        height: 48px;
+        height: 32px;
         background-color: #e6e6e6;
         transition: height 0.2s linear 0.2s;
       }
 
       #slider_wrapper:hover {
-        height: 80px;
+        height: 64px;
       }
 
       #label_wrapper {
@@ -341,11 +341,11 @@ pushing new tiles into the wrapped layout
         },
 
         onSliderMouseOver: function () {
-          this.$.scroller.style.height = "calc(100% - 80px)";
+          this.$.scroller.style.height = "calc(100% - 64px)";
         },
 
         onSliderMouseOut: function () {
-          this.$.scroller.style.height = "calc(100% - 48px)";
+          this.$.scroller.style.height = "calc(100% - 32px)";
         },
 
         /**
