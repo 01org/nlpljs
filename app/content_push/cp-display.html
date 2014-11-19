@@ -19,20 +19,13 @@ pushing new tiles into the wrapped layout
         position: relative;
       }
 
-      .fill {
-        width: 100%;
-        height: 100%;
+      #preresults p {
+        margin-bottom: 0;
       }
 
-      .message-area {
-        text-align: center;
-        width: 60%;
-        margin-left: 20%;
-        box-sizing: border-box;
-      }
-
-      #preresults {
-        padding-top: 3em;
+      #preresults-heading {
+        margin-top: 0;
+        margin-bottom: 10px;
       }
 
       #scroller {
@@ -40,28 +33,16 @@ pushing new tiles into the wrapped layout
         transition: height 0.2s linear 0.2s;
       }
 
-      .full-size {
-        height: calc(100% - 32px);
-      }
-
-      .shrunk {
-        height: calc(100% - 64px);
-      }
-
       #results {
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
-        height: 100%;
+        z-index: 500;
       }
 
       #waiting {
-        display: flex;
         background-color: white;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
         position: absolute;
         top: 0;
         left: 0;
@@ -80,6 +61,31 @@ pushing new tiles into the wrapped layout
       #waiting.fadeout {
         -webkit-animation-name: fadeout;
         animation-name: fadeout;
+      }
+
+      #slider_wrapper {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        align-items: center;
+        height: 32px;
+        background-color: #e6e6e6;
+        transition: height 0.2s linear 0.2s;
+      }
+
+      #slider_wrapper:hover {
+        height: 64px;
+      }
+
+      #label_wrapper {
+        width: 90%;
+        height: 32px;
+        margin-left: 5%;
+        margin-right: 5%;
+      }
+
+      #label_wrapper div {
+        color: gray;
       }
 
       @-webkit-keyframes fadein {
@@ -121,33 +127,49 @@ pushing new tiles into the wrapped layout
         background-color: #31e0ce !important;
       }
 
-      #slider_wrapper {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        align-items: center;
-        height: 32px;
-        background-color: #e6e6e6;
-        transition: height 0.2s linear 0.2s;
-      }
-
-      #slider_wrapper:hover {
-        height: 64px;
-      }
-
-      #label_wrapper {
-        width: 90%;
-        height: 32px;
-        margin-left: 5%;
-        margin-right: 5%;
-      }
-
-      #label_wrapper div {
-        color: gray;
-      }
-
       .hide {
         visibility: hidden;
+      }
+
+      .divider-top {
+        border-top: thin solid black;
+        padding-top: 20px;
+        margin-top: 10px;
+      }
+
+      .full-size {
+        height: calc(100% - 32px);
+      }
+
+      .shrunk {
+        height: calc(100% - 64px);
+      }
+
+      .vbox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .fill {
+        width: 100%;
+        height: 100%;
+      }
+
+      .message-area {
+        text-align: center;
+        width: 60%;
+        box-sizing: border-box;
+      }
+
+      [data-visible="false"] {
+        visibility: none;
+      }
+
+      [data-visible="true"] {
+        visibility: visible;
       }
     </style>
 
@@ -159,33 +181,45 @@ pushing new tiles into the wrapped layout
     -->
 
     <!-- never searched -->
-    <div id="preresults" class="message-area"
+    <div id="preresults" class="fill vbox"
          data-show="{{state === 'preresults'}}">
-      <p>Your related content should arrive shortly.</p>
-      <template if="{{state === 'preresults'}}">
-        <paper-spinner active></paper-spinner>
-      </template>
+      <div class="message-area">
+        <p>Welcome to</p>
+        <h2 id="preresults-heading">Content Push</h2>
+        <p class="divider-top">Start writing and we'll find content for you</p>
+      </div>
     </div>
 
-    <!-- after results are found -->
-    <div id="results" class="fill">
-      <!-- full page loader; can overlay image display -->
-      <div id="waiting" class="fill" data-show="{{waiting && state !== 'preresults'}}">
+    <!-- no results -->
+    <div id="noresults" class="fill vbox"
+         data-show="{{!waiting && state === 'noresults'}}">
+      <div class="message-area">
+        <p>Sorry, we couldn't find good results</p>
+        <p class="divider-top">You could try writing a little more</p>
+      </div>
+    </div>
+
+    <!-- full page loader; can overlay image display -->
+    <div id="waiting" class="fill vbox"
+         data-show="{{waiting && state !== 'preresults'}}">
+      <div class="message-area">
+        <p>Your content is on the way...</p>
         <template if="{{waiting && state !== 'preresults'}}">
           <paper-spinner active></paper-spinner>
         </template>
       </div>
+    </div>
 
-      <!-- image display -->
+    <!-- after results are found -->
+    <div id="results" class="fill">
+      <!-- image display (results) -->
       <cp-scroll id="scroller"
                  on-scrollend="{{onScrollerScrollend}}"
-                 data-show="{{state === 'results'}}"
+                 data-visible="{{state === 'results'}}"
                  class="full-size">
         <!-- results -->
-        <cp-layout id="layout"
-                   data-show="{{state === 'results'}}"
-                   on-layout="{{onLayoutLayout}}">
-        </cp-layout>
+        <cp-layout id="layout" on-layout="{{checkResultState}}"
+                   data-visible="{{state === 'results'}}"></cp-layout>
       </cp-scroll>
 
       <div id="slider_wrapper" class="hide" vertical justified layout
@@ -210,7 +244,7 @@ pushing new tiles into the wrapped layout
   <script>
     (function () {
       Polymer({
-        /* state of the results; 'preresults' or 'results' */
+        /* state of the results; 'preresults', 'noresults' or 'results' */
         state: 'preresults',
 
         /* whether we are waiting for a tile to load or not */
@@ -341,10 +375,12 @@ pushing new tiles into the wrapped layout
 
         /* when a layout happens, check whether any tiles are visible
            and stop waiting indicator if they are */
-        onLayoutLayout: function () {
+        checkResultState: function () {
           if (this.$.layout.getCountVisibleTiles() > 0) {
             this.state = 'results';
             this.stopWaiting();
+          } else if (!this.waiting && this.$.layout.tilesLoading < 1) {
+            this.state = 'noresults';
           }
         },
 
@@ -391,7 +427,7 @@ pushing new tiles into the wrapped layout
           this.addTile(tile, image.keyword);
         },
 
-        /**
+        /**15px
         * Convenience method to append a file tile to the
         * gallery; creates a cp-tile-file element for the file
         * object added.
@@ -494,7 +530,8 @@ pushing new tiles into the wrapped layout
           }, CP_CONSTANTS.TIMEOUT);
         },
 
-        /* immediately fade out the waiting overlay */
+        /* immediately fade out the waiting overlay; show noresults
+           if there are no results */
         stopWaiting: function () {
           var self = this;
 

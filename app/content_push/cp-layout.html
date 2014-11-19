@@ -26,13 +26,6 @@
         padding-top: 2em;
       }
 
-      #noresults {
-        width: 100%;
-        overflow: hidden;
-        padding-top: 2em;
-        text-align: center;
-      }
-
       [data-show="false"] {
         display: none !important;
       }
@@ -46,11 +39,6 @@
       <template if="{{tilesLoading > 0}}">
         <paper-spinner active></paper-spinner>
       </template>
-    </div>
-
-    <!-- no results -->
-    <div id="noresults" data-show="{{visibleTiles < 1 && !pending}}">
-      No results available
     </div>
   </template>
 
