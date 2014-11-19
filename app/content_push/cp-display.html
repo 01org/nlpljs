@@ -37,8 +37,15 @@ pushing new tiles into the wrapped layout
 
       #scroller {
         width: 100%;
-        height: 100%;
-        margin-bottom: 48px; /* for the slider */
+        transition: height 0.2s linear 0.2s;
+      }
+
+      .full-size {
+        height: calc(100% - 32px);
+      }
+
+      .shrunk {
+        height: calc(100% - 64px);
       }
 
       #results {
@@ -90,31 +97,57 @@ pushing new tiles into the wrapped layout
       }
 
       paper-slider {
-        position: absolute;
-        bottom: 0;
         width: 100%;
-        max-height: 48px;
-        min-height: 48px;
-        padding: 8px 0;
-        background-color: white;
+        max-height: 32px;
+        min-height: 32px;
+        padding: 0 0 8px 0;
         box-sizing: border-box;
       }
 
       /* slider colors (oh dear...) */
       /* bar */
       paper-slider::shadow #sliderBar::shadow #activeProgress {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
       }
 
       /* knob */
       paper-slider::shadow #sliderKnobInner {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
         border: none !important;
       }
 
       /* pin */
       paper-slider::shadow #sliderKnobInner::before {
-        background-color: #0f9d58 !important;
+        background-color: #31e0ce !important;
+      }
+
+      #slider_wrapper {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        align-items: center;
+        height: 32px;
+        background-color: #e6e6e6;
+        transition: height 0.2s linear 0.2s;
+      }
+
+      #slider_wrapper:hover {
+        height: 64px;
+      }
+
+      #label_wrapper {
+        width: 90%;
+        height: 32px;
+        margin-left: 5%;
+        margin-right: 5%;
+      }
+
+      #label_wrapper div {
+        color: gray;
+      }
+
+      .hide {
+        visibility: hidden;
       }
     </style>
 
@@ -146,7 +179,8 @@ pushing new tiles into the wrapped layout
       <!-- image display -->
       <cp-scroll id="scroller"
                  on-scrollend="{{onScrollerScrollend}}"
-                 data-show="{{state === 'results'}}">
+                 data-show="{{state === 'results'}}"
+                 class="full-size">
         <!-- results -->
         <cp-layout id="layout"
                    data-show="{{state === 'results'}}"
@@ -154,10 +188,19 @@ pushing new tiles into the wrapped layout
         </cp-layout>
       </cp-scroll>
 
-      <!-- "widen the search" slider -->
-      <paper-slider id="slider" min="1" max="100" value="50" pin step="1"
-                    on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
-      </paper-slider>
+      <div id="slider_wrapper" class="hide" vertical justified layout
+           on-mouseover="{{onSliderMouseOver}}"
+           on-mouseout="{{onSliderMouseOut}}">
+        <!-- "widen the search" slider -->
+        <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
+                      on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
+        </paper-slider>
+
+        <div id="label_wrapper" horizontal justified layout>
+          <div>FOCUS</div>
+          <div>WANDER</div>
+        </div>
+      </div>
     </div>
   </template>
 
@@ -303,6 +346,16 @@ pushing new tiles into the wrapped layout
             this.state = 'results';
             this.stopWaiting();
           }
+        },
+
+        onSliderMouseOver: function () {
+          this.$.scroller.classList.remove('full-size');
+          this.$.scroller.classList.add('shrunk');
+        },
+
+        onSliderMouseOut: function () {
+          this.$.scroller.classList.remove('shrunk');
+          this.$.scroller.classList.add('full-size');
         },
 
         /**
@@ -467,6 +520,8 @@ pushing new tiles into the wrapped layout
 
           this.$.waiting.classList.remove('fadein');
           this.$.waiting.classList.add('fadeout');
+
+          this.$.slider_wrapper.classList.remove('hide');
         },
 
         sliderChanged: function (e) {
