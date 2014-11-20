@@ -38,7 +38,7 @@ search using a Google custom search engine
 
         /* prepare results for query; returns a promise which resolves
            to a ResultSet for the query */
-        searchImpl: function (resultSet, query) {
+        searchImpl: function (resultSet, query, sourceURL) {
           var self = this;
 
           /* Google image results count from 1, whereas resultSet
@@ -54,10 +54,15 @@ search using a Google custom search engine
                     'start=' + start + '&' +
                     'q=%22' + query + '%22';
 
-          if (this.sourceURL !== '') {
-            url += '+site:' + this.sourceURL;
-            console.log(url);
+          if (sourceURL !== '') {
+            url += '&';
+
+            // 'i' => include results from the specified site
+            url += 'siteSearchFilter=i&' +
+                   'siteSearch=' + encodeURIComponent(sourceURL);
           }
+
+          console.log(url);
 
           return new Promise(function (resolve, reject) {
             var message = {

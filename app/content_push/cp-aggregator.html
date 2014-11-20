@@ -17,8 +17,8 @@
         }
       };
 
-      var getResultsFromSource = function (self, searchTerm, service, source) {
-        self.$.fetcher.fetch(searchTerm, service, source).then(
+      var getResultsFromSource = function (self, searchTerm, service, sourceURL) {
+        self.$.fetcher.fetch(searchTerm, service, sourceURL).then(
           function (results) {
             logSearch(self);
 

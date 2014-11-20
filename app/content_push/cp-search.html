@@ -21,17 +21,18 @@ for an example)
         /* does the book-keeping for tracking result sets per query;
            searchImpl() is called inside here, and should set the
            offset on the ResultSet so that searches can be paged */
-        search: function (query) {
+        search: function (query, sourceURL) {
           var self = this;
+          var key = query + (sourceURL || '');
 
           // have we searched for this before?
-          var resultSet = this.queries[query] || new ResultSet(query);
+          var resultSet = this.queries[key] || new ResultSet(key);
 
-          var promise = this.searchImpl(resultSet, query);
+          var promise = this.searchImpl(resultSet, query, sourceURL);
 
           return promise.then(
             function (resultSet) {
-              self.queries[query] = resultSet;
+              self.queries[key] = resultSet;
               return Promise.resolve(resultSet)
             },
 
@@ -47,12 +48,13 @@ for an example)
         if results aren't available, performs a search first then returns
         results from that
         */
-        fetch: function (query) {
+        fetch: function (query, sourceURL) {
           var promise;
           var results;
+          var key = query + (sourceURL || '');
 
           var resultsPerFetch = this.resultsPerFetch;
-          var resultSet = this.queries[query];
+          var resultSet = this.queries[key];
 
           if (resultSet) {
             if (resultSet.isExhausted) {
@@ -67,7 +69,7 @@ for an example)
 
           if (!promise || !promise.resolved) {
             /* get more results */
-            promise = this.search(query).then(
+            promise = this.search(query, sourceURL).then(
               function (resultSet) {
                 results = resultSet.fetch(resultsPerFetch);
                 return Promise.resolve(results);

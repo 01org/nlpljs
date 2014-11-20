@@ -38,10 +38,9 @@
         // number of results to fetch per call to the fetch() method
         resultsPerFetch: 5,
 
-        /* at the moment we just fetch and aggregate via the
-           cp-search-wikipedia component; returns a promise
-           which resolves to an array of results or rejects with an error */
-        fetch: function (keyword, preferredService, source) {
+        /* returns a promise which resolves to an array of results or
+           rejects with an error */
+        fetch: function (keyword, preferredService, sourceURL) {
           var self = this;
 
           var query = keyword.text;
@@ -57,11 +56,9 @@
           switch (preferredService) {
             case "Google Image Search":
               service = this.$.searchGoogleImages;
-              this.$.searchGoogleImages.sourceURL = source;
               break;
             case "Google Article Search":
               service = this.$.searchGoogleArticles;
-              this.$.searchGoogleImages.sourceURL = source;
               break;
             case "Wikipedia Image Search":
               service = this.$.searchWikipedia;
@@ -74,7 +71,7 @@
               return Promise.resolve([]);
           }
 
-          return service.fetch(query).then(
+          return service.fetch(query, sourceURL).then(
             function (results) {
               var filteredResults = [];
 
