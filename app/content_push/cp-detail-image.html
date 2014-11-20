@@ -47,7 +47,9 @@
         {{width}}x{{height}}
       </h4>
 
-      <h4 id="imgSource" data-show="{{source}}">{{source|domainFromURL}}</h4>
+      <h4 id="imgSource" data-show="{{sourceName || source}}">
+        {{sourceName || source|domainFromURL}}
+      </h4>
 
       <div id="visitSrc" data-show="{{source}}">
         <paper-button raised class="colored" on-click="{{visitWebpage}}"
@@ -173,6 +175,7 @@
           this.src = tile.image.src;
           this.caption = tile.image.caption;
           this.source = tile.image.source;
+          this.sourceName = tile.image.sourceName;
           this.meta = tile.image.meta;
           this.width = tile.image.width;
           this.height = tile.image.height;

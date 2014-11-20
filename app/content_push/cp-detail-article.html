@@ -30,7 +30,7 @@
       </h3>
 
       <h4 id="articleSource" data-show="{{source}}">
-        {{source|domainFromURL}}
+        {{sourceName || source|domainFromURL}}
       </h4>
 
       <div id="visitSrc" data-show="{{source}}">
@@ -60,6 +60,9 @@
 
         /* where the file came from */
         source: null,
+
+        /* name of the source */
+        sourceName: null,
 
         /* extract from the article */
         snippet: null,
@@ -97,6 +100,7 @@
           this.src = tile.article.src;
           this.caption = tile.article.caption;
           this.source = tile.article.source;
+          this.sourceName = tile.article.sourceName;
           this.snippet = tile.article.snippet;
         },
 

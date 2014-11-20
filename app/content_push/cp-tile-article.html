@@ -82,7 +82,7 @@ tile for a general web page (article)
           </h3>
 
           <div id="meta">
-            <p id="source">{{getSourceName()}}</p>
+            <p id="source">{{sourceName || source|domainFromURL}}</p>
           </div>
         </div>
       </div>
@@ -144,13 +144,7 @@ tile for a general web page (article)
           this.done = true;
         },
 
-        getSourceName: function () {
-          if (this.sourceName) {
-            return this.sourceName;
-          } else {
-            return Formatter.domainFromURL(this.source);
-          }
-        },
+        domainFromURL: Formatter.domainFromURL,
 
         stripHTMLTags: Formatter.stripHTMLTags
       });
