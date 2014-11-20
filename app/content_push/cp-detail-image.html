@@ -53,7 +53,7 @@
 
       <div id="visitSrc" data-show="{{source}}">
         <paper-button raised class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{source}}">
+                      data-source-link="{{contextLink}}">
           Visit web page &gt;
         </paper-button>
       </div>
@@ -167,7 +167,7 @@
 
         visitWebpage: function () {
           if (this.source) {
-            window.open(this.source, '_blank');
+            window.open(this.contextLink, '_blank');
           }
         },
 
@@ -176,6 +176,7 @@
           this.caption = tile.image.caption;
           this.source = tile.image.source;
           this.sourceName = tile.image.sourceName;
+          this.contextLink = tile.image.contextLink;
           this.meta = tile.image.meta;
           this.width = tile.image.width;
           this.height = tile.image.height;
