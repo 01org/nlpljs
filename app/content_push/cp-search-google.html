@@ -62,7 +62,7 @@ search using a Google custom search engine
                    'siteSearch=' + encodeURIComponent(sourceURL);
           }
 
-          console.log(url);
+          console.log('CP-SEARCH-GOOGLE: requesting URL ' + url);
 
           return new Promise(function (resolve, reject) {
             var message = {
@@ -118,6 +118,7 @@ search using a Google custom search engine
                   height: data.image.height,
                   type: searchType,
                   source: data.link,
+                  contextLink: data.image.contextLink,
                   meta: {
                     ExifVersion: (meta.ExifVersion ?
                                       meta.ExifVersion.value : null),
