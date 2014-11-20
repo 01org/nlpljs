@@ -186,9 +186,10 @@
         var allDisabled = true;
         var allEnabled = true;
 
-        if (self.currentType !== '' && self.sources !== null &&
-            typeof self.sources[type] !== 'undefined') {
-          for (i in self.sources[type].sources) {
+        if (self.currentType !== '' && self.sources !== null) {
+          var sourceGroup = self.getSourceGroup(type);
+
+          for (var i in sourceGroup.sources) {
             var source = self.sources[type].sources[i];
 
             if (source.enabled) {
@@ -307,13 +308,26 @@
 
         currentType: '',
 
+        getSourceGroup: function (type) {
+          if (!this.sources[type]) {
+            this.sources[type] = {
+              enabled: true,
+              sources: {},
+              title: type
+            };
+          }
+
+          return this.sources[type];
+        },
+
         setSources: function (type) {
           this.$.headertext.innerText = type;
           this.currentType = type;
 
-          if (this.currentType !== '' && this.sources !== null &&
-              typeof this.sources[type] !== 'undefined') {
-            for (i in this.sources[type].sources) {
+          if (this.currentType !== '' && this.sources !== null) {
+            var sourceGroup = this.getSourceGroup(type);
+
+            for (i in sourceGroup.sources) {
               var source = this.sources[type].sources[i];
 
               this.addSource(i, source.title, source.url, type, source.enabled);
@@ -391,8 +405,9 @@
           for (var i = 0; i < inputFields.length; i++) {
             inputFields[i].isInvalid = !inputFields[i].querySelector("input").validity.valid;
 
-            if (typeof this.sources[this.currentType].sources[name] !==
-                'undefined' && i === 0) {
+            var sourceGroup = this.getSourceGroup(this.currentType);
+
+            if (sourceGroup.sources[name] && i === 0) {
               inputFields[i].isInvalid = true;
             }
 
@@ -406,7 +421,9 @@
 
             onAddDialogClose(this);
 
-            if (typeof this.sources[this.currentType] === "undefined") {
+            var sourceGroup = this.getSourceGroup(this.currentType);
+
+            if (sourceGroup) {
               this.sources[this.currentType] = {
                 enabled: true,
                 sources: {},
