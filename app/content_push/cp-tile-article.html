@@ -68,11 +68,14 @@ tile for a general web page (article)
 
     <div id="container">
       <div horizontal layout fit>
-        <div id="image" class="left" data-show="{{src !== null}}">
-          <img src="{{src}}">
+        <div id="image" class="left"
+             data-show="{{src !== null && imageHasLoaded}}">
+          <img src="{{src}}" on-load="{{imageLoaded}}"
+               on-error="{{imageError}}">
         </div>
 
-        <div id="text" class="{{src === null ? '' : 'right'}}">
+        <div id="text"
+             class="{{src === null || !imageHasLoaded ? '' : 'right'}}">
           <h2 id="caption" class="text-elide">
             {{caption|stripHTMLTags}}
           </h2>
@@ -135,13 +138,52 @@ tile for a general web page (article)
           /* always use the landscape frame */
           this.frame = FrameChooser.FRAMES['landscape1'];
 
-          /* we always set loaded to true, so that article tiles are
-             loaded into cp-display regardless of whether their related
-             thumbnail loads */
-          this.loaded = true;
+          /* set to true once the image loads, which enables the
+             image part of the tile to be shown */
+          this.imageHasLoaded = false;
 
-          /* article tiles are always ready */
+          /* set to true once the image has either loaded or not;
+             this must be true otherwise the tile won't display at all */
+          this.loaded = false;
+
+          /* article tiles are ready regardless of whether the image
+             loads; we just change how they look if it doesn't */
+          this.done = false;
+        },
+
+        srcChanged: function () {
+          var self = this;
+
+          this.loaded = false;
+          this.imageLoaded = false;
+
+          /* fire a "done" event, even if the image times out */
+          setTimeout(function () {
+            if (!self.loaded) {
+              self.done = true;
+              self.fire('done');
+            }
+          }, CP_CONSTANTS.TIMEOUT);
+        },
+
+        imageLoaded: function () {
+          this.imageHasLoaded = true;
+          this.loaded = true;
           this.done = true;
+          this.fire('done', this);
+        },
+
+        /* image failed to load for whatever reason */
+        imageError: function (e) {
+          this.imageHasLoaded = false;
+
+          /* we still mark the tile as "loaded" so it will display */
+          this.loaded = true;
+          this.done = true;
+          this.fire('done', this);
+
+          /* notify the error, in case anyone cares */
+          this.fire('error', e);
         },
 
         domainFromURL: Formatter.domainFromURL,
