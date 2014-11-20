@@ -423,6 +423,7 @@ pushing new tiles into the wrapped layout
           tile.src = image.thumbnailSrc;
           tile.width = image.width;
           tile.height = image.height;
+          tile.sourceName = image.sourceName;
           tile.image = image;
 
           this.addTile(tile, image.keyword);
@@ -457,6 +458,7 @@ pushing new tiles into the wrapped layout
           tile.caption = file.caption;
           tile.createdDate = file.createdDate;
           tile.service = file.service;
+          tile.sourceName = file.sourceName;
           tile.file = file;
 
           this.addTile(tile, file.keyword);
@@ -493,6 +495,7 @@ pushing new tiles into the wrapped layout
           tile.caption = article.caption;
           tile.source = article.source;
           tile.snippet = article.snippet;
+          tile.sourceName = article.sourceName;
           tile.article = article;
 
           this.addTile(tile, article.keyword);

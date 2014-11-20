@@ -82,7 +82,7 @@ tile for a general web page (article)
           </h3>
 
           <div id="meta">
-            <p id="source">{{source|domainFromURL}}</p>
+            <p id="source">{{getSourceName()}}</p>
           </div>
         </div>
       </div>
@@ -110,6 +110,10 @@ tile for a general web page (article)
 
           /* source */
           this.source = null;
+
+          /* source name; if not set, defaults to the domain of
+             the source attribute */
+          this.sourceName = null;
 
           /* the original data used to construct the tile, as
              returned by a file search */
@@ -140,7 +144,13 @@ tile for a general web page (article)
           this.done = true;
         },
 
-        domainFromURL: Formatter.domainFromURL,
+        getSourceName: function () {
+          if (this.sourceName) {
+            return this.sourceName;
+          } else {
+            return Formatter.domainFromURL(this.source);
+          }
+        },
 
         stripHTMLTags: Formatter.stripHTMLTags
       });
