@@ -22,7 +22,8 @@
           </template>
         </div>
 
-        <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+        <img id="image" src="{{src}}" on-error="{{onImageError}}"
+             on-load="{{onImageLoad}}" data-show="{{imageHasLoaded}}">
       </div>
 
       <h3 id="caption" data-show="{{caption}}">
@@ -69,6 +70,7 @@
 
         created: function () {
           this.loaded = false;
+          this.imageHasLoaded = false;
         },
 
         stripHTMLTags: Formatter.stripHTMLTags,
@@ -79,6 +81,7 @@
           var self = this;
 
           this.loaded = false;
+          this.imageHasLoaded = false;
 
           /* if the image never loads, record the component as ready
              anyway, to ensure that it will display */
@@ -89,6 +92,13 @@
 
         onImageLoad: function () {
           this.loaded = true;
+          this.imageHasLoaded = true;
+          this.fire('done');
+        },
+
+        onImageError: function () {
+          this.loaded = true;
+          this.imageHasLoaded = false;
           this.fire('done');
         },
 
