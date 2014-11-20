@@ -17,13 +17,17 @@
         }
       };
 
-      var getResultsFromSource = function (self, searchTerm, service, sourceURL) {
+      var getResultsFromSource = function (self, searchTerm, service, sourceURL, sourceName) {
         self.$.fetcher.fetch(searchTerm, service, sourceURL).then(
           function (results) {
             logSearch(self);
 
+            /* add source name to each result */
+            for (var i = 0; i < results.length; i++) {
+              results[i].sourceName = sourceName;
+            }
+
             self.fire("receivedresults", {
-              service: service,
               searchTerm: searchTerm,
               results: results
             });
@@ -33,7 +37,6 @@
             logSearch(self);
 
             self.fire("searchfailed", {
-              service: service,
               searchTerm: searchTerm,
               error: err
             });
@@ -86,30 +89,42 @@
 
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            if (typeof this.sources["Images"] !== 'undefined') {
-              for (var j in this.sources["Images"].sources) {
-                if (this.sources["Images"].sources[j].enabled === true) {
+            if (typeof this.sources['Images'] !== 'undefined') {
+              for (var j in this.sources['Images'].sources) {
+                if (this.sources['Images'].sources[j].enabled === true) {
                   this.pendingSearches++;
-                  getResultsFromSource(this, searchTerms[i],
-                  this.services[0], this.sources["Images"].sources[j].url);
+
+                  getResultsFromSource(
+                    this,
+                    searchTerms[i],
+                    this.services[0],
+                    this.sources['Images'].sources[j].url,
+                    this.sources['Images'].sources[j].name
+                  );
                 }
               }
             } else {
               this.pendingSearches++;
-              getResultsFromSource(this, searchTerms[i], this.services[0], '');
+              getResultsFromSource(this, searchTerms[i], this.services[0]);
             }
 
             if (typeof this.sources["Articles"] !== 'undefined') {
               for (var j in this.sources["Articles"].sources) {
                 if (this.sources["Articles"].sources[j].enabled === true) {
                   this.pendingSearches++;
-                  getResultsFromSource(this, searchTerms[i],
-                    this.services[1], this.sources["Articles"].sources[j].url);
+
+                  getResultsFromSource(
+                    this,
+                    searchTerms[i],
+                    this.services[1],
+                    this.sources['Articles'].sources[j].url,
+                    this.sources['Articles'].sources[j].name
+                  );
                 }
               }
             } else {
               this.pendingSearches++;
-              getResultsFromSource(this, searchTerms[i], this.services[1], '');
+              getResultsFromSource(this, searchTerms[i], this.services[1]);
             }
 
             this.pendingSearches++;
