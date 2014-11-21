@@ -69,13 +69,13 @@ tile for a general web page (article)
     <div id="container">
       <div horizontal layout fit>
         <div id="image" class="left"
-             data-show="{{src !== null && imageHasLoaded}}">
-          <img src="{{src}}" on-load="{{imageLoaded}}"
-               on-error="{{imageError}}">
+             data-show="{{src !== null && imageLoaded}}">
+          <img src="{{src}}" on-load="{{onImageLoaded}}"
+               on-error="{{onImageError}}">
         </div>
 
         <div id="text"
-             class="{{src === null || !imageHasLoaded ? '' : 'right'}}">
+             class="{{src === null || !imageLoaded ? '' : 'right'}}">
           <h2 id="caption" class="text-elide">
             {{caption|stripHTMLTags}}
           </h2>
@@ -140,7 +140,7 @@ tile for a general web page (article)
 
           /* set to true once the image loads, which enables the
              image part of the tile to be shown */
-          this.imageHasLoaded = false;
+          this.imageLoaded = false;
 
           /* set to true once the image has either loaded or not;
              this must be true otherwise the tile won't display at all */
@@ -166,16 +166,16 @@ tile for a general web page (article)
           }, CP_CONSTANTS.TIMEOUT);
         },
 
-        imageLoaded: function () {
-          this.imageHasLoaded = true;
+        onImageLoaded: function () {
+          this.imageLoaded = true;
           this.loaded = true;
           this.done = true;
           this.fire('done', this);
         },
 
         /* image failed to load for whatever reason */
-        imageError: function (e) {
-          this.imageHasLoaded = false;
+        onImageError: function (e) {
+          this.imageLoaded = false;
 
           /* we still mark the tile as "loaded" so it will display */
           this.loaded = true;

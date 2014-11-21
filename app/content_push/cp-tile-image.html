@@ -32,7 +32,7 @@ size
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
-      <img id="image" src="{{src}}" on-load="{{imageLoaded}}" on-error="{{imageError}}">
+      <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
         {{width}}x{{height}}
@@ -132,14 +132,14 @@ size
         },
 
         // set metadata for the image once it's loaded
-        imageLoaded: function () {
+        onImageLoaded: function () {
           this.loaded = true;
           this.done = true;
           this.fire('done', this);
         },
 
         // image failed to load for whatever reason
-        imageError: function (e) {
+        onImageError: function (e) {
           this.loaded = false;
           this.done = true;
           this.fire('done', this);
