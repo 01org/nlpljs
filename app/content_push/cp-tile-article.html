@@ -6,25 +6,13 @@ tile for a general web page (article)
     <link rel="stylesheet" href="styles/cp-tile.css">
 
     <style>
-      h2 {
-        font-size: 1.2em;
-      }
-
-      h3 {
-        font-size: 0.875em;
-      }
-
-      p {
-        font-size: 0.42em;
-      }
-
       #text {
         height: 100%;
         width: 100%;
       }
 
       #text > * {
-        margin: 0 8px;
+        margin: 0 12px;
       }
 
       #image {
@@ -80,12 +68,14 @@ tile for a general web page (article)
             {{caption|stripHTMLTags}}
           </h2>
 
-          <h3 id="snippet" class="text-elide">
+          <p id="snippet" class="text-elide">
             {{snippet|stripHTMLTags}}
-          </h3>
+          </p>
 
           <div id="meta">
-            <p id="source">{{sourceName || source|domainFromURL}}</p>
+            <p id="source" class="small">
+              {{sourceName || source|domainFromURL}}
+            </p>
           </div>
         </div>
       </div>
