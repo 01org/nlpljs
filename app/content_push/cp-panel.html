@@ -9,7 +9,7 @@
 <link rel="import" href="../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="../bower_components/core-icons/image-icons.html">
-<link rel="import" href="./cp-icons.html">
+<link rel="import" href="./cp-icons-svg.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-detail-article.html">
@@ -107,7 +107,7 @@
 
       #menu paper-item {
         font-size: 14px;
-        background-color: #fafafa;
+        /*background-color: #fafafa;*/
       }
 
       #menu paper-item::shadow #icon {
@@ -129,7 +129,7 @@
         <core-toolbar id="toolbar">
           <!-- items in this menu set the "types" part of the display filter -->
           <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
-            <paper-item icon="cp-icons:cp"
+            <paper-item icon="cp-icons:cp-icon"
                         label="Content Push"
                         data-type-filter="no-filter">
             </paper-item>
