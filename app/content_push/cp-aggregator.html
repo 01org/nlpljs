@@ -90,17 +90,20 @@
         applySourceChanges: function (changes, searchTerms) {
           for (var i = 0; i < changes.length; i++) {
             var sourceDetail = changes[i].detail;
+            var triggerSearch = false;
 
             switch (changes[i].type) {
               case "sourceadded":
                 this.addSource(sourceDetail.type, sourceDetail.name,
                                sourceDetail.url);
+                triggerSearch = true;
                 break;
               case "sourceremoved":
                 this.removeSource(sourceDetail.type, sourceDetail.name);
                 break;
               case "sourceenabled":
                 this.enableSource(sourceDetail.type, sourceDetail.name);
+                triggerSearch = true;
                 break;
               case "sourcedisabled":
                 this.disableSource(sourceDetail.type, sourceDetail.name);
@@ -108,13 +111,14 @@
             }
           }
 
-          if (changes.length > 0 && searchTerms !== null)
+          if (triggerSearch && searchTerms !== null)
             this.aggregate(searchTerms);
         },
 
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            if (typeof this.sources['Images'] !== 'undefined') {
+            if (typeof this.sources['Images'] !== 'undefined' &&
+                Object.keys(this.sources['Images']).length > 0) {
               for (var j in this.sources['Images'].sources) {
                 if (this.sources['Images'].sources[j].enabled === true) {
                   this.pendingSearches++;
@@ -133,7 +137,8 @@
               getResultsFromSource(this, searchTerms[i], this.services[0]);
             }
 
-            if (typeof this.sources["Articles"] !== 'undefined') {
+            if (typeof this.sources["Articles"] !== 'undefined' &&
+                Object.keys(this.sources['Articles']).length > 0) {
               for (var j in this.sources["Articles"].sources) {
                 if (this.sources["Articles"].sources[j].enabled === true) {
                   this.pendingSearches++;

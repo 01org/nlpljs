@@ -211,6 +211,10 @@
               allEnabled = false;
             }
           }
+
+          if (Object.keys(sourceGroup.sources).length === 0)
+            allEnabled = false;
+
         } else {
           allEnabled = false;
         }
@@ -344,8 +348,7 @@
           if (!this.sources[type]) {
             this.sources[type] = {
               enabled: true,
-              sources: {},
-              title: type
+              sources: {}
             };
           }
 

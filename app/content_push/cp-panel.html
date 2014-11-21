@@ -194,7 +194,8 @@
            and selected result types */
         self.$.display.setFilter({
           activeKeywords: self.activeKeywords,
-          types: self.typeFilter
+          types: self.typeFilter,
+          sources: self.$.aggregator.sources
         });
       };
 
@@ -248,7 +249,10 @@
           selector.addEventListener("sourcesedited", function (e) {
             var changes = e.detail;
 
-            aggregator.applySourceChanges(changes, self.activeKeywords);
+            if (changes.length > 0) {
+              aggregator.applySourceChanges(changes, self.activeKeywords);
+              setFilter(self);
+            }
           });
         },
 

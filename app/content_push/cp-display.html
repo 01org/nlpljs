@@ -290,6 +290,7 @@ pushing new tiles into the wrapped layout
           /* set the filter on the layout to the current keyphrase */
           this.$.layout.setFilter(function (tile) {
             var keywordMatches = false;
+
             for (var i = 0; i < tile.keywords.length; i++) {
               var index = keywords.indexOf(tile.keywords[i].text);
               if (index !== -1) {
@@ -300,6 +301,33 @@ pushing new tiles into the wrapped layout
 
             if (!keywordMatches) {
               return false;
+            }
+
+            if (tile.type === 'image') {
+              var imageSources = criteria.sources['Images'];
+
+              if (typeof imageSources !== 'undefined' &&
+                  Object.keys(imageSources).length > 0) {
+                var tileSource = imageSources.sources[tile.sourceName];
+
+                if (typeof tileSource === 'undefined' ||
+                    tileSource.enabled === false) {
+                  return false;
+                }
+              }
+            } else
+            if (tile.type === 'article') {
+              var articleSources = criteria.sources['Articles'];
+
+              if (typeof articleSources !== 'undefined' &&
+                  Object.keys(articleSources).length > 0) {
+                var tileSource = articleSources.sources[tile.sourceName];
+
+                if (typeof tileSource === 'undefined' ||
+                    tileSource.enabled === false) {
+                  return false;
+                }
+              }
             }
 
             var typeMatches;
