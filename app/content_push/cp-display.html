@@ -340,6 +340,17 @@ pushing new tiles into the wrapped layout
 
             return keywordMatches && typeMatches;
           });
+
+          if (keywords.length > 0 &&
+              this.$.slider_wrapper.classList.contains('hide')) {
+            this.$.slider_wrapper.classList.remove('hide');
+          } else
+          if (keywords.length <= 0 &&
+              !this.$.slider_wrapper.classList.contains('hide')) {
+            console.log('hiding');
+            this.state = 'noresults';
+            this.$.slider_wrapper.classList.add('hide');
+          }
         },
 
         /**
@@ -589,8 +600,6 @@ pushing new tiles into the wrapped layout
 
           this.$.waiting.classList.remove('fadein');
           this.$.waiting.classList.add('fadeout');
-
-          this.$.slider_wrapper.classList.remove('hide');
         },
 
         sliderChanged: function (e) {
