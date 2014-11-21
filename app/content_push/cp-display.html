@@ -24,8 +24,13 @@ pushing new tiles into the wrapped layout
       }
 
       #preresults-heading {
-        margin-top: 0;
-        margin-bottom: 10px;
+        margin-top: 2px;
+        margin-bottom: 18px;
+      }
+
+      #preresults-welcome {
+        margin-top: 26px;
+        font-size: 14px;
       }
 
       #scroller {
@@ -132,8 +137,9 @@ pushing new tiles into the wrapped layout
 
       .divider-top {
         border-top: thin solid black;
-        padding-top: 20px;
+        padding-top: 16px;
         margin-top: 10px;
+        font-size: 14px;
       }
 
       .full-size {
@@ -185,7 +191,7 @@ pushing new tiles into the wrapped layout
          data-show="{{state === 'preresults'}}">
       <div class="message-area">
         <div><img src="../images/CP_Icon_large.png"></div>
-        <p>Welcome to</p>
+        <p id="preresults-welcome">Welcome to</p>
         <h2 id="preresults-heading">Content Push</h2>
         <p class="divider-top">Start writing and we'll find content for you</p>
       </div>
