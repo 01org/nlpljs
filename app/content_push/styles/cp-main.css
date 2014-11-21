@@ -52,3 +52,17 @@
 :host /deep/ core-icon[aria-label="add"] {
   position: absolute !important;
 }
+
+:host /deep/ p {
+  font-size: 14px;
+}
+
+:host /deep/ h2 {
+  font-size: 24px;
+}
+
+:host /deep/ h2,
+:host /deep/ h3,
+:host /deep/ h4 {
+  font-weight: normal;
+}
