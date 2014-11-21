@@ -94,7 +94,7 @@
         editSourcesFor: function (e) {
           var elt = e.toElement;
 
-          this.$.selector.setSources(elt.getAttribute("label"));
+          this.$.selector.setGroup(elt.getAttribute("label"));
           this.$.swapper.slideIn('selector');
         },
         closeSelector: function () {

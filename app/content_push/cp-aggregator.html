@@ -87,6 +87,31 @@
           console.log("CP-AGGREGATOR: Disabled source: " + name);
         },
 
+        applySourceChanges: function (changes, searchTerms) {
+          for (var i = 0; i < changes.length; i++) {
+            var sourceDetail = changes[i].detail;
+
+            switch (changes[i].type) {
+              case "sourceadded":
+                this.addSource(sourceDetail.type, sourceDetail.name,
+                               sourceDetail.url);
+                break;
+              case "sourceremoved":
+                this.removeSource(sourceDetail.type, sourceDetail.name);
+                break;
+              case "sourceenabled":
+                this.enableSource(sourceDetail.type, sourceDetail.name);
+                break;
+              case "sourcedisabled":
+                this.disableSource(sourceDetail.type, sourceDetail.name);
+                break;
+            }
+          }
+
+          if (changes.length > 0 && searchTerms !== null)
+            this.aggregate(searchTerms);
+        },
+
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
             if (typeof this.sources['Images'] !== 'undefined') {
