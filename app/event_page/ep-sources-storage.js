@@ -74,6 +74,16 @@
           enabled: false
         }
       }
+    },
+    'Files': {
+      'icon': 'editor:insert-drive-file',
+      'enabled': true,
+      'sources': {
+        'Google Drive': {
+          title: 'Google Drive',
+          enabled: true
+        }
+      }
     }
   };
 
