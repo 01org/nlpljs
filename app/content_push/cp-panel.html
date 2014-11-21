@@ -127,7 +127,7 @@
         <!-- the panel is made up of a header toolbar and the display -->
         <core-toolbar id="toolbar">
           <!-- items in this menu set the "types" part of the display filter -->
-          <paper-menu-button id="menu" icon="menu" on-click="{{applyTypeFilter}}">
+          <paper-menu-button id="menu" icon="menu" on-click="{{onMenuClick}}">
             <paper-item icon="cp-icons:cp-icon"
                         label="Content Push"
                         data-type-filter="no-filter">
@@ -154,7 +154,7 @@
             </paper-item>
 
             <paper-item icon="editor:mode-edit" label="EDIT SOURCES"
-                        data-type-filter="edit" id="itemEditSources">
+                        id="itemEditSources">
             </paper-item>
           </paper-menu-button>
 
@@ -304,33 +304,25 @@
           this.$.swapper.slideOut('groups');
         },
 
-        /* change which types of result are displayed when a menu
-           item is clicked */
-        applyTypeFilter: function (e) {
-          /* only respond to events on elements with a data-type-filter
-             attribute */
+        onMenuClick: function (e) {
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
-          if (!typeFilter) {
-            return;
-          }
 
-          if (typeFilter === 'edit') {
-            console.log('edit sources');
+          if (typeFilter) {
+            /* switch title bar text based on menu item selection */
+            if (typeFilter === 'no-filter') {
+              this.typeFilter = [];
+              this.$.toolbartext.innerHTML = 'Content Push';
+            } else {
+              this.typeFilter = typeFilter.split(',');
+              this.$.toolbartext.innerHTML = elt.label;
+            }
+
+            setFilter(this);
+          } else if (elt.id === 'itemEditSources') {
+            /* open sources editor */
             this.$.swapper.slideIn('groups');
-            return;
           }
-
-          /* switch title bar text based on menu item selection */
-          if (typeFilter === 'no-filter') {
-            this.typeFilter = [];
-            this.$.toolbartext.innerHTML = 'Content Push';
-          } else {
-            this.typeFilter = typeFilter.split(',');
-            this.$.toolbartext.innerHTML = elt.label;
-          }
-
-          setFilter(this);
         },
 
         /* keywordInfo event occurred on the document */
