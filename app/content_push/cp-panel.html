@@ -121,6 +121,22 @@
       [data-show="false"] {
         display: none;
       }
+
+      /* highlight for filter selected in the menu */
+      [data-selected-filter="true"]::shadow * {
+        color: #009688 !important;
+      }
+
+      /* this is a bit hacky because we have to set the fill and
+         stroke properties of the SVG for the CP icon, rather than
+         just set its colour */
+      [data-selected-filter="true"]::shadow .triangle {
+        stroke: #009688 !important;
+      }
+
+      [data-selected-filter="true"]::shadow .filled-triangle {
+        fill: #009688 !important;
+      }
     </style>
     <cp-swapper id="swapper">
       <div swapper-fix>
@@ -130,7 +146,8 @@
           <paper-menu-button id="menu" icon="menu" on-click="{{onMenuClick}}">
             <paper-item icon="cp-icons:cp-icon"
                         label="Content Push"
-                        data-type-filter="no-filter">
+                        data-type-filter="no-filter"
+                        data-selected-filter="true">
             </paper-item>
 
             <paper-item icon="image:camera-alt" label="Images"
@@ -317,6 +334,15 @@
               this.typeFilter = typeFilter.split(',');
               this.$.toolbartext.innerHTML = elt.label;
             }
+
+            /* remove any highlight */
+            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            if (selected && selected !== elt) {
+              selected.setAttribute('data-selected-filter', 'false');
+            }
+
+            /* highlight the selected filter */
+            elt.setAttribute('data-selected-filter', 'true');
 
             setFilter(this);
           } else if (elt.id === 'itemEditSources') {
