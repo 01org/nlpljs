@@ -55,10 +55,18 @@
 
 :host /deep/ p {
   font-size: 14px;
+  line-height: 14px;
 }
 
+:host /deep/ p.small {
+  font-size: 10px;
+}
+
+/* NB if line-height is 24px, some leftovers of the elided text
+   are visible; adding 2px cleans this up */
 :host /deep/ h2 {
   font-size: 24px;
+  line-height: 26px;
 }
 
 :host /deep/ h2,
