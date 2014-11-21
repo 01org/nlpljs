@@ -2,7 +2,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background-color: #f0f0f0;
+  background-color: #fafafa;
   box-sizing: border-box;
 }
 
@@ -18,7 +18,7 @@
 
 #document {
   display: block;
-  background-color: #f0f0f0;
+  background-color: #fafafa;
   height: 100%;
   float: left;
   border: none;
@@ -32,9 +32,9 @@
 
 #panel {
   display: block;
-  background-color: white;
+  background-color: #fafafa;
   height: 100%;
-  width: 272px;
+  width: 320px;
   max-width: 40%;
   float: right;
 }
