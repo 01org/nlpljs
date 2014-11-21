@@ -25,7 +25,8 @@
     "paper-dialog": "Polymer/paper-dialog#~0.4.2",
     "paper-checkbox": "Polymer/paper-checkbox#~0.5.0",
     "paper-input": "Polymer/paper-input#~0.5.1",
-    "clearsans-1.00": "https://01.org/sites/default/files/downloads/clear-sans/clearsans-1.00.zip"
+    "clearsans-1.00": "https://01.org/sites/default/files/downloads/clear-sans/clearsans-1.00.zip",
+    "web-animations-js": "web-animations/web-animations-js-legacy#master"
   },
   "devDependencies": {},
   "resolutions": {
