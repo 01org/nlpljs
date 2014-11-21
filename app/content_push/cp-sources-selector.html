@@ -300,6 +300,8 @@
             type: type
           }
         };
+
+        updateSelectAllStatus(self, type);
       };
 
       var onCheckboxToggled = function (self, sourceName, sourceType, isChecked) {
@@ -501,6 +503,8 @@
             };
 
             this.addSource(name, url, this.currentType, true);
+
+            updateSelectAllStatus(self, type);
           }
         },
 
