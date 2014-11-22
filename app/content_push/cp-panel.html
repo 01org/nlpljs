@@ -326,8 +326,8 @@
             this.$.display.scrollToTop();
             search(this, newKeywords);
           } else
-          if (this.activeKeywords !== null && this.activeKeywords.length >
-              e.detail.keywordInfo.keywords.length) {
+          if (this.activeKeywords !== null &&
+              this.activeKeywords.length > e.detail.keywordInfo.keywords.length) {
             this.activeKeywords = e.detail.keywordInfo.keywords;
             setFilter(this);
           }

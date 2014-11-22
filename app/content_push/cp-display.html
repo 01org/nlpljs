@@ -341,13 +341,12 @@ pushing new tiles into the wrapped layout
             return keywordMatches && typeMatches;
           });
 
-          if (keywords.length > 0 &&
-              this.$.slider_wrapper.classList.contains('hide')) {
+          var hidden = this.$.slider_wrapper.classList.contains('hide');
+          if (keywords.length > 0 && hidden) {
             this.$.slider_wrapper.classList.remove('hide');
           } else
-          if (keywords.length <= 0 &&
-              !this.$.slider_wrapper.classList.contains('hide')) {
-            console.log('hiding');
+          if (keywords.length <= 0 && !hidden) {
+            console.log('CP-DISPLAY:hiding');
             this.state = 'noresults';
             this.$.slider_wrapper.classList.add('hide');
           }
