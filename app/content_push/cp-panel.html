@@ -320,12 +320,16 @@
           var newKeywords =
             checkKeywordInfoChanged(this.activeKeywords, e.detail.keywordInfo);
 
-          this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
-
           /* if we have new keywords, run a fresh search */
           if (newKeywords.length > 0) {
+            this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
             this.$.display.scrollToTop();
             search(this, newKeywords);
+          } else
+          if (this.activeKeywords !== null &&
+              this.activeKeywords.length > e.detail.keywordInfo.keywords.length) {
+            this.activeKeywords = e.detail.keywordInfo.keywords;
+            setFilter(this);
           }
         },
 
