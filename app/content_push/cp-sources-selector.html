@@ -211,6 +211,10 @@
               allEnabled = false;
             }
           }
+
+          if (Object.keys(sourceGroup.sources).length === 0)
+            allEnabled = false;
+
         } else {
           allEnabled = false;
         }
@@ -229,14 +233,14 @@
         }
       };
 
-      var onAddSource = function (self, name, title, url, type, enabled) {
+      var onAddSource = function (self, name, url, type, enabled) {
         var wrapper = document.createElement("div");
         var checkbox = document.createElement("paper-checkbox");
         var listItem = document.createElement("div");
         var trash = document.createElement("core-icon");
         var icon = document.createAttribute("icon");
 
-        listItem.innerText = title;
+        listItem.innerText = name;
         listItem.setAttributeNode(document.createAttribute("flex"));
 
         icon.value = "delete";
@@ -259,10 +263,8 @@
           });
         }
 
-        if (enabled === true) {
+        if (enabled === true)
           checkbox.toggle();
-          checkbox.fire("change");
-        }
 
         wrapper.appendChild(checkbox);
         wrapper.appendChild(listItem);
@@ -291,25 +293,39 @@
 
         self.$.storage.sources = self.sources;
 
-        self.fire("sourceremoved", {
-          name: name,
-          type: type
-        });
+        self.changes[self.changes.length] = {
+          type: "sourceremoved",
+          detail: {
+            name: name,
+            type: type
+          }
+        };
+
+        updateSelectAllStatus(self, type);
       };
 
       var onCheckboxToggled = function (self, sourceName, sourceType, isChecked) {
         var selectAll = self.$.select_all;
+        var isEnabled = self.sources[sourceType].sources[sourceName].enabled;
 
-        if (isChecked) {
-          self.fire("sourceenabled", {
-            name: sourceName,
-            type: sourceType
-          });
-        } else {
-          self.fire("sourcedisabled", {
-            name: sourceName,
-            type: sourceType
-          });
+        if (isChecked !== isEnabled) {
+          if (isChecked) {
+            self.changes[self.changes.length] = {
+              type: "sourceenabled",
+              detail: {
+                name: sourceName,
+                type: sourceType
+              }
+            };
+          } else {
+            self.changes[self.changes.length] = {
+              type: "sourcedisabled",
+              detail: {
+                name: sourceName,
+                type: sourceType
+              }
+            };
+          }
         }
 
         if (self.sources[sourceType].sources[sourceName].enabled !==
@@ -328,21 +344,24 @@
 
         currentType: '',
 
+        changes: [],
+
         getSourceGroup: function (type) {
           if (!this.sources[type]) {
             this.sources[type] = {
               enabled: true,
-              sources: {},
-              title: type
+              sources: {}
             };
           }
 
           return this.sources[type];
         },
 
-        setSources: function (type) {
+        setGroup: function (type) {
           this.$.headertext.innerText = type;
           this.currentType = type;
+
+          this.changes = [];
 
           if (this.currentType !== '' && this.sources !== null) {
             var sourceGroup = this.getSourceGroup(type);
@@ -350,15 +369,15 @@
             for (i in sourceGroup.sources) {
               var source = this.sources[type].sources[i];
 
-              this.addSource(i, source.title, source.url, type, source.enabled);
+              this.addSource(i, source.url, type, source.enabled);
             }
           }
 
           updateSelectAllStatus(this, type);
         },
 
-        addSource: function (name, title, url, type, enabled) {
-          onAddSource(this, name, title, url, type, enabled);
+        addSource: function (name, url, type, enabled) {
+          onAddSource(this, name, url, type, enabled);
         },
 
         enableAllSources: function () {
@@ -378,32 +397,41 @@
 
         onNewSources: function () {
           this.sources = this.$.storage.sources;
-          this.setSources(this.currentType);
+          this.setGroup(this.currentType);
 
           for (i in this.sources) {
             for (j in this.sources[i].sources) {
               var source = this.sources[i].sources[j];
 
-              this.fire("sourceadded", {
-                name: j,
-                title: source.title,
-                url: source.url,
-                type: i
-              });
+              this.changes[this.changes.length] = {
+                type: "sourceadded",
+                detail: {
+                  name: j,
+                  url: source.url,
+                  type: i
+                }
+              };
 
               if (source.enabled === true) {
-                this.fire("sourceenabled", {
-                  name: j,
-                  title: source.title,
-                  type: i
-                });
+                this.changes[this.changes.length] = {
+                  type: "sourceenabled",
+                  detail: {
+                    name: j,
+                    type: i
+                  }
+                };
               }
             }
           }
+
+          this.fire("sourcesedited", this.changes);
         },
 
         onBackButtonClick: function () {
           this.fire('close');
+
+          if (this.changes.length > 0)
+            this.fire("sourcesedited", this.changes);
 
           this.currentType = '';
 
@@ -447,25 +475,36 @@
               this.sources[this.currentType] = {
                 enabled: true,
                 sources: {},
-                title: this.currentType
               };
             }
 
             this.sources[this.currentType].sources[name] = {
               enabled: true,
-              title: name,
               url: url
             };
 
             this.$.storage.sources = this.sources;
 
-            this.fire("sourceadded", {
-              name: name,
-              url: url,
-              type: this.$.headertext.innerText
-            });
+            this.changes[this.changes.length] = {
+              type: "sourceadded",
+              detail: {
+                name: name,
+                url: url,
+                type: this.currentType
+              }
+            };
 
-            this.addSource(name, name, url, this.currentType, true);
+            this.changes[this.changes.length] = {
+              type: "sourceenabled",
+              detail: {
+                name: name,
+                type: this.currentType
+              }
+            };
+
+            this.addSource(name, url, this.currentType, true);
+
+            updateSelectAllStatus(self, type);
           }
         },
 

@@ -194,7 +194,8 @@
            and selected result types */
         self.$.display.setFilter({
           activeKeywords: self.activeKeywords,
-          types: self.typeFilter
+          types: self.typeFilter,
+          sources: self.$.aggregator.sources
         });
       };
 
@@ -243,29 +244,15 @@
         ready: function () {
           var selector = this.$.groups.$.selector;
           var aggregator = this.$.aggregator;
+          var self = this;
 
-          selector.addEventListener("sourceadded", function (e) {
-            var source = e.detail;
+          selector.addEventListener("sourcesedited", function (e) {
+            var changes = e.detail;
 
-            aggregator.addSource(source.type, source.name, source.url);
-          });
-
-          selector.addEventListener("sourceremoved", function (e) {
-            var source = e.detail;
-
-            aggregator.removeSource(source.type, source.name, source.url);
-          });
-
-          selector.addEventListener("sourceenabled", function (e) {
-            var source = e.detail;
-
-            aggregator.enableSource(source.type, source.name);
-          });
-
-          selector.addEventListener("sourcedisabled", function (e) {
-            var source = e.detail;
-
-            aggregator.disableSource(source.type, source.name);
+            if (changes.length > 0) {
+              aggregator.applySourceChanges(changes, self.activeKeywords);
+              setFilter(self);
+            }
           });
         },
 
