@@ -26,26 +26,26 @@
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
-      <h3 id="caption" data-show="{{caption}}">
+      <p id="caption" data-show="{{caption}}">
         <caption>{{caption|stripHTMLTags}}</caption>
-      </h3>
+      </p>
 
-      <h4 layout horizontal>
+      <p>
         <span data-show="{{!!serviceIcon}}">
           <core-icon icon="{{serviceIcon}}"></core-icon>
         </span>
         <span data-show="{{!!service}}">
           {{service}}
         </span>
-      </h4>
+      </p>
 
-      <h4 data-show="{{!!folder}}">
+      <p data-show="{{!!folder}}">
         <core-icon icon="folder"><core-icon> {{folder}}
-      </h4>
+      </p>
 
-      <h4>
+      <p>
         <core-icon icon="editor:mode-edit"></core-icon> {{createdDate|formatDate}}
-      </h4>
+      </p>
 
       <div id="spacer" flex></div>
       <hr id="hr">

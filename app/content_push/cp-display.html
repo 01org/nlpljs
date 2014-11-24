@@ -24,8 +24,12 @@ pushing new tiles into the wrapped layout
       }
 
       #preresults-heading {
-        margin-top: 0;
-        margin-bottom: 10px;
+        margin-top: 2px;
+        margin-bottom: 18px;
+      }
+
+      #preresults-welcome {
+        margin-top: 26px;
       }
 
       #scroller {
@@ -42,7 +46,6 @@ pushing new tiles into the wrapped layout
       }
 
       #waiting {
-        background-color: white;
         position: absolute;
         top: 0;
         left: 0;
@@ -70,11 +73,21 @@ pushing new tiles into the wrapped layout
         align-items: center;
         height: 32px;
         background-color: #e6e6e6;
-        transition: height 0.2s linear 0.2s;
+        transition: height 0.2s ease-out 0.2s;
       }
 
       #slider_wrapper:hover {
         height: 64px;
+      }
+
+      .full-size {
+        /* -height of slider_wrapper */
+        height: calc(100% - 32px);
+      }
+
+      .shrunk {
+        /* -height of slider_wrapper:hover */
+        height: calc(100% - 64px);
       }
 
       #label_wrapper {
@@ -85,7 +98,8 @@ pushing new tiles into the wrapped layout
       }
 
       #label_wrapper div {
-        color: gray;
+        color: rgba(0, 0, 0, 0.46);
+        font-size: 12px;
       }
 
       @-webkit-keyframes fadein {
@@ -104,10 +118,10 @@ pushing new tiles into the wrapped layout
 
       paper-slider {
         width: 100%;
-        max-height: 32px;
-        min-height: 32px;
-        padding: 0 0 8px 0;
+        max-height: 24px;
+        min-height: 24px;
         box-sizing: border-box;
+        margin-bottom: 8px;
       }
 
       /* slider colors (oh dear...) */
@@ -133,16 +147,8 @@ pushing new tiles into the wrapped layout
 
       .divider-top {
         border-top: thin solid black;
-        padding-top: 20px;
+        padding-top: 16px;
         margin-top: 10px;
-      }
-
-      .full-size {
-        height: calc(100% - 32px);
-      }
-
-      .shrunk {
-        height: calc(100% - 64px);
       }
 
       .vbox {
@@ -156,6 +162,7 @@ pushing new tiles into the wrapped layout
       .fill {
         width: 100%;
         height: 100%;
+        background-color: #eee;
       }
 
       .message-area {
@@ -185,7 +192,7 @@ pushing new tiles into the wrapped layout
          data-show="{{state === 'preresults'}}">
       <div class="message-area">
         <div><img src="../images/CP_Icon_large.png"></div>
-        <p>Welcome to</p>
+        <p id="preresults-welcome">Welcome to</p>
         <h2 id="preresults-heading">Content Push</h2>
         <p class="divider-top">Start writing and we'll find content for you</p>
       </div>
@@ -227,8 +234,10 @@ pushing new tiles into the wrapped layout
            on-mouseover="{{onSliderMouseOver}}"
            on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
-                      on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
+        <paper-slider id="slider" min="1" max="100" value="50"
+                      pin snaps step="1"
+                      on-change="{{sliderChanged}}"
+                      data-show="{{state !== 'preresults'}}">
         </paper-slider>
 
         <div id="label_wrapper" horizontal justified layout>

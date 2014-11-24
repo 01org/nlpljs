@@ -39,17 +39,17 @@
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
-      <h3 id="caption" data-show="{{!!caption}}">
+      <p id="caption" data-show="{{!!caption}}">
         <caption>{{caption|stripHTMLTags}}</caption>
-      </h3>
+      </p>
 
-      <h4 id="imgSize" data-show="{{width > 0 && height > 0}}">
+      <p id="imgSize" data-show="{{width > 0 && height > 0}}">
         {{width}}x{{height}}
-      </h4>
+      </p>
 
-      <h4 id="imgSource" data-show="{{!!sourceName || !!source}}">
+      <p id="imgSource" data-show="{{!!sourceName || !!source}}">
         {{sourceName || source|domainFromURL}}
-      </h4>
+      </p>
 
       <div id="spacer" flex></div>
       <hr id="hr">
@@ -98,12 +98,15 @@
         /* where the image came from */
         source: null,
 
+        /* image metadata */
+        meta: null,
+
         /* true if the loaded image has EXIF metadata */
         hasEXIF: null,
 
         created: function () {
-          this.width = null; // string
-          this.height = null; // string
+          this.width = null;
+          this.height = null;
           this.loaded = false;
           this.meta = {};
           this.hasEXIF = false;

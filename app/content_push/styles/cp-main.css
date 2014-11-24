@@ -2,7 +2,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background-color: #f0f0f0;
+  background-color: #fafafa;
   box-sizing: border-box;
 }
 
@@ -18,7 +18,7 @@
 
 #document {
   display: block;
-  background-color: #f0f0f0;
+  background-color: #fafafa;
   height: 100%;
   float: left;
   border: none;
@@ -32,9 +32,9 @@
 
 #panel {
   display: block;
-  background-color: white;
+  background-color: #fafafa;
   height: 100%;
-  width: 272px;
+  width: 320px;
   max-width: 40%;
   float: right;
 }
@@ -51,4 +51,26 @@
 
 :host /deep/ core-icon[aria-label="add"] {
   position: absolute !important;
+}
+
+:host /deep/ p {
+  font-size: 14px;
+  line-height: 16px;
+}
+
+:host /deep/ p.small {
+  font-size: 10px;
+}
+
+/* NB if line-height is 24px, some leftovers of the elided text
+   are visible; adding 2px cleans this up */
+:host /deep/ h2 {
+  font-size: 24px;
+  line-height: 26px;
+}
+
+:host /deep/ h2,
+:host /deep/ h3,
+:host /deep/ h4 {
+  font-weight: normal;
 }
