@@ -250,9 +250,9 @@
         // life cycle handlers
         editOverTimeout: 500,
         editOverTimer: null,
-        nlpPort: null,
 
         created: function () {
+          this.nlpPort = null;
           this.lineIdAccumulator = 0;
 
           // currently active keywords
