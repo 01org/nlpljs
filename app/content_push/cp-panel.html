@@ -362,7 +362,7 @@
           if (newKeywords.length > 0) {
             this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
             this.$.display.scrollToTop();
-            search(this, newKeywords);
+            search(this, this.activeKeywords);
           } else
           if (this.activeKeywords !== null &&
               this.activeKeywords.length > e.detail.keywordInfo.keywords.length) {
