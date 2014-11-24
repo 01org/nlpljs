@@ -234,8 +234,10 @@ pushing new tiles into the wrapped layout
            on-mouseover="{{onSliderMouseOver}}"
            on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="100" value="50" pin snaps step="1"
-                      on-change="{{sliderChanged}}" data-show="{{state !== 'preresults'}}">
+        <paper-slider id="slider" min="1" max="100" value="50"
+                      pin snaps step="1"
+                      on-change="{{sliderChanged}}"
+                      data-show="{{state !== 'preresults'}}">
         </paper-slider>
 
         <div id="label_wrapper" horizontal justified layout>
