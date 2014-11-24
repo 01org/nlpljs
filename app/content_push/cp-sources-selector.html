@@ -471,7 +471,7 @@
 
             var sourceGroup = this.getSourceGroup(this.currentType);
 
-            if (sourceGroup) {
+            if (!sourceGroup) {
               this.sources[this.currentType] = {
                 enabled: true,
                 sources: {},
