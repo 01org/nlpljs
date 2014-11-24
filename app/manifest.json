@@ -39,7 +39,8 @@
       "event_page/ep-http.js",
       "event_page/ep-auth.js",
       "event_page/ep-sources-storage.js",
-      "event_page/ep-main.js"
+      "event_page/ep-main.js",
+      "event_page/ep-nlp.js"
     ],
     "persistent": false
   },
