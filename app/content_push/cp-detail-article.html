@@ -8,7 +8,7 @@
   <template>
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
-    <div id="container">
+    <div id="container" vertical layout>
       <div id="back">
         <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
                    on-click="{{onBackButtonClick}}">
@@ -34,16 +34,20 @@
         {{sourceName || source|domainFromURL}}
       </h4>
 
-      <div id="visitSrc" data-show="{{source}}">
-        <paper-button raised class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{source}}">
-          Visit webpage
-        </paper-button>
-      </div>
-
       <div id="snippet" data-show="{{snippet}}">
         {{snippet|stripHTMLTags}}
       </div>
+
+      <div id="spacer" flex></div>
+      <hr id="hr">
+
+      <div id="visitSrc" data-show="{{source}}">
+        <paper-button class="colored" on-click="{{visitWebpage}}"
+                      data-source-link="{{source}}">
+          GO TO ARTICLE
+        </paper-button>
+      </div>
+
     </div>
   </template>
 

@@ -9,7 +9,7 @@
   <template>
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
-    <div id="container">
+    <div id="container" vertical layout>
       <div id="back">
         <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
                    on-click="{{onBackButtonClick}}">
@@ -30,7 +30,7 @@
         <caption>{{caption|stripHTMLTags}}</caption>
       </h3>
 
-      <h4>
+      <h4 layout horizontal>
         <span data-show="{{!!serviceIcon}}">
           <core-icon icon="{{serviceIcon}}"></core-icon>
         </span>
@@ -47,10 +47,13 @@
         <core-icon icon="editor:mode-edit"></core-icon> {{createdDate|formatDate}}
       </h4>
 
+      <div id="spacer" flex></div>
+      <hr id="hr">
+
       <div id="visitSrc" data-show="{{source}}">
-        <paper-button raised class="colored" on-click="{{visitWebpage}}"
+        <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
-          Open file
+          OPEN FILE
         </paper-button>
       </div>
     </div>

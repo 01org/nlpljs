@@ -18,6 +18,12 @@
   text-align: left;
 }
 
+#spacer, #hr {
+  margin-top:0;
+  margin-bottom:0;
+  width:auto;
+}
+
 #imgContainer {
   max-height: 50%;
   width: 100% !important;
