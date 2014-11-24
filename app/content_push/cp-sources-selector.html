@@ -35,6 +35,10 @@
         width: 100%;
       }
 
+      #panel::shadow #dropShadow {
+        box-shadow: none !important;
+      }
+
       #header {
         background-color: #ff8b00;
         text-align: left;
@@ -44,7 +48,11 @@
 
       #headertext {
         margin-left: 15px;
-        font-size: 1.1em;
+        font-size: 20px;
+      }
+
+      #back {
+        padding-left: 0 !important;
       }
 
       #add {
@@ -146,7 +154,7 @@
       <core-toolbar id="header" class="medium-tall">
         <div vertical layout>
           <div id="title-back" horizontal layout center>
-            <paper-icon-button icon="arrow-back"
+            <paper-icon-button id="back" icon="arrow-back"
                               on-tap="{{onBackButtonClick}}">
             </paper-icon-button>
 
