@@ -38,7 +38,6 @@
 
   var defaults = {
     'Images': {
-      'icon': 'drive-image',
       'enabled': true,
       'sources': {
         'Google Images': {
@@ -48,11 +47,71 @@
         'Flickr': {
           url: 'flickr.com',
           enabled: true
+        },
+        'Instagram': {
+          url: 'instagram.com',
+          enabled: true
+        },
+        'Pinterest': {
+          url: 'pinterest.com',
+          enabled: true
+        },
+        'Wikimedia commons': {
+          url: 'wikimedia.org',
+          enabled: true
+        }
+      }
+    },
+    'Articles': {
+      'enabled': true,
+      'sources': {
+        'Yahoo! news': {
+          url: 'news.yahoo.com',
+          enabled: true
+        },
+        'Google news': {
+          url: 'news.google.com',
+          enabled: true
+        },
+        'BBC news': {
+          url: 'bbc.co.uk',
+          enabled: true
+        },
+        'The Guardian': {
+          url: 'theguardian.com',
+          enabled: true
+        },
+        'CNN': {
+          url: 'cnn.com',
+          enabled: true
+        },
+        'New York Times': {
+          url: 'nytimes.com',
+          enabled: true
+        },
+        'Wikipedia': {
+          url: 'wikipedia.org',
+          enabled: true
+        },
+        'Google Books': {
+          url: 'books.google.com',
+          enabled: true
+        },
+        'TED': {
+          url: 'www.ted.com/topics/news',
+          enabled: true
+        },
+        'Twitter': {
+          url: 'twitter.com',
+          enabled: true
+        },
+        'Quora': {
+          url: 'quora.com',
+          enabled: true
         }
       }
     },
     'Quotations': {
-      'icon': 'editor:format-color-text',
       'enabled': false,
       'sources': {
         'iHeart Quotes': {
@@ -66,7 +125,6 @@
       }
     },
     'Files': {
-      'icon': 'editor:insert-drive-file',
       'enabled': true,
       'sources': {
         'Google Drive': {
