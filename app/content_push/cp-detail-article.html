@@ -26,13 +26,13 @@
              on-load="{{onImageLoad}}" data-show="{{imageHasLoaded}}">
       </div>
 
-      <h3 id="caption" data-show="{{caption}}">
+      <h2 id="caption" data-show="{{caption}}">
         <caption>{{caption|stripHTMLTags}}</caption>
-      </h3>
+      </h2>
 
-      <h4 id="articleSource" data-show="{{source}}">
+      <p id="articleSource" data-show="{{source}}">
         {{sourceName || source|domainFromURL}}
-      </h4>
+      </p>
 
       <div id="visitSrc" data-show="{{source}}">
         <paper-button raised class="colored" on-click="{{visitWebpage}}"
