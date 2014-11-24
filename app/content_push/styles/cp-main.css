@@ -55,7 +55,7 @@
 
 :host /deep/ p {
   font-size: 14px;
-  line-height: 14px;
+  line-height: 16px;
 }
 
 :host /deep/ p.small {
