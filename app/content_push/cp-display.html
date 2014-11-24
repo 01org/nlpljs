@@ -241,6 +241,7 @@ pushing new tiles into the wrapped layout
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="./cp-constants.js"></script>
+  <script src="./cp-filter-deduplicate.js"></script>
 
   <script>
     (function () {
@@ -250,6 +251,10 @@ pushing new tiles into the wrapped layout
 
         /* whether we are waiting for a tile to load or not */
         waiting: false,
+
+        created: function () {
+          this.urlDeduplicator = new FilterDeduplicate();
+        },
 
         ready: function () {
           /* timeout to clear the waiting element if no tile is loaded
@@ -384,32 +389,44 @@ pushing new tiles into the wrapped layout
         },
 
         /**
-         * Add a cp-tile* element to the layout, attaching handlers
+         * Register a cp-tile* element. If a tile already exists in
+         * the layout with the same source as tile, just append
+         * keyword to its array of keywords; if not,
+         * add a cp-tile* element to the layout, attaching handlers
          * at the same time and associating the keyword with it.
          *
          * @param {DOMElement} tile cp-tile* element to add to the
          * layout inside this display.
          * @param {string} keyword Keyword to associate with this tile.
          */
-        addTile: function (tile, keyword) {
+        registerTile: function (tile, keyword) {
           var self = this;
 
-          if (tile.keywords.indexOf(keyword) === -1)
-            tile.keywords[tile.keywords.length] = keyword;
+          /* is a tile with this source already in the layout?
+             if it is, we just want to add a new keyword to it */
+          var existingTile = this.$.layout.getTileBySource(tile.source);
 
-          tile.addEventListener('mouseover', function () {
-            self.fire('mouse-over', tile.keywords);
-          });
+          if (existingTile && !_.include(existingTile.keywords, keyword)) {
+            existingTile.keywords.push(keyword);
+          } else if (this.urlDeduplicator.test(tile.source)) {
+            this.urlDeduplicator.addComparisonValue(tile.source);
 
-          tile.addEventListener('mouseout', function () {
-            self.fire('mouse-out', tile.keywords);
-          });
+            tile.keywords = [keyword];
 
-          tile.addEventListener('click', function () {
-            self.fire('mouse-down', tile);
-          });
+            tile.addEventListener('mouseover', function () {
+              self.fire('mouse-over', tile.keywords);
+            });
 
-          this.$.layout.addTile(tile);
+            tile.addEventListener('mouseout', function () {
+              self.fire('mouse-out', tile.keywords);
+            });
+
+            tile.addEventListener('click', function () {
+              self.fire('mouse-down', tile);
+            });
+
+            this.$.layout.addTile(tile);
+          }
         },
 
         /* when a layout happens, check whether any tiles are visible
@@ -462,9 +479,10 @@ pushing new tiles into the wrapped layout
           tile.width = image.width;
           tile.height = image.height;
           tile.sourceName = image.sourceName;
+          tile.source = image.source;
           tile.image = image;
 
-          this.addTile(tile, image.keyword);
+          this.registerTile(tile, image.keyword);
         },
 
         /**15px
@@ -496,10 +514,11 @@ pushing new tiles into the wrapped layout
           tile.caption = file.caption;
           tile.createdDate = file.createdDate;
           tile.service = file.service;
+          tile.source = file.source;
           tile.sourceName = file.sourceName;
           tile.file = file;
 
-          this.addTile(tile, file.keyword);
+          this.registerTile(tile, file.keyword);
         },
 
         /**
@@ -531,12 +550,12 @@ pushing new tiles into the wrapped layout
 
           tile.src = article.thumbnailSrc;
           tile.caption = article.caption;
-          tile.source = article.source;
           tile.snippet = article.snippet;
+          tile.source = article.source;
           tile.sourceName = article.sourceName;
           tile.article = article;
 
-          this.addTile(tile, article.keyword);
+          this.registerTile(tile, article.keyword);
         },
 
         getLayout: function () {
