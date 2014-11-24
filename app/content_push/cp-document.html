@@ -185,7 +185,12 @@
       };
 
       var getContext = function (context, self) {
-        self.fire('newcontext', {});
+        self.nlpPort.postMessage({
+          component: 'nlp',
+          message: {
+            type: 'newcontext'
+          }
+        });
 
         for (var i = 0; i < context.length; i++) {
           var lineId;
@@ -196,17 +201,34 @@
           if (i > 0)
             prevLineId = context[i - 1].getAttribute('cp_line_id');
 
-          self.fire('lineadded',
-            {
-              lineId: lineId,
-              prevLineId: prevLineId,
-              text: context[i].innerText
+          self.nlpPort.postMessage({
+            component: 'nlp',
+            message: {
+              type: 'lineadded',
+              data: {
+                lineId: lineId,
+                prevLineId: prevLineId,
+                text: context[i].innerText
+              }
             }
-          );
+          });
         }
 
-        self.fire('processcontext', {});
-        self.fire('getkeywords', {});
+        self.nlpPort.postMessage({
+          component: 'nlp',
+          message: {
+            type: 'processcontext'
+          }
+        });
+
+        self.fire('nlpstart');
+
+        self.nlpPort.postMessage({
+          component: 'nlp',
+          message: {
+            type: 'getkeywords'
+          }
+        });
       };
 
       /**
@@ -228,7 +250,9 @@
         // life cycle handlers
         editOverTimeout: 500,
         editOverTimer: null,
+
         created: function () {
+          this.nlpPort = null;
           this.lineIdAccumulator = 0;
 
           // currently active keywords
@@ -242,21 +266,30 @@
           var self = this;
           this.$.iframe.src = this.$.globals.data.iframeurl;
 
-          // preparecontext fired from content script
-          this.addEventListener('processcontext', function (e) {
-            self.fire('nlpstart');
-          });
-
-          // keywordlist fired from content script
-          document.addEventListener('keywordlist', function (e) {
-            setKeywordInfo(self,e.detail);
-            self.fire('nlpstop');
-          });
-
-          var self=this;
           this.$.iframe.onload = function () {
             handleIframeLoad(self);
           };
+
+          if (this.nlpPort === null) {
+            this.nlpPort = chrome.runtime.connect(this.$.globals.data.app_id);
+            this.nlpPort.onMessage.addListener(function(detail) {
+              if (detail.component === 'nlp') {
+                if (detail.message.type === 'keywordlist') {
+                  setKeywordInfo(self, detail.message.data);
+                  self.fire('nlpstop');
+                }
+              }
+            });
+
+            var message = {
+              component: 'nlp',
+              message: {
+                type: 'initialize'
+              }
+            };
+
+            this.nlpPort.postMessage(message);
+          }
         },
 
         // API functions
