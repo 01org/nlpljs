@@ -22,6 +22,7 @@
 
       var onCoreResponse = function (self, query, url, e, handler, callback) {
         var response = e.detail.response;
+        console.log(response);
 
         if (response.error) {
           callback(response.error.message);

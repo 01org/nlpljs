@@ -18,6 +18,10 @@
       };
 
       var getResultsFromSource = function (self, searchTerm, service, sourceURL, sourceName) {
+        if (!service) {
+          return;
+        }
+
         self.$.fetcher.fetch(searchTerm, service, sourceURL).then(
           function (results) {
             logSearch(self);

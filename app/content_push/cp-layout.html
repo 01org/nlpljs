@@ -60,54 +60,6 @@
       */
       var FRAME_CELL_SIDE = 54;
 
-      var makeImageLoadHandler = function (layout, elt) {
-        return function () {
-          layout.frameImage(elt);
-          layout.$.container.appendChild(elt);
-          layout.layout();
-
-          layout.fire('childrenchanged', {
-            added: elt,
-            numChildren: layout.getChildren().length,
-            parent: layout
-          });
-
-          layout.countChildrenLoading--;
-          layout.fireChildrenLoading();
-          elt.counted = true;
-        }
-      };
-
-      var makeImageErrorHandler = function (layout, elt) {
-        return function () {
-          layout.countChildrenLoading--;
-          layout.fireChildrenLoading();
-          elt.counted = true;
-        }
-      };
-
-      var makeImageTimeoutHandler = function (layout, elt) {
-        return function () {
-          if (!elt.counted) {
-            layout.countChildrenLoading--;
-            layout.fireChildrenLoading();
-            elt.counted = true;
-          }
-        };
-      };
-
-      var makeImageMouseoverHandler = function (layout, image) {
-        return function () {
-          layout.fire('mouse-over', image.keyphrase)
-        };
-      };
-
-      var makeImageMouseoutHandler = function (layout, image) {
-        return function () {
-          layout.fire('mouse-out', image.keyphrase);
-        };
-      };
-
       Polymer({
         /* filter which determines the tiles to show; this is applied
            on each layout() call to determine the visible tiles;
@@ -131,6 +83,10 @@
 
           /* layout promise */
           this.layoutInProgress = Promise.resolve();
+
+          /* cached source attributes; used to quickly determine
+             whether a tile exists for a source */
+          this.tileSources = {};
         },
 
         setPending: function (val) {
@@ -171,13 +127,25 @@
           return this.$.container.querySelectorAll('[data-tile="true"]');
         },
 
+        /**
+         * Search for a tile with "source" attribute set to value;
+         * returns the found tile; or if not found, returns null
+         */
+        getTileBySource: function (value) {
+          return this.tileSources[value] || null;
+        },
+
         /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
           this.tilesLoading--;
 
-          // loaded is false if the image failed to load
+          /* loaded is false if the image failed to load */
           if (tile.loaded) {
             this.frameTile(tile);
+
+            /* record the source URL of the tile in the cache */
+            this.tileSources[tile.source] = tile;
+
             tile.setAttribute('data-tile', 'true');
 
             if (this.filter && !this.filter(tile)) {
