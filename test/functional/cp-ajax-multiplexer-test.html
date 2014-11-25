@@ -1,0 +1,68 @@
+<link rel="import" href="../../app/content_push/cp-ajax-multiplexer.html">
+
+<!--
+Test for cp-ajax-multiplexter; 
+-->
+<polymer-element name="cp-ajax-multiplexer-test">
+  <template>
+    <style>
+    </style>
+
+    <p>
+      Responses - they should correspond.
+    </p>
+    <div id="container" layout vertical>
+      <template repeat="{{response, i in responses}}">
+        <div layout horizontal>
+          <span flex>i:{{i}}</span>
+          <span flex ten>Sent:{{response.sent | toJSON}}</span>
+          <span flex ten>Received:{{response.received | toJSON}}</span>
+        </div>
+      </template>
+    </div>
+
+    <cp-ajax-multiplexer id="multiplexer"></cp-ajax-multiplexer>
+  </template>
+
+  <script>
+    var numTests = 10;
+    Polymer({
+      created: function() {
+        this.responses = [];
+      },
+
+      ready: function() {
+        var self=this;
+        this.$.multiplexer.addEventListener('multi-response', function(e) {
+          var id = e.detail.id;
+          var response = e.detail.detail.response;
+
+          self.responses[id].received=response;
+        });
+      },
+
+      domReady: function () {
+        var floor = Math.floor;
+
+        for ( var i=0; i<numTests; i++ ) {
+          var randomNum = floor(Math.random()*numTests);
+          var newResponse = {
+            sent: {
+              id: this.$.multiplexer.url("http://echo.jsontest.com/i/"+i+"/randomNum/"+randomNum),
+              randomNum: randomNum
+            },
+            received: {
+              json: "nothing yet"
+            }
+          };
+
+          this.responses[newResponse.sent.id]=newResponse;
+        }
+      },
+
+      toJSON: function(value) {
+        return JSON.stringify(value);
+      }
+    });
+  </script>
+</polymer-element>
