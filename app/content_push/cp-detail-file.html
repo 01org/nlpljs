@@ -46,12 +46,14 @@
 
         <tr data-show="{{!!fileType}}">
           <td>Type</td>
-          <td>{{fileType}}</td>
+          <td>
+            <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
+          </td>
         </tr>
 
         <tr data-show="{{size !== null && size !== undefined}}">
           <td>Size</td>
-          <td>{{size}}Kb</td>
+          <td>{{size|bytesToKb}}Kb</td>
         </tr>
 
         <tr data-show="{{!!folder}}">
@@ -69,7 +71,7 @@
 
         <tr data-show="{{!!modifiedDate}}">
           <td>Modified</td>
-          <td>{{modifiedDate|formatDate}}</td>
+          <td>{{modifiedDate|formatDate}} by {{lastModifiedByUser}}</td>
         </tr>
 
         <tr>
@@ -109,14 +111,14 @@
         /* service which returned the file */
         service: null,
 
-        /* icon for the service (SET AUTOMATICALLY FROM SERVICE) */
-        serviceIcon: null,
-
-        /* file type, e.g. "Google Docs" */
-        fileType: null,
-
-        /* file size in Kb */
+        /* file size in bytes */
         size: null,
+
+        /* file mime type */
+        mimeType: null,
+
+        /* URL of the icon for this type of file */
+        iconLink: null,
 
         /* file owner */
         owner: null,
@@ -124,11 +126,20 @@
         /* folder which holds the file */
         folder: null,
 
+        /* display name of last user to modify the file */
+        lastModifiedByUser: null,
+
         /* last modified datetime */
         modifiedDate: null,
 
         /* created datetime */
         createdDate: null,
+
+        /* icon for the service (SET AUTOMATICALLY VIA service) */
+        serviceIcon: null,
+
+        /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
+        fileType: null,
 
         created: function () {
           this.loaded = false;
@@ -153,6 +164,10 @@
           this.serviceIcon = CP_CONSTANTS.SERVICE_ICONS[this.service];
         },
 
+        mimeTypeChanged: function () {
+          this.fileType = CP_CONSTANTS.MIME_TYPES[this.mimeType] || 'File';
+        },
+
         onImageLoad: function () {
           this.loaded = true;
           this.fire('done');
@@ -168,9 +183,11 @@
           this.source = tile.file.source;
           this.service = tile.file.service;
           this.folder = tile.file.folder;
-          this.fileType = tile.file.fileType;
+          this.iconLink = tile.file.iconLink;
           this.size = tile.file.size;
           this.owner = tile.file.owner;
+          this.mimeType = tile.file.mimeType;
+          this.lastModifiedByUser = tile.file.lastModifiedByUser;
           this.modifiedDate = tile.file.modifiedDate;
           this.createdDate = tile.file.createdDate;
         },
@@ -182,6 +199,10 @@
         },
 
         formatDate: Formatter.formatDate,
+
+        bytesToKb: function (val) {
+          return Formatter.round(val / 1024, 2);
+        },
 
         /* no clean-up necessary, but needed by the API */
         close: function () {}
