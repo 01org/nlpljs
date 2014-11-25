@@ -61,7 +61,7 @@
               service = this.$.searchDrive;
               break;
             default:
-              console.warn("cp-fetcher: Unrecognized preferred service!");
+              console.warn("cp-fetcher: Unrecognized preferred service!:", preferredService);
               return Promise.resolve([]);
           }
 

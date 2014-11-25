@@ -132,36 +132,40 @@
   }
 
   chrome.runtime.onConnectExternal.addListener(function(newPort) {
-    port = newPort;
+    if (newPort.name === 'sources') {
 
-    port.onMessage.addListener(function(message) {
-      if (message.component === 'sources') {
-        console.log('EP-SOURCES-STORAGE:got message:',message);
-        var url = message.url;
+      port = newPort;
 
-        if (message.action === 'get') {
+      port.onMessage.addListener(function(message) {
+        if (message.component === 'sources') {
+          console.log('EP-SOURCES-STORAGE:got message:',message);
+          var url = message.url;
 
-          if (!currentItem.hasOwnProperty(url)) {
-            chrome.storage.sync.get(url, function(result) {
-              loadSources(url,result);
+          if (message.action === 'get') {
 
-            });
+            if (!currentItem.hasOwnProperty(url)) {
+              chrome.storage.sync.get(url, function(result) {
+                loadSources(url,result);
+
+              });
+            } else {
+              var message = {
+                component: 'sources',
+                data: currentItem[url]
+              };
+              port.postMessage(message);
+            }
+
+          } else
+          if (message.action === 'set') {
+            saveSources(url, message.data);
           } else {
-            var message = {
-              component: 'sources',
-              data: currentItem[url]
-            };
-            port.postMessage(message);
+            console.error(new Error('EP-SOURCES-STORAGE:unknown action:'+message.action));
           }
-
-        } else
-        if (message.action === 'set') {
-          saveSources(url, message.data);
-        } else {
-          console.error(new Error('EP-SOURCES-STORAGE:unknown action:'+message.action));
         }
-      }
-    });
+      });
+
+    }
   });
 
   /**
