@@ -184,8 +184,13 @@
         line.setAttributeNode(lineIdAtt);
       };
 
+      var sendToEpNlp = function (self, message) {
+        console.log('CP-DOCUMENT:sending message to ep-nlp:', message);
+        self.nlpPort.postMessage(message);
+      };
+
       var getContext = function (context, self) {
-        self.nlpPort.postMessage({
+        sendToEpNlp(self, {
           component: 'nlp',
           message: {
             type: 'newcontext'
@@ -201,7 +206,7 @@
           if (i > 0)
             prevLineId = context[i - 1].getAttribute('cp_line_id');
 
-          self.nlpPort.postMessage({
+          sendToEpNlp(self, {
             component: 'nlp',
             message: {
               type: 'lineadded',
@@ -214,7 +219,7 @@
           });
         }
 
-        self.nlpPort.postMessage({
+        sendToEpNlp(self, {
           component: 'nlp',
           message: {
             type: 'processcontext'
@@ -223,7 +228,7 @@
 
         self.fire('nlpstart');
 
-        self.nlpPort.postMessage({
+        sendToEpNlp(self, {
           component: 'nlp',
           message: {
             type: 'getkeywords'
@@ -271,8 +276,15 @@
           };
 
           if (this.nlpPort === null) {
-            this.nlpPort = chrome.runtime.connect(this.$.globals.data.app_id);
+            console.log('CP-DOCUMENT: connecting to ep-nlp');
+            this.nlpPort = chrome.runtime.connect(
+              this.$.globals.data.app_id,
+              { name: 'nlp' }
+            );
+
+            console.log('CP-DOCUMENT: connected to ep-nlp:', this.nlpPort);
             this.nlpPort.onMessage.addListener(function(detail) {
+              console.log('CP-DOCUMENT: message from ep-nlp:', detail);
               if (detail.component === 'nlp') {
                 if (detail.message.type === 'keywordlist') {
                   setKeywordInfo(self, detail.message.data);
@@ -288,6 +300,7 @@
               }
             };
 
+            console.log('CP-DOCUMENT: message to ep-nlp:', message);
             this.nlpPort.postMessage(message);
           }
         },

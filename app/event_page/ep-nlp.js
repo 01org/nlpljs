@@ -1,12 +1,13 @@
 (function () {
   var nlp_worker = null;
+  var nlp_port = null;
 
   var workerMessage = function (type, data) {
     return JSON.stringify({ type: type, data: data }, null, 4);
   };
 
   //Create a web worker for NLP tasks
-  function createWorker(nlp_port) {
+  function createWorker() {
     nlp_worker = new Worker("worker/nlp_worker.js");
 
     //TODO: Error handling & fallback.
@@ -20,27 +21,35 @@
               message: message
             };
 
+            console.log('EP-NLP:posting message: ', message);
             nlp_port.postMessage(message);
           } else {
-            console.log("got keywords before port was initialized!");
+            console.log("EP-NLP:got keywords before port was initialized!");
           }
           break;
         default:
-          console.warn("nlp_worker:Unable to recognize response " + message.type);
+          console.warn("EP-NLP:Unable to recognize response " + message.type);
           break;
       }
     };
   };
 
   chrome.runtime.onConnectExternal.addListener(function(newPort) {
-    newPort.onMessage.addListener(function(event) {
-      if (event.component === 'nlp') {
-        if (nlp_worker === null)
-          createWorker(newPort);
+    console.log('EP-NLP:connecting: newPort:', newPort);
+    if (newPort.name==='nlp') {
+      nlp_port = newPort;
 
-        nlp_worker.postMessage(workerMessage(event.message.type,
-                                             event.message.data));
-      }
-    });
+      newPort.onMessage.addListener(function(event) {
+        console.log('EP-NLP:message from CP:', event);
+        if (event.component === 'nlp') {
+          if (nlp_worker === null) {
+            createWorker();
+          }
+
+          nlp_worker.postMessage(workerMessage(event.message.type,
+                                               event.message.data));
+        }
+      });
+    }
   });
 })();

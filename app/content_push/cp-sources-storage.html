@@ -60,7 +60,10 @@
 
           var self = this;
 
-          this.port = chrome.runtime.connect(this.$.globals.data.app_id);
+          this.port = chrome.runtime.connect(
+            this.$.globals.data.app_id,
+            {name:'sources'}
+          );
           this.port.onMessage.addListener(function(detail) {
             if (detail.component==='sources') {
               // new sources to set them and notify listeners
