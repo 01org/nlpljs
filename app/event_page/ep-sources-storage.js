@@ -36,6 +36,10 @@
   var storage = null;
   var port;
 
+  /*
+  // I'm leaving these here as this is the actual list the designers
+  // want to use; we're using the cut down list (below) for performance
+  // reasons
   var defaults = {
     'Images': {
       'enabled': true,
@@ -107,6 +111,59 @@
         },
         'Quora': {
           url: 'quora.com',
+          enabled: true
+        }
+      }
+    },
+    'Quotations': {
+      'enabled': false,
+      'sources': {
+        'iHeart Quotes': {
+          url: 'iheartquotes.com',
+          enabled: false
+        },
+        'They said so!': {
+          url: 'theysaidso.com',
+          enabled: false
+        }
+      }
+    },
+    'Files': {
+      'enabled': true,
+      'sources': {
+        'Google Drive': {
+          title: 'Google Drive',
+          enabled: true
+        }
+      }
+    }
+  };
+  */
+
+  // cut down version of the defaults
+  var defaults = {
+    'Images': {
+      'enabled': true,
+      'sources': {
+        'Flickr': {
+          url: 'flickr.com',
+          enabled: true
+        },
+        'Wikimedia commons': {
+          url: 'wikimedia.org',
+          enabled: true
+        }
+      }
+    },
+    'Articles': {
+      'enabled': true,
+      'sources': {
+        'Yahoo! news': {
+          url: 'news.yahoo.com',
+          enabled: true
+        },
+        'Wikipedia': {
+          url: 'wikipedia.org',
           enabled: true
         }
       }
