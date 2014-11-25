@@ -18,6 +18,10 @@
   text-align: left;
 }
 
+#container > table {
+  margin-left: 13px !important;
+}
+
 #imgContainer {
   max-height: 50%;
   width: 100% !important;
@@ -52,6 +56,15 @@
   color: #4CA8B4;
   width: calc(100% - 32px);
   margin: 0 16px;
+}
+
+tr {
+  height: 40px;
+}
+
+td {
+  font-size: 14px;
+  line-height: 16px;
 }
 
 paper-button[raised].colored {

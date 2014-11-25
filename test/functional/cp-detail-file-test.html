@@ -1,0 +1,47 @@
+<link rel="import" href="../../app/content_push/cp-detail-file.html">
+
+<!--
+Test for cp-detail-file; Creates a cp-detail-file and adds a
+random image with some info to it.
+-->
+<polymer-element name="cp-detail-file-test">
+  <template>
+    <!-- make the card span a percentage of the window to check centering -->
+    <style>
+      #container {
+        width: 300px;
+        background-color: #F0F0F0;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+    <p>
+      Create a cp-detail-file for a random image; fills part of the
+      screen to check for centering of image inside.
+    </p>
+    <div id="container">
+      <cp-detail-file id="detail"></cp-detail-file>
+    </div>
+  </template>
+
+  <script src="./test-utils.js"></script>
+
+  <script>
+    Polymer({
+      domReady: function () {
+        var d = this.$.detail;
+        d.src = makeImageUrl(300, 300);
+        d.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
+        d.service = 'Drive';
+        d.folder = 'Content Push';
+        d.createdDate = '2014-09-08T10:05:15.497Z';
+        d.source = 'http://intel.com/';
+        d.fileType = 'Google Docs';
+        d.size = 6;
+        d.owner = 'Bugs Bunny';
+        d.modifiedDate = '2014-10-09T09:15:26.797Z';
+      }
+    });
+  </script>
+</polymer-element>
