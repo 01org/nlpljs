@@ -2,7 +2,7 @@
   search users files on Google Drive
 -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel='import' href='../bower_components/core-ajax/core-ajax.html'>
+<link rel='import' href='./cp-ajax-multiplexer.html'>
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
 
@@ -11,21 +11,22 @@
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
 
-    <core-ajax
-      id="drive"
-      auto
-      handleAs="json">
-    </core-ajax>
+    <cp-ajax-multiplexer id="multiplexer"></core-ajax>
   </template>
   <script>
     (function () {
 
-      var onCoreResponse = function (self, query, url, e, handler, callback) {
-        var response = e.detail.response;
-        console.log(response);
+      var onCoreResponse = function (self, e) {
+        var id = e.detail.id;
+        var response = e.detail.detail.response;
+        var query = self.queries[id];
+
+        console.log('CP-SEARCH-GOOGLE-FILES: response for query:%s id:%d', query, id);
 
         if (response.error) {
-          callback(response.error.message);
+          self.callbacks[id](response.error.message);
+          delete self.callbacks[id];
+          delete self.queries[id];
         } else {
           // accumulate the response items as results
           for (var i=0; i<response.items.length; i++) {
@@ -50,34 +51,24 @@
           var nextPageToken = response.nextPageToken;
           if (nextPageToken) {
             // get the next page
-            self.$.drive.url = url+'&pageToken='+nextPageToken;
+            var nextId = self.$.multiplexer.url( url+'&pageToken='+nextPageToken );
 
-            self.$.drive.go();
+            // next page is a new id, so move the callback and query to new id
+            self.callbacks[nextId] = self.callbacks[id];
+            self.queries[nextId] = query;
+            delete self.callbacks[id];
+            delete self.queries[id];
           } else {
-            self.$.drive.removeEventListener('core-response', handler);
-
             var numResults = self.results[query].length;
             var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
             var resultsToReturn = self.results[query].slice(0, to);
             self.cursor[query] += to;
 
-            callback(resultsToReturn);
+            self.callbacks[id](resultsToReturn);
+            delete self.callbacks[id];
+            delete self.queries[id];
           }
         }
-      };
-
-      /**
-       * make an event handler for the core ajax response
-       *
-       * adds in handler to the parameter list so that it can
-       * be removed when the query ends
-       **/
-      var makeEventHandler = function(self, query, url, callback) {
-        var handler = function(e) {
-          onCoreResponse(self, query, url, e, handler, callback);
-        };
-
-        return handler;
       };
 
       /**
@@ -89,15 +80,14 @@
 
         var q = encodeURIComponent("fullText contains '" + query + "' and trashed = false");
 
-        self.$.drive.url =
-          'https://www.googleapis.com/drive/v2/files?'+
-            'access_token='+self.access_token+'&'+
-            'q='+q;
+        var url = 'https://www.googleapis.com/drive/v2/files?'+
+          'access_token='+self.access_token+'&'+
+          'q='+q;
 
-        var thisEventHandler = makeEventHandler(self, query, self.$.drive.url, callback);
-        self.$.drive.addEventListener('core-response', thisEventHandler);
+        var id = self.$.multiplexer.url( url );
 
-        self.$.drive.go();
+        self.callbacks[id] = callback;
+        self.queries[id] = query;
       };
 
       /**
@@ -127,6 +117,8 @@
           this.ready_promise = null;
           this.results = {}; // this.results[query]=[...results...]
           this.cursor = {};  // this.cursor[query]=0..length-1
+          this.callbacks = {}; // this.callbacks[id] = function... id comes from cp-ajax-multiplexer.url()
+          this.queries = {}; // this.queries[id] = querystring...
         },
 
         ready: function () {
@@ -140,9 +132,14 @@
             });
             self.$.authorizer.getToken('google');
           });
+
+          this.$.multiplexer.addEventListener('multi-response', function(e) {
+            onCoreResponse(self, e);
+          });
         },
 
         fetch: function (query) {
+          console.log('CP-SEARCH-GOOGLE-FILES: fetch for query:', query);
           if (this.results[query]) {
             var resultsToReturn = [];
             var numResults = this.results[query].length;
