@@ -656,6 +656,10 @@ pushing new tiles into the wrapped layout
 
           this.$.slider.value = Math.max(newValue, 1);
           this.$.slider.max = Math.max(newKeywords.length, 1);
+        },
+
+        getSliderValue: function () {
+          return this.$.slider.immediateValue;
         }
       });
     })();
