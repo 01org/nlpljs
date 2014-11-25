@@ -268,6 +268,28 @@
         return newKeywords;
       };
 
+      /* return the keywords from "keywords" which are also in
+       * "sliderKeywords"
+       */
+      var getKeywordsToHighlight = function (self, tileKeywords) {
+        var results = [];
+
+        /* only consider activeKeywords which are selected on the slider */
+        var sliderValue = self.$.display.getSliderValue();
+        var selectedKeywords = self.activeKeywords.slice(0, sliderValue);
+
+        for (var i = 0; i < tileKeywords.length; i++) {
+          for (var j = 0; j < selectedKeywords.length; j++) {
+            if (tileKeywords[i].text === selectedKeywords[j].text) {
+              results.push(tileKeywords[i])
+              break;
+            }
+          }
+        }
+
+        return results;
+      };
+
       Polymer({
         // functions and properties used in API and bindings
         created: function () {
@@ -362,7 +384,7 @@
           if (newKeywords.length > 0) {
             this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
             this.$.display.scrollToTop();
-            search(this, newKeywords);
+            search(this, this.activeKeywords);
           } else
           if (this.activeKeywords !== null &&
               this.activeKeywords.length > e.detail.keywordInfo.keywords.length) {
@@ -389,11 +411,13 @@
         },
 
         onDisplayMouseover: function (e) {
-          this.fire('mouseoverimage', e.detail);
+          var keywordsToHighlight = getKeywordsToHighlight(this, e.detail);
+          this.fire('mouseoverimage', keywordsToHighlight);
         },
 
         onDisplayMouseout: function (e) {
-          this.fire('mouseoutimage', e.detail);
+          var keywordsToHighlight = getKeywordsToHighlight(this, e.detail);
+          this.fire('mouseoutimage', keywordsToHighlight);
         },
 
         /* the first result which loads successfully into a tile
