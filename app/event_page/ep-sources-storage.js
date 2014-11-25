@@ -36,9 +36,12 @@
   var storage = null;
   var port;
 
+  /*
+  // I'm leaving these here as this is the actual list the designers
+  // want to use; we're using the cut down list (below) for performance
+  // reasons
   var defaults = {
     'Images': {
-      'icon': 'drive-image',
       'enabled': true,
       'sources': {
         'Google Images': {
@@ -48,11 +51,71 @@
         'Flickr': {
           url: 'flickr.com',
           enabled: true
+        },
+        'Instagram': {
+          url: 'instagram.com',
+          enabled: true
+        },
+        'Pinterest': {
+          url: 'pinterest.com',
+          enabled: true
+        },
+        'Wikimedia commons': {
+          url: 'wikimedia.org',
+          enabled: true
+        }
+      }
+    },
+    'Articles': {
+      'enabled': true,
+      'sources': {
+        'Yahoo! news': {
+          url: 'news.yahoo.com',
+          enabled: true
+        },
+        'Google news': {
+          url: 'news.google.com',
+          enabled: true
+        },
+        'BBC news': {
+          url: 'bbc.co.uk',
+          enabled: true
+        },
+        'The Guardian': {
+          url: 'theguardian.com',
+          enabled: true
+        },
+        'CNN': {
+          url: 'cnn.com',
+          enabled: true
+        },
+        'New York Times': {
+          url: 'nytimes.com',
+          enabled: true
+        },
+        'Wikipedia': {
+          url: 'wikipedia.org',
+          enabled: true
+        },
+        'Google Books': {
+          url: 'books.google.com',
+          enabled: true
+        },
+        'TED': {
+          url: 'www.ted.com/topics/news',
+          enabled: true
+        },
+        'Twitter': {
+          url: 'twitter.com',
+          enabled: true
+        },
+        'Quora': {
+          url: 'quora.com',
+          enabled: true
         }
       }
     },
     'Quotations': {
-      'icon': 'editor:format-color-text',
       'enabled': false,
       'sources': {
         'iHeart Quotes': {
@@ -66,7 +129,59 @@
       }
     },
     'Files': {
-      'icon': 'editor:insert-drive-file',
+      'enabled': true,
+      'sources': {
+        'Google Drive': {
+          title: 'Google Drive',
+          enabled: true
+        }
+      }
+    }
+  };
+  */
+
+  // cut down version of the defaults
+  var defaults = {
+    'Images': {
+      'enabled': true,
+      'sources': {
+        'Flickr': {
+          url: 'flickr.com',
+          enabled: true
+        },
+        'Wikimedia commons': {
+          url: 'wikimedia.org',
+          enabled: true
+        }
+      }
+    },
+    'Articles': {
+      'enabled': true,
+      'sources': {
+        'Yahoo! news': {
+          url: 'news.yahoo.com',
+          enabled: true
+        },
+        'Wikipedia': {
+          url: 'wikipedia.org',
+          enabled: true
+        }
+      }
+    },
+    'Quotations': {
+      'enabled': false,
+      'sources': {
+        'iHeart Quotes': {
+          url: 'iheartquotes.com',
+          enabled: false
+        },
+        'They said so!': {
+          url: 'theysaidso.com',
+          enabled: false
+        }
+      }
+    },
+    'Files': {
       'enabled': true,
       'sources': {
         'Google Drive': {
