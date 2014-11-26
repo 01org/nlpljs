@@ -29,10 +29,16 @@
           delete self.queries[id];
         } else {
           // accumulate the response items as results
+
+          console.log('CP-SEARCH-GOOGLE-FILES: found %d files', response.items.length);
+
           for (var i=0; i<response.items.length; i++) {
             var thisItem = response.items[i];
 
+            console.log('CP-SEARCH-GOOGLE-FILES: found file:', thisItem.title);
+
             if (thisItem.id !== self.$.globals.documentId) {
+              console.log('CP-SEARCH-GOOGLE-FILES: adding');
               self.results[query].push({
                 type: 'file',
                 service: 'Drive',
@@ -50,7 +56,7 @@
                 createdDate: thisItem.createdDate
               });
             } else {
-              console.log('CP-SEARCH-GOOGLE-FILES: ignoring this file');
+              console.log('CP-SEARCH-GOOGLE-FILES: ignoring');
             }
           }
 
