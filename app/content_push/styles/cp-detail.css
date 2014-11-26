@@ -58,6 +58,12 @@
   margin: 0 16px;
 }
 
+#spacer, #hr {
+  margin-top: 0;
+  margin-bottom: 0;
+  width: auto;
+}
+
 tr {
   height: 40px;
 }
