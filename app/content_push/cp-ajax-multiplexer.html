@@ -37,22 +37,27 @@
         return callback;
       };
 
-      function findFreeCoreAjaxIndex() {
+      function findFreeCoreAjaxIndex(self) {
         var i=idleAjaxes.pop();
 
         if (i === undefined) {
-          var coreAjax = makeNewCoreAjax();
-          i = coreAjaxes.push(coreAjax)-1;
+          // make a new ajax and push it onto the coreAjaxes stack
+          // not idle since we'll use it right away
+
+          i = coreAjaxes.length; // it's going on the end
+          var coreAjax = makeNewCoreAjax(self, i);
+          coreAjaxes.push(coreAjax);
           console.log('CP-AJAX-MULTIPLEXER: coreAjaxes.length', coreAjaxes.length);
         }
 
         return i;
       };
 
-      function makeNewCoreAjax() {
+      function makeNewCoreAjax(self, id) {
         var coreAjax = document.createElement('core-ajax');
         coreAjax.setAttribute('auto','');
         coreAjax.setAttribute('handleAs','json');
+        coreAjax.addEventListener('core-response', makeCallback(self, id));
 
         return coreAjax;
       };
@@ -60,7 +65,7 @@
       Polymer({
         ready: function() {
           // make one ajax and make it idle
-          var newCoreAjax = makeNewCoreAjax();
+          var newCoreAjax = makeNewCoreAjax(this, 0);
           var newIndex = coreAjaxes.push( newCoreAjax )-1;
           idleAjaxes.push( newIndex );
           console.log('CP-AJAX-MULTIPLEXER: coreAjaxes.length', coreAjaxes.length);
@@ -69,15 +74,11 @@
 
         url: function(newUrl) {
           console.log('CP-AJAX-MULTIPLEXER: new url:', newUrl);
-          var thisId = findFreeCoreAjaxIndex();
+          var thisId = findFreeCoreAjaxIndex(this);
           var coreAjax = coreAjaxes[thisId];
-          var callback = makeCallback(this, thisId);
-
-          coreAjax.addEventListener('core-response', function(e) {
-            callback(e);
-          });
           coreAjax.url=newUrl;
 
+          console.log('CP-AJAX-MULTIPLEXER: returning id:', thisId);
           return thisId;
         },
 
