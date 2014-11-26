@@ -58,15 +58,11 @@
             parentBoundingRectangle = this.scrollableNode.getBoundingClientRect();
 
             if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
-                boundingRectangle.right > parentBoundingRectangle.right ||
-                boundingRectangle.left < parentBoundingRectangle.left ||
                 boundingRectangle.top < parentBoundingRectangle.top)
               return false;
           }
 
           if (boundingRectangle.bottom > window.innerHeight ||
-              boundingRectangle.right > window.innerWidth ||
-              boundingRectangle.left < 0 ||
               boundingRectangle.top < 0)
             return false;
 
