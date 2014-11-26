@@ -26,26 +26,61 @@
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
-      <p id="caption" data-show="{{caption}}">
+      <p id="caption" data-show="{{!!caption}}">
         <caption>{{caption|stripHTMLTags}}</caption>
       </p>
 
-      <p>
-        <span data-show="{{!!serviceIcon}}">
-          <core-icon icon="{{serviceIcon}}"></core-icon>
-        </span>
-        <span data-show="{{!!service}}">
-          {{service}}
-        </span>
-      </p>
+      <table>
+        <tr>
+          <td>Source</td>
+          <td>
+            <span data-show="{{!!serviceIcon}}">
+              <core-icon icon="{{serviceIcon}}"></core-icon>
+            </span>
+            &nbsp;&nbsp;
+            <span data-show="{{!!service}}">
+              {{service}}
+            </span>
+          </td>
+        </tr>
 
-      <p data-show="{{!!folder}}">
-        <core-icon icon="folder"><core-icon> {{folder}}
-      </p>
+        <tr data-show="{{!!fileType}}">
+          <td>Type</td>
+          <td>
+            <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
+          </td>
+        </tr>
 
-      <p>
-        <core-icon icon="editor:mode-edit"></core-icon> {{createdDate|formatDate}}
-      </p>
+        <tr data-show="{{size !== null && size !== undefined}}">
+          <td>Size</td>
+          <td>{{size|bytesToKb}}Kb</td>
+        </tr>
+
+        <tr data-show="{{!!folder}}">
+          <td>Location</td>
+          <td>
+            <core-icon icon="folder"></core-icon>
+            &nbsp;&nbsp;{{folder}}
+          </td>
+        </tr>
+
+        <tr data-show="{{!!owner}}">
+          <td>Owner</td>
+          <td>{{owner}}</td>
+        </tr>
+
+        <tr data-show="{{!!modifiedDate}}">
+          <td>Modified</td>
+          <td>{{modifiedDate|formatDate}} by {{lastModifiedByUser}}</td>
+        </tr>
+
+        <tr>
+          <td>Created</td>
+          <td>
+            {{createdDate|formatDate}}
+          </td>
+        </tr>
+      </table>
 
       <div id="spacer" flex></div>
       <hr id="hr">
@@ -77,11 +112,35 @@
         /* service which returned the file */
         service: null,
 
-        /* icon for the service */
-        serviceIcon: null,
+        /* file size in bytes */
+        size: null,
+
+        /* file mime type */
+        mimeType: null,
+
+        /* URL of the icon for this type of file */
+        iconLink: null,
+
+        /* file owner */
+        owner: null,
 
         /* folder which holds the file */
         folder: null,
+
+        /* display name of last user to modify the file */
+        lastModifiedByUser: null,
+
+        /* last modified datetime */
+        modifiedDate: null,
+
+        /* created datetime */
+        createdDate: null,
+
+        /* icon for the service (SET AUTOMATICALLY VIA service) */
+        serviceIcon: null,
+
+        /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
+        fileType: null,
 
         created: function () {
           this.loaded = false;
@@ -106,6 +165,10 @@
           this.serviceIcon = CP_CONSTANTS.SERVICE_ICONS[this.service];
         },
 
+        mimeTypeChanged: function () {
+          this.fileType = CP_CONSTANTS.MIME_TYPES[this.mimeType] || 'File';
+        },
+
         onImageLoad: function () {
           this.loaded = true;
           this.fire('done');
@@ -121,6 +184,12 @@
           this.source = tile.file.source;
           this.service = tile.file.service;
           this.folder = tile.file.folder;
+          this.iconLink = tile.file.iconLink;
+          this.size = tile.file.size;
+          this.owner = tile.file.owner;
+          this.mimeType = tile.file.mimeType;
+          this.lastModifiedByUser = tile.file.lastModifiedByUser;
+          this.modifiedDate = tile.file.modifiedDate;
           this.createdDate = tile.file.createdDate;
         },
 
@@ -131,6 +200,10 @@
         },
 
         formatDate: Formatter.formatDate,
+
+        bytesToKb: function (val) {
+          return Formatter.round(val / 1024, 2);
+        },
 
         /* no clean-up necessary, but needed by the API */
         close: function () {}

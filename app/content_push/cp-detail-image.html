@@ -43,26 +43,21 @@
         <caption>{{caption|stripHTMLTags}}</caption>
       </p>
 
-      <p id="imgSize" data-show="{{width > 0 && height > 0}}">
-        {{width}}x{{height}}
-      </p>
+      <table>
+        <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
+          <td>Size</td>
+          <td>{{width}}x{{height}}</td>
+        </tr>
 
-      <p id="imgSource" data-show="{{!!sourceName || !!source}}">
-        {{sourceName || source|domainFromURL}}
-      </p>
-
-      <div id="spacer" flex></div>
-      <hr id="hr">
-
-      <div id="visitSrc" data-show="{{!!source}}">
-        <paper-button class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{contextLink}}">
-          VISIT PAGE
-        </paper-button>
-      </div>
+        <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
+          <td>Source</td>
+          <td>{{sourceName || source|domainFromURL}}</td>
+        </tr>
+      </table>
 
       <div id="exif" data-show="{{hasEXIF}}">
         <hr>
+
         <div id="exifHeader">
           <h4 id="exifTitle">Image info</h4>
           <core-icon id="exifToggle" on-click="{{exifToggle}}"
@@ -79,6 +74,16 @@
             <strong>Date:</strong> {{meta.DateTime}}
           </p>
         </core-collapse>
+      </div>
+
+      <div id="spacer" flex></div>
+      <hr id="hr">
+
+      <div id="visitSrc" data-show="{{!!source}}">
+        <paper-button class="colored" on-click="{{visitWebpage}}"
+                      data-source-link="{{contextLink}}">
+          VISIT PAGE
+        </paper-button>
       </div>
     </div>
   </template>
@@ -141,6 +146,7 @@
         onImageLoad: function () {
           this.loaded = true;
           this.fire('done');
+          this.$.imgContainer.style.width = '100%';
         },
 
         onBackButtonClick: function () {

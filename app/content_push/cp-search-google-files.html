@@ -36,11 +36,17 @@
               self.results[query].push({
                 type: 'file',
                 service: 'Drive',
+                description: thisItem.description,
                 caption: thisItem.title,
                 source: thisItem.alternateLink,
                 iconLink: thisItem.iconLink,
                 src: thisItem.thumbnailLink,
+                mimeType: thisItem.mimeType,
+                size: thisItem.fileSize,
                 thumbnailSrc: thisItem.thumbnailLink,
+                owner: thisItem.owners[0].displayName,
+                lastModifiedByUser: thisItem.lastModifyingUserName,
+                modifiedDate: thisItem.modifiedDate,
                 createdDate: thisItem.createdDate
               });
             } else {
@@ -80,9 +86,13 @@
 
         var q = encodeURIComponent("fullText contains '" + query + "' and trashed = false");
 
-        var url = 'https://www.googleapis.com/drive/v2/files?'+
-          'access_token='+self.access_token+'&'+
-          'q='+q;
+        var url =
+            'https://www.googleapis.com/drive/v2/files?'+
+            'access_token='+self.access_token+'&'+
+            'fields=items(alternateLink,createdDate,description,fileSize,' +
+            'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
+            'thumbnailLink,title)&' +
+            'q='+q;
 
         var id = self.$.multiplexer.url( url );
 

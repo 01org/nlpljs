@@ -16,8 +16,9 @@ Test for image-detail showing a tile.
     </style>
 
     <p>
-      Create a cp-detail-image and load a cp-tile-image into it. Then
-      load a new tile into it, replacing the old one.
+      Create a cp-detail-image and load a cp-tile-image into it. This
+      should also not show EXIF data. Then load a new tile into it,
+      replacing the old one; this should show EXIF data.
     </p>
     <div id="container">
     <cp-detail-image id="detail"></cp-detail-image>
@@ -47,7 +48,11 @@ Test for image-detail showing a tile.
           src: makeImageUrl(400, 300),
           caption: '<span class="fn"> <i><span style="font-weight:bold">\n<i>Some other fellow</i></span></i></span>',
           source: 'http://flickr.com/',
-          meta: {}
+          meta: {
+            ExifVersion: 1,
+            Camera: 'Some old Kodak thing',
+            DateTime: '2014-11-25'
+          }
         };
 
         setTimeout(function () {

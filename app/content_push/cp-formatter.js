@@ -44,6 +44,16 @@
       } else {
         return url;
       }
+    },
+
+    /* round number "num" to "places" decimal places */
+    round: function (num, places) {
+      if (!num) {
+        return 0;
+      }
+
+      var multiplier = Math.pow(10, places);
+      return Math.round(num * multiplier) / multiplier;
     }
   };
 

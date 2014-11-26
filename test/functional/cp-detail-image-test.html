@@ -13,7 +13,6 @@ random image with some info to it.
         background-color: #F0F0F0;
         margin-left: auto;
         margin-right: auto;
-        height: 100%;
       }
     </style>
 
@@ -22,7 +21,7 @@ random image with some info to it.
       screen to check for centering of image inside.
     </p>
     <div id="container">
-    <cp-detail-image id="detail"></cp-detail-image>
+      <cp-detail-image id="detail"></cp-detail-image>
     </div>
   </template>
 
@@ -34,7 +33,14 @@ random image with some info to it.
         // add a random image with URL from lorempixel
         this.$.detail.src = makeImageUrl(800, 600);
         this.$.detail.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
+        this.$.detail.width = 800;
+        this.$.detail.height = 600;
         this.$.detail.source = 'http://flickr.com/';
+        this.$.detail.meta = {
+          ExifVersion: 1,
+          Camera: 'Some old Kodak thing',
+          DateTime: '2014-11-25'
+        };
       }
     });
   </script>
