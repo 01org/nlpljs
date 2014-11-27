@@ -65,7 +65,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
            response */
         handleResponse: function (resultSet, query, response) {
           if (response.error) {
-            var err = new Error('CP:error from Wikipedia API: ' +
+            var err = new Error('CP-SEARCH-WIKIPEDIA: ' +
+                                'ERROR from Wikipedia API: ' +
                                 JSON.stringify(response));
             return Promise.reject(err);
           } else {
@@ -82,6 +83,13 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             }
 
             // results for this search
+            if (!(response.query && response.query.pages)) {
+              var err = new Error('CP-SEARCH-WIKIPEDIA: ERROR - ' +
+                                  'no "query" property in response: ' +
+                                  JSON.stringify(response));
+              return Promise.reject(err);
+            }
+
             var pages = response.query.pages;
 
             for (var k in pages) {
