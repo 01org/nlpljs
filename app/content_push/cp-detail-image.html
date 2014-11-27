@@ -23,10 +23,13 @@
     </style>
 
     <div id="container" vertical layout>
-      <div id="back">
+      <div id="back" horizontal layout>
         <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
                    on-click="{{onBackButtonClick}}">
         </paper-fab>
+        <p id="caption" data-show="{{!!caption}}" flex>
+          <caption>{{caption|stripHTMLTags}}</caption>
+        </p>
       </div>
 
       <div id="imgContainer">
@@ -39,19 +42,15 @@
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
-      <p id="caption" data-show="{{!!caption}}">
-        <caption>{{caption|stripHTMLTags}}</caption>
-      </p>
-
-      <table>
-        <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
-          <td>Size</td>
-          <td>{{width}}x{{height}}</td>
-        </tr>
-
+      <table id="imageInfo">
         <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
           <td>Source</td>
           <td>{{sourceName || source|domainFromURL}}</td>
+        </tr>
+
+        <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
+          <td>Size</td>
+          <td>{{width}}x{{height}}</td>
         </tr>
       </table>
 
