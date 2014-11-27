@@ -10,10 +10,14 @@
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
     <div id="container" vertical layout>
-      <div id="back">
+      <div id="back" horizontal layout>
         <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
                    on-click="{{onBackButtonClick}}">
         </paper-fab>
+
+        <h2 id="backcaption" data-show="{{!!caption}}" flex>
+          <caption>{{caption|stripHTMLTags}}</caption>
+        </h2>
       </div>
 
       <div id="imgContainer">
@@ -25,10 +29,6 @@
 
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
-
-      <p id="caption" data-show="{{!!caption}}">
-        <caption>{{caption|stripHTMLTags}}</caption>
-      </p>
 
       <table>
         <tr>
