@@ -31,7 +31,7 @@
               results[i].sourceName = sourceName;
             }
 
-            self.fire("receivedresults", {
+            self.fire('receivedresults', {
               searchTerm: searchTerm,
               results: results
             });
@@ -40,7 +40,7 @@
           function (err) {
             logSearch(self);
 
-            self.fire("searchfailed", {
+            self.fire('searchfailed', {
               searchTerm: searchTerm,
               error: err
             });
@@ -51,11 +51,19 @@
       Polymer({
         created: function () {
           this.sources = {};
-          this.services = [
-            "Google Image Search",
-            "Google Article Search",
-            "Google Drive Search"
-          ];
+
+          this.services = {
+            'Google Image Search': {
+              type: 'Images'
+            },
+            'Google Article Search': {
+              type: 'Articles'
+            },
+            'Google Drive Search': {
+              type: 'Files'
+            }
+          };
+          this.servicesKeys = Object.keys(this.services);
 
           this.pendingSearches = 0;
         },
@@ -70,25 +78,25 @@
             enabled: false
           };
 
-          console.log("CP-AGGREGATOR: Added source: " + name + " " + url);
+          console.log('CP-AGGREGATOR: Added source: ' + name + ' ' + url);
         },
 
         removeSource: function (type, name) {
           delete this.sources[type].sources[name];
 
-          console.log("CP-AGGREGATOR: Removed source: " + name);
+          console.log('CP-AGGREGATOR: Removed source: ' + name);
         },
 
         enableSource: function (type, name) {
           this.sources[type].sources[name].enabled = true;
 
-          console.log("CP-AGGREGATOR: Enabled source: " + name);
+          console.log('CP-AGGREGATOR: Enabled source: ' + name);
         },
 
         disableSource: function (type, name) {
           this.sources[type].sources[name].enabled = false;
 
-          console.log("CP-AGGREGATOR: Disabled source: " + name);
+          console.log('CP-AGGREGATOR: Disabled source: ' + name);
         },
 
         applySourceChanges: function (changes, searchTerms) {
@@ -97,19 +105,19 @@
             var triggerSearch = false;
 
             switch (changes[i].type) {
-              case "sourceadded":
+              case 'sourceadded':
                 this.addSource(sourceDetail.type, sourceDetail.name,
                                sourceDetail.url);
                 triggerSearch = true;
                 break;
-              case "sourceremoved":
+              case 'sourceremoved':
                 this.removeSource(sourceDetail.type, sourceDetail.name);
                 break;
-              case "sourceenabled":
+              case 'sourceenabled':
                 this.enableSource(sourceDetail.type, sourceDetail.name);
                 triggerSearch = true;
                 break;
-              case "sourcedisabled":
+              case 'sourcedisabled':
                 this.disableSource(sourceDetail.type, sourceDetail.name);
                 break;
             }
@@ -121,48 +129,48 @@
 
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            if (typeof this.sources['Images'] !== 'undefined' &&
-                Object.keys(this.sources['Images']).length > 0) {
-              for (var j in this.sources['Images'].sources) {
-                if (this.sources['Images'].sources[j].enabled === true) {
+            var thisSearchTerm = searchTerms[i];
+
+            for (var serviceIndex = 0; serviceIndex < this.servicesKeys.length; serviceIndex++) {
+              var thisService = this.servicesKeys[serviceIndex];
+              var sourceType = this.services[thisService].type;
+
+              switch (thisService) {
+                case 'Google Image Search':
+                case 'Google Article Search':
+                  var thisSources = this.sources[sourceType];
+                  if (typeof thisSources !== 'undefined' &&
+                      Object.keys(thisSources).length > 0) {
+                    for (var j in thisSources.sources) {
+                      var thisSource = thisSources.sources[j];
+                      if (thisSource.enabled) {
+                        this.pendingSearches++;
+
+                        getResultsFromSource(
+                          this,
+                          thisSearchTerm,
+                          thisService,
+                          thisSource.url,
+                          thisSource.name
+                        );
+                      }
+                    }
+                  } else {
+                    this.pendingSearches++;
+                    getResultsFromSource(this, thisSearchTerm, thisService);
+                  }
+                  break;
+
+                case 'Google Drive Search':
                   this.pendingSearches++;
+                  getResultsFromSource(this, thisSearchTerm, thisService);
+                  break;
 
-                  getResultsFromSource(
-                    this,
-                    searchTerms[i],
-                    this.services[0],
-                    this.sources['Images'].sources[j].url,
-                    this.sources['Images'].sources[j].name
-                  );
-                }
+                default:
+                  console.warn('Unknown service:', thisService);
+                  break;
               }
-            } else {
-              this.pendingSearches++;
-              getResultsFromSource(this, searchTerms[i], this.services[0]);
             }
-
-            if (typeof this.sources["Articles"] !== 'undefined' &&
-                Object.keys(this.sources['Articles']).length > 0) {
-              for (var j in this.sources["Articles"].sources) {
-                if (this.sources["Articles"].sources[j].enabled === true) {
-                  this.pendingSearches++;
-
-                  getResultsFromSource(
-                    this,
-                    searchTerms[i],
-                    this.services[1],
-                    this.sources['Articles'].sources[j].url,
-                    this.sources['Articles'].sources[j].name
-                  );
-                }
-              }
-            } else {
-              this.pendingSearches++;
-              getResultsFromSource(this, searchTerms[i], this.services[1]);
-            }
-
-            this.pendingSearches++;
-            getResultsFromSource(this, searchTerms[i], this.services[2]);
           }
         }
       });
