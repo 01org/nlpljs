@@ -9,10 +9,14 @@
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
     <div id="container" vertical layout>
-      <div id="back">
+      <div id="back" horizontal layout>
         <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
                    on-click="{{onBackButtonClick}}">
         </paper-fab>
+
+        <h2 id="backcaption" data-show="{{!!caption}}" flex>
+          <caption>{{caption|stripHTMLTags}}</caption>
+        </h2>
       </div>
 
       <div id="imgContainer" data-show="{{!!src}}">
@@ -23,25 +27,25 @@
         </div>
 
         <img id="image" src="{{src}}" on-error="{{onImageError}}"
-             on-load="{{onImageLoad}}" data-show="{{imageHasLoaded}}">
+             on-load="{{onImageLoad}}" data-show="{{!!imageHasLoaded}}">
       </div>
 
-      <h2 id="caption" data-show="{{caption}}">
+      <h2 id="caption" data-show="{{!!caption}}">
         <caption>{{caption|stripHTMLTags}}</caption>
       </h2>
 
-      <p id="articleSource" data-show="{{source}}">
+      <p id="articleSource" data-show="{{!!source}}">
         {{sourceName || source|domainFromURL}}
       </p>
 
-      <div id="snippet" data-show="{{snippet}}">
+      <div id="snippet" data-show="{{!!snippet}}">
         {{snippet|stripHTMLTags}}
       </div>
 
       <div id="spacer" flex></div>
       <hr id="hr">
 
-      <div id="visitSrc" data-show="{{source}}">
+      <div id="visitSrc" data-show="{{!!source}}">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
           GO TO ARTICLE

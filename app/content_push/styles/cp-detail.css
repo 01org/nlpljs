@@ -89,8 +89,14 @@ paper-button[raised].colored {
   display: none;
 }
 
-#caption {
+#caption, #backcaption {
   margin-left: 5px;
+}
+
+#backcaption {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #imageInfo {
