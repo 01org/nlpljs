@@ -50,7 +50,7 @@
 }
 
 #backbutton {
-   background-color: #4CA8B4;
+   background-color: #B8578C;
    margin-left: 5px;
    margin-right: 5px;
    margin-top: auto;
@@ -60,7 +60,7 @@
 #visitSrc {
   padding-bottom: 5px;
   text-align: right !important;
-  color: #4CA8B4;
+  color: #B8578C;
   width: calc(100% - 32px);
   margin: 0 16px;
 }
@@ -97,8 +97,15 @@ paper-button[raised].colored {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: white;
 }
 
 #imageInfo {
   margin-top: 0;
+}
+
+.top-bar {
+  background-color: #B8578C;
+  margin: 0 !important;
+  width: 100% !important;
 }

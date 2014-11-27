@@ -9,14 +9,16 @@
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
     <div id="container" vertical layout>
-      <div id="back" horizontal layout>
-        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                   on-click="{{onBackButtonClick}}">
-        </paper-fab>
+      <div class="top-bar">
+        <div id="back" horizontal layout>
+          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                     on-click="{{onBackButtonClick}}">
+          </paper-fab>
 
-        <h2 id="backcaption" data-show="{{!!caption}}" flex>
-          <caption>{{caption|stripHTMLTags}}</caption>
-        </h2>
+          <h2 id="backcaption" data-show="{{!!caption}}" flex>
+            <caption>{{caption|stripHTMLTags}}</caption>
+          </h2>
+        </div>
       </div>
 
       <div id="imgContainer" data-show="{{!!src}}">

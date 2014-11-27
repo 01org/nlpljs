@@ -23,13 +23,16 @@
     </style>
 
     <div id="container" vertical layout>
-      <div id="back" horizontal layout>
-        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                   on-click="{{onBackButtonClick}}">
-        </paper-fab>
-        <h2 id="backcaption" data-show="{{!!caption}}" flex>
-          <caption>{{caption|stripHTMLTags}}</caption>
-        </h2>
+      <div class="top-bar">
+        <div id="back" horizontal layout>
+          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                     on-click="{{onBackButtonClick}}">
+          </paper-fab>
+
+          <h2 id="backcaption" data-show="{{!!caption}}" flex>
+            <caption>{{caption|stripHTMLTags}}</caption>
+          </h2>
+        </div>
       </div>
 
       <div id="imgContainer">
