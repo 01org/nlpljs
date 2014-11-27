@@ -52,17 +52,18 @@
         created: function () {
           this.sources = {};
 
-          this.services = [
-            'Google Image Search',
-            'Google Article Search',
-            'Google Drive Search'
-          ];
-
-          this.sourceType = {
-            'Google Image Search': 'Images',
-            'Google Article Search': 'Articles',
-            'Google Drive Search': 'Files',
+          this.services = {
+            'Google Image Search': {
+              type: 'Images'
+            },
+            'Google Article Search': {
+              type: 'Articles'
+            },
+            'Google Drive Search': {
+              type: 'Files'
+            }
           };
+          this.servicesKeys = Object.keys(this.services);
 
           this.pendingSearches = 0;
         },
@@ -128,11 +129,11 @@
 
         aggregate: function (searchTerms) {
           for (var i = 0; i < searchTerms.length; i++) {
-            var thisSearchTerm= searchTerms[i];
+            var thisSearchTerm = searchTerms[i];
 
-            for (var serviceIndex = 0; serviceIndex < this.services.length; serviceIndex++) {
-              var thisService = this.services[serviceIndex];
-              var sourceType = this.sourceType[thisService];
+            for (var serviceIndex = 0; serviceIndex < this.servicesKeys.length; serviceIndex++) {
+              var thisService = this.servicesKeys[serviceIndex];
+              var sourceType = this.services[thisService].type;
 
               switch (thisService) {
                 case 'Google Image Search':
