@@ -90,7 +90,7 @@
 
                     self.editOverTimer = setTimeout(function () {
                       self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                    }, self.editOverTimeout);
+                    }, self.EDITOVERTIMEOUT);
                   }
                 }
               }
@@ -114,7 +114,7 @@
 
                       self.editOverTimer = setTimeout(function () {
                         self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.editOverTimeout);
+                      }, self.EDITOVERTIMEOUT);
                     }
                   }
                   else if (typeof thisNode.classList !== 'undefined' &&
@@ -132,7 +132,7 @@
 
                       self.editOverTimer = setTimeout(function () {
                         self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.editOverTimeout);
+                      }, self.EDITOVERTIMEOUT);
                     }
                   }
                 }
@@ -253,7 +253,7 @@
       Polymer({
         // functions and properties used in API and bindings
         // life cycle handlers
-        editOverTimeout: 500,
+        EDITOVERTIMEOUT: 3000,
         editOverTimer: null,
 
         created: function () {
