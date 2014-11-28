@@ -9,45 +9,50 @@
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
     <div id="container" vertical layout>
-      <div id="back">
-        <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                   on-click="{{onBackButtonClick}}">
-        </paper-fab>
+      <div class="top-bar">
+        <div id="back" horizontal layout>
+          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
+                     on-click="{{onBackButtonClick}}">
+          </paper-fab>
+
+          <h2 id="backcaption" data-show="{{!!caption}}" flex>
+            <caption>{{caption|stripHTMLTags}}</caption>
+          </h2>
+        </div>
       </div>
 
-      <div id="imgContainer" data-show="{{!!src}}">
-        <div id="spinner" data-show="{{!loaded}}">
-          <template if="{{!loaded}}">
-            <paper-spinner active></paper-spinner>
-          </template>
+      <div id="detailbody">
+        <div id="imgContainer" data-show="{{!!src}}">
+          <div id="spinner" data-show="{{!loaded}}">
+            <template if="{{!loaded}}">
+              <paper-spinner active></paper-spinner>
+            </template>
+          </div>
+
+          <img id="image" src="{{src}}" on-error="{{onImageError}}"
+               on-load="{{onImageLoad}}" data-show="{{!!imageHasLoaded}}">
         </div>
 
-        <img id="image" src="{{src}}" on-error="{{onImageError}}"
-             on-load="{{onImageLoad}}" data-show="{{imageHasLoaded}}">
+        <h2 id="caption" data-show="{{!!caption}}">
+          <caption>{{caption|stripHTMLTags}}</caption>
+        </h2>
+
+        <p id="articleSource" data-show="{{!!source}}">
+          {{sourceName || source|domainFromURL}}
+        </p>
+
+        <div id="snippet" data-show="{{!!snippet}}">
+          {{snippet|stripHTMLTags}}
+        </div>
       </div>
+    </div>
 
-      <h2 id="caption" data-show="{{caption}}">
-        <caption>{{caption|stripHTMLTags}}</caption>
-      </h2>
-
-      <p id="articleSource" data-show="{{source}}">
-        {{sourceName || source|domainFromURL}}
-      </p>
-
-      <div id="snippet" data-show="{{snippet}}">
-        {{snippet|stripHTMLTags}}
-      </div>
-
-      <div id="spacer" flex></div>
+    <div id="visitSrc" data-show="{{!!source}}">
       <hr id="hr">
-
-      <div id="visitSrc" data-show="{{source}}">
-        <paper-button class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{source}}">
-          GO TO ARTICLE
-        </paper-button>
-      </div>
-
+      <paper-button class="colored" on-click="{{visitWebpage}}"
+                    data-source-link="{{source}}">
+        GO TO ARTICLE
+      </paper-button>
     </div>
   </template>
 

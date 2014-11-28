@@ -7,9 +7,10 @@
   height: 100%;
   width: 100%;
   overflow-y: auto;
+  margin-top: 0px;
 }
 
-#container > * {
+#detailbody > * {
   position: relative;
   overflow: hidden;
   margin: 20px 16px 0px 16px;
@@ -26,15 +27,20 @@
   max-height: 50%;
   width: 100% !important;
   margin-left: 0;
+  margin-top: 0;
+  overflow-y: hidden;
 }
 
 #back {
   width: calc(100% - 10px);
   margin-left: 5px;
   margin-right: 5px;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 #spinner {
+  margin-top: 20px;
   margin-left: 10px;
   width: calc(100% - 10px);
   height: 100%;
@@ -46,14 +52,19 @@
 }
 
 #backbutton {
-   background-color: #4CA8B4;
-   margin-left: 0;
+   background-color: #B8578C;
+   margin-left: 5px;
+   margin-right: 5px;
+   margin-top: auto;
+   margin-bottom: auto;
 }
 
 #visitSrc {
+  position: absolute;
+  bottom: 0;
   padding-bottom: 5px;
   text-align: right !important;
-  color: #4CA8B4;
+  color: #B8578C;
   width: calc(100% - 32px);
   margin: 0 16px;
 }
@@ -80,4 +91,53 @@ paper-button[raised].colored {
 
 [data-show="false"] {
   display: none;
+}
+
+#caption {
+  line-height: 28px;
+}
+
+#backcaption {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: white;
+  font-size: 20px;
+  line-height: 25px;
+  /* 64px is the height of cp-panel#toolbar */
+  /* 25px is the line-height */
+  margin-top: calc((64px - 25px) / 2);
+  margin-bottom: calc((64px - 25px) / 2);
+  margin-left: 5px;
+}
+
+#imageInfo {
+  margin-top: 0;
+}
+
+.top-bar {
+  background-color: #B8578C;
+  margin: 0 !important;
+  width: 100% !important;
+  min-height: 64px;
+}
+
+#detailbody {
+  overflow-y: auto;
+  margin: 0;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+#detailbody > * {
+}
+
+#articleSource {
+  line-height: 12px;
+  font-size: 10px;
+}
+
+#snippet {
+  line-height: 16px;
+  font-size: 14px;
 }
