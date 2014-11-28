@@ -25,9 +25,12 @@
 }
 
 #splitter {
-  background-color: #202020;
+  background-color: #e6e6e6;
   box-shadow: none;
-  width: 8px;
+  width: 2px;
+
+  /* hide handle on splitter */
+  background: #e6e6e6;
 }
 
 #panel {
