@@ -346,11 +346,10 @@
       Polymer({
         created: function() {
           this.sources = null;
+          this.changes = [];
         },
 
         currentType: '',
-
-        changes: [],
 
         getSourceGroup: function (type) {
           if (!this.sources[type]) {
@@ -510,7 +509,9 @@
 
             this.addSource(name, url, this.currentType, true);
 
-            updateSelectAllStatus(self, type);
+            this.fire("sourcesedited", this.changes);
+
+            updateSelectAllStatus(this, this.currentType);
           }
         },
 
