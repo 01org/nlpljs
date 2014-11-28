@@ -10,7 +10,7 @@
   margin-top: 0px;
 }
 
-#container > * {
+#detailbody > * {
   position: relative;
   overflow: hidden;
   margin: 20px 16px 0px 16px;
@@ -28,6 +28,7 @@
   width: 100% !important;
   margin-left: 0;
   margin-top: 0;
+  overflow-y: hidden;
 }
 
 #back {
@@ -39,6 +40,7 @@
 }
 
 #spinner {
+  margin-top: 20px;
   margin-left: 10px;
   width: calc(100% - 10px);
   height: 100%;
@@ -58,6 +60,8 @@
 }
 
 #visitSrc {
+  position: absolute;
+  bottom: 0;
   padding-bottom: 5px;
   text-align: right !important;
   color: #B8578C;
@@ -89,8 +93,8 @@ paper-button[raised].colored {
   display: none;
 }
 
-#caption, #backcaption {
-  margin-left: 5px;
+#caption {
+  line-height: 28px;
 }
 
 #backcaption {
@@ -98,10 +102,13 @@ paper-button[raised].colored {
   overflow: hidden;
   text-overflow: ellipsis;
   color: white;
-  margin-top: calc((64px - 20px) / 2);
-  margin-bottom: calc((64px - 20px) / 2);
   font-size: 20px;
-  line-height: 20px;
+  line-height: 25px;
+  /* 64px is the height of cp-panel#toolbar */
+  /* 25px is the line-height */
+  margin-top: calc((64px - 25px) / 2);
+  margin-bottom: calc((64px - 25px) / 2);
+  margin-left: 5px;
 }
 
 #imageInfo {
@@ -112,4 +119,25 @@ paper-button[raised].colored {
   background-color: #B8578C;
   margin: 0 !important;
   width: 100% !important;
+  min-height: 64px;
+}
+
+#detailbody {
+  overflow-y: auto;
+  margin: 0;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
+#detailbody > * {
+}
+
+#articleSource {
+  line-height: 12px;
+  font-size: 10px;
+}
+
+#snippet {
+  line-height: 16px;
+  font-size: 14px;
 }

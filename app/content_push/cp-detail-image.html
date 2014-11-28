@@ -35,53 +35,53 @@
         </div>
       </div>
 
-      <div id="imgContainer">
-        <div id="spinner" data-show="{{!loaded}}">
-          <template if="{{!loaded}}">
-            <paper-spinner active></paper-spinner>
-          </template>
+      <div id="detailbody">
+        <div id="imgContainer">
+          <div id="spinner" data-show="{{!loaded}}">
+            <template if="{{!loaded}}">
+              <paper-spinner active></paper-spinner>
+            </template>
+          </div>
+
+          <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
         </div>
 
-        <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
-      </div>
+        <table id="imageInfo">
+          <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
+            <td>Source</td>
+            <td>{{sourceName || source|domainFromURL}}</td>
+          </tr>
 
-      <table id="imageInfo">
-        <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
-          <td>Source</td>
-          <td>{{sourceName || source|domainFromURL}}</td>
-        </tr>
+          <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
+            <td>Size</td>
+            <td>{{width}}x{{height}}</td>
+          </tr>
+        </table>
 
-        <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
-          <td>Size</td>
-          <td>{{width}}x{{height}}</td>
-        </tr>
-      </table>
+        <div id="exif" data-show="{{hasEXIF}}">
+          <hr>
 
-      <div id="exif" data-show="{{hasEXIF}}">
-        <hr>
+          <div id="exifHeader">
+            <h4 id="exifTitle">Image info</h4>
+            <core-icon id="exifToggle" on-click="{{exifToggle}}"
+                       icon="expand-more">
+            </core-icon>
+          </div>
 
-        <div id="exifHeader">
-          <h4 id="exifTitle">Image info</h4>
-          <core-icon id="exifToggle" on-click="{{exifToggle}}"
-                     icon="expand-more">
-          </core-icon>
+          <core-collapse id="exifDropdown">
+            <p data-show="{{meta.Camera}}">
+              <strong>Camera:</strong> {{meta.Camera}}
+            </p>
+
+            <p data-show="{{meta.DateTime}}">
+              <strong>Date:</strong> {{meta.DateTime}}
+            </p>
+          </core-collapse>
         </div>
-
-        <core-collapse id="exifDropdown">
-          <p data-show="{{meta.Camera}}">
-            <strong>Camera:</strong> {{meta.Camera}}
-          </p>
-
-          <p data-show="{{meta.DateTime}}">
-            <strong>Date:</strong> {{meta.DateTime}}
-          </p>
-        </core-collapse>
       </div>
-
-      <div id="spacer" flex></div>
-      <hr id="hr">
 
       <div id="visitSrc" data-show="{{!!source}}">
+        <hr id="hr">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{contextLink}}">
           VISIT PAGE

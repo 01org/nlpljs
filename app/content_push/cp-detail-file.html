@@ -32,62 +32,62 @@
         <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
       </div>
 
-      <table>
-        <tr>
-          <td>Source</td>
-          <td>
-            <span data-show="{{!!serviceIcon}}">
-              <core-icon icon="{{serviceIcon}}"></core-icon>
-            </span>
-            &nbsp;&nbsp;
-            <span data-show="{{!!service}}">
-              {{service}}
-            </span>
-          </td>
-        </tr>
+      <div id="detailbody">
+        <table>
+          <tr>
+            <td>Source</td>
+            <td>
+              <span data-show="{{!!serviceIcon}}">
+                <core-icon icon="{{serviceIcon}}"></core-icon>
+              </span>
+              &nbsp;&nbsp;
+              <span data-show="{{!!service}}">
+                {{service}}
+              </span>
+            </td>
+          </tr>
 
-        <tr data-show="{{!!fileType}}">
-          <td>Type</td>
-          <td>
-            <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
-          </td>
-        </tr>
+          <tr data-show="{{!!fileType}}">
+            <td>Type</td>
+            <td>
+              <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
+            </td>
+          </tr>
 
-        <tr data-show="{{size !== null && size !== undefined}}">
-          <td>Size</td>
-          <td>{{size|bytesToKb}}Kb</td>
-        </tr>
+          <tr data-show="{{size !== null && size !== undefined}}">
+            <td>Size</td>
+            <td>{{size|bytesToKb}}Kb</td>
+          </tr>
 
-        <tr data-show="{{!!folder}}">
-          <td>Location</td>
-          <td>
-            <core-icon icon="folder"></core-icon>
-            &nbsp;&nbsp;{{folder}}
-          </td>
-        </tr>
+          <tr data-show="{{!!folder}}">
+            <td>Location</td>
+            <td>
+              <core-icon icon="folder"></core-icon>
+              &nbsp;&nbsp;{{folder}}
+            </td>
+          </tr>
 
-        <tr data-show="{{!!owner}}">
-          <td>Owner</td>
-          <td>{{owner}}</td>
-        </tr>
+          <tr data-show="{{!!owner}}">
+            <td>Owner</td>
+            <td>{{owner}}</td>
+          </tr>
 
-        <tr data-show="{{!!modifiedDate}}">
-          <td>Modified</td>
-          <td>{{modifiedDate|formatDate}} by {{lastModifiedByUser}}</td>
-        </tr>
+          <tr data-show="{{!!modifiedDate}}">
+            <td>Modified</td>
+            <td>{{modifiedDate|formatDate}} by {{lastModifiedByUser}}</td>
+          </tr>
 
-        <tr>
-          <td>Created</td>
-          <td>
-            {{createdDate|formatDate}}
-          </td>
-        </tr>
-      </table>
-
-      <div id="spacer" flex></div>
-      <hr id="hr">
+          <tr>
+            <td>Created</td>
+            <td>
+              {{createdDate|formatDate}}
+            </td>
+          </tr>
+        </table>
+      </div>
 
       <div id="visitSrc" data-show="{{source}}">
+        <hr id="hr">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
           OPEN FILE
