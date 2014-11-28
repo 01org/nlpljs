@@ -290,6 +290,7 @@ pushing new tiles into the wrapped layout
             return;
           }
 
+          this.keywordsWithResults = [];
           this.setSliderRange(criteria.activeKeywords);
 
           /* only show the selected number of the active keywords */
@@ -300,17 +301,37 @@ pushing new tiles into the wrapped layout
             return keyword.text;
           });
 
+          var allKeywords = criteria.activeKeywords.map(function (keyword) {
+            return keyword.text;
+          });
+
           criteria.types = criteria.types || [];
 
           /* set the filter on the layout to the current keyphrase */
           this.$.layout.setFilter(function (tile) {
             var keywordMatches = false;
 
+            var typeMatches;
+            /* no types criteria, so always matches */
+            if (criteria.types.length === 0) {
+              typeMatches = true;
+            } else {
+              typeMatches = _.contains(criteria.types, tile.type);
+            }
+
             for (var i = 0; i < tile.keywords.length; i++) {
-              var index = keywords.indexOf(tile.keywords[i].text);
-              if (index !== -1) {
+              var keyword = tile.keywords[i].text;
+              var index1 = keywords.indexOf(keyword);
+              var index2 = allKeywords.indexOf(keyword);
+
+              if (index1 !== -1) {
                 keywordMatches = true;
-                tile.keywords[i] = criteria.activeKeywords[index];
+                tile.keywords[i] = criteria.activeKeywords[index1];
+              }
+
+              if (index2 !== -1 && typeMatches &&
+                  self.keywordsWithResults.indexOf(keyword) === -1) {
+                self.keywordsWithResults.push(keyword);
               }
             }
 
@@ -345,22 +366,10 @@ pushing new tiles into the wrapped layout
               }
             }
 
-            var typeMatches;
-            /* no types criteria, so always matches */
-            if (criteria.types.length === 0) {
-              typeMatches = true;
-            } else {
-              typeMatches = _.contains(criteria.types, tile.type);
-            }
-
             return keywordMatches && typeMatches;
           });
 
-          var hidden = this.$.slider_wrapper.classList.contains('hide');
-          if (keywords.length > 0 && hidden) {
-            this.$.slider_wrapper.classList.remove('hide');
-          } else
-          if (keywords.length <= 0 && !hidden) {
+          if (!this.$.slider_wrapper.classList.contains('hide')) {
             console.log('CP-DISPLAY:hiding');
             this.state = 'noresults';
             this.$.slider_wrapper.classList.add('hide');
@@ -447,6 +456,13 @@ pushing new tiles into the wrapped layout
             this.stopWaiting();
           } else if (!this.waiting && this.$.layout.tilesLoading < 1) {
             this.state = 'noresults';
+          }
+
+          if (this.keywordsWithResults.length > 0) {
+            this.setSliderRange(this.keywordsWithResults);
+
+            if (this.$.slider_wrapper.classList.contains('hide'))
+              this.$.slider_wrapper.classList.remove('hide');
           }
         },
 
