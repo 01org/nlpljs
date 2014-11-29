@@ -28,9 +28,22 @@ var epHttp = (function () {
    * parameters.cb Callback which will receive the response
    */
   obj.send = function (parameters) {
+    var url = parameters.url;
+    var rewriter = sessionStorage.getItem('rewriter');
+
+    if (rewriter) {
+      if (url.indexOf('searchType=image')!==-1) {
+        console.log('EP-HTTP:rewriting image url');
+        url = url.replace(/https:\/\/www.googleapis.com\//, rewriter);
+      } else {
+      // TODO article?
+        console.log('EP-HTTP:not image url:', url);
+      }
+    }
+
     var request = {
       id: handlerId,
-      url: parameters.url
+      url: url
     };
 
     handlers[handlerId] = function (id, response) {
