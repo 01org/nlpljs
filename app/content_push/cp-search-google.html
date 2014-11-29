@@ -52,7 +52,7 @@ search using a Google custom search engine
                     'safe=' + this.safe + '&' +
                     'num=' + MAX_RESULTS_PER_SEARCH + '&' +
                     'start=' + start + '&' +
-                    'q=%22' + query + '%22';
+                    'q=%22' + encodeURIComponent(query) + '%22';
 
           if (sourceURL) {
             url += '&';
