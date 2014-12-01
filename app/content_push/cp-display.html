@@ -74,11 +74,6 @@ pushing new tiles into the wrapped layout
         align-items: center;
         height: 32px;
         background-color: #e6e6e6;
-        transition: height 0.2s ease-out 0.2s;
-      }
-
-      #slider_wrapper:hover {
-        height: 64px;
       }
 
       .full-size {
@@ -87,20 +82,26 @@ pushing new tiles into the wrapped layout
       }
 
       .shrunk {
-        /* -height of slider_wrapper:hover */
-        height: calc(100% - 64px);
+        /* -(height of slider_wrapper + label_wrapper.out) */
+        height: calc(100% - 54px);
       }
 
       #label_wrapper {
-        width: 90%;
-        height: 32px;
-        margin-left: 5%;
-        margin-right: 5%;
+        width: 100%;
+        height: 0;
+        background-color: #e6e6e6;
+        transition: height 0.2s ease-out 0.2s;
       }
 
-      #label_wrapper div {
+      #label_wrapper.out {
+        height: 22px !important;
+      }
+
+      #label_wrapper * {
         color: rgba(0, 0, 0, 0.46);
         font-size: 12px;
+        background-color: #e6e6e6;
+        padding: 0 14px;
       }
 
       @-webkit-keyframes fadein {
@@ -231,6 +232,11 @@ pushing new tiles into the wrapped layout
                    data-visible="{{state === 'results'}}"></cp-layout>
       </cp-scroll>
 
+      <div id="label_wrapper" horizontal justified layout>
+        <div>FOCUS</div>
+        <div>WANDER</div>
+      </div>
+
       <div id="slider_wrapper" class="hide" vertical justified layout
            on-mouseover="{{onSliderMouseOver}}"
            on-mouseout="{{onSliderMouseOut}}">
@@ -240,11 +246,6 @@ pushing new tiles into the wrapped layout
                       on-change="{{sliderChanged}}"
                       data-show="{{state !== 'preresults'}}">
         </paper-slider>
-
-        <div id="label_wrapper" horizontal justified layout>
-          <div>FOCUS</div>
-          <div>WANDER</div>
-        </div>
       </div>
     </div>
   </template>
@@ -453,11 +454,13 @@ pushing new tiles into the wrapped layout
         onSliderMouseOver: function () {
           this.$.scroller.classList.remove('full-size');
           this.$.scroller.classList.add('shrunk');
+          this.$.label_wrapper.classList.add('out');
         },
 
         onSliderMouseOut: function () {
           this.$.scroller.classList.remove('shrunk');
           this.$.scroller.classList.add('full-size');
+          this.$.label_wrapper.classList.remove('out');
         },
 
         /**
