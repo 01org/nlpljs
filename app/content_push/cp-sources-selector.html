@@ -19,6 +19,15 @@
         overflow-y: auto;
       }
 
+      #title-back {
+        margin-top: 26px;
+      }
+
+      #back::shadow core-icon {
+        height: 20px;
+        width: 20px;
+      }
+
       #panel_overlay {
         position:absolute;
         top:0px;
@@ -43,7 +52,8 @@
         background-color: #B8578C;
         text-align: left;
         color: white;
-        padding-top: 30px;
+        padding-top: 6px;
+        height: 96px;
       }
 
       #headertext {
@@ -57,41 +67,54 @@
 
       #add {
         background-color: #FFF373;
-        bottom:-20px;
-        z-index:1;
+        bottom: -20px;
+        z-index: 1;
+        width: 40px;
+        height: 40px;
+        box-shadow: #888 0px 3px 5px;
       }
 
       #add[disabled] {
         background-color: #c9c9c9;
       }
 
-      #add::shadow core-icon, core-icon {
+      #add::shadow core-icon {
         color: black;
+        width: 20px;
+        height: 20px;
+        top: 10px;
+        left: 10px;
       }
 
       #select_all_container {
-        padding-top:45px;
-        padding-bottom:45px;
-        border-bottom:solid black 1px;
+        padding-top: 45px;
+        padding-bottom: 20px;
+        width: calc(100% - 48px);
+        margin-left: 24px;
+        border-bottom: 1px solid #afafaf;
+        font-size: 14px;
       }
 
-      #title-back {
-        margin-top: 30px;
+      #sources {
+        width: calc(100% - 48px);
+        margin-left: 24px;
       }
 
       #sources div {
-        padding-top:15px;
-        padding-bottom:15px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         align-items: center;
+        font-size: 14px;
       }
 
-      paper-checkbox {
-        margin-right: 15px;
-        margin-left: 15px;
+      #sources div:first-child {
+        padding-top: 14px;
       }
 
       #sources core-icon {
         color: gray;
+        width: 16px;
+        height: 16px;
       }
 
       paper-dialog {
@@ -144,6 +167,19 @@
         height: 70%;
         margin: auto;
       }
+
+      paper-checkbox {
+        margin-right: 32px;
+      }
+
+      paper-checkbox::shadow #checkboxContainer {
+        width: 18px;
+        height: 18px;
+      }
+
+      paper-checkbox::shadow #checkbox.checked {
+        border-color: #B8578C;
+      }
     </style>
 
     <div id="panel_overlay"></div>
@@ -151,7 +187,7 @@
     <cp-sources-storage id="storage" on-new-sources="{{onNewSources}}"></cp-sources-storage>
 
     <core-header-panel id="panel">
-      <core-toolbar id="header" class="medium-tall">
+      <core-toolbar id="header">
         <div vertical layout>
           <div id="title-back" horizontal layout center>
             <paper-icon-button id="back" icon="arrow-back"
