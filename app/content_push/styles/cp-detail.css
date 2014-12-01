@@ -55,8 +55,17 @@
    background-color: #B8578C;
    margin-left: 5px;
    margin-right: 5px;
-   margin-top: auto;
+   margin-top: 17px;
    margin-bottom: auto;
+}
+
+#backbutton::shadow core-icon {
+   width: 20px;
+   height: 20px;
+}
+
+#backbutton::shadow paper-ripple {
+   display: none;
 }
 
 #visitSrc {
