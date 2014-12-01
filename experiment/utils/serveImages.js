@@ -243,6 +243,10 @@ https://www.googleapis.com/customsearch/v1?searchType=image&key=AIzaSyARyiQ40rIj
 }
 */
 
+var sizeOf = require('image-size');
+var http = require('http');
+var fs = require('fs');
+
 function makeContainerObject() {
   return {
  "kind": "customsearch#search",
@@ -296,6 +300,10 @@ function makeContainerObject() {
 }
 
 function makeImageObject(imagePath) {
+  var dimensions = sizeOf(imagePath);
+  var stats = fs.statSync(imagePath)
+  var fileSizeInBytes = stats["size"]
+
   return {
     // properties for images
    "kind": "customsearch#result",
@@ -308,12 +316,12 @@ function makeImageObject(imagePath) {
    "mime": "image/jpeg",
    "image": {
     "contextLink": "http://crossfitlittleton.net/2014/06/26/daily-battle/",
-    "height": 1200,
-    "width": 1920,
-    "byteSize": 567508,
+    "height": dimensions.height,
+    "width": dimensions.width,
+    "byteSize": fileSizeInBytes,
     "thumbnailLink": "http://127.0.0.1:1337/"+imagePath,
-    "thumbnailHeight": 94,
-    "thumbnailWidth": 150,
+    "thumbnailHeight": dimensions.height/10,
+    "thumbnailWidth": dimensions.width/10,
 
     // properties for articles - must be missing something, probably the container object is different too
     "pagemap": {
@@ -332,8 +340,6 @@ function makeHeader() {
   };
 }
 
-var http = require('http');
-var fs = require('fs');
 fs.readdir('.',function(err, files) {
   http.createServer(function (req, res) {
     if (req.url.indexOf('key=')!=-1) {
