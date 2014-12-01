@@ -19,6 +19,10 @@
         overflow-y: auto;
       }
 
+      #title-back {
+        margin-top: 30px;
+      }
+
       #panel_overlay {
         position:absolute;
         top:0px;
@@ -70,28 +74,34 @@
       }
 
       #select_all_container {
-        padding-top:45px;
-        padding-bottom:45px;
-        border-bottom:solid black 1px;
+        padding-top: 45px;
+        padding-bottom: 20px;
+        width: calc(100% - 48px);
+        margin-left: 24px;
+        border-bottom: 1px solid #afafaf;
+        font-size: 14px;
       }
 
-      #title-back {
-        margin-top: 30px;
+      #sources {
+        width: calc(100% - 48px);
+        margin-left: 24px;
       }
 
       #sources div {
-        padding-top:15px;
-        padding-bottom:15px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         align-items: center;
+        font-size: 14px;
       }
 
-      paper-checkbox {
-        margin-right: 15px;
-        margin-left: 15px;
+      #sources div:first-child {
+        padding-top: 14px;
       }
 
       #sources core-icon {
         color: gray;
+        width: 16px;
+        height: 16px;
       }
 
       paper-dialog {
@@ -143,6 +153,19 @@
         width: 30%;
         height: 70%;
         margin: auto;
+      }
+
+      paper-checkbox {
+        margin-right: 32px;
+      }
+
+      paper-checkbox::shadow #checkboxContainer {
+        width: 18px;
+        height: 18px;
+      }
+
+      paper-checkbox::shadow #checkbox.checked {
+        border-color: #B8578C;
       }
     </style>
 
