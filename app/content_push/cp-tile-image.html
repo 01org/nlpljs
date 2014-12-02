@@ -52,6 +52,8 @@ size
 
       Polymer({
         created: function () {
+          var self = this;
+
           /* URL for the image to be displayed */
           this.src = null;
 
@@ -91,6 +93,14 @@ size
           /* the original data used to construct the tile, as
              returned by an image search */
           this.image = {};
+
+          // fire a "done" event, even if the image times out
+          setTimeout(function () {
+            if (!self.done) {
+              self.done = true;
+              self.fire('done', self);
+            }
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         revealmetaOn: function () {
@@ -111,16 +121,7 @@ size
 
         srcChanged: function () {
           var self = this;
-
           this.loaded = false;
-
-          // fire a "done" event, even if the image times out
-          setTimeout(function () {
-            if (!self.loaded) {
-              self.done = true;
-              self.fire('done');
-            }
-          }, CP_CONSTANTS.TIMEOUT);
         },
 
         widthChanged: function () {
@@ -134,15 +135,21 @@ size
         // set metadata for the image once it's loaded
         onImageLoaded: function () {
           this.loaded = true;
-          this.done = true;
-          this.fire('done', this);
+
+          if (!this.done) {
+            this.done = true;
+            this.fire('done', this);
+          }
         },
 
         // image failed to load for whatever reason
         onImageError: function (e) {
           this.loaded = false;
-          this.done = true;
-          this.fire('done', this);
+
+          if (!this.done) {
+            this.done = true;
+            this.fire('done', this);
+          }
 
           // notify the error, in case anyone cares
           this.fire('error', e);

@@ -83,6 +83,7 @@ tile for a general web page (article)
 
   </template>
 
+  <script src="./cp-constants.js"></script>
   <script src="./cp-layout-frame-chooser.js"></script>
   <script src="./cp-formatter.js"></script>
 
@@ -90,6 +91,8 @@ tile for a general web page (article)
     (function () {
       Polymer({
         created: function () {
+          var self = this;
+
           /* THESE PROPERTIES SHOULD BE SET WHEN THE TILE IS CREATED */
 
           /* URL for the file thumbnail to be displayed */
@@ -139,28 +142,33 @@ tile for a general web page (article)
           /* article tiles are ready regardless of whether the image
              loads; we just change how they look if it doesn't */
           this.done = false;
+
+          /* fire a "done" event, even if the image times out (or if
+             there is no image) */
+          setTimeout(function () {
+            if (!self.done) {
+              self.done = true;
+              self.fire('done', self);
+            }
+          }, CP_CONSTANTS.TIMEOUT);
         },
 
         srcChanged: function () {
           var self = this;
 
           this.loaded = false;
+          this.done = false;
           this.imageLoaded = false;
-
-          /* fire a "done" event, even if the image times out */
-          setTimeout(function () {
-            if (!self.loaded) {
-              self.done = true;
-              self.fire('done');
-            }
-          }, CP_CONSTANTS.TIMEOUT);
         },
 
         onImageLoaded: function () {
           this.imageLoaded = true;
           this.loaded = true;
-          this.done = true;
-          this.fire('done', this);
+
+          if (!this.done) {
+            this.done = true;
+            this.fire('done', this);
+          }
         },
 
         /* image failed to load for whatever reason */
@@ -169,8 +177,11 @@ tile for a general web page (article)
 
           /* we still mark the tile as "loaded" so it will display */
           this.loaded = true;
-          this.done = true;
-          this.fire('done', this);
+
+          if (!this.done) {
+            this.done = true;
+            this.fire('done', this);
+          }
 
           /* notify the error, in case anyone cares */
           this.fire('error', e);
