@@ -1,34 +1,42 @@
 <!--
 wrapper for a Google Drive file thumbnail
 -->
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
+
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 
 <polymer-element name="cp-tile-file" attributes="src loaded done">
   <template>
     <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
-      .paleyellow {
-        background-color: #fafab2;
+      #container {
+        box-shadow: none !important;
       }
 
-      .paleblue {
-        background-color: #d8e2f1;
+      #imageShadow {
+        margin: 3px;
+        height: calc(100% - 46px); /* -height of meta -margin * 2 */
+        width: calc(100% - 6px); /* -margin * 2 */
+        box-sizing: border-box;
       }
 
-      .palepink {
-        background-color: #fbd4d5;
+      #imageContainer {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 2px;
       }
 
-      .palegrey {
-        background-color: #b2b2b2;
+      #image {
+        width: 100%;
+        height: auto;
       }
 
       #meta {
-        display: block;
-        position: absolute;
-        bottom: 0;
-        color: black;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        height: 40px;
         text-align: left;
         padding: 0.5em;
         box-sizing: border-box;
@@ -41,85 +49,29 @@ wrapper for a Google Drive file thumbnail
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        font-size: 1.2em;
-      }
-
-      #filedetails {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        margin-top: 0.25em;
-      }
-
-      #filedetails span {
-        font-size: 0.75em;
-        padding-right: 0.5em;
-      }
-
-      #service {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        width: 50%;
-      }
-
-      #createdDate {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: center;
-        width: 50%;
-      }
-
-      #createdDate span {
-        text-align: right;
+        font-size: 14px;
+        padding-left: 8px;
       }
     </style>
 
     <div id="container">
-      <img id="image" src="{{src}}">
+      <paper-shadow z="1" id="imageShadow">
+        <div id="imageContainer">
+          <img id="image" src="{{src}}">
+        </div>
+      </paper-shadow>
 
       <div id="meta">
-        <h2 id="caption">{{caption}}</h2>
-        <div id="filedetails">
-          <div id="service">
-            <span data-show="{{!!icon}}">
-              <core-icon icon="{{icon}}"></core-icon>
-            </span>
-            <span data-show="{{!!service}}">
-              {{service}}
-            </span>
-          </div>
-          <div id="createdDate" data-show="{{!!createdDate}}">
-            <span>{{createdDate|formatDate}}</span>
-          </div>
-        </div>
+        <img id="icon" src="{{iconLink}}">
+        <span id="caption">{{caption}}</span>
       </div>
     </div>
   </template>
 
-  <script src="./cp-constants.js"></script>
-  <script src="./cp-formatter.js"></script>
   <script src="./cp-layout-frame-chooser.js"></script>
 
   <script>
     (function () {
-      /* regex to test padding-left and padding-right values to ensure they
-         have px suffixes; this is necessary so we can accurately
-         measure the size of the actual container we need to fit
-         the meta into */
-      var PX_REGEX = /px$/;
-
-      /* random background colours for the tile */
-      var BACKGROUND_COLOURS = [
-        'paleyellow',
-        'paleblue',
-        'palepink',
-        'palegrey'
-      ];
-
       Polymer({
         created: function () {
           /* THESE PROPERTIES SHOULD BE SET */
@@ -130,15 +82,8 @@ wrapper for a Google Drive file thumbnail
           /* title to show at the bottom of the tile */
           this.caption = '';
 
-          /* datetime when file was created */
-          this.createdDate = null;
-
-          /* the service which holds this file; used to choose the icon
-             to display; should be one of the keys in SERVICE_ICONS */
-          this.service = null;
-
-          /* source name */
-          this.sourceName = null;
+          /* URL of icon to display, showing the file type */
+          this.iconLink = null;
 
           /* the original data used to construct the tile, as
              returned by a file search */
@@ -157,9 +102,6 @@ wrapper for a Google Drive file thumbnail
 
           /* PROPERTIES BELOW DON'T NEED TO BE SET */
 
-          /* icon to display */
-          this.icon = null;
-
           /* hard-code the frame for file tiles */
           this.frame = FrameChooser.FRAMES['large_square'];
 
@@ -170,20 +112,7 @@ wrapper for a Google Drive file thumbnail
 
           /* file tiles are always ready */
           this.done = true;
-        },
-
-        domReady: function () {
-          /* set background colour for the container at random */
-          var bgChoice = parseInt(Math.random() * BACKGROUND_COLOURS.length, 10);
-          this.$.meta.classList.add(BACKGROUND_COLOURS[bgChoice]);
-        },
-
-        /* the service sets the icon */
-        serviceChanged: function () {
-          this.icon = CP_CONSTANTS.SERVICE_ICONS[this.service];
-        },
-
-        formatDate: Formatter.formatDate
+        }
       });
     })();
   </script>
