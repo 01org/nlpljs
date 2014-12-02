@@ -73,6 +73,20 @@ wrapper for a Google Drive file thumbnail
   <script>
     (function () {
       Polymer({
+        /* file tiles are always ready */
+        done: true,
+
+        /* we always set loaded to true, so that file tiles are
+           loaded into cp-display regardless of whether their related
+           thumbnail loads */
+        loaded: true,
+
+        /* type of object used to create the tile */
+        type: 'file',
+
+        /* hard-code the frame for file tiles */
+        frame: FrameChooser.FRAMES['large_square'],
+
         created: function () {
           /* THESE PROPERTIES SHOULD BE SET */
 
@@ -96,22 +110,6 @@ wrapper for a Google Drive file thumbnail
              }
           */
           this.keywords = [];
-
-          /* type of object used to create the tile */
-          this.type = 'file';
-
-          /* PROPERTIES BELOW DON'T NEED TO BE SET */
-
-          /* hard-code the frame for file tiles */
-          this.frame = FrameChooser.FRAMES['large_square'];
-
-          /* we always set loaded to true, so that file tiles are
-             loaded into cp-display regardless of whether their related
-             thumbnail loads */
-          this.loaded = true;
-
-          /* file tiles are always ready */
-          this.done = true;
         }
       });
     })();

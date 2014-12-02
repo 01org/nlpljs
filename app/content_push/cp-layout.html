@@ -33,7 +33,9 @@
 
     <div id="container" data-show="{{visibleTiles > 0}}"
          data-total-tiles="{{totalTiles}}"
-         data-visible-tiles="{{visibleTiles}}"></div>
+         data-visible-tiles="{{visibleTiles}}"
+         data-loading-tiles="{{tilesLoading}}">
+    </div>
 
     <div id="loading" data-show="{{tilesLoading > 0}}">
       <template if="{{tilesLoading > 0}}">
@@ -89,10 +91,6 @@
           this.tileSources = {};
         },
 
-        setPending: function (val) {
-          this.pending = val;
-        },
-
         /* set number of columns based on the gallery width */
         setLayoutParams: function () {
           var width = this.offsetWidth;
@@ -137,7 +135,7 @@
 
         /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
-          this.tilesLoading--;
+          this.tilesLoading -= 1;
 
           /* loaded is false if the image failed to load */
           if (tile.loaded) {
@@ -176,13 +174,17 @@
         addTile: function (tile) {
           var self = this;
 
-          this.tilesLoading++;
+          this.tilesLoading += 1;
           this.fireLoadEvent();
 
-          if (tile.loaded) {
+          if (tile.done) {
             this.tileReady(tile);
           } else {
             tile.addEventListener('done', function () {
+              if (tile.type === 'file') {
+                console.error('CP-LAYOUT: setting "done" handler on ' +
+                              'file tile; handler will never fire');
+              }
               self.tileReady(tile);
             });
           }
