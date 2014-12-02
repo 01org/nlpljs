@@ -67,6 +67,10 @@
         display: none;
       }
 
+      #items {
+        padding-top: 12px;
+      }
+
       core-item {
         -webkit-user-select: none;
         cursor: pointer;
@@ -101,11 +105,13 @@
             </div>
           </core-toolbar>
 
-          <core-item icon="image:camera-alt" label="Images" on-click="{{editSourcesFor}}"></core-item>
-          <core-item icon="editor:insert-drive-file" label="Files" on-click="{{editSourcesFor}}"></core-item>
-          <core-item icon="editor:format-color-text" label="Articles" on-click="{{editSourcesFor}}"></core-item>
-          <core-item icon="editor:format-quote" label="Quotes" on-click="{{editSourcesFor}}"></core-item>
-          <core-item icon="av:videocam" label="Videos" on-click="{{editSourcesFor}}"></core-item>
+          <div id="items">
+            <core-item icon="image:camera-alt" label="Images" on-click="{{editSourcesFor}}"></core-item>
+            <core-item icon="editor:insert-drive-file" label="Files" on-click="{{editSourcesFor}}"></core-item>
+            <core-item icon="editor:format-color-text" label="Articles" on-click="{{editSourcesFor}}"></core-item>
+            <core-item icon="editor:format-quote" label="Quotes" on-click="{{editSourcesFor}}"></core-item>
+            <core-item icon="av:videocam" label="Videos" on-click="{{editSourcesFor}}"></core-item>
+          </div>
         </core-header-panel>
       </div>
 
