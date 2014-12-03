@@ -40,7 +40,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                     '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
                     '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
                     '&gsroffset=' + resultSet.offset +
-                    '&format=json&prop=imageinfo&iiprop=extmetadata|url|size';
+                    '&format=json&prop=imageinfo&iiprop=extmetadata|url|size' +
+                    '&rawcontinue';
 
           return new Promise(function (resolve, reject) {
             jsonp({
