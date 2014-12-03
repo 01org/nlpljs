@@ -70,12 +70,17 @@ search using a Google custom search engine
               url: url
             };
 
-            chrome.runtime.sendMessage(self.appId, message, function (response) {
-              self.handleResponse(resultSet, query, self.searchType, response)
-              .then(
-                resolve, reject
-              );
-            });
+            try {
+              chrome.runtime.sendMessage(self.appId, message, function (response) {
+                self.handleResponse(resultSet, query, self.searchType, response)
+                .then(
+                  resolve, reject
+                )
+                .catch(reject);
+              });
+            } catch (err) {
+              reject(err);
+            }
           });
         },
 
@@ -90,7 +95,7 @@ search using a Google custom search engine
                                 JSON.stringify(response));
             return Promise.reject(err);
           } else if (response.items) {
-            if (response.queries.nextPage) {
+            if (response.queries && response.queries.nextPage) {
               /* offset for the next search for this query */
               var offset = response.queries.nextPage[0].startIndex - 1;
 
