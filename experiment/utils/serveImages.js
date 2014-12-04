@@ -1,5 +1,96 @@
-/* example url and server response, for reference
-https://www.googleapis.com/customsearch/v1?searchType=image&key=AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE&cx=010167764530769062315:196d4y__4ss&safe=high&num=10&start=1&q=%22battle
+/* example article url and server response
+https://www.googleapis.com/customsearch/v1?key=AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE&cx=010167764530769062315:196d4y__4ss&safe=high&num=10&start=1&q=%22such%20great%20losses%22&siteSearchFilter=i&siteSearch=wikipedia.org
+{
+ "kind": "customsearch#search",
+ "url": {
+  "type": "application/json",
+  "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&sta…imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
+ },
+ "queries": {
+  "request": [
+   {
+    "title": "Google Custom Search - \"such great losses\"",
+    "totalResults": "3",
+    "searchTerms": "\"such great losses\"",
+    "count": 3,
+    "startIndex": 1,
+    "inputEncoding": "utf8",
+    "outputEncoding": "utf8",
+    "safe": "high",
+    "cx": "010167764530769062315:196d4y__4ss",
+    "siteSearch": "wikipedia.org",
+    "siteSearchFilter": "i"
+   }
+  ]
+ },
+ "context": {
+  "title": "Content Push"
+ },
+ "searchInformation": {
+  "searchTime": 0.105973,
+  "formattedSearchTime": "0.11",
+  "totalResults": "3",
+  "formattedTotalResults": "3"
+ },
+ "items": [
+  {
+   "kind": "customsearch#result",
+   "title": "User:DonnaAfrica - Wikipedia, the free encyclopedia",
+   "htmlTitle": "User:DonnaAfrica - Wikipedia, the free encyclopedia",
+   "link": "http://en.wikipedia.org/wiki/User:DonnaAfrica",
+   "displayLink": "en.wikipedia.org",
+   "snippet": "... Warrior and \"The Queen of Dreams\" when her Mother sadly passed away in \n2007, at her lowest ebb & feeling overwhelmed by such great losses and despair,\n ...",
+   "htmlSnippet": "... Warrior and &quot;The Queen of Dreams&quot; when her Mother sadly passed away in \u003cbr\u003e\n2007, at her lowest ebb &amp; feeling overwhelmed by \u003cb\u003esuch great losses\u003c/b\u003e and despair,\u003cbr\u003e\n&nbsp;...",
+   "cacheId": "kT56CAhdSxsJ",
+   "formattedUrl": "en.wikipedia.org/wiki/User:DonnaAfrica",
+   "htmlFormattedUrl": "en.wikipedia.org/wiki/User:DonnaAfrica"
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Wang Zhongsi - Wikipedia, the free encyclopedia",
+   "htmlTitle": "Wang Zhongsi - Wikipedia, the free encyclopedia",
+   "link": "http://en.wikipedia.org/wiki/Wang_Zhongsi",
+   "displayLink": "en.wikipedia.org",
+   "snippet": "... be such a defensive position that such great losses were necessary to capture \nit. He opined that this was an allegation manufactured by Wang's descendants.",
+   "htmlSnippet": "... be such a defensive position that \u003cb\u003esuch great losses\u003c/b\u003e were necessary to capture \u003cbr\u003e\nit. He opined that this was an allegation manufactured by Wang&#39;s descendants.",
+   "cacheId": "Zfzh66-KgLwJ",
+   "formattedUrl": "en.wikipedia.org/wiki/Wang_Zhongsi",
+   "htmlFormattedUrl": "en.wikipedia.org/wiki/Wang_Zhongsi"
+  },
+  {
+   "kind": "customsearch#result",
+   "title": "Battle of Hastings - Wikipedia, the free encyclopedia",
+   "htmlTitle": "Battle of Hastings - Wikipedia, the free encyclopedia",
+   "link": "http://en.wikipedia.org/wiki/Battle_of_Hastings",
+   "displayLink": "en.wikipedia.org",
+   "snippet": "Harald of Norway and Tostig were killed, and the Norwegians suffered such great \nlosses that only 24 of the original 300 ships were required to carry away the ...",
+   "htmlSnippet": "Harald of Norway and Tostig were killed, and the Norwegians suffered \u003cb\u003esuch great\u003c/b\u003e \u003cbr\u003e\n\u003cb\u003elosses\u003c/b\u003e that only 24 of the original 300 ships were required to carry away the&nbsp;...",
+   "cacheId": "B6oXb_1hDREJ",
+   "formattedUrl": "en.wikipedia.org/wiki/Battle_of_Hastings",
+   "htmlFormattedUrl": "en.wikipedia.org/wiki/Battle_of_Hastings",
+   "pagemap": {
+    "cse_image": [
+     {
+      "src": "http://upload.wikimedia.org/wikipedia/commons/thumb/d/d2/Harold_dead_bayeux_tapestry.png/300px-Harold_dead_bayeux_tapestry.png"
+     }
+    ],
+
+    "cse_thumbnail": [
+     {
+      "width": "240",
+      "height": "169",
+      "src": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQmfUs5VED7yKq2ZZafmE_J355PfLEDDrzBGbEVdv-yiL3Zz9avz7__70k"
+     }
+    ]
+
+   }
+  }
+ ]
+}
+*/
+
+/* example image search url and server response, for reference
+https://www.googleapis.com/customsearch/v1?searchType=image&key=AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE&cx=010167764530769062315:196d4y__4ss&safe=high&num=10&start=1&q=%22tostig%20and%20hardrada%20at%20stamford%22&siteSearchFilter=i&siteSearch=flickr.com
 {
  "kind": "customsearch#search",
  "url": {
@@ -255,6 +346,7 @@ function makeContainerObject() {
   "template": "https://www.googleapis.com/customsearch/v1?q={searchTerms}&num={count?}&start={startIndex?}&lr={language?}&safe={safe?}&cx={cx?}&cref={cref?}&sort={sort?}&filter={filter?}&gl={gl?}&cr={cr?}&googlehost={googleHost?}&c2coff={disableCnTwTranslation?}&hq={hq?}&hl={hl?}&siteSearch={siteSearch?}&siteSearchFilter={siteSearchFilter?}&exactTerms={exactTerms?}&excludeTerms={excludeTerms?}&linkSite={linkSite?}&orTerms={orTerms?}&relatedSite={relatedSite?}&dateRestrict={dateRestrict?}&lowRange={lowRange?}&highRange={highRange?}&searchType={searchType}&fileType={fileType?}&rights={rights?}&imgSize={imgSize?}&imgType={imgType?}&imgColorType={imgColorType?}&imgDominantColor={imgDominantColor?}&alt=json"
  },
  "queries": {
+   /*
   "nextPage": [
    {
     "title": "Google Custom Search - \"battle",
@@ -269,6 +361,7 @@ function makeContainerObject() {
     "searchType": "image"
    }
   ],
+  */
   "request": [
    {
     "title": "Google Custom Search - \"battle",
@@ -300,9 +393,16 @@ function makeContainerObject() {
 }
 
 function makeImageObject(imagePath) {
-  var dimensions = sizeOf(imagePath);
-  var stats = fs.statSync(imagePath)
-  var fileSizeInBytes = stats["size"]
+  var requestingImage = imagePath.indexOf('serveImages.js')!=-1;
+  var dimensions = { height: 0, width: 0 };
+  var fileSizeInBytes = 0;
+  
+  if (requestingImage) {
+    var stats = fs.statSync(imagePath)
+    fileSizeInBytes = stats["size"]
+    dimensions = sizeOf(imagePath);
+    imagePath = 'n/a';
+  };
 
   return {
     // properties for images
@@ -311,11 +411,11 @@ function makeImageObject(imagePath) {
    "htmlTitle": "The Daily \u003cb\u003eBattle\u003c/b\u003e - CrossFit LittletonCrossFit Littleton",
    "link": "http://127.0.0.1:1337/"+imagePath,
    "displayLink": "crossfitlittleton.net",
-   "snippet": "battle",
+   "snippet": "... Warrior and \"The Queen of Dreams\" when her Mother sadly passed away in \n2007, at her lowest ebb & feeling overwhelmed by such great losses and despair,\n ...",
    "htmlSnippet": "\u003cb\u003ebattle\u003c/b\u003e",
    "mime": "image/jpeg",
    "image": {
-    "contextLink": "http://crossfitlittleton.net/2014/06/26/daily-battle/",
+    "contextLink": "http://127.0.0.1:1337/"+imagePath,
     "height": dimensions.height,
     "width": dimensions.width,
     "byteSize": fileSizeInBytes,
@@ -323,14 +423,22 @@ function makeImageObject(imagePath) {
     "thumbnailHeight": dimensions.height/10,
     "thumbnailWidth": dimensions.width/10,
 
-    // properties for articles - must be missing something, probably the container object is different too
-    "pagemap": {
-      "cse_image": [
-        { "src": "http://127.0.0.1:1337/"+imagePath }
-      ],
-    },
-    "snippet": "Nov 13, 2014 ... From Yahoo News: In a town called Hastings in western Sierra Leone a battle every bit as deadly as the Norman Conquest is being fought ..."
-   }
+   },
+
+   // properties for articles - must be missing something, probably the container object is different too
+   "pagemap": {
+     "cse_image": [
+       { "src": "http://127.0.0.1:1337/"+imagePath }
+     ],
+    "cse_thumbnail": [
+     {
+      "width": "240",
+      "height": "169",
+      "src": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQmfUs5VED7yKq2ZZafmE_J355PfLEDDrzBGbEVdv-yiL3Zz9avz7__70k"
+     }
+    ]
+   },
+
   }
 }
 
@@ -341,17 +449,22 @@ function makeHeader() {
 }
 
 fs.readdir('.',function(err, files) {
+  files = files.filter(function(file) {
+    return file.indexOf('serveImages.js')===-1;
+  });
+
   http.createServer(function (req, res) {
     if (req.url.indexOf('key=')!=-1) {
-      console.log('api request');
+      console.log('api request: ',
+        (req.url.indexOf('searchType=image')<0)?'image':'article');
       res.writeHead(200, makeHeader());
       var retVal = makeContainerObject();
       for (var image=0; image<10; image++) {
         var imagePath = files[Math.floor(Math.random()*files.length)];
         retVal.items.push( makeImageObject(imagePath) );
       }
-      var json = JSON.stringify(retVal);
-      res.write(json);
+
+      res.write( JSON.stringify(retVal) );
       res.end();
     } else {
       var imageName = req.url.substring(1);

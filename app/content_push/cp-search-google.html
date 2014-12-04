@@ -60,6 +60,8 @@ search using a Google custom search engine
             // 'i' => include results from the specified site
             url += 'siteSearchFilter=i&' +
                    'siteSearch=' + encodeURIComponent(sourceURL);
+          } else {
+            console.warn('CP-SEARCH-GOOGLE: no sourceURL so no siteSearch');
           }
 
           console.log('CP-SEARCH-GOOGLE: requesting URL ' + url);
