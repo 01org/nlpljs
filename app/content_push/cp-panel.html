@@ -217,9 +217,16 @@
     </cp-aggregator>
   </template>
 
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="cp-array-utils.js"></script>
+
   <script>
     (function cpPanel () {
       // private *static* functions and constants
+
+      /* maximum number of keywords to consider each time NLP
+         finishes parsing the current context */
+      var MAX_KEYWORDS = 5;
 
       var setFilter = function (self) {
         if (!self.activeKeywords) {
@@ -241,30 +248,34 @@
           return;
         }
 
+        self.$.display.searchesPending = true;
         self.$.display.wait();
         self.$.aggregator.aggregate(newKeywords);
       };
 
-      /* tests whether the active keywords have changed;
-       * returns an array of new keywords.
+      /* tests whether the active keywords have changed
+       *
+       * oldKeywords and newKeywords have this format:
+       * [
+       *   {
+       *     text: "keyword text",
+       *     score: 1.66,
+       *     groupId: 10
+       *   },
+       *   ...
+       * ]
+       *
+       * returns an array of new keywords in the same format as the input
        */
-      var checkKeywordInfoChanged = function (oldKeywordInfo, newKeywordInfo) {
-        /* no keyword set yet, so definitely a change */
-        if (!oldKeywordInfo) {
-          return newKeywordInfo.keywords;
+      var checkKeywordInfoChanged = function (oldKeywords, newKeywords) {
+        /* no keywords set yet, so definitely a change */
+        if (!oldKeywords) {
+          return newKeywords;
         }
 
-        var newKeywords = [];
-        var keywords = oldKeywordInfo.map(function (keyword) {
-          return keyword.text;
+        return ArrayUtils.diff(oldKeywords, newKeywords, function (elt1, elt2) {
+          return elt1.text === elt2.text;
         });
-
-        for (var i = 0; i < newKeywordInfo.keywords.length; i++) {
-          if (keywords.indexOf(newKeywordInfo.keywords[i].text) === -1)
-            newKeywords[newKeywords.length] = newKeywordInfo.keywords[i];
-        }
-
-        return newKeywords;
       };
 
       /* return the keywords from "keywords" which are also in
@@ -376,20 +387,24 @@
 
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
-          console.log('PA:onNewKeywordInfo', e.detail.keywordInfo);
+          console.log('CP-PANEL:onNewKeywordInfo', e.detail.keywordInfo);
+          /* only consider the first 5 keywords */
+          var candidateKeywords = e.detail.keywordInfo.keywords.slice(0, MAX_KEYWORDS);
 
           var newKeywords =
-            checkKeywordInfoChanged(this.activeKeywords, e.detail.keywordInfo);
+            checkKeywordInfoChanged(this.activeKeywords, candidateKeywords);
 
-          /* if we have new keywords, run a fresh search */
+          console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
+
           if (newKeywords.length > 0) {
-            this.activeKeywords = e.detail.keywordInfo.keywords.slice(0, 5);
-            this.$.display.scrollToTop();
+            /* we have new keywords, run a fresh search */
+            this.activeKeywords = newKeywords;
+            this.$.display.reset();
             search(this, this.activeKeywords);
-          } else
-          if (this.activeKeywords !== null &&
-              this.activeKeywords.length > e.detail.keywordInfo.keywords.length) {
-            this.activeKeywords = e.detail.keywordInfo.keywords;
+          } else if (this.activeKeywords !== null &&
+              this.activeKeywords.length > candidateKeywords.length) {
+            /* fewer keywords, so filter results again */
+            this.activeKeywords = candidateKeywords;
             setFilter(this);
           }
         },
@@ -419,7 +434,7 @@
         onDisplayMouseout: function (e) {
           var openDetail = this.shadowRoot.querySelectorAll('#swapper > [data-open="true"]');
           var keywordsToUnhighlight = getKeywordsToHighlight(this, e.detail);
-          if (openDetail.length===0) {
+          if (openDetail.length === 0) {
             this.fire('mouseoutimage', keywordsToUnhighlight);
           } else {
             openDetail[0].highlights = keywordsToUnhighlight;
@@ -445,6 +460,7 @@
            were found */
         onNoPendingSearches: function () {
           console.log('CP-PANEL: got nopendingsearches');
+          this.$.display.searchesPending = false;
           this.$.display.stopWaiting();
         },
 
