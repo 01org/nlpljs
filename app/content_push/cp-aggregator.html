@@ -9,9 +9,10 @@
     (function () {
       var logSearch = function (self) {
         self.pendingSearches--;
+        console.log('CP-AGGREGATOR: searches still pending = ' + self.pendingSearches);
 
         /* if there are no pending searches, fire event */
-        if (self.pendingSearches < 1) {
+        if (self.pendingSearches === 0) {
           console.log('CP-AGGREGATOR: no pending searches');
           self.fire('nopendingsearches');
         }
@@ -133,6 +134,8 @@
         },
 
         aggregate: function (searchTerms) {
+          var searches = [];
+
           for (var i = 0; i < searchTerms.length; i++) {
             var thisSearchTerm = searchTerms[i];
 
@@ -150,26 +153,22 @@
                     for (var j in thisSources.sources) {
                       var thisSource = thisSources.sources[j];
                       if (thisSource.enabled) {
-                        this.pendingSearches++;
-
-                        getResultsFromSource(
+                        searches.push([
                           this,
                           thisSearchTerm,
                           thisService,
                           thisSource.url,
                           thisSource.name
-                        );
+                        ]);
                       }
                     }
                   } else {
-                    this.pendingSearches++;
-                    getResultsFromSource(this, thisSearchTerm, thisService);
+                    searches.push([this, thisSearchTerm, thisService]);
                   }
                   break;
 
                 case 'Google Drive Search':
-                  this.pendingSearches++;
-                  getResultsFromSource(this, thisSearchTerm, thisService);
+                  searches.push([this, thisSearchTerm, thisService]);
                   break;
 
                 default:
@@ -177,6 +176,12 @@
                   break;
               }
             }
+          }
+
+          this.pendingSearches += searches.length;
+
+          for (var j = 0; j < searches.length; j++) {
+            getResultsFromSource.apply(this, searches[j]);
           }
         }
       });
