@@ -16,6 +16,19 @@
   <script>
     (function () {
 
+      var getResultsToReturn = function (self, query) {
+        var resultsToReturn = [];
+
+        var numResults = self.results[query].length;
+        var from = self.cursor[query];
+        var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
+        var resultsToReturn = self.results[query].slice(from, to);
+
+        self.cursor[query] += (to-from);
+
+        return resultsToReturn;
+      };
+
       var onCoreResponse = function (self, e) {
         var id = e.detail.id;
         var response = e.detail.detail.response;
@@ -71,10 +84,7 @@
             delete self.callbacks[id];
             delete self.queries[id];
           } else {
-            var numResults = self.results[query].length;
-            var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
-            var resultsToReturn = self.results[query].slice(0, to);
-            self.cursor[query] += to;
+            var resultsToReturn = getResultsToReturn(self, query);
 
             self.callbacks[id](resultsToReturn);
             delete self.callbacks[id];
@@ -157,14 +167,7 @@
         fetch: function (query) {
           console.log('CP-SEARCH-GOOGLE-FILES: fetch for query:', query);
           if (this.results[query]) {
-            var resultsToReturn = [];
-            var numResults = this.results[query].length;
-            if (this.cursor[query] < numResults) {
-              var from = this.cursor[query];
-              var to   = Math.min(numResults, this.cursor[query] + this.resultsPerFetch);
-              resultsToReturn = this.results[query].slice(from, to);
-              this.cursor[query] += (to-from);
-            }
+            var resultsToReturn = getResultsToReturn(this, query);
             return Promise.resolve(resultsToReturn);
           } else {
             var self = this;
