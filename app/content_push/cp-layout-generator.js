@@ -1,4 +1,4 @@
-(function (_) {
+(function (_, ArrayUtils) {
   var EMPTY = 0;
   var FULL = 1;
 
@@ -27,45 +27,6 @@
     grid.push(row);
 
     return grid;
-  };
-
-  // returns true if arr1 and arr2 contain the same elements
-  var same = function (arr1, arr2) {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
-
-    for (var i = 0; i < arr1.length; i++) {
-      if (arr1[i] !== arr2[i]) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  // return the elements which are common to all arrays passed as arguments;
-  // e.g. intersect([ [ 3, 4 ] ], [ [ 2, 3 ], [ 3, 4 ] ], [ [ 3, 4 ], [ 4, 5 ] ])
-  // returns [ [ 3, 4 ] ]
-  // arrays: an array of arrays, as exemplified above
-  var intersect = function (arrays) {
-    var head = arrays[0];
-    var tail = arrays.slice(1);
-
-    // the memo is the array of common elements so far
-    return _.reduce(tail, function (memo, arr) {
-      var newMemo = [];
-
-      _.each(memo, function (memoItem) {
-        _.each(arr, function (arrItem) {
-          if (same(memoItem, arrItem)) {
-            newMemo.push(arrItem);
-          }
-        });
-      });
-
-      return newMemo;
-    }, head);
   };
 
   // find all sequences in <arr> of length <length> whose elements
@@ -183,7 +144,7 @@
       }
 
       // sequences of columns common across all of the rows
-      var commonColumnSequences = intersect(_.values(columnSequencesByRow));
+      var commonColumnSequences = ArrayUtils.intersect(_.values(columnSequencesByRow));
 
       // data structure looks like this:
       // { rows: [ 0, 1, 2 ], columns: [ [ 3, 4 ], [ 4, 5 ] ] }
@@ -283,4 +244,7 @@
   else {
     window.LayoutGenerator = LayoutGenerator;
   }
-})(typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.js') : _);
+})(
+  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _,
+  typeof ArrayUtils === 'undefined' ? require('./cp-array-utils') : ArrayUtils
+);
