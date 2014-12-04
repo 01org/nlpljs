@@ -396,15 +396,16 @@
 
           console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
 
+          this.activeKeywords = candidateKeywords;
+
           if (newKeywords.length > 0) {
             /* we have new keywords, run a fresh search */
-            this.activeKeywords = newKeywords;
             this.$.display.reset();
-            search(this, this.activeKeywords);
-          } else if (this.activeKeywords !== null &&
-              this.activeKeywords.length > candidateKeywords.length) {
-            /* fewer keywords, so filter results again */
-            this.activeKeywords = candidateKeywords;
+            search(this, newKeywords);
+          } else {
+            /* just reset active keywords and filter (the new set
+               of keywords is either the same as or a subset of the
+               existing active keywords) */
             setFilter(this);
           }
         },
