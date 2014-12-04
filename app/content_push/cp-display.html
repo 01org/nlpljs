@@ -445,6 +445,8 @@ pushing new tiles into the wrapped layout
               existingTile.keywords.push(keyword);
             }
           } else if (this.urlDeduplicator.test(tile.source)) {
+            console.log('CP-DISPLAY: tile source ' + tile.source +
+                        ' is not a duplicate');
             this.urlDeduplicator.addComparisonValue(tile.source);
 
             tile.keywords = [keyword];

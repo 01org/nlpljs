@@ -122,8 +122,7 @@ search using a Google custom search engine
                   width: data.image.width,
                   height: data.image.height,
                   type: searchType,
-                  source: data.link,
-                  contextLink: data.image.contextLink,
+                  source: data.image.contextLink || data.link,
                   meta: {
                     ExifVersion: (meta.ExifVersion ?
                                       meta.ExifVersion.value : null),
