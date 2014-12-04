@@ -28,18 +28,22 @@ for an example)
           // have we searched for this before?
           var resultSet = this.queries[key] || new ResultSet(key);
 
-          var promise = this.searchImpl(resultSet, query, sourceURL);
+          try {
+            var promise = this.searchImpl(resultSet, query, sourceURL);
 
-          return promise.then(
-            function (resultSet) {
-              self.queries[key] = resultSet;
-              return Promise.resolve(resultSet)
-            },
+            return promise.then(
+              function (resultSet) {
+                self.queries[key] = resultSet;
+                return Promise.resolve(resultSet)
+              },
 
-            function (err) {
-              return Promise.reject(err);
-            }
-          );
+              function (err) {
+                return Promise.reject(err);
+              }
+            );
+          } catch (err) {
+            return Promise.reject(err);
+          }
         },
 
         /*

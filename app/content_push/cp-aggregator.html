@@ -45,7 +45,12 @@
               error: err
             });
           }
-        );
+        )
+        .catch(function (e) {
+          console.error('CP-AGGREGATOR: ERROR during fetch');
+          console.error('CP-AGGREGATOR', e);
+          logSearch(self);
+        });
       };
 
       Polymer({
@@ -137,6 +142,7 @@
 
               switch (thisService) {
                 case 'Google Image Search':
+                case 'Wikipedia Image Search':
                 case 'Google Article Search':
                   var thisSources = this.sources[sourceType];
                   if (typeof thisSources !== 'undefined' &&

@@ -13,7 +13,7 @@ onmessage = function (event) {
         postMessage({
           id: requestId,
           response: {
-            error: this
+            error: JSON.stringify(this)
           }
         });
       }
