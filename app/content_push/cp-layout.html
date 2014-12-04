@@ -155,6 +155,8 @@
             this.fire('tileadded', tile);
           }
 
+          this.fire('tileprocessed', tile);
+
           this.fireLoadEvent();
           this.layout();
         },

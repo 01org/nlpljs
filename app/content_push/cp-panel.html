@@ -248,6 +248,7 @@
           return;
         }
 
+        self.$.display.searchesPending = true;
         self.$.display.wait();
         self.$.aggregator.aggregate(newKeywords);
       };
@@ -398,7 +399,7 @@
           if (newKeywords.length > 0) {
             /* we have new keywords, run a fresh search */
             this.activeKeywords = newKeywords;
-            this.$.display.scrollToTop();
+            this.$.display.reset();
             search(this, this.activeKeywords);
           } else if (this.activeKeywords !== null &&
               this.activeKeywords.length > candidateKeywords.length) {
@@ -433,7 +434,7 @@
         onDisplayMouseout: function (e) {
           var openDetail = this.shadowRoot.querySelectorAll('#swapper > [data-open="true"]');
           var keywordsToUnhighlight = getKeywordsToHighlight(this, e.detail);
-          if (openDetail.length===0) {
+          if (openDetail.length === 0) {
             this.fire('mouseoutimage', keywordsToUnhighlight);
           } else {
             openDetail[0].highlights = keywordsToUnhighlight;
@@ -459,6 +460,7 @@
            were found */
         onNoPendingSearches: function () {
           console.log('CP-PANEL: got nopendingsearches');
+          this.$.display.searchesPending = false;
           this.$.display.stopWaiting();
         },
 

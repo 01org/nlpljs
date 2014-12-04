@@ -39,6 +39,20 @@ pushing new tiles into the wrapped layout
         transition: height 0.2s linear 0.2s;
       }
 
+      #scroller.without-slider {
+        height: 100%;
+      }
+
+      #scroller.with-slider-collapsed {
+        /* -height of slider_wrapper */
+        height: calc(100% - 32px);
+      }
+
+      #scroller.with-slider-expanded {
+        /* -(height of slider_wrapper + label_wrapper.out) */
+        height: calc(100% - 54px);
+      }
+
       #results {
         display: flex;
         flex-direction: column;
@@ -75,27 +89,23 @@ pushing new tiles into the wrapped layout
         align-items: center;
         height: 32px;
         background-color: #e6e6e6;
-      }
-
-      .full-size {
-        /* -height of slider_wrapper */
-        height: calc(100% - 32px);
-      }
-
-      .shrunk {
-        /* -(height of slider_wrapper + label_wrapper.out) */
-        height: calc(100% - 54px);
+        transition: height 0.2s ease-out 0.2s;
+        z-index: 10;
       }
 
       #label_wrapper {
+        position: absolute;
+        bottom: -22px;
         width: 100%;
-        height: 0;
+        height: 22px;
+        line-height: 22px;
         background-color: #e6e6e6;
-        transition: height 0.2s ease-out 0.2s;
+        transition: bottom 0.2s ease-out 0.2s;
       }
 
       #label_wrapper.out {
-        height: 22px !important;
+        /* slider_wrapper.height) */
+        bottom: 32px;
       }
 
       #label_wrapper * {
@@ -145,7 +155,7 @@ pushing new tiles into the wrapped layout
       }
 
       .hide {
-        visibility: hidden;
+        height: 0 !important;
       }
 
       .divider-top {
@@ -227,25 +237,27 @@ pushing new tiles into the wrapped layout
       <cp-scroll id="scroller"
                  on-scrollend="{{onScrollerScrollend}}"
                  data-visible="{{state === 'results'}}"
-                 class="full-size">
+                 class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
         <!-- results -->
         <cp-layout id="layout" on-layout="{{checkResultState}}"
+                   on-tileprocessed="{{onLayoutTileProcessed}}"
                    data-visible="{{state === 'results'}}"></cp-layout>
       </cp-scroll>
 
-      <div id="label_wrapper" horizontal justified layout>
+      <div id="label_wrapper" horizontal justified layout
+           class="{{ {'hide': !sliderVisible}|tokenList }}">
         <div>FOCUS</div>
         <div>WANDER</div>
       </div>
 
-      <div id="slider_wrapper" class="hide" vertical justified layout
+      <div id="slider_wrapper" vertical justified layout
+           class="{{ {'hide': !sliderVisible}|tokenList }}"
            on-mouseover="{{onSliderMouseOver}}"
            on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
         <paper-slider id="slider" min="1" max="100" value="50"
                       pin snaps step="1"
-                      on-change="{{sliderChanged}}"
-                      data-show="{{state !== 'preresults'}}">
+                      on-change="{{sliderChanged}}">
         </paper-slider>
       </div>
     </div>
@@ -266,12 +278,31 @@ pushing new tiles into the wrapped layout
 
         created: function () {
           this.urlDeduplicator = new FilterDeduplicate();
+
+          /* true if a set of searches is pending, false otherwise */
+          this.searchesPending = false;
+
+          /* tiles we're still waiting for */
+          this.tilesExpected = 0;
+
+          /* whether or not to show the slider */
+          this.sliderVisible = false;
         },
 
         ready: function () {
           /* timeout to clear the waiting element if no tile is loaded
              successfully */
           this.waitTimeout = null;
+        },
+
+        /* when the layout processes a tile, remove it from the array
+           of tiles we're waiting for */
+        onLayoutTileProcessed: function () {
+          this.tilesExpected--;
+        },
+
+        tilesExpectedChanged: function () {
+          this.checkResultState();
         },
 
         /**
@@ -332,8 +363,7 @@ pushing new tiles into the wrapped layout
                   return false;
                 }
               }
-            } else
-            if (tile.type === 'article') {
+            } else if (tile.type === 'article') {
               var articleSources = criteria.sources['Articles'];
 
               if (typeof articleSources !== 'undefined' &&
@@ -357,16 +387,6 @@ pushing new tiles into the wrapped layout
 
             return keywordMatches && typeMatches;
           });
-
-          var hidden = this.$.slider_wrapper.classList.contains('hide');
-          if (keywords.length > 0 && hidden) {
-            this.$.slider_wrapper.classList.remove('hide');
-          } else
-          if (keywords.length <= 0 && !hidden) {
-            console.log('CP-DISPLAY:hiding');
-            this.state = 'noresults';
-            this.$.slider_wrapper.classList.add('hide');
-          }
         },
 
         /**
@@ -383,6 +403,8 @@ pushing new tiles into the wrapped layout
          *   caption: <image caption>,
          *   source: <url of image source>
          * }
+         *
+         * Each result added will increment tilesExpected
          */
         receiveResults: function (results) {
           for (var i = 0; i < results.length; i++) {
@@ -439,6 +461,9 @@ pushing new tiles into the wrapped layout
               self.fire('mouse-down', tile);
             });
 
+            /* add expectation that the tile will be processed */
+            this.tilesExpected++;
+
             this.$.layout.addTile(tile);
           }
         },
@@ -449,20 +474,27 @@ pushing new tiles into the wrapped layout
           if (this.$.layout.getCountVisibleTiles() > 0) {
             this.state = 'results';
             this.stopWaiting();
-          } else if (!this.waiting && this.$.layout.tilesLoading < 1) {
+
+            if (!this.searchesPending &&
+                this.tilesExpected === 0 &&
+                this.$.layout.tilesLoading === 0) {
+              this.sliderVisible = true;
+            }
+          } else if (!this.searchesPending && this.tilesExpected === 0) {
             this.state = 'noresults';
+            this.sliderVisible = false;
           }
         },
 
         onSliderMouseOver: function () {
-          this.$.scroller.classList.remove('full-size');
-          this.$.scroller.classList.add('shrunk');
+          this.$.scroller.classList.remove('with-slider-collapsed');
+          this.$.scroller.classList.add('with-slider-expanded');
           this.$.label_wrapper.classList.add('out');
         },
 
         onSliderMouseOut: function () {
-          this.$.scroller.classList.remove('shrunk');
-          this.$.scroller.classList.add('full-size');
+          this.$.scroller.classList.remove('with-slider-expanded');
+          this.$.scroller.classList.add('with-slider-collapsed');
           this.$.label_wrapper.classList.remove('out');
         },
 
@@ -581,9 +613,10 @@ pushing new tiles into the wrapped layout
           this.$.layout.layout();
         },
 
-        /* reset scroller to top */
-        scrollToTop: function () {
+        /* reset scroller to top, hide slider */
+        reset: function () {
           this.$.scroller.scrollTop = 0;
+          this.sliderVisible = false;
         },
 
         /* start the waiting sequence (fade in overlay) */
