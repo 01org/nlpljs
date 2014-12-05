@@ -335,8 +335,9 @@ pushing new tiles into the wrapped layout
 
           criteria.types = criteria.types || [];
 
-          /* set the filter on the layout to the current keyphrase */
+          /* set the filter on the layout by the current criteria */
           this.$.layout.setFilter(function (tile) {
+            /* keywords */
             var keywordMatches = false;
 
             for (var i = 0; i < tile.keywords.length; i++) {
@@ -351,41 +352,39 @@ pushing new tiles into the wrapped layout
               return false;
             }
 
+            /* sources (if any sources are enabled) */
+            var sourcesForTileType = null;
             if (tile.type === 'image') {
-              var imageSources = criteria.sources['Images'];
-
-              if (typeof imageSources !== 'undefined' &&
-                  Object.keys(imageSources).length > 0) {
-                var tileSource = imageSources.sources[tile.sourceName];
-
-                if (typeof tileSource === 'undefined' ||
-                    tileSource.enabled === false) {
-                  return false;
-                }
-              }
+              sourcesForTileType = criteria.sources['Images'];
             } else if (tile.type === 'article') {
-              var articleSources = criteria.sources['Articles'];
+              sourcesForTileType = criteria.sources['Articles'];
+            }
 
-              if (typeof articleSources !== 'undefined' &&
-                  Object.keys(articleSources).length > 0) {
-                var tileSource = articleSources.sources[tile.sourceName];
+            if (sourcesForTileType) {
+              /* is there at least one enabled source? */
+              var enabledSource = _.find(sourcesForTileType, function (source) {
+                return source.enabled;
+              });
 
-                if (typeof tileSource === 'undefined' ||
-                    tileSource.enabled === false) {
+              /* if there are no enabled sources, we continue;
+                 otherwise we check whether the tile's source is
+                 enabled */
+              if (enabledSource) {
+                var tileSource = sourcesForTileType[tile.sourceName];
+                if (!tileSource || !tileSource.enabled) {
                   return false;
                 }
               }
             }
 
+            /* type */
             var typeMatches;
             /* no types criteria, so always matches */
             if (criteria.types.length === 0) {
-              typeMatches = true;
+              return true;
             } else {
-              typeMatches = _.contains(criteria.types, tile.type);
+              return _.contains(criteria.types, tile.type);
             }
-
-            return keywordMatches && typeMatches;
           });
         },
 
