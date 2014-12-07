@@ -10,6 +10,7 @@
         setScrollableNode: function (node) {
           this.scrollableNode = node;
         },
+
         addOnScrollListener: function (listener, data) {
           var onScroll = function (self) {
             if (self.scrollTimer !== null)
@@ -23,14 +24,16 @@
           var self = this;
           var callback = function() { onScroll(self); };
 
-          if (this.scrollableNode !== null)
+          if (this.scrollableNode !== null) {
             this.scrollableNode.addEventListener('scroll', callback, false);
+          }
 
-          window.addEventListener('DOMContentLoaded', callback,false); 
+          window.addEventListener('DOMContentLoaded', callback, false); 
           window.addEventListener('load', callback, false); 
           window.addEventListener('scroll', callback, false); 
           window.addEventListener('resize', callback, false);
         },
+
         getVisibleNodes: function (callback, data) {
           var visibleNodes = [];
           var visibleId = '';
@@ -44,6 +47,7 @@
 
           callback(visibleNodes, data);
         },
+
         isNodeVisible: function (node) {
           var boundingRectangle = node.getBoundingClientRect();
           var parentBoundingRectangle;
@@ -68,13 +72,16 @@
 
           return true;
         },
+
         addTargetNode: function (targetNode) {
           this.targetNodes[this.targetNodes.length] = targetNode;
         },
+
         removeTargetNode: function (targetNode) {
           var index = this.targetNodes.indexOf(targetNode);
           this.targetNodes.splice(index, 1);
         },
+
       });
     })();
   </script>
