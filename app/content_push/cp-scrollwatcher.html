@@ -3,10 +3,13 @@
   <script>
     (function () {
       Polymer({
-        scrollableNode: null,
-        targetNodes: [],
-        timeout: 500,
-        scrollTimer: null,
+        created: function() {
+          this.scrollableNode = null;
+          this.targetNodes = [];
+          this.timeout = 500;
+          this.scrollTimer = null;
+        },
+
         setScrollableNode: function (node) {
           this.scrollableNode = node;
         },
