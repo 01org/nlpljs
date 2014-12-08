@@ -35,6 +35,14 @@
   };
 
   /**
+   * Store a tile in the cache without running filters on it (useful
+   * where we already know that a tile is inactive).
+   */
+  TileCache.prototype.store = function (tile) {
+    this.tiles[tile.source] = tile;
+  };
+
+  /**
    * Get all active tiles as an array.
    */
   TileCache.prototype.getActiveTiles = function (tile) {
@@ -69,22 +77,14 @@
   TileCache.prototype.setFilter = function (filter) {
     this.filter = filter;
     return this.runFilter();
-  },
+  };
 
   /**
    * Returns true if the tile is active, false otherwise
    */
   TileCache.prototype.isActive = function (tile) {
     return this.tilesActive[tile.source];
-  },
-
-  /**
-   * Store a tile in the cache without running filters on it (useful
-   * where we already know that a tile is inactive).
-   */
-  TileCache.prototype.store = function (tile) {
-    this.tiles[tile.source] = tile;
-  },
+  };
 
   /**
    * Run the filter across the current tiles.
@@ -95,8 +95,6 @@
     var self = this;
 
     var activeTilesChanged = false;
-    var tilesActivated = {};
-    var tilesDeactivated = {};
     var activeBeforeFiltering;
     var activeAfterFiltering;
 
