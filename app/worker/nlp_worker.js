@@ -164,7 +164,7 @@ this.onmessage = function (event) {
 
         /* if we've seen this keyword before, use the existing groupId */
         var groupId = groupIds[keyword];
-        if (typeof index === 'undefined') {
+        if (typeof groupId === 'undefined') {
           groupId = nextGroupId;
           groupIds[keyword] = groupId;
           nextGroupId++;

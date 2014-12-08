@@ -15,6 +15,9 @@ search using a Google custom search engine
       /* maximum number of results Google will return per search */
       var MAX_RESULTS_PER_SEARCH = 10;
 
+      /* language for results */
+      var LANGUAGE = 'lang_en';
+
       Polymer({
         /* these are associated with sig.exp.london@gmail.com */
         key: "AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE",
@@ -52,6 +55,7 @@ search using a Google custom search engine
                     'safe=' + this.safe + '&' +
                     'num=' + MAX_RESULTS_PER_SEARCH + '&' +
                     'start=' + start + '&' +
+                    'lr=' + LANGUAGE + '&' +
                     'q=%22' + encodeURIComponent(query) + '%22';
 
           if (sourceURL) {
@@ -122,8 +126,7 @@ search using a Google custom search engine
                   width: data.image.width,
                   height: data.image.height,
                   type: searchType,
-                  source: data.link,
-                  contextLink: data.image.contextLink,
+                  source: data.image.contextLink || data.link,
                   meta: {
                     ExifVersion: (meta.ExifVersion ?
                                       meta.ExifVersion.value : null),

@@ -46,6 +46,7 @@
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="cp-layout-frame-chooser.js"></script>
+  <script src="cp-array-utils.js"></script>
   <script src="cp-layout-generator.js"></script>
 
   <script>
@@ -153,6 +154,8 @@
             this.$.container.appendChild(tile);
             this.fire('tileadded', tile);
           }
+
+          this.fire('tileprocessed', tile);
 
           this.fireLoadEvent();
           this.layout();
