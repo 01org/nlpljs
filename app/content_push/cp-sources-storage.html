@@ -17,42 +17,71 @@
   <template>
     <cp-globals id="globals"></cp-globals>
   </template>
+
+  <script src="../bower_components/lodash/dist/lodash.js"></script>
+
   <script>
-    (function cpSources() {
-      // private *static* functions and constants
-
-      // property changed handlers
-      function notifyEpSourcesStorage (self) {
-        console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage()');
-
-        if (!self.$.globals.data.app_id) {
-          console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage() called but app_id not set yet');
-          return;
-        }
-
-        console.log('CP-SOURCES-STORAGE:sending new sources to ep-sources:', self.data);
-        var message = {
-          component: 'sources',
-          action: 'set',
-          url: self.$.globals.data.iframeurl,
-          data: self.data
-        };
-
-        self.port.postMessage(message);
-      }
-
-      function epSourcesListener (self, detail) {
-        self.data=detail.data;
-        self.fire('new-sources', self.data);
-      }
-
+    (function () {
       Polymer({
-        // functions and properties used in API and bindings
+        /* deliberately share state between all cp-sources-storage instances,
+           so they all reference the same object; this has the structure:
 
-        // life cycle handlers
+        {
+          "Articles": {
+            "enabled": true,
+            "sources": {
+              "Wikipedia": {
+                "enabled": true,
+                "url": "wikipedia.org"
+              },
+              "Yahoo! news": {
+                "enabled": true,
+                "url": "news.yahoo.com"
+              }
+            }
+          },
+          "Files": {
+            "enabled": true,
+            "sources": {
+              "Google Drive": {
+                "enabled": true,
+                "title": "Google Drive"
+              }
+            }
+          },
+          "Images": {
+            "enabled": true,
+            "sources": {
+              "Flickr": {
+                "enabled": true,
+                "url": "flickr.com"
+              },
+              "Wikimedia commons": {
+                "enabled": true,
+                "url": "wikimedia.org"
+              }
+            }
+          },
+          "Quotations": {
+            "enabled": false,
+            "sources": {
+              "They said so!": {
+                "enabled": false,
+                "url": "theysaidso.com"
+              },
+              "iHeart Quotes": {
+                "enabled": false,
+                "url": "iheartquotes.com"
+              }
+            }
+          }
+        }
+        */
+        data: {},
+
         ready: function() {
           console.log('CP-SOURCES-STORAGE:ready');
-          this.data = this.data || {};
+
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:ready() called but app_id not set yet');
             return;
@@ -62,12 +91,13 @@
 
           this.port = chrome.runtime.connect(
             this.$.globals.data.app_id,
-            {name:'sources'}
+            {name: 'sources'}
           );
+
           this.port.onMessage.addListener(function(detail) {
-            if (detail.component==='sources') {
-              // new sources to set them and notify listeners
-              epSourcesListener(self, detail);
+            if (detail.component === 'sources') {
+              // new sources; set them and notify listeners
+              self.data = detail.data;
             }
           });
 
@@ -82,16 +112,147 @@
           this.port.postMessage(message);
         },
 
-        get sources() {
-          return this.data;
+        /**
+         * Persist the current groups of sources to storage.
+         */
+        persist: function () {
+          console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage()');
+
+          if (!this.$.globals.data.app_id) {
+            console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage() called but app_id not set yet');
+            return;
+          }
+
+          console.log('CP-SOURCES-STORAGE:sending new sources to ep-sources:', this.data);
+          var message = {
+            component: 'sources',
+            action: 'set',
+            url: this.$.globals.data.iframeurl,
+            data: this.data
+          };
+
+          this.port.postMessage(message);
+
+          this.fire('newsources', this.data);
         },
 
-        set sources(sources) {
-          console.log('CP-SOURCES-STORAGE:setting sources from cp-main to:',sources);
-          this.data=sources;
-          notifyEpSourcesStorage(this);
+        /**
+         * Create a new group for sources, if it doesn't already exist.
+         * If the group name exists already, this throws an error.
+         *
+         * @returns the created group
+         */
+        createGroup: function (groupName) {
+          if (this.data[groupName]) {
+            throw new Error('CP-SOURCES-STORAGE: group with name ' +
+                            groupName + ' cannot be created as it ' +
+                            'already exists');
+          }
+
+          this.data[groupName] = {
+            enabled: true,
+            sources: {}
+          };
+
+          this.persist();
+
+          return this.data[groupName];
         },
 
+        /**
+         * Add a new source.
+         *
+         * @param {string} groupName Name of group to add this source
+         * to (e.g. "Images", "Articles"); the group must exist already,
+         * otherwise an error is thrown.
+         * @param {string} sourceName Name for the source; if this
+         * already exists, this method will throw an error
+         * @param {object} sourceConfig Configuration for the source;
+         * see the data static object for details of its structure
+         */
+        createSource: function (groupName, sourceName, sourceConfig) {
+          if (!this.data[groupName] && this.data[groupName].sources) {
+            throw new Error('CP-SOURCES-STORAGE: cannot create source ' +
+                            'in group ' + groupName + ' as group does ' +
+                            'not exist');
+          }
+
+          this.data[groupName].sources[sourceName] = sourceConfig;
+
+          this.persist();
+        },
+
+        /**
+         * Remove a source; see createSource for params.
+         *
+         * If the source doesn't exist, this throws an error.
+         */
+        removeSource: function (groupName, sourceName) {
+          if (this.retrieveSource(groupName, sourceName)) {
+            delete this.data[groupName].sources[sourceName];
+            this.persist();
+          } else {
+            throw new Error('CP-SOURCES-STORAGE: cannot remove source ' +
+                            'with name ' + sourceName + ' as group and/or ' +
+                            'source doesn\'t exist');
+          }
+        },
+
+        /**
+         * Check whether a group exists and is in the correct format.
+         */
+        groupExists: function (groupName) {
+          return this.data[groupName] && this.data[groupName].sources;
+        },
+
+        /**
+         * Get the group of sources organised under the name groupName.
+         * If the group with name groupName doesn't exist, this
+         * returns null.
+         *
+         * @returns an object with this structure:
+         * {
+         *   "enabled": false,
+         *   "sources": {
+         *     "They said so!": {
+         *       "enabled": false,
+         *       "url": "theysaidso.com"
+         *     },
+         *     "iHeart Quotes": {
+         *       "enabled": false,
+         *       "url": "iheartquotes.com"
+         *     }
+         *   }
+         * }
+         */
+        getSourcesForGroup: function (groupName) {
+          return this.data[groupName] || null;
+        },
+
+        /**
+         * Retrieve a source by name; returns null if it doesn't exist.
+         */
+        retrieveSource: function (groupName, sourceName) {
+          if (this.data[groupName] && this.data[groupName].sources) {
+            return this.data[groupName].sources[sourceName] || null;
+          } else {
+            return null;
+          }
+        },
+
+        /**
+         * Retrieve a source by url; returns null if it doesn't exist.
+         */
+        retrieveSourceByUrl: function (groupName, sourceUrl) {
+          var group = this.data[groupName];
+          if (group) {
+            return _.find(group, function (source) {
+              return source.url === sourceUrl;
+            }) || null;
+          } else {
+            return null;
+          }
+        }
       }); // Polymer()
     })();
 
