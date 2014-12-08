@@ -80,10 +80,11 @@
   };
 
   /**
-   * Returns true if the tile is active, false otherwise
+   * Returns true if the tile referred to by the unique ID source is
+   * active, false otherwise
    */
-  TileCache.prototype.isActive = function (tile) {
-    return this.tilesActive[tile.source];
+  TileCache.prototype.isActive = function (source) {
+    return !!this.tilesActive[source];
   };
 
   /**
@@ -99,7 +100,7 @@
     var activeAfterFiltering;
 
     _.map(this.tiles, function (tile) {
-      activeBeforeFiltering = self.tilesActive[tile.source];
+      activeBeforeFiltering = !!self.tilesActive[tile.source];
 
       if (self.filter(tile)) {
         activeAfterFiltering = true;

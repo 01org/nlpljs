@@ -204,7 +204,7 @@
           for (i = 0; i < existingTiles.length; i++) {
             var tile = existingTiles[i];
 
-            if (this.tileCache.isActive(tile)) {
+            if (this.tileCache.isActive(tile.source)) {
               /* consider existing tile for layout */
               shapes.push({
                 tile: tile,
