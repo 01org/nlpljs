@@ -31,9 +31,7 @@
       }
     </style>
 
-    <div id="container" data-show="{{visibleTiles > 0}}"
-         data-total-tiles="{{totalTiles}}"
-         data-visible-tiles="{{visibleTiles}}"
+    <div id="container" data-show="{{tilesVisible > 0}}"
          data-loading-tiles="{{tilesLoading}}">
     </div>
 
@@ -46,6 +44,7 @@
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="cp-layout-frame-chooser.js"></script>
+  <script src="cp-tile-cache.js"></script>
   <script src="cp-array-utils.js"></script>
   <script src="cp-layout-generator.js"></script>
 
@@ -64,32 +63,24 @@
       var FRAME_CELL_SIDE = 54;
 
       Polymer({
-        /* filter which determines the tiles to show; this is applied
-           on each layout() call to determine the visible tiles;
-           if this function returns true, the tile is shown */
-        filter: null,
-
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
+          this.tileCache = new TileCache();
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
 
-          /* cached height and width, to reduce the number of events fired */
-          this.lastMeasuredHeight = 0;
-          this.lastMeasuredWidth = 0;
+          /* count of the visible tiles in the layout */
+          this.tilesVisible = 0;
 
           /* count of the number of tiles currently loading */
           this.tilesLoading = 0;
 
-          /* tiles currently visible */
-          this.visibleTiles = 0;
-
           /* layout promise */
           this.layoutInProgress = Promise.resolve();
 
-          /* cached source attributes; used to quickly determine
-             whether a tile exists for a source */
-          this.tileSources = {};
+          /* map from tile source to true/false; if a tile is in the layout
+             the value is true, false otherwise */
+          this.tilesInLayout = {};
         },
 
         /* set number of columns based on the gallery width */
@@ -108,15 +99,18 @@
         },
 
         setFilter: function (filter) {
-          this.filter = filter;
-          this.layout();
+          var activeTilesChanged = this.tileCache.setFilter(filter);
+
+          if (activeTilesChanged) {
+            this.layout();
+          }
         },
 
         /**
-         * Return count of child cp-tile* elements which are visible.
+         * Return count of visible tiles.
          */
         getCountVisibleTiles: function () {
-          return this.visibleTiles;
+          return this.tileCache.getActiveTilesCount();
         },
 
         /**
@@ -130,8 +124,8 @@
          * Search for a tile with "source" attribute set to value;
          * returns the found tile; or if not found, returns null
          */
-        getTileBySource: function (value) {
-          return this.tileSources[value] || null;
+        getTileBySource: function (source) {
+          return this.tileCache.getTileBySource(source);
         },
 
         /* add the tile to the layout if it loaded OK */
@@ -142,22 +136,17 @@
           if (tile.loaded) {
             this.frameTile(tile);
 
-            /* record the source URL of the tile in the cache */
-            this.tileSources[tile.source] = tile;
-
             tile.setAttribute('data-tile', 'true');
 
-            if (this.filter && !this.filter(tile)) {
-              tile.setAttribute('data-show', 'false');
-            }
+            var activeTilesChanged = this.tileCache.cache(tile);
 
-            this.$.container.appendChild(tile);
-            this.fire('tileadded', tile);
+            if (activeTilesChanged) {
+              this.layout();
+            }
           }
 
           this.fire('tileprocessed', tile);
 
-          this.fireLoadEvent();
           this.layout();
         },
 
@@ -171,14 +160,11 @@
         *   - width
         *   - height
         *   - ratio
-        *
-        * @fires loading or loaddone
         */
         addTile: function (tile) {
           var self = this;
 
           this.tilesLoading += 1;
-          this.fireLoadEvent();
 
           if (tile.done) {
             this.tileReady(tile);
@@ -201,60 +187,62 @@
          * @param DOMElement tile cp-tile* element
          */
         frameTile: function (tile) {
-          var frame = tile.frame || this.frameChooser.choose(tile);
-          tile.setAttribute('data-frame', frame.name);
-          tile.setAttribute('data-columns', frame.columns);
-          tile.setAttribute('data-rows', frame.rows);
+          tile.frame = tile.frame || this.frameChooser.choose(tile);
         },
 
         /**
          * Apply layout to cp-tile*s which satisfy the current filter.
          */
         doLayout: function () {
-          /* assume all tiles are hidden by default */
-          var visibleTiles = 0;
-
-          var totalTiles = 0;
-
-          var tiles = this.getAllTiles();
-
-          /* convert tiles into shapes */
+          var existingTiles = this.getAllTiles();
+          var activeTiles = this.tileCache.getActiveTiles();
           var shapes = [];
+          var i;
 
-          var hideTile;
+          /* either add existing tiles to layout calculation if active
+             or remove them if no longer active */
+          for (i = 0; i < existingTiles.length; i++) {
+            var tile = existingTiles[i];
 
-          for (var i = 0; i < tiles.length; i++) {
-            totalTiles++;
-
-            var tile = tiles[i];
-
-            hideTile = (this.filter && !this.filter(tile));
-
-            /* only show loaded tiles */
-            hideTile = (hideTile && tile.loaded);
-
-            tile.setAttribute('data-show', !hideTile);
-
-            if (!hideTile) {
+            if (this.tileCache.isActive(tile.source)) {
+              /* consider existing tile for layout */
               shapes.push({
-                elt: tile,
-                width: parseInt(tile.getAttribute('data-columns'), 10),
-                height: parseInt(tile.getAttribute('data-rows'), 10)
+                tile: tile,
+                width: tile.frame.columns,
+                height: tile.frame.rows
               });
-
-              visibleTiles++;
+            } else {
+              /* tile is inactive and in the layout, so remove it
+                 and return it to the cache */
+              var removedTile = this.$.container.removeChild(tile);
+              this.tilesInLayout[tile.source] = false;
+              this.tileCache.store(removedTile);
             }
           }
 
-          this.visibleTiles = visibleTiles;
-          this.totalTiles = totalTiles;
+          /* append any active tiles which aren't already in the layout */
+          for (i = 0; i < activeTiles.length; i++) {
+            var activeTile = activeTiles[i];
+
+            /* tile is active but not appended yet */
+            if (!this.tilesInLayout[activeTile.source]) {
+              shapes.push({
+                tile: activeTile,
+                width: activeTile.frame.columns,
+                height: activeTile.frame.rows
+              });
+
+              this.tilesInLayout[activeTile.source] = true;
+              this.$.container.appendChild(activeTile);
+            }
+          }
 
           var cellSide = this.offsetWidth / this.numColumns;
           this.setLayoutParams();
 
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
 
-          var shape, position, elt, firstCol, width, x,
+          var shape, position, firstCol, width, x,
               firstRow, height, y;
 
           _.each(layout.placements, function (placement) {
@@ -269,31 +257,17 @@
             firstRow = position.rows[0];
             y = firstRow * cellSide;
 
-            shape.elt.style.left = x + 'px';
-            shape.elt.style.top = y + 'px';
-            shape.elt.style.width = width + 'px'
-            shape.elt.style.height = height + 'px';
+            shape.tile.style.left = x + 'px';
+            shape.tile.style.top = y + 'px';
+            shape.tile.style.width = width + 'px'
+            shape.tile.style.height = height + 'px';
           });
 
           /* set the container height */
           var height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
 
-          /* fire an event to notify listeners that this element's
-             height changed */
-          var width = this.offsetWidth;
-          var height = this.offsetHeight;
-
-          if (this.lastMeasuredWidth !== width ||
-              this.lastMeasuredHeight !== height) {
-            this.lastMeasuredWidth = width;
-            this.lastMeasuredHeight = height;
-
-            this.fire('resize', {
-              width: width,
-              height: height
-            });
-          }
+          this.tilesVisible = this.tileCache.getActiveTilesCount();
 
           this.fire('layout');
         },
@@ -317,18 +291,6 @@
           );
 
           return this.layoutInProgress;
-        },
-
-        /**
-         * Fire a "loading" or "loaddone" event, depending on the
-         * number of children pending.
-         */
-        fireLoadEvent: function () {
-          if (this.tilesLoading > 0) {
-            this.fire('loading');
-          } else {
-            this.fire('loaddone');
-          }
         }
       })
     })();
