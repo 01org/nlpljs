@@ -74,10 +74,6 @@
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
 
-          /* cached height and width, to reduce the number of events fired */
-          this.lastMeasuredHeight = 0;
-          this.lastMeasuredWidth = 0;
-
           /* count of the number of tiles currently loading */
           this.tilesLoading = 0;
 
@@ -152,7 +148,6 @@
             }
 
             this.$.container.appendChild(tile);
-            this.fire('tileadded', tile);
           }
 
           this.fire('tileprocessed', tile);
@@ -201,10 +196,7 @@
          * @param DOMElement tile cp-tile* element
          */
         frameTile: function (tile) {
-          var frame = tile.frame || this.frameChooser.choose(tile);
-          tile.setAttribute('data-frame', frame.name);
-          tile.setAttribute('data-columns', frame.columns);
-          tile.setAttribute('data-rows', frame.rows);
+          tile.frame = tile.frame || this.frameChooser.choose(tile);
         },
 
         /**
@@ -218,7 +210,8 @@
 
           var tiles = this.getAllTiles();
 
-          /* convert tiles into shapes */
+          /* convert tiles into shapes (so the layout generator
+             can process them) */
           var shapes = [];
 
           var hideTile;
@@ -237,9 +230,9 @@
 
             if (!hideTile) {
               shapes.push({
-                elt: tile,
-                width: parseInt(tile.getAttribute('data-columns'), 10),
-                height: parseInt(tile.getAttribute('data-rows'), 10)
+                tile: tile,
+                width: tile.frame.columns,
+                height: tile.frame.rows
               });
 
               visibleTiles++;
@@ -254,7 +247,7 @@
 
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
 
-          var shape, position, elt, firstCol, width, x,
+          var shape, position, firstCol, width, x,
               firstRow, height, y;
 
           _.each(layout.placements, function (placement) {
@@ -269,31 +262,15 @@
             firstRow = position.rows[0];
             y = firstRow * cellSide;
 
-            shape.elt.style.left = x + 'px';
-            shape.elt.style.top = y + 'px';
-            shape.elt.style.width = width + 'px'
-            shape.elt.style.height = height + 'px';
+            shape.tile.style.left = x + 'px';
+            shape.tile.style.top = y + 'px';
+            shape.tile.style.width = width + 'px'
+            shape.tile.style.height = height + 'px';
           });
 
           /* set the container height */
           var height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
-
-          /* fire an event to notify listeners that this element's
-             height changed */
-          var width = this.offsetWidth;
-          var height = this.offsetHeight;
-
-          if (this.lastMeasuredWidth !== width ||
-              this.lastMeasuredHeight !== height) {
-            this.lastMeasuredWidth = width;
-            this.lastMeasuredHeight = height;
-
-            this.fire('resize', {
-              width: width,
-              height: height
-            });
-          }
 
           this.fire('layout');
         },
