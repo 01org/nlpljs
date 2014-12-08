@@ -147,7 +147,6 @@
 
           this.fire('tileprocessed', tile);
 
-          this.fireLoadEvent();
           this.layout();
         },
 
@@ -161,14 +160,11 @@
         *   - width
         *   - height
         *   - ratio
-        *
-        * @fires loading or loaddone
         */
         addTile: function (tile) {
           var self = this;
 
           this.tilesLoading += 1;
-          this.fireLoadEvent();
 
           if (tile.done) {
             this.tileReady(tile);
@@ -295,18 +291,6 @@
           );
 
           return this.layoutInProgress;
-        },
-
-        /**
-         * Fire a "loading" or "loaddone" event, depending on the
-         * number of children pending.
-         */
-        fireLoadEvent: function () {
-          if (this.tilesLoading > 0) {
-            this.fire('loading');
-          } else {
-            this.fire('loaddone');
-          }
         }
       })
     })();
