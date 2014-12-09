@@ -32,6 +32,14 @@
         }
       };
 
+      /* set data across all instances */
+      var setData = function (data) {
+        for (var i = 0; i < instances.length; i++) {
+          instances[i].data = data;
+        }
+        fireEvent('newsources', data);
+      };
+
       Polymer({
         /* deliberately share state between all cp-sources-storage instances,
            so they all reference the same object; this has the structure:
@@ -108,10 +116,9 @@
             {name: 'sources'}
           );
 
-          this.port.onMessage.addListener(function(detail) {
+          this.port.onMessage.addListener(function (detail) {
             if (detail.component === 'sources') {
-              // new sources; set them and notify listeners
-              self.data = detail.data;
+              setData(detail.data);
             }
           });
 
@@ -119,7 +126,7 @@
           var message = {
             component: 'sources',
             action: 'get',
-            url: this.$.globals.data.iframeurl,
+            url: this.$.globals.data.iframeurl
           };
 
           // get first set of sources
@@ -147,7 +154,7 @@
 
           this.port.postMessage(message);
 
-          fireEvent('newsources', this.data);
+          setData(this.data);
         },
 
         /**
@@ -217,6 +224,13 @@
          */
         groupExists: function (groupName) {
           return this.data[groupName] && this.data[groupName].sources;
+        },
+
+        /**
+         * Get the names of all the groups as an array.
+         */
+        getGroupNames: function () {
+          return _.keys(this.data);
         },
 
         /**
