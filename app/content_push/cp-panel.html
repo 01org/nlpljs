@@ -1,15 +1,11 @@
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/core-icons/av-icons.html">
-<link rel="import" href="../bower_components/core-icons/editor-icons.html">
-<link rel="import" href="../bower_components/core-icons/image-icons.html">
 <link rel="import" href="./cp-icons-svg.html">
+<link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-detail-article.html">
@@ -137,39 +133,41 @@
       }
     </style>
 
+    <cp-icons id="icons"></cp-icons>
+
     <cp-swapper id="swapper">
       <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
         <core-toolbar id="toolbar">
           <!-- items in this menu set the "types" part of the display filter -->
           <paper-menu-button id="menu" icon="menu" on-click="{{onMenuClick}}">
-            <paper-item icon="cp-icons:cp-icon"
+            <paper-item icon="cp-icons-svg:cp-icon"
                         label="Content Push"
                         data-type-filter="no-filter"
                         data-selected-filter="true">
             </paper-item>
 
-            <paper-item icon="image:camera-alt" label="Images"
+            <paper-item icon="{{$.icons.Images}}" label="Images"
                         data-type-filter="image">
             </paper-item>
 
-            <paper-item icon="editor:insert-drive-file" label="Files"
+            <paper-item icon="{{$.icons.Files}}" label="Files"
                         data-type-filter="file">
             </paper-item>
 
-            <paper-item icon="editor:format-color-text" label="Articles"
+            <paper-item icon="{{$.icons.Articles}}" label="Articles"
                         data-type-filter="article">
             </paper-item>
 
-            <paper-item icon="editor:format-quote" label="Quotes"
+            <paper-item icon="{{$.icons.Quotes}}" label="Quotes"
                         data-type-filter="quote">
             </paper-item>
 
-            <paper-item icon="av:videocam" label="Videos"
+            <paper-item icon="{{$.icons.Videos}}" label="Videos"
                         data-type-filter="video">
             </paper-item>
 
-            <paper-item icon="editor:mode-edit" label="EDIT SOURCES"
+            <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
                         id="itemEditSources">
             </paper-item>
           </paper-menu-button>

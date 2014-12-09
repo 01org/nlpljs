@@ -143,7 +143,6 @@
   // cut down version of the defaults
   var defaults = {
     'Images': {
-      'enabled': true,
       'sources': {
         'Flickr': {
           url: 'flickr.com',
@@ -156,7 +155,6 @@
       }
     },
     'Articles': {
-      'enabled': true,
       'sources': {
         'Yahoo! news': {
           url: 'news.yahoo.com',
@@ -169,7 +167,6 @@
       }
     },
     'Quotations': {
-      'enabled': false,
       'sources': {
         'iHeart Quotes': {
           url: 'iheartquotes.com',
@@ -182,7 +179,6 @@
       }
     },
     'Files': {
-      'enabled': true,
       'sources': {
         'Google Drive': {
           title: 'Google Drive',
