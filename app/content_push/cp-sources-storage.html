@@ -47,6 +47,7 @@
         {
           "Articles": {
             "enabled": true,
+            "order": 2,
             "sources": {
               "Wikipedia": {
                 "enabled": true,
@@ -58,42 +59,10 @@
               }
             }
           },
-          "Files": {
-            "enabled": true,
-            "sources": {
-              "Google Drive": {
-                "enabled": true,
-                "title": "Google Drive"
-              }
-            }
-          },
-          "Images": {
-            "enabled": true,
-            "sources": {
-              "Flickr": {
-                "enabled": true,
-                "url": "flickr.com"
-              },
-              "Wikimedia commons": {
-                "enabled": true,
-                "url": "wikimedia.org"
-              }
-            }
-          },
-          "Quotations": {
-            "enabled": false,
-            "sources": {
-              "They said so!": {
-                "enabled": false,
-                "url": "theysaidso.com"
-              },
-              "iHeart Quotes": {
-                "enabled": false,
-                "url": "iheartquotes.com"
-              }
-            }
-          }
+          ...
         }
+
+        (see ep-sources-storage for details)
         */
         data: {},
 
@@ -265,10 +234,19 @@
         },
 
         /**
-         * Get the names of all the groups as an array.
+         * Get the names of all the groups as an array, sorted according
+         * to the "order" property of each group.
          */
         getGroupNames: function () {
-          return _.keys(this.data);
+          var flattened = _.map(this.data, function (config, groupName) {
+            return { groupName: groupName, order: config.order };
+          });
+
+          var sorted = _.sortBy(flattened, 'order');
+
+          return _.map(sorted, function (item) {
+            return item.groupName;
+          });
         },
 
         /**
