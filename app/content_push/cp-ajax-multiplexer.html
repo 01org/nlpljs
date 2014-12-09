@@ -26,7 +26,7 @@
       function makeCallback(self, id) {
         var callback = function(e) {
           console.log('CP-AJAX-MULTIPLEXER: response for id:', id);
-          self.fire('multi-response',{
+          self.fire('multi-response', {
             id: id,
             detail: e.detail
           });
