@@ -22,6 +22,16 @@
 
   <script>
     (function () {
+      /* instances of this element; used to fire events across
+         all elements simultaneously */
+      var instances = [];
+
+      var fireEvent = function (name, data) {
+        for (var i = 0; i < instances.length; i++) {
+          instances[i].fire(name, data);
+        }
+      };
+
       Polymer({
         /* deliberately share state between all cp-sources-storage instances,
            so they all reference the same object; this has the structure:
@@ -79,6 +89,10 @@
         */
         data: {},
 
+        created: function () {
+          instances.push(this);
+        },
+
         ready: function() {
           console.log('CP-SOURCES-STORAGE:ready');
 
@@ -133,7 +147,7 @@
 
           this.port.postMessage(message);
 
-          this.fire('newsources', this.data);
+          fireEvent('newsources', this.data);
         },
 
         /**
