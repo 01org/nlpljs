@@ -139,9 +139,7 @@
     <cp-sources-storage id="storage"
                         on-newsources="{{onNewSources}}"
                         on-sourceenabled="{{onSourceEnabled}}"
-                        on-sourcedisabled="{{onSourceDisabled}}"
-                        on-sourcecreated="{{onSourceCreated}}"
-                        on-sourceremoved="{{onSourceRemoved}}">
+                        on-sourcecreated="{{onSourceCreated}}">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -222,6 +220,8 @@
       var MAX_KEYWORDS = 5;
 
       var setFilter = function (self) {
+        debugger;
+
         if (!self.activeKeywords) {
           return;
         }
@@ -306,16 +306,6 @@
         ready: function () {
           var selector = this.$.groups.$.selector;
           var aggregator = this.$.aggregator;
-          var self = this;
-
-          selector.addEventListener("sourcesedited", function (e) {
-            var changes = e.detail;
-
-            if (changes.length > 0) {
-              aggregator.applySourceChanges(changes, self.activeKeywords);
-              setFilter(self);
-            }
-          });
         },
 
         domReady: function () {
@@ -324,6 +314,7 @@
 
         onNewSources: function () {
           this.groupNames = this.$.storage.getGroupNames();
+          setFilter(this);
         },
 
         // called from content-push.html:trackAction() when splitter moves
@@ -466,21 +457,17 @@
           this.$.display.stopWaiting();
         },
 
-        /* changes to sources */
-        onSourceEnabled: function (e) {
-          console.log('CP-PANEL: source enabled', e.detail);
-        },
-
-        onSourceDisabled: function (e) {
-          console.log('CP-PANEL: source disabled', e.detail);
-        },
-
+        /* source added, so do a new search (NB if sources are
+           removed or disabled, the results filter is
+           automatically refreshed via the onNewSources() handler) */
         onSourceCreated: function (e) {
           console.log('CP-PANEL: source created', e.detail);
         },
 
-        onSourceRemoved: function (e) {
-          console.log('CP-PANEL: source removed', e.detail);
+        /* if there are no results for a source and it is enabled,
+           run a search */
+        onSourceEnabled: function (e) {
+          console.log('CP-PANEL: source enabled', e.detail);
         },
 
         closePanel: function () {
