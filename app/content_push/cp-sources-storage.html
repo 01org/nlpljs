@@ -200,6 +200,11 @@
 
           this.data[groupName].sources[sourceName] = sourceConfig;
 
+          fireEvent('sourcecreated', {
+            sourceName: sourceName,
+            source: sourceConfig
+          });
+
           this.persist();
         },
 
@@ -209,8 +214,12 @@
          * If the source doesn't exist, this throws an error.
          */
         removeSource: function (groupName, sourceName) {
-          if (this.retrieveSource(groupName, sourceName)) {
+          var source = this.retrieveSource(groupName, sourceName);
+          if (source) {
             delete this.data[groupName].sources[sourceName];
+
+            fireEvent('sourceremoved', { sourceName: sourceName });
+
             this.persist();
           } else {
             throw new Error('CP-SOURCES-STORAGE: cannot remove source ' +
@@ -225,8 +234,21 @@
          * If the source does not exist, throws an error.
          */
         setSourceEnabled: function (groupName, sourceName, enabled) {
-          if (this.retrieveSource(groupName, sourceName)) {
-            this.data[groupName].sources[sourceName].enabled = enabled;
+          var source = this.retrieveSource(groupName, sourceName);
+          if (source) {
+            source.enabled = enabled;
+
+            var eventData = {
+              sourceName: sourceName,
+              source: source
+            };
+
+            if (enabled) {
+              fireEvent('sourceenabled', eventData);
+            } else {
+              fireEvent('sourcedisabled', eventData);
+            }
+
             this.persist();
           } else {
             throw new Error('CP-SOURCES-STORAGE: cannot modify source ' +

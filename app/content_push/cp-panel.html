@@ -136,7 +136,12 @@
 
     <cp-icons id="icons"></cp-icons>
 
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    <cp-sources-storage id="storage"
+                        on-newsources="{{onNewSources}}"
+                        on-sourceenabled="{{onSourceEnabled}}"
+                        on-sourcedisabled="{{onSourceDisabled}}"
+                        on-sourcecreated="{{onSourceCreated}}"
+                        on-sourceremoved="{{onSourceRemoved}}">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -459,6 +464,23 @@
           console.log('CP-PANEL: got nopendingsearches');
           this.$.display.searchesPending = false;
           this.$.display.stopWaiting();
+        },
+
+        /* changes to sources */
+        onSourceEnabled: function (e) {
+          console.log('CP-PANEL: source enabled', e.detail);
+        },
+
+        onSourceDisabled: function (e) {
+          console.log('CP-PANEL: source disabled', e.detail);
+        },
+
+        onSourceCreated: function (e) {
+          console.log('CP-PANEL: source created', e.detail);
+        },
+
+        onSourceRemoved: function (e) {
+          console.log('CP-PANEL: source removed', e.detail);
         },
 
         closePanel: function () {
