@@ -166,7 +166,7 @@
         }
       }
     },
-    'Quotations': {
+    'Quotes': {
       'sources': {
         'iHeart Quotes': {
           url: 'iheartquotes.com',
@@ -184,6 +184,10 @@
           title: 'Google Drive',
           enabled: true
         }
+      }
+    },
+    'Videos': {
+      'sources': {
       }
     }
   };
