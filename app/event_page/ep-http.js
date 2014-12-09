@@ -44,11 +44,11 @@
     obj.worker.postMessage(request);
   };
 
-  chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
-    var keepChannelOpen=false;
+  chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResponse) {
+    var keepChannelOpen = false;
 
     if (message.component === 'http') {
-      console.log('EP-HTTP:got message:',message);
+      console.log('EP-HTTP:got message:', message);
       keepChannelOpen = true;
 
       obj.send({

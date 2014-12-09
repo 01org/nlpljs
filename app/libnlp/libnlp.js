@@ -2,8 +2,9 @@ define(['tokenizer', 'postagger', 'keyphrase_extractor'], function (tokenizer,
   postagger, keyphrase_extractor) {
   var libnlp;
 
-  if (typeof libnlp !== 'undefined')
+  if (typeof libnlp !== 'undefined') {
     return libnlp;
+  }
 
   libnlp =  {
     tokenizer: tokenizer,

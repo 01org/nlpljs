@@ -11,7 +11,7 @@
     nlp_worker = new Worker("worker/nlp_worker.js");
 
     //TODO: Error handling & fallback.
-    nlp_worker.onmessage = function(event) {
+    nlp_worker.onmessage = function (event) {
       var message = JSON.parse(event.data);
       switch (message.type) {
         case "keywordlist":
@@ -34,12 +34,12 @@
     };
   };
 
-  chrome.runtime.onConnectExternal.addListener(function(newPort) {
+  chrome.runtime.onConnectExternal.addListener(function (newPort) {
     console.log('EP-NLP:connecting: newPort:', newPort);
-    if (newPort.name==='nlp') {
+    if (newPort.name === 'nlp') {
       nlp_port = newPort;
 
-      newPort.onMessage.addListener(function(event) {
+      newPort.onMessage.addListener(function (event) {
         console.log('EP-NLP:message from CP:', event);
         if (event.component === 'nlp') {
           if (nlp_worker === null) {

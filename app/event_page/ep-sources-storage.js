@@ -200,8 +200,8 @@
   /* Uncomment to over write the sync storage */
   //chrome.storage.sync.remove(url);
 
-  function loadSources(url,result) {
-    if (result.hasOwnProperty(url)){
+  function loadSources (url, result) {
+    if (result.hasOwnProperty(url)) {
       console.log('EP-SOURCES-STORAGE:result:' + result[url]);
       currentItem[url] = result[url];
 
@@ -217,21 +217,21 @@
       var obj = {};
       obj[url] = defaults;
       console.log('EP-SOURCES-STORAGE:Adding defaults');
-      chrome.storage.sync.set(obj, function() {
+      chrome.storage.sync.set(obj, function () {
         if (chrome.runtime.lastError) {
           console.log('EP-SOURCES-STORAGE:error storing defaults:' + chrome.runtime.lastError);
         }
       });
-      chrome.storage.sync.get(url, function(result) {
-        loadSources(url,result);
+      chrome.storage.sync.get(url, function (result) {
+        loadSources(url, result);
       });
     }
   }
 
-  function saveSources(url, sources) {
+  function saveSources (url, sources) {
     currentItem[url] = sources;
 
-    chrome.storage.sync.set(currentItem, function() {
+    chrome.storage.sync.set(currentItem, function () {
       if (chrome.runtime.lastError) {
         console.log('EP-SOURCES-STORAGE:error storing defaults:', chrome.runtime.lastError);
       } else {
@@ -240,7 +240,7 @@
     });
   }
 
-  function dumpCurrentItem(url) {
+  function dumpCurrentItem (url) {
     console.log('EP-SOURCES-STORAGE:Sources selection for:' + url);
     for (var key in currentItem[url]) {
       console.log('EP-SOURCES-STORAGE:Enabled:' + currentItem[url][key].enabled);
@@ -251,14 +251,14 @@
     }
   }
 
-  chrome.runtime.onConnectExternal.addListener(function(newPort) {
+  chrome.runtime.onConnectExternal.addListener(function (newPort) {
     if (newPort.name === 'sources') {
 
       port = newPort;
 
-      port.onMessage.addListener(function(message) {
+      port.onMessage.addListener(function (message) {
         if (message.component === 'sources') {
-          console.log('EP-SOURCES-STORAGE:got message:',message);
+          console.log('EP-SOURCES-STORAGE:got message:', message);
           var url = message.url;
 
           if (message.action === 'get') {
@@ -290,7 +290,7 @@
   /**
    * TODO: take changes made on other machines
    */
-  chrome.storage.onChanged.addListener(function(changes, namespace) {
+  chrome.storage.onChanged.addListener(function (changes, namespace) {
     for (key in changes) {
       var storageChange = changes[key];
       console.log('Storage key "%s" in namespace "%s" changed. ' +

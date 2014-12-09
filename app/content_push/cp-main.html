@@ -9,9 +9,9 @@
     <link type="text/css" rel="stylesheet" href="./styles/cp-main.css">
 
     <div id="container" horizontal layout>
-      <cp-document id='document'
+      <cp-document id="document"
                    flex
-                   on-newkeywordinfo='{{onDocumentNewKeywordInfo}}'
+                   on-newkeywordinfo="{{onDocumentNewKeywordInfo}}"
                    on-nlpstart="{{onNlpStart}}"
                    on-nlpstop="{{onNlpStop}}">
       </cp-document>
@@ -22,16 +22,16 @@
                      on-up="{{onSplitterUpAction}}"
                      on-track="{{onSplitterTrackAction}}">
       </core-splitter>
-      <cp-panel id='panel'
-                on-close-panel='{{onPanelClosePanel}}'
-                on-mouseoverimage='{{onPanelMouseOverImage}}'
-                on-mouseoutimage='{{onPanelMouseOutImage}}'>
+      <cp-panel id="panel"
+                on-close-panel="{{onPanelClosePanel}}"
+                on-mouseoverimage="{{onPanelMouseOverImage}}"
+                on-mouseoutimage="{{onPanelMouseOutImage}}">
       </cp-panel>
     </div><!-- #container -->
   </template>
 
   <script>
-    (function contentPushApp () {
+    (function () {
       // private properties
 
       Polymer({
@@ -49,7 +49,7 @@
         // event handlers
         // relay newkeywordinfo from document to panel
         onDocumentNewKeywordInfo: function (e) {
-          this.$.panel.fire('newkeywordinfo',e.detail);
+          this.$.panel.fire('newkeywordinfo', e.detail);
         },
 
         onNlpStart: function () {
@@ -75,11 +75,11 @@
         },
 
         onPanelMouseOverImage: function (e) {
-          this.$.document.fire(e.type,e.detail);
+          this.$.document.fire(e.type, e.detail);
         },
 
         onPanelMouseOutImage: function (e) {
-          this.$.document.fire(e.type,e.detail);
+          this.$.document.fire(e.type, e.detail);
         },
 
         onPanelClosePanel: function () {

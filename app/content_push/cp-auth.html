@@ -6,11 +6,11 @@
 
   event: accesstoken - there is a new access token, the detail provides the token and service it is for.
 -->
-<link rel='import' href='../bower_components/polymer/polymer.html'>
-<link rel='import' href='../bower_components/core-ajax/core-ajax.html'>
-<link rel='import' href='./cp-globals.html'>
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="./cp-globals.html">
 
-<polymer-element name='cp-auth'>
+<polymer-element name="cp-auth">
   <template>
     <cp-globals id="globals"></cp-globals>
 
@@ -23,7 +23,7 @@
 
   </template>
   <script>
-  (function authTest () {
+  (function () {
 
     var verifyToken = function (self, detail) {
       self.$.verifier.url = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + detail.token;
@@ -31,7 +31,7 @@
     };
 
     var handleNewToken = function (self, detail) {
-      if (detail.component==='auth' && detail.type==='accesstoken') {
+      if (detail.component === 'auth' && detail.type === 'accesstoken') {
         var detail = {
           token: detail.token,
           service: detail.service
@@ -59,7 +59,7 @@
         };
 
         var self = this;
-        chrome.runtime.sendMessage(this.$.globals.data.app_id, message, function(detail) {
+        chrome.runtime.sendMessage(this.$.globals.data.app_id, message, function (detail) {
           if (chrome.runtime.lastError) {
             var message = chrome.runtime.lastError.message;
             console.log(new Error('CP-AUTH:error in responseCallback:'+message));
@@ -83,7 +83,7 @@
         }
 
         // need 'service' property or search the hash
-        var message={
+        var message = {
           component: 'auth',
           service: service,
           type: 'removecachedtoken',
