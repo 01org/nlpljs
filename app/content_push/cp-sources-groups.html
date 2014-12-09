@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/core-item/core-item.html">
 <link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-swapper.html">
+<link rel="import" href="./cp-sources-storage.html">
 <link rel="import" href="./cp-sources-selector.html">
 
 <polymer-element name="cp-sources-groups">
@@ -90,6 +91,9 @@
 
     <cp-icons id="icons"></cp-icons>
 
+    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    </cp-sources-storage>
+
     <cp-swapper id="swapper">
       <div swapper-fix>
         <core-header-panel id="panel" flex>
@@ -105,11 +109,10 @@
           </core-toolbar>
 
           <div id="items">
-            <core-item icon="{{$.icons.Images}}" label="Images" on-click="{{editSourcesFor}}"></core-item>
-            <core-item icon="{{$.icons.Files}}" label="Files" on-click="{{editSourcesFor}}"></core-item>
-            <core-item icon="{{$.icons.Articles}}" label="Articles" on-click="{{editSourcesFor}}"></core-item>
-            <core-item icon="{{$.icons.Quotes}}" label="Quotes" on-click="{{editSourcesFor}}"></core-item>
-            <core-item icon="{{$.icons.Videos}}" label="Videos" on-click="{{editSourcesFor}}"></core-item>
+            <template repeat="{{groupName in groupNames}}">
+              <core-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
+                         on-click="{{editSourcesFor}}"></core-item>
+            </template>
           </div>
         </core-header-panel>
       </div>
@@ -124,19 +127,25 @@
   <script>
     (function () {
       Polymer({
-        created: function () {
-          this.icons = CP_CONSTANTS.SOURCE_GROUP_ICONS;
+        domReady: function () {
+          this.onNewSources();
+        },
+
+        onNewSources: function () {
+          this.groupNames = this.$.storage.getGroupNames();
         },
 
         onBackButtonClick: function () {
           this.fire('back');
         },
+
         editSourcesFor: function (e) {
           var elt = e.toElement;
 
-          this.$.selector.setGroup(elt.getAttribute("label"));
+          this.$.selector.setGroup(elt.label);
           this.$.swapper.slideIn('selector');
         },
+
         closeSelector: function () {
           this.$.swapper.slideOut('selector');
         }

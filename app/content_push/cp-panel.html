@@ -13,6 +13,7 @@
 <link rel="import" href="./cp-detail-image.html">
 <link rel="import" href="./cp-swapper.html">
 <link rel="import" href="./cp-sources-groups.html">
+<link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name='cp-panel'
                  on-newkeywordinfo='{{onNewKeywordInfo}}'
@@ -134,6 +135,8 @@
     </style>
 
     <cp-icons id="icons"></cp-icons>
+    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    </cp-sources-storage>
 
     <cp-swapper id="swapper">
       <div swapper-fix>
@@ -147,25 +150,11 @@
                         data-selected-filter="true">
             </paper-item>
 
-            <paper-item icon="{{$.icons.Images}}" label="Images"
-                        data-type-filter="image">
-            </paper-item>
-
-            <paper-item icon="{{$.icons.Files}}" label="Files"
-                        data-type-filter="file">
-            </paper-item>
-
-            <paper-item icon="{{$.icons.Articles}}" label="Articles"
-                        data-type-filter="article">
-            </paper-item>
-
-            <paper-item icon="{{$.icons.Quotes}}" label="Quotes"
-                        data-type-filter="quote">
-            </paper-item>
-
-            <paper-item icon="{{$.icons.Videos}}" label="Videos"
-                        data-type-filter="video">
-            </paper-item>
+            <template repeat="{{groupName in groupNames}}">
+              <paper-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
+                          data-type-filter="{{groupName|lowercaseSingular}}">
+              </paper-item>
+            </template>
 
             <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
                         id="itemEditSources">
@@ -323,6 +312,14 @@
           });
         },
 
+        domReady: function () {
+          this.onNewSources();
+        },
+
+        onNewSources: function () {
+          this.groupNames = this.$.storage.getGroupNames();
+        },
+
         // called from content-push.html:trackAction() when splitter moves
         layout: function () {
           this.$.display.layout();
@@ -469,6 +466,10 @@
 
         sliderChange: function () {
           setFilter(this);
+        },
+
+        lowercaseSingular: function (value) {
+          return value.toLowerCase().replace(/s$/, '');
         }
       }); // Polymer()
     })();
