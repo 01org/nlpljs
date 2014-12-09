@@ -1,11 +1,9 @@
-(function(){
-/* read the design doc for explaination on the comments */
-
+(function () {
   var open = true;
 
-  chrome.runtime.onMessage.addListener( function(message,sender,sendResponse) {
-    if (message === "cp-toggle") {
-      document.querySelector('cp-main').setAttribute("toggle", open);
+  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    if (message === 'cp-toggle') {
+      document.querySelector('cp-main').setAttribute('toggle', open);
       open = !open;
     }
   });
@@ -14,13 +12,13 @@
 
   rehostPage();
 
-  function rehostPage() {
+  function rehostPage () {
     // create and open panel
-    var currentTabUrl=document.URL;
-    var extensionUrl=chrome.extension.getURL("");
-    var cpMainUrl=chrome.extension.getURL("content_push/cp-main.html");
-    var cpGlobalsUrl=chrome.extension.getURL("content_push/cp-globals.html");
-    var cssUrl=chrome.extension.getURL("styles/main.css");
+    var currentTabUrl = document.URL;
+    var extensionUrl = chrome.extension.getURL('');
+    var cpMainUrl = chrome.extension.getURL('content_push/cp-main.html');
+    var cpGlobalsUrl = chrome.extension.getURL('content_push/cp-globals.html');
+    var cssUrl = chrome.extension.getURL('styles/main.css');
 
     // remove document content and add new head and body
     document.removeChild(document.documentElement);
@@ -30,7 +28,7 @@
     body.setAttribute('unresolved', '');
 
     var base = document.createElement('base');
-    base.setAttribute('href',extensionUrl);
+    base.setAttribute('href', extensionUrl);
     head.appendChild(base);
 
     var link = document.createElement('link');
