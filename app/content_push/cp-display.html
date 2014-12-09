@@ -309,7 +309,11 @@ pushing new tiles into the wrapped layout
          * Set criteria for filtering the content of the display.
          *
          * @param {object} criteria Criteria for the filter
-         * @param {object} criteria.activeKeywords an array of active keywords
+         * @param {object} criteria.activeKeywords An array of active keywords
+         * @param {object} criteria.sources Sources which are currently
+         * enabled
+         * @param {string[]} criteria.types Array of types which tiles
+         * must match, e.g. ['file', 'image']
          *
          * Right now, the first keyword in the keywordInfo.keywords
          * array is used as the filter. Any tile whose keyword.text

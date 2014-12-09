@@ -220,6 +220,22 @@
         },
 
         /**
+         * Set the enabled property of a source to the boolean "enabled".
+         *
+         * If the source does not exist, throws an error.
+         */
+        setSourceEnabled: function (groupName, sourceName, enabled) {
+          if (this.retrieveSource(groupName, sourceName)) {
+            this.data[groupName].sources[sourceName].enabled = enabled;
+            this.persist();
+          } else {
+            throw new Error('CP-SOURCES-STORAGE: cannot modify source ' +
+                            'with name ' + sourceName + ' as group and/or ' +
+                            'source doesn\'t exist');
+          }
+        },
+
+        /**
          * Check whether a group exists and is in the correct format.
          */
         groupExists: function (groupName) {

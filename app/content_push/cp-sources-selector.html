@@ -276,21 +276,14 @@
           }
         },
 
-        getSourceGroup: function (groupName) {
-          var group = this.$.storage.getSourcesForGroup(groupName);
-          if (!group) {
-            group = this.$.storage.createGroup(groupName);
-          }
-          return group;
-        },
-
         setGroup: function (groupName) {
           this.$.headertext.innerText = groupName;
           this.currentGroupName = groupName;
           this.setSources();
         },
 
-        setSelectAllState: function () {
+        sourcesChanged: function () {
+          /* set the state of the "select all" checkbox */
           if (this.sources.length) {
             /* is at least one source disabled? */
             var disabled = _.find(this.sources, function (source) {
@@ -301,10 +294,6 @@
           } else {
             this.allEnabled = false;
           }
-        },
-
-        sourcesChanged: function () {
-          this.setSelectAllState();
         },
 
         removeSource: function (e) {
@@ -324,19 +313,26 @@
           );
 
           if (source) {
-            source.enabled = !!checkbox.checked;
+            this.$.storage.setSourceEnabled(
+              this.currentGroupName,
+              sourceName,
+              !!checkbox.checked
+            );
           }
-
-          this.setSelectAllState();
-          this.$.storage.persist();
         },
 
         toggleAllSourcesEnabled: function (e) {
+          var self = this;
           var enabled = !!(e.path[0].checked);
-          for (var i = 0; i < this.sources.length; i++) {
-            this.sources[i].enabled = enabled;
-          }
-          this.$.storage.persist();
+          var sourcesGroup = this.$.storage.getSourcesForGroup(this.currentGroupName);
+
+          _.each(_.keys(sourcesGroup.sources), function (sourceName) {
+            self.$.storage.setSourceEnabled(
+              self.currentGroupName,
+              sourceName,
+              enabled
+            );
+          });
         },
 
         onBackButtonClick: function () {

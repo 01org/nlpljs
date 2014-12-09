@@ -135,6 +135,7 @@
     </style>
 
     <cp-icons id="icons"></cp-icons>
+
     <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
     </cp-sources-storage>
 
@@ -220,12 +221,12 @@
           return;
         }
 
-        /* set filter on the display based on current keywordInfo
-           and selected result types */
+        /* set filter on the display based on current keywordInfo,
+           selected result types and enabled sources */
         self.$.display.setFilter({
           activeKeywords: self.activeKeywords,
           types: self.typeFilter,
-          sources: self.$.aggregator.sources
+          sources: self.$.storage.retrieveAllSources()
         });
       };
 
