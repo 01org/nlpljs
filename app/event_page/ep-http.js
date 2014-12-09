@@ -1,4 +1,4 @@
-var epHttp = (function () {
+(function () {
   var obj = {};
   var handlerId = 1;
   var handlers = {};
@@ -44,5 +44,19 @@ var epHttp = (function () {
     obj.worker.postMessage(request);
   };
 
-  return obj;
+  chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
+    var keepChannelOpen=false;
+
+    if (message.component === 'http') {
+      console.log('EP-HTTP:got message:',message);
+      keepChannelOpen = true;
+
+      obj.send({
+        url: message.url,
+        cb: sendResponse
+      });
+    }
+
+    return keepChannelOpen; // to call sendResponse asynchronously
+  });
 })();
