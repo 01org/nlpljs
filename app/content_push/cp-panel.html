@@ -139,7 +139,9 @@
     <cp-sources-storage id="storage"
                         on-newsources="{{onNewSources}}"
                         on-sourceenabled="{{onSourceEnabled}}"
-                        on-sourcecreated="{{onSourceCreated}}">
+                        on-sourcedisabled="{{onSourceDisabled}}"
+                        on-sourcecreated="{{onSourceCreated}}"
+                        on-sourceremoved="{{onSourceRemoved}}">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -455,9 +457,7 @@
           this.$.display.stopWaiting();
         },
 
-        /* source added, so do a new search (NB if sources are
-           removed or disabled, the results filter is
-           automatically refreshed via the onNewSources() handler) */
+        /* source added, so do a new search */
         onSourceCreated: function (e) {
           console.log('CP-PANEL: source created', e.detail);
         },
@@ -466,6 +466,18 @@
            run a search */
         onSourceEnabled: function (e) {
           console.log('CP-PANEL: source enabled', e.detail);
+        },
+
+        /* if all sources are disabled and there are no results
+           in the display, run a new unfiltered search */
+        onSourceDisabled: function (e) {
+          console.log('CP-PANEL: source disabled', e.detail);
+        },
+
+        /* if all sources are removed and there are no results
+           in the display, do a new unfiltered search */
+        onSourceRemoved: function (e) {
+          console.log('CP-PANEL: source removed', e.detail);
         },
 
         closePanel: function () {
