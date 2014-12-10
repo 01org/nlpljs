@@ -6,11 +6,15 @@
   var Thumbnailer = {};
 
   Thumbnailer.getGoogleURL = function (imageURL) {
-    return RESIZER_BASE_URL +
-           '?container=focus&' +
-           'refresh=' + (60 * 60) + '&' + // cache for one hour
-           'resize_w=600&' + // set max image width to 600px
-           'url=' + encodeURIComponent(imageURL);
+    if (imageURL.indexOf('127.0.0.1')!==-1) {
+      return imageURL;
+    } else {
+      return RESIZER_BASE_URL +
+             '?container=focus&' +
+             'refresh=' + (60 * 60) + '&' + // cache for one hour
+             'resize_w=600&' + // set max image width to 600px
+             'url=' + encodeURIComponent(imageURL);
+    }
   };
 
   if (typeof module !== 'undefined' && module.exports) {

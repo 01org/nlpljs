@@ -28,9 +28,18 @@
    * parameters.cb Callback which will receive the response
    */
   obj.send = function (parameters) {
+    var url = parameters.url;
+    var rewriter = sessionStorage.getItem('rewriter');
+
+    if (rewriter) {
+      console.log('EP-HTTP:rewriting googleapis url');
+
+      url = url.replace(/https:\/\/www.googleapis.com\//, rewriter);
+    }
+
     var request = {
       id: handlerId,
-      url: parameters.url
+      url: url
     };
 
     handlers[handlerId] = function (id, response) {
