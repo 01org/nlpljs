@@ -134,9 +134,9 @@
          */
         createGroup: function (groupName) {
           if (this.data[groupName]) {
-            throw new Error('CP-SOURCES-STORAGE: group with name ' +
-                            groupName + ' cannot be created as it ' +
-                            'already exists');
+            console.error('CP-SOURCES-STORAGE: group with name ' +
+                          groupName + ' cannot be created as it ' +
+                          'already exists');
           }
 
           this.data[groupName] = {
@@ -162,9 +162,9 @@
          */
         createSource: function (groupName, sourceName, sourceConfig) {
           if (!this.data[groupName] && this.data[groupName].sources) {
-            throw new Error('CP-SOURCES-STORAGE: cannot create source ' +
-                            'in group ' + groupName + ' as group does ' +
-                            'not exist');
+            console.error('CP-SOURCES-STORAGE: cannot create source ' +
+                          'in group ' + groupName + ' as group does ' +
+                          'not exist');
           }
 
           this.data[groupName].sources[sourceName] = sourceConfig;
@@ -191,9 +191,9 @@
 
             this.persist();
           } else {
-            throw new Error('CP-SOURCES-STORAGE: cannot remove source ' +
-                            'with name ' + sourceName + ' as group and/or ' +
-                            'source doesn\'t exist');
+            console.error('CP-SOURCES-STORAGE: cannot remove source ' +
+                          'with name ' + sourceName + ' as group and/or ' +
+                          'source doesn\'t exist');
           }
         },
 
@@ -220,9 +220,9 @@
 
             this.persist();
           } else {
-            throw new Error('CP-SOURCES-STORAGE: cannot modify source ' +
-                            'with name ' + sourceName + ' as group and/or ' +
-                            'source doesn\'t exist');
+            console.error('CP-SOURCES-STORAGE: cannot modify source ' +
+                          'with name ' + sourceName + ' as group and/or ' +
+                          'source doesn\'t exist');
           }
         },
 
