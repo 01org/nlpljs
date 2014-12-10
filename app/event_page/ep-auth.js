@@ -236,9 +236,13 @@
       var queryString=params.join('&');
 
       var url;
-      url = [ bits.protocol, bits.host ].join('://');
-      url = [ url, bits.path ].join('');
-      url = [ url, queryString ].join('?');
+      url =
+        bits.protocol +
+        '://' +
+        bits.host +
+        bits.path +
+        '?' +
+        queryString;
 
       return url;
     }

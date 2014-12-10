@@ -210,11 +210,10 @@
             closePosition=tmpBits.before.length;
           }
         }
-        bits0.after = [
-          bits0.after.substr(0,closePosition),
-          hl.close(),
-          bits0.after.substr(closePosition)
-        ].join('');
+        bits0.after =
+          bits0.after.substr(0, closePosition) +
+          hl.close() +
+          bits0.after.substr(closePosition);
 
         // 4. if end char is on same line as start char
         if (end.lineId===start.lineId) {
@@ -228,32 +227,27 @@
           // 4.2 in .before1, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
           bits1.before = bits1.before.replace(
             />([^<]+)</g,
-            [
-              '>',
-              hl.open(groupId,tag),
-              '$1',
-              hl.close(),
-              '<'
-            ].join('')
+            '>' +
+            hl.open(groupId, tag) +
+            '$1' +
+            hl.close() +
+            '<'
           );
 
           // 4.2a in .before1, surround any plain text at the end of the line with hl
           bits1.before = bits1.before.replace(
             />([^>]+)$/,
-            [
-              '>',
-              hl.open(groupId,tag),
-              '$1',
-              hl.close()
-            ].join('')
+            '>' +
+            hl.open(groupId, tag) +
+            '$1' +
+            hl.close()
           );
 
           // 4.3 join the .before1, .after1 together
           // 4.4 assign to .after0
-          bits0.after=[
-            bits1.before,
-            bits1.after
-          ].join('');
+          bits0.after =
+            bits1.before +
+            bits1.after;
           // # done close on same line
         } else {
           // 5. if end char is not on start line
@@ -261,23 +255,20 @@
           // 5.1 in .after0, replace />([^<]+)</ with hl.open(groupId) $1 hl.close()
           bits0.after = bits0.after.replace(
             />([^<]+)</g,
-            [
-              '>',
-              hl.open(groupId,tag),
-              '$1',
-              hl.close(),
-              '<'
-            ].join('')
+            '>' +
+            hl.open(groupId, tag) +
+            '$1' +
+            hl.close() +
+            '<'
           );
         }
 
         // 6. join the .before0, open hl, .after0 together
         // 7. assign the line to start line object
-        line.innerHTML=[
-          bits0.before,
-          hl.open(groupId,tag),
-          bits0.after
-        ].join('');
+        line.innerHTML =
+          bits0.before +
+          hl.open(groupId, tag) +
+          bits0.after;
         // # done first line including hl.close() if it's on the same line
 
 
@@ -304,13 +295,11 @@
             // 7.2.2 replace all >(*)< with >hl.open(groupId).*.hl.close()<
             var thisHTML=compressWhiteSpace(thisLine.innerHTML).replace(
               />([^<]+)</g,
-              [
-                '>',
-                hl.open(groupId,tag),
-                '$1',
-                hl.close(),
-                '<'
-              ].join('')
+              '>' +
+              hl.open(groupId, tag) +
+              '$1' +
+              hl.close() +
+              '<'
             );
             
             // 7.2.3 assign to the line object
@@ -331,33 +320,29 @@
           // 7.5 in .before, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
           bits.before = bits.before.replace(
             />([^<]+)</g,
-            [
-              '>',
-              hl.open(groupId,tag),
-              '$1',
-              hl.close(),
-              '<'
-            ].join('')
+            '>' +
+            hl.open(groupId, tag) +
+            '$1' +
+            hl.close() +
+            '<'
           );
           
           // 7.5a in .before add hl.open(groupId) after final '>'
           var gtPosition = bits.before.lastIndexOf('>');
           if (gtPosition!=-1) {
             var insertAtPos=gtPosition+1;
-            bits.before = [
-              bits.before.substr(0,insertAtPos),
-              hl.open(groupId,tag),
-              bits.before.substr(insertAtPos)
-            ].join('');
+            bits.before = 
+              bits.before.substr(0, insertAtPos) +
+              hl.open(groupId, tag) +
+              bits.before.substr(insertAtPos);
           }
 
           // 7.6 join the .before, close hl, .after together
           // 7.7 assign to the last line object
-          endLine.innerHTML=[
-            bits.before,
-            hl.close(),
-            bits.after
-          ].join('');
+          endLine.innerHTML =
+            bits.before +
+            hl.close() +
+            bits.after;
         }
 
 
@@ -369,7 +354,7 @@
         }
         var concatResult=[result.join('')].join('');
         if (start.lineId===end.lineId && concatResult.length!=(end.charNo-start.charNo+1)) {
-          console.log('HL:Result: ',['/',concatResult,'/'].join(''));
+          console.log('HL:Result: ', '/' + concatResult + '/');
           console.log('HL:Tag:',tag);
           // only checking when the same line
           console.log('HL:Error: concatResult length=',concatResult.length);
@@ -458,10 +443,9 @@
         clear: function (groupId) {
           // get the elements with the given groupId,
           // or all if non given
-          var elements=this.targetElement.querySelectorAll([
-            'keyword-highlight',
-            (groupId)?'[group-id="'+groupId+'"]':''
-          ].join(''));
+          var elements=this.targetElement.querySelectorAll(
+            'keyword-highlight' +
+            (groupId) ? '[group-id="' + groupId + '"]' : '');
 
           // remove each element in turn
           for (var elementIndex=0;elementIndex<elements.length;++elementIndex) {
