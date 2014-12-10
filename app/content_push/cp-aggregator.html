@@ -120,11 +120,11 @@
 
           var searches = [];
 
-          for (i = 0; i < searchTerms.length; i++) {
-            var thisSearchTerm = searchTerms[i];
+          for (var termIndex = 0; termIndex < searchTerms.length; termIndex++) {
+            var thisSearchTerm = searchTerms[termIndex];
 
-            for (var j = 0; j < services.length; j++) {
-              var thisService = services[j].service;
+            for (var serviceIndex = 0; serviceIndex < services.length; serviceIndex++) {
+              var thisService = services[serviceIndex].service;
 
               switch (thisService) {
                 case 'Google Image Search':
@@ -134,7 +134,7 @@
                      is enabled and does a search */
                   var noSourcesUsed = true;
 
-                  var groupName = services[j].groupName;
+                  var groupName = services[serviceIndex].groupName;
 
                   /* if sourceName isn't set, we'll just search all sources for
                      this sources group */
@@ -155,8 +155,8 @@
                   }
 
                   if (thisSources) {
-                    for (var k in thisSources.sources) {
-                      var thisSource = thisSources.sources[k];
+                    for (var sourceKey in thisSources.sources) {
+                      var thisSource = thisSources.sources[sourceKey];
 
                       if (thisSource.enabled) {
                         noSourcesUsed = false;
@@ -166,7 +166,7 @@
                           thisSearchTerm,
                           thisService,
                           thisSource.url,
-                          k
+                          sourceKey
                         ]);
                       }
                     }
@@ -193,8 +193,8 @@
 
           this.pendingSearches += searches.length;
 
-          for (i = 0; i < searches.length; i++) {
-            getResultsFromSource.apply(this, searches[i]);
+          for (var searchesIndex = 0; searchesIndex < searches.length; searchesIndex++) {
+            getResultsFromSource.apply(this, searches[searchesIndex]);
           }
         }
       });
