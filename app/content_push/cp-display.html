@@ -309,7 +309,11 @@ pushing new tiles into the wrapped layout
          * Set criteria for filtering the content of the display.
          *
          * @param {object} criteria Criteria for the filter
-         * @param {object} criteria.activeKeywords an array of active keywords
+         * @param {object} criteria.activeKeywords An array of active keywords
+         * @param {object} criteria.sources Sources which are currently
+         * enabled
+         * @param {string[]} criteria.types Array of types which tiles
+         * must match, e.g. ['file', 'image']
          *
          * Right now, the first keyword in the keywordInfo.keywords
          * array is used as the filter. Any tile whose keyword.text
@@ -355,9 +359,9 @@ pushing new tiles into the wrapped layout
             /* sources (if any sources are enabled) */
             var sourcesForTileType = null;
             if (tile.type === 'image') {
-              sourcesForTileType = criteria.sources['Images'];
+              sourcesForTileType = criteria.sources['Images'].sources;
             } else if (tile.type === 'article') {
-              sourcesForTileType = criteria.sources['Articles'];
+              sourcesForTileType = criteria.sources['Articles'].sources;
             }
 
             if (sourcesForTileType) {
@@ -367,8 +371,8 @@ pushing new tiles into the wrapped layout
               });
 
               /* if there are no enabled sources, we continue;
-                 otherwise we check whether the tile's source is
-                 enabled */
+                 otherwise we check whether the tile's source exists
+                 and is enabled */
               if (enabledSource) {
                 var tileSource = sourcesForTileType[tile.sourceName];
                 if (!tileSource || !tileSource.enabled) {

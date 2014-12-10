@@ -143,7 +143,7 @@
   // cut down version of the defaults
   var defaults = {
     'Images': {
-      'enabled': true,
+      order: 1,
       'sources': {
         'Flickr': {
           url: 'flickr.com',
@@ -156,7 +156,7 @@
       }
     },
     'Articles': {
-      'enabled': true,
+      order: 2,
       'sources': {
         'Yahoo! news': {
           url: 'news.yahoo.com',
@@ -168,8 +168,8 @@
         }
       }
     },
-    'Quotations': {
-      'enabled': false,
+    'Quotes': {
+      order: 3,
       'sources': {
         'iHeart Quotes': {
           url: 'iheartquotes.com',
@@ -182,12 +182,17 @@
       }
     },
     'Files': {
-      'enabled': true,
+      order: 4,
       'sources': {
         'Google Drive': {
           title: 'Google Drive',
           enabled: true
         }
+      }
+    },
+    'Videos': {
+      order: 5,
+      'sources': {
       }
     }
   };
@@ -261,7 +266,6 @@
             if (!currentItem.hasOwnProperty(url)) {
               chrome.storage.sync.get(url, function(result) {
                 loadSources(url,result);
-
               });
             } else {
               var message = {

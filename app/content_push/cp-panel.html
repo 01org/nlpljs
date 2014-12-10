@@ -1,15 +1,11 @@
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/core-icons/av-icons.html">
-<link rel="import" href="../bower_components/core-icons/editor-icons.html">
-<link rel="import" href="../bower_components/core-icons/image-icons.html">
 <link rel="import" href="./cp-icons-svg.html">
+<link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-aggregator.html">
 <link rel="import" href="./cp-display.html">
 <link rel="import" href="./cp-detail-article.html">
@@ -17,6 +13,7 @@
 <link rel="import" href="./cp-detail-image.html">
 <link rel="import" href="./cp-swapper.html">
 <link rel="import" href="./cp-sources-groups.html">
+<link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name='cp-panel'
                  on-newkeywordinfo='{{onNewKeywordInfo}}'
@@ -137,39 +134,33 @@
       }
     </style>
 
+    <cp-icons id="icons"></cp-icons>
+
+    <cp-sources-storage id="storage"
+                        on-newsources="{{onNewSources}}"
+                        on-sourceenabled="{{onSourceEnabled}}"
+                        on-sourcecreated="{{onSourceCreated}}">
+    </cp-sources-storage>
+
     <cp-swapper id="swapper">
       <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
         <core-toolbar id="toolbar">
           <!-- items in this menu set the "types" part of the display filter -->
           <paper-menu-button id="menu" icon="menu" on-click="{{onMenuClick}}">
-            <paper-item icon="cp-icons:cp-icon"
+            <paper-item icon="cp-icons-svg:cp-icon"
                         label="Content Push"
                         data-type-filter="no-filter"
                         data-selected-filter="true">
             </paper-item>
 
-            <paper-item icon="image:camera-alt" label="Images"
-                        data-type-filter="image">
-            </paper-item>
+            <template repeat="{{groupName in groupNames}}">
+              <paper-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
+                          data-type-filter="{{groupName|lowercaseSingular}}">
+              </paper-item>
+            </template>
 
-            <paper-item icon="editor:insert-drive-file" label="Files"
-                        data-type-filter="file">
-            </paper-item>
-
-            <paper-item icon="editor:format-color-text" label="Articles"
-                        data-type-filter="article">
-            </paper-item>
-
-            <paper-item icon="editor:format-quote" label="Quotes"
-                        data-type-filter="quote">
-            </paper-item>
-
-            <paper-item icon="av:videocam" label="Videos"
-                        data-type-filter="video">
-            </paper-item>
-
-            <paper-item icon="editor:mode-edit" label="EDIT SOURCES"
+            <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
                         id="itemEditSources">
             </paper-item>
           </paper-menu-button>
@@ -233,12 +224,12 @@
           return;
         }
 
-        /* set filter on the display based on current keywordInfo
-           and selected result types */
+        /* set filter on the display based on current keywordInfo,
+           selected result types and enabled sources */
         self.$.display.setFilter({
           activeKeywords: self.activeKeywords,
           types: self.typeFilter,
-          sources: self.$.aggregator.sources
+          sources: self.$.storage.retrieveAllSources()
         });
       };
 
@@ -313,16 +304,15 @@
         ready: function () {
           var selector = this.$.groups.$.selector;
           var aggregator = this.$.aggregator;
-          var self = this;
+        },
 
-          selector.addEventListener("sourcesedited", function (e) {
-            var changes = e.detail;
+        domReady: function () {
+          this.onNewSources();
+        },
 
-            if (changes.length > 0) {
-              aggregator.applySourceChanges(changes, self.activeKeywords);
-              setFilter(self);
-            }
-          });
+        onNewSources: function () {
+          this.groupNames = this.$.storage.getGroupNames();
+          setFilter(this);
         },
 
         // called from content-push.html:trackAction() when splitter moves
@@ -465,12 +455,29 @@
           this.$.display.stopWaiting();
         },
 
+        /* source added, so do a new search (NB if sources are
+           removed or disabled, the results filter is
+           automatically refreshed via the onNewSources() handler) */
+        onSourceCreated: function (e) {
+          console.log('CP-PANEL: source created', e.detail);
+        },
+
+        /* if there are no results for a source and it is enabled,
+           run a search */
+        onSourceEnabled: function (e) {
+          console.log('CP-PANEL: source enabled', e.detail);
+        },
+
         closePanel: function () {
           this.fire('close-panel');
         },
 
         sliderChange: function () {
           setFilter(this);
+        },
+
+        lowercaseSingular: function (value) {
+          return value.toLowerCase().replace(/s$/, '');
         }
       }); // Polymer()
     })();
