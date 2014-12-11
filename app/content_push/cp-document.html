@@ -8,9 +8,9 @@
 <link rel="import" href="./cp-globals.html">
 
 <polymer-element
-  name='cp-document'
-  on-mouseoverimage='{{onMouseOverImage}}'
-  on-mouseoutimage='{{onMouseOutImage}}'>
+  name="cp-document"
+  on-mouseoverimage="{{onMouseOverImage}}"
+  on-mouseoutimage="{{onMouseOutImage}}">
   <template>
     <style>
       :host {
@@ -31,12 +31,12 @@
       };
     </style>
     <iframe id="iframe"></iframe>
-    <cp-keyword-highlighter id='highlighter'></cp-keyword-highlighter>
-    <cp-scrollwatcher id='scrollwatcher'></cp-scrollwatcher>
+    <cp-keyword-highlighter id="highlighter"></cp-keyword-highlighter>
+    <cp-scrollwatcher id="scrollwatcher"></cp-scrollwatcher>
     <cp-globals id="globals"></cp-globals>
   </template>
   <script>
-    (function cpDocument () {
+    (function () {
       // private *static* functions and constants
       var LINE_CLASS = 'kix-lineview';        /* Handle to the current Page */
       var LINE_SELECTOR = '.kix-lineview';
@@ -46,20 +46,20 @@
        * find ancestor of node that has className
        * for finding the ancestor with .kix-lineview of whatever line has changed
        */
-      var findAncestor = function (node,className) {
-        var retVal=null;
+      var findAncestor = function (node, className) {
+        var retVal = null;
 
-        var thisNode=node;
-        var cssSelectorNotFound=true;
+        var thisNode = node;
+        var cssSelectorNotFound = true;
 
-        while (cssSelectorNotFound && thisNode && thisNode.nodeName!="BODY") {
-          cssSelectorNotFound=!thisNode.classList.contains(className);
+        while (cssSelectorNotFound && thisNode && thisNode.nodeName != 'BODY') {
+          cssSelectorNotFound = !thisNode.classList.contains(className);
           if (cssSelectorNotFound) {
             // move into parent node
-            thisNode=thisNode.parentNode;
+            thisNode = thisNode.parentNode;
           } else {
             // finished
-            retVal=thisNode;
+            retVal = thisNode;
           }
         }
 
@@ -67,7 +67,7 @@
       };
 
       var observeDocumentChanges = function (self) {
-        var observer = new MutationObserver(function (mutations,observerInstance) {
+        var observer = new MutationObserver(function (mutations, observerInstance) {
           for (var i = 0; i < mutations.length; i++) {
             var mutation = mutations[i];
             var newNodes = mutation.addedNodes;
@@ -85,8 +85,9 @@
 
                     self.$.scrollwatcher.removeTargetNode(thisNode);
 
-                    if (self.editOverTimer !== null)
+                    if (self.editOverTimer !== null) {
                       clearTimeout(self.editOverTimer);
+                    }
 
                     self.editOverTimer = setTimeout(function () {
                       self.$.scrollwatcher.getVisibleNodes(getContext, self);
@@ -109,8 +110,9 @@
                         line.innerHTML.indexOf('keyword-highlight') === -1) {
                       console.log('MO:editing line');
 
-                      if (self.editOverTimer !== null)
+                      if (self.editOverTimer !== null) {
                         clearTimeout(self.editOverTimer);
+                      }
 
                       self.editOverTimer = setTimeout(function () {
                         self.$.scrollwatcher.getVisibleNodes(getContext, self);
@@ -127,8 +129,9 @@
                     self.$.scrollwatcher.addTargetNode(thisNode);
 
                     if (self.$.scrollwatcher.isNodeVisible(thisNode)) {
-                      if (self.editOverTimer !== null)
+                      if (self.editOverTimer !== null) {
                         clearTimeout(self.editOverTimer);
+                      }
 
                       self.editOverTimer = setTimeout(function () {
                         self.$.scrollwatcher.getVisibleNodes(getContext, self);
@@ -153,7 +156,7 @@
         observer.observe(self.$.iframe.contentDocument, config);
       };
 
-      var handleIframeLoad = function (self){
+      var handleIframeLoad = function (self) {
         var lines =
           self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
 
@@ -203,8 +206,9 @@
 
           lineId = context[i].getAttribute('cp_line_id');
 
-          if (i > 0)
+          if (i > 0) {
             prevLineId = context[i - 1].getAttribute('cp_line_id');
+          }
 
           sendToEpNlp(self, {
             component: 'nlp',
@@ -243,7 +247,7 @@
        */
       var setKeywordInfo = function (self, keywordInfo) {
         self.keywordInfo = keywordInfo;
-        self.fire('newkeywordinfo',{keywordInfo: keywordInfo});
+        self.fire('newkeywordinfo', {keywordInfo: keywordInfo});
 
         self.$.highlighter.clear();
         self.$.highlighter.prepare(keywordInfo.ranges);
@@ -283,7 +287,7 @@
             );
 
             console.log('CP-DOCUMENT: connected to ep-nlp:', this.nlpPort);
-            this.nlpPort.onMessage.addListener(function(detail) {
+            this.nlpPort.onMessage.addListener(function (detail) {
               console.log('CP-DOCUMENT: message from ep-nlp:', detail);
               if (detail.component === 'nlp') {
                 if (detail.message.type === 'keywordlist') {
@@ -315,21 +319,21 @@
         },
 
         // propertyChanged handlers
-        iframeurlChanged: function (oldValue,newValue) {
-          this.$.iframe.src=newValue;
+        iframeurlChanged: function (oldValue, newValue) {
+          this.$.iframe.src = newValue;
         },
 
         // event handlers
 
         onMouseOverImage: function (e) {
           for (var i = 0; i < e.detail.length; i++) {
-            this.$.highlighter.turn(e.detail[i].groupId,'on');
+            this.$.highlighter.turn(e.detail[i].groupId, 'on');
           }
         },
 
         onMouseOutImage: function (e) {
           for (var i = 0; i < e.detail.length; i++)
-            this.$.highlighter.turn(e.detail[i].groupId,'off');
+            this.$.highlighter.turn(e.detail[i].groupId, 'off');
         },
 
       }); // Polymer()

@@ -1,8 +1,9 @@
 define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishModel) {
   var postagger;
 
-  if (typeof postagger !== 'undefined')
+  if (typeof postagger !== 'undefined') {
     return postagger;
+  }
 
   var model;
   var stopSymbols = ['.', '?', '!', ';'];
@@ -30,8 +31,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
       triWeight: 0,
       suffixWeight: 0,
       addState: function (state) {
-        if (this.states.indexOf(state) === -1)
+        if (this.states.indexOf(state) === -1) {
           this.states[this.states.length] = state;
+        }
 
         return this;
       },
@@ -46,44 +48,52 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
         return this;
       },
       addUnigram: function (state) {
-        if (typeof this.unigrams[state] === 'undefined')
+        if (typeof this.unigrams[state] === 'undefined') {
           this.unigrams[state] = nGram();
+        }
 
         this.unigrams[state].frequency++;
  
         return this;
       },
       addBigram: function (state1, state2) {
-        if (typeof this.bigrams[state1] === 'undefined')
+        if (typeof this.bigrams[state1] === 'undefined') {
           this.bigrams[state1] = {};
+        }
 
-        if (typeof this.bigrams[state1][state2] === 'undefined')
+        if (typeof this.bigrams[state1][state2] === 'undefined') {
           this.bigrams[state1][state2] = nGram();
+        }
 
         this.bigrams[state1][state2].frequency++;
 
         return this;
       },
       addTrigram: function (state1, state2, state3) {
-        if (typeof this.trigrams[state1] === 'undefined')
+        if (typeof this.trigrams[state1] === 'undefined') {
           this.trigrams[state1] = {};
+        }
 
-        if (typeof this.trigrams[state1][state2] === 'undefined')
+        if (typeof this.trigrams[state1][state2] === 'undefined') {
           this.trigrams[state1][state2] = {};
+        }
 
-        if (typeof this.trigrams[state1][state2][state3] === 'undefined')
+        if (typeof this.trigrams[state1][state2][state3] === 'undefined') {
           this.trigrams[state1][state2][state3] = nGram();
+        }
 
         this.trigrams[state1][state2][state3].frequency++;
 
         return this;
       },
       addEmission: function (state, observation) {
-        if (typeof this.emissions[state] === 'undefined')
+        if (typeof this.emissions[state] === 'undefined') {
           this.emissions[state] = {};
+        }
 
-        if (typeof this.emissions[state][observation] === 'undefined')
+        if (typeof this.emissions[state][observation] === 'undefined') {
           this.emissions[state][observation] = nGram();
+        }
 
         this.emissions[state][observation].frequency++;
 
@@ -148,14 +158,16 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
               this.unigrams[i].frequency;
 
             var index = 1;
-            if (j.length > 11)
+            if (j.length > 11) {
               index = j.length - 10;
+            }
 
             if (/[a-zA-Z]/.test(j)) {
-              if (j[0] === j[0].toUpperCase())
+              if (j[0] === j[0].toUpperCase()) {
                 ending = ' ' + 'UPPER';
-              else
+              } else {
                 ending = ' ' + 'LOWER'
+              }
             }
 
             while (index < j.length) {
@@ -205,40 +217,45 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
         return this.unigrams[state].probability;
       },
       getBigramProbability: function (state1, state2) {
-         if (typeof this.bigrams[state1][state2] !== 'undefined')
+         if (typeof this.bigrams[state1][state2] !== 'undefined') {
            return this.bigrams[state1][state2].probability;
+         }
 
          return 0;
       },
       getTrigramProbability: function (state1, state2, state3) {
         if (typeof this.trigrams[state1][state2] !== 'undefined' &&
-            typeof this.trigrams[state1][state2][state3] !== 'undefined')
+            typeof this.trigrams[state1][state2][state3] !== 'undefined') {
           return this.trigrams[state1][state2][state3].probability;
+        }
 
         return 0;
       },
       checkForSuffix: function (observation) {
-        if (this.observations.indexOf(observation) !== -1)
+        if (this.observations.indexOf(observation) !== -1) {
           return 0;
-        else {
+        } else {
           var index = 1;
           var ending;
 
           if (/[a-zA-Z]/.test(observation)) {
-            if (observation[0] === observation[0].toUpperCase())
+            if (observation[0] === observation[0].toUpperCase()) {
               ending = ' ' + 'UPPER';
-            else
+            } else {
               ending = ' ' + 'LOWER';
+            }
           }
 
-          if (observation.length > 11)
+          if (observation.length > 11) {
             index = observation.length - 10;
+          }
 
           while (index < observation.length) {
             var suffix = observation.slice(index, observation.length) + ending;
 
-            if (typeof this.suffixes[suffix] !== 'undefined')
+            if (typeof this.suffixes[suffix] !== 'undefined') {
               return index;
+            }
 
             index++;
           }
@@ -249,32 +266,35 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
       getSuffixProbability: function (state, suffix) {
 
         if (typeof this.suffixes[suffix] !== 'undefined' &&
-            typeof this.suffixes[suffix].tags[state] !== 'undefined')
+            typeof this.suffixes[suffix].tags[state] !== 'undefined') {
           return this.suffixes[suffix].tags[state].probability;
+        }
 
         return 0;
       },
       getEmissionProbability: function (state, observation, suffixIndex) {
         if (this.observations.indexOf(observation) !== -1) {
-          if (typeof this.emissions[state][observation] !== 'undefined')
+          if (typeof this.emissions[state][observation] !== 'undefined') {
             return this.emissions[state][observation].probability;
-          else
+          } else {
             return 0;
+          }
         }
 
         var ammended = observation;
-        if (ammended[0] === ammended[0].toUpperCase())
+        if (ammended[0] === ammended[0].toUpperCase()) {
           ammended = ammended.toLowerCase();
-        else {
+        } else {
           ammended = ammended[0].toUpperCase() + ammended.slice(1,
             ammended.length);
         }
 
         if (this.observations.indexOf(ammended) !== -1) {
-          if (typeof this.emissions[state][ammended] !== 'undefined')
+          if (typeof this.emissions[state][ammended] !== 'undefined') {
             return this.emissions[state][ammended].probability;
-          else
+          } else {
             return 0;
+          }
         }
 
         if (suffixIndex !== -1) {
@@ -285,10 +305,11 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
           var ending;
 
           if (/[a-zA-Z]/.test(observation)) {
-            if (observation[0] === observation[0].toUpperCase())
+            if (observation[0] === observation[0].toUpperCase()) {
               ending = ' ' + 'UPPER';
-            else
+            } else {
               ending = ' ' + 'LOWER';
+            }
           }
 
           while (index < observation.length) {
@@ -302,9 +323,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
 
               totalProb += (prevProb * this.suffixes[suffix].probability) /
                 this.unigrams[state].probability;
-            }
-            else
+            } else {
               prevProb = 0;
+            }
 
             index++;
             counter++;
@@ -324,8 +345,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
         trellis[0] = [];
         backpointer[0] = [];
 
-        if (sequence.length === 0)
+        if (sequence.length === 0) {
           return path;
+        }
 
         for (i = 0; i < this.states.length; i++) {
           var unigramProb = this.getUnigramProbability(this.states[i]);
@@ -335,22 +357,25 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
             bigramProb) * this.getEmissionProbability(this.states[i],
               sequence[0]);
 
-          if (trellis[0][i] > 0)
+          if (trellis[0][i] > 0) {
             failedInit = false;
+          }
 
           backpointer[0][i] = this.states.indexOf('SB');
         }
 
         if (failedInit === true) {
           if (/[a-zA-Z]/.test(sequence[0])) {
-            if (sequence[0][0] === sequence[0][0].toUpperCase())
+            if (sequence[0][0] === sequence[0][0].toUpperCase()) {
               trellis[0][this.states.indexOf('NNP UPPER')] = 1;
-            else
+            } else {
               trellis[0][this.states.indexOf('NN LOWER')] = 1;
+            }
           }
 
-          if (/[0-9]/.test(sequence[0]))
+          if (/[0-9]/.test(sequence[0])) {
             trellis[0][this.states.indexOf('CD')] = 1;
+          }
         }
 
 
@@ -374,13 +399,15 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
             if (suffixOf === -1) {
               if (/[a-zA-Z]/.test(sequence[i])) {
                 if (/[A-Z]/.test(sequence[i][0]) && (this.states[j] ===
-                    'NNP UPPER' || this.states[j] === 'NN UPPER'))
+                    'NNP UPPER' || this.states[j] === 'NN UPPER')) {
                   emissionProb = 0.5;
-                else if (this.states[j] === 'NN LOWER')
+                } else if (this.states[j] === 'NN LOWER') {
                   emissionProb = 1;
+                }
               }
-              else if (this.states[j] === 'CD')
+              else if (this.states[j] === 'CD') {
                 emissionProb = 1;
+              }
             }
 
             for (k = 0; k < this.states.length; k++) {
@@ -407,8 +434,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
               }
             }
 
-            if (trellis[i][j] > maxNode)
+            if (trellis[i][j] > maxNode) {
               maxNode = trellis[i][j];
+            }
 
             if (trellis[i - 1][j] > maxPrev) {
               maxPrev = trellis[i - 1][j];
@@ -421,13 +449,11 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
               if (/[A-Z]/.test(sequence[i][0])) {
                 trellis[i][this.states.indexOf('NNP UPPER')] = 1;
                 backpointer[i][this.states.indexOf('NNP UPPER')] = maxBack;
-              }
-              else {
+              } else {
                 trellis[i][this.states.indexOf('NN LOWER')] = 1;
                 backpointer[i][this.states.indexOf('NN LOWER')] = maxBack;
               }
-            }
-            else {
+            } else {
               trellis[i][this.states.indexOf('CD')] = 1;
               backpointer[i][this.states.indexOf('CD')] = maxBack;
             }
@@ -459,14 +485,16 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
       var state = corpus[i].state;
 
       if (/[a-zA-Z]/.test(corpus[i].observation[0])) {
-        if (corpus[i].observation[0] === corpus[i].observation[0].toUpperCase())
+        if (corpus[i].observation[0] === corpus[i].observation[0].toUpperCase()) {
           state = corpus[i].state + ' ' + 'UPPER';
-        else
+        } else {
           state = corpus[i].state + ' ' + 'LOWER'
+        }
       }
 
-      if (stopSymbols.indexOf(corpus[i].observation) !== -1 || state === '.')
+      if (stopSymbols.indexOf(corpus[i].observation) !== -1 || state === '.') {
         state = 'SB';
+      }
 
       model.addState(state)
            .addObservation(corpus[i].observation)
@@ -505,8 +533,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
         var index = tagSeq[i].indexOf(' ');
         var tag = tagSeq[i];
 
-        if (index > -1)
+        if (index > -1) {
           tag = tagSeq[i].slice(0, index);
+        }
 
         tagged[i] = { token: tokenized[i], tag: tag };
       }
@@ -516,8 +545,9 @@ define(['tokenizer', 'text!models/english.json'], function (tokenizer, englishMo
     train: function (corpora) {
       model = hiddenMarkovModel();
 
-      for (i = 0; i < corpora.length; i++)
+      for (i = 0; i < corpora.length; i++) {
         parseCorpus(corpora[i]);
+      }
 
       model.recalculateProbabilities();
       return this;

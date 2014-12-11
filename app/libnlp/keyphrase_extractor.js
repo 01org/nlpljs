@@ -1,8 +1,9 @@
 define(['postagger'], function (postagger) {
   var keyword_extractor;
 
-  if (typeof keyword_extractor !== 'undefined')
+  if (typeof keyword_extractor !== 'undefined') {
     return keyword_extractor;
+  }
 
   var graphVertex = function (content) {
     return {
@@ -109,14 +110,16 @@ define(['postagger'], function (postagger) {
             actualJ++;
             var prevToken = annotatedTokens[i - j].token.toLowerCase();
 
-            if (vertexFilter(annotatedTokens[i - j], i - j) === false)
+            if (vertexFilter(annotatedTokens[i - j], i - j) === false) {
                 continue;
+            }
 
             var prevVertexIndex = vertexNames.indexOf(prevToken);
             var prevVertex = vertices[prevVertexIndex];
 
-            if (typeof prevVertex === 'undefined')
+            if (typeof prevVertex === 'undefined') {
               continue;
+            }
 
             vertex.addConnection(prevVertex);
             prevVertex.addConnection(vertex);
@@ -159,19 +162,22 @@ define(['postagger'], function (postagger) {
         var nextContainsKeyword;
 
         if (sorted.indexOf(edges[i].a) !== -1 ||
-            sorted.indexOf(edges[i].b) !== -1)
+            sorted.indexOf(edges[i].b) !== -1) {
           containsKeyword = true;
+        }
 
         if (i < edges.length - 1) {
           if ((sorted.indexOf(edges[i + 1].a) !== -1 ||
                sorted.indexOf(edges[i + 1].b) !== -1) &&
-              edges[i + 1].aID === edges[i].bID)
+              edges[i + 1].aID === edges[i].bID) {
             nextContainsKeyword = true;
+          }
         }
 
         if (containsKeyword === false && nextContainsKeyword === false &&
-            keyphrase === '')
+            keyphrase === '') {
           continue;
+        }
 
         if (keyphrase === '') {
           var index = keywords.indexOf(edges[i].a.content);
@@ -239,8 +245,9 @@ define(['postagger'], function (postagger) {
           vertices[i].recalculateScore();
 
           if (vertices[i].score < oldScore ||
-              vertices[i].score > oldScore)
+              vertices[i].score > oldScore) {
             converged = false;
+          }
         }
       }
 

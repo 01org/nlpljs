@@ -12,11 +12,11 @@
    * }
    */
 
-  chrome.runtime.onMessageExternal.addListener(function(message,sender,sendResponse) {
-    var keepChannelOpen=false;
+  chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResponse) {
+    var keepChannelOpen = false;
 
     if (message.component === 'auth') {
-      console.log('EP-AUTH:got message:',message);
+      console.log('EP-AUTH:got message:', message);
       var service = message.service;
 
       if (obj.hasOwnProperty(service)) {
@@ -30,11 +30,11 @@
             obj[service].removeCachedToken(token);
             break;
           default:
-            console.log(new Error('EP-AUTH:unknown message type:'+type));
+            console.log(new Error('EP-AUTH:unknown message type:' + type));
             break;
         }
       } else {
-        console.log(new Error('EP-AUTH:unknown service:'+service));
+        console.log(new Error('EP-AUTH:unknown service:' + service));
       }
     }
 
@@ -44,18 +44,18 @@
   obj.google = (function () {
     function getToken (sendResponse) {
       // id in the manifest.json file
-      chrome.identity.getAuthToken({interactive:true},function(token) {
+      chrome.identity.getAuthToken({interactive:true}, function (token) {
         setAccessToken(token);
       });
 
       function setAccessToken (token) {
         var message = {
-          component:'auth',
-          type:'accesstoken',
-          service:'google',
-          token:token
+          component: 'auth',
+          type: 'accesstoken',
+          service: 'google',
+          token: token
         };
-        console.log('EP-AUTH:sending message:',message);
+        console.log('EP-AUTH:sending message:', message);
         sendResponse(message);
       };
 
@@ -110,7 +110,7 @@
           'client_id': CLIENTID,
           'response_type': 'token',
           'access_type':'online',
-          'scope':['user_photos','public_profile'].join(','),
+          'scope':['user_photos', 'public_profile'].join(','),
           'redirect_uri':encodeURIComponent(redirectUri)
         }
       });
@@ -120,9 +120,9 @@
         url: url
       }
 
-      chrome.identity.launchWebAuthFlow(options, function(redirectUri) {
+      chrome.identity.launchWebAuthFlow(options, function (redirectUri) {
         if (chrome.runtime.lastError) {
-          console.log(new Error('EP-AUTH:'+chrome.runtime.lastError.message));
+          console.log(new Error('EP-AUTH:' + chrome.runtime.lastError.message));
           return;
         }
 
@@ -143,9 +143,9 @@
         var pairs = fragment.split('&');
         var values = {};
 
-        pairs.forEach(function(pair) {
+        pairs.forEach(function (pair) {
           var nameval = pair.split('=');
-          values[nameval[0].replace(/^#/,'')] = nameval[1];
+          values[nameval[0].replace(/^#/, '')] = nameval[1];
         });
 
         return values;
@@ -181,8 +181,8 @@
         xhr.setRequestHeader('Accept', 'application/json');
         xhr.onload = function () {
           if (this.status === HTTP_OK) {
-            var response = JSON.parse('"'+this.responseText+'"');
-            response = response.substring(0,response.indexOf('&'));
+            var response = JSON.parse('"' + this.responseText + '"');
+            response = response.substring(0, response.indexOf('&'));
             setAccessToken(response);
             cache.access_token = response;
           }
@@ -193,12 +193,12 @@
       function setAccessToken (token) {
         cache.access_token = token;
         var message = {
-          component:'auth',
-          type:'accesstoken',
-          service:'facebook',
-          token:token
+          component: 'auth',
+          type: 'accesstoken',
+          service: 'facebook',
+          token: token
         };
-        console.log('EP-AUTH:sending message:',message);
+        console.log('EP-AUTH:sending message:', message);
         sendResponse(message);
       };
 
@@ -224,16 +224,16 @@
      * }
      */
     function makeUrl(bits) {
-      var params=[];
+      var params = [];
 
       if (bits.params) {
-        Object.keys(bits.params).forEach(function(key){
-          var param=[key,bits.params[key]].join('=');
+        Object.keys(bits.params).forEach(function (key) {
+          var param = [key, bits.params[key]].join('=');
           params.push(param);
         });
       }
 
-      var queryString=params.join('&');
+      var queryString = params.join('&');
 
       var url;
       url =

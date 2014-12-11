@@ -11,12 +11,12 @@
  *
 */
 
-this.importScripts("../bower_components/requirejs/require.js");
+this.importScripts('../bower_components/requirejs/require.js');
 
 require.config({
-  baseUrl: "../libnlp/",
+  baseUrl: '../libnlp/',
   paths: {
-    text: "../bower_components/requirejs-text/text"
+    text: '../bower_components/requirejs-text/text'
   }
 });
 
@@ -39,7 +39,7 @@ var createLine = function (lineId, fromChar, toChar) {
 var currentContext = null;
 
 var createContext = function () {
-  return{
+  return {
     lines: [],
     lineIds: [],
     graph: null,
@@ -88,7 +88,7 @@ function escapeRegExp(str) {
   // the first parameter is a list of characters that are special to RegExp()
   // $& is the string matched in the first parameter
   // \\ is a single backslash to escape the character
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
 
 this.onmessage = function (event) {
@@ -100,11 +100,12 @@ this.onmessage = function (event) {
   }
 
   switch (message.type) {
-    case "initialize":
+    case 'initialize':
       require(['libnlp'], function (result) {
         libnlp = result;
-	      if (libnlp)
+	      if (libnlp) {
           loaded = true;
+        }
 
 	      if (loaded) {
           while (queuedMessages.length > 0)
@@ -112,22 +113,22 @@ this.onmessage = function (event) {
 
           console.log('Loaded libnlp module');
 	      } else {
-	        postMessage(eventPageMessage("initerror", "error loading nlp modules"));
+	        postMessage(eventPageMessage('initerror', 'error loading nlp modules'));
           console.log('error loading libnlp module');
 	      }
       });
       break;
-    case "newcontext":
+    case 'newcontext':
       currentContext = createContext();
       break;
-    case "lineadded":
+    case 'lineadded':
       var prevLineId = message.data.prevLineId;
       var prevLineIndex = currentContext.lineIds.indexOf(prevLineId);
       var newLine;
       var startChar;
 
-      var re = new RegExp(String.fromCharCode(160), "g");
-      var text = message.data.text.replace(re,' ');
+      var re = new RegExp(String.fromCharCode(160), 'g');
+      var text = message.data.text.replace(re, ' ');
 
       if (prevLineIndex !== -1) {
         newLine = createLine(message.data.lineId,
@@ -151,7 +152,7 @@ this.onmessage = function (event) {
         currentContext.text.slice(startChar)].join('');
 
       break;
-    case "processcontext":
+    case 'processcontext':
       var textForExtractor = currentContext.text.replace(/\[\w+\]/g, '');
 
       var keywords = [];
@@ -160,7 +161,7 @@ this.onmessage = function (event) {
 
       for (var i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
-        var regex = new RegExp(escapeRegExp(keyword), "gi");
+        var regex = new RegExp(escapeRegExp(keyword), 'gi');
 
         /* if we've seen this keyword before, use the existing groupId */
         var groupId = groupIds[keyword];
@@ -200,14 +201,14 @@ this.onmessage = function (event) {
       currentContext.ranges = ranges;
 
       break;
-    case "getkeywords":
-      postMessage(eventPageMessage("keywordlist", {
+    case 'getkeywords':
+      postMessage(eventPageMessage('keywordlist', {
         keywords: currentContext.keywords,
         ranges: currentContext.ranges
       }));
       break;
     default:
-      console.warn("nlp_worker: " + message.type + " is not recognized");
+      console.warn('nlp_worker: ' + message.type + ' is not recognized');
       break;
   }
 };

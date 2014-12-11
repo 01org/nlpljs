@@ -1,8 +1,9 @@
-define(['tokenizer'], function() {
+define(['tokenizer'], function () {
   var tokenizer;
 
-  if (typeof tokenizer !== 'undefined')
+  if (typeof tokenizer !== 'undefined') {
     return tokenizer;
+  }
 
   var specialCharacters = ['!', '"', '£', '$', '%', '^', '&', '*', '(', ')',
        '+', '=', '{', '[', '}', '}', ':', ';', '@', '~', '#', '<', ',',
@@ -16,26 +17,27 @@ define(['tokenizer'], function() {
 
       while (i < text.length) {
         if (specialCharacters.indexOf(text[i]) !== -1) {
-          if (token.length > 0)
+          if (token.length > 0) {
             tokens[tokens.length] = token;
+          }
 
           tokens[tokens.length] = text[i];
           token = '';
         }
         else if (text[i] === " ") {
-          if (token.length > 0)
+          if (token.length > 0) {
             tokens[tokens.length] = token;
+          }
           token = '';
         }
         else if (text[i] === ".") {
-          if (token.length === 0)
+          if (token.length === 0) {
             tokens[tokens.length] = text[i];
-          else if (/[0-9]/.test(token[0]) && !/[A-Za-z]/.test(token)) {
+          } else if (/[0-9]/.test(token[0]) && !/[A-Za-z]/.test(token)) {
             if (!/[^0-9]/.test(token) && /[^0-9]/.test(text[i + 1])) {
               tokens[tokens.length] = token;
               token = '';
-            }
-            else if (token.indexOf('.') !== -1) {
+            } else if (token.indexOf('.') !== -1) {
               tokens[tokens.length] = token;
               token = '';
             }
@@ -54,28 +56,30 @@ define(['tokenizer'], function() {
             }
           }
 
-          if (token === '')
+          if (token === '') {
             tokens[tokens.length] = text[i];
-          else
+          } else {
             token += text[i];
+          }
         }
         else if (text[i] === "'") {
           if (token.length > 0) {
             if (/[^0-9]/.test(token)) {
               tokens[tokens.length] = token;
               token = text[i];
-            }
-            else
+            } else {
               token += text[i];
-          }
-          else
+            }
+          } else {
             tokens[tokens.length] = text[i];
-        }
-        else
+          }
+        } else {
           token += text[i];
+        }
 
-        if (i === text.length - 1 && token.length > 0)
+        if (i === text.length - 1 && token.length > 0) {
           tokens[tokens.length] = token;
+        }
 
         i++;
       }
