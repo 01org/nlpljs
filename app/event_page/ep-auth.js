@@ -12,6 +12,12 @@
    * }
    */
 
+  chrome.runtime.onInstalled.addListener(function (details) {
+    obj.google.getToken(function (message) {
+      console.log('EP-AUTH:message:', message);
+    });
+  });
+
   chrome.runtime.onMessageExternal.addListener(function (message, sender, sendResponse) {
     var keepChannelOpen = false;
 
