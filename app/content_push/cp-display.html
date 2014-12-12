@@ -703,6 +703,16 @@ pushing new tiles into the wrapped layout
 
         getSliderValue: function () {
           return this.$.slider.immediateValue;
+        },
+
+        /* returns true if the layout has a visible result for
+           the source with name sourceName, false otherwise */
+        hasResultForSourceName: function (sourceName) {
+          var visibleTiles = this.$.layout.getVisibleTiles();
+          var tileForSourceName = _.find(visibleTiles, function (tile) {
+            return tile.sourceName === sourceName;
+          });
+          return !!tileForSourceName;
         }
       });
     })();
