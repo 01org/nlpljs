@@ -225,12 +225,12 @@
       <div id="sources" vertical layout>
         <template repeat="{{sources}}">
           <div horizontal layout>
-            <div flex>{{name}}</div>
             <paper-checkbox disabled?="{{currentGroupName === 'Files'}}"
                             on-change="{{toggleSourceEnabled}}"
                             for-source-name="{{name}}"
                             checked?="{{enabled}}">
             </paper-checkbox>
+            <div flex>{{name}}</div>
             <core-icon icon="delete" on-click="{{removeSource}}"
                        for-source-name="{{name}}">
             </core-icon>
