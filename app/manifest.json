@@ -22,8 +22,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://docs.google.com/*/document/*",
-        "https://docs.google.com/document/*"
+        "https://docs.google.com/*/document/d/*",
+        "https://docs.google.com/document/d/*"
       ],
       "run_at": "document_start",
       "js": ["content_script/cs-rehost-page.js"]

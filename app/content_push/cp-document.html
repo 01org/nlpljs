@@ -41,6 +41,7 @@
       var LINE_CLASS = 'kix-lineview';        /* Handle to the current Page */
       var LINE_SELECTOR = '.kix-lineview';
       var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
+      var docsHomeFixed = false; // only once per instance of Content Push tab
 
       /**
        * find ancestor of node that has className
@@ -66,8 +67,28 @@
         return retVal;
       };
 
+      /**
+       * find the docs home button and fix it to redirect the tab
+       * instead of staying inside the iframe
+       */
+      var fixDocsHomeLink = function (self) {
+        var docsHome = self.$.iframe.contentDocument.querySelectorAll('a[data-tooltip="Docs home"]');
+        if (docsHome.length>0) {
+          var href = docsHome[0].getAttribute('href');
+          docsHome[0].setAttribute('href', '#');
+          docsHome[0].addEventListener('click', function () {
+            window.location.replace(href);
+          });
+          docsHomeFixed = true;
+        }
+      };
+
       var observeDocumentChanges = function (self) {
         var observer = new MutationObserver(function (mutations, observerInstance) {
+          if (!docsHomeFixed) {
+            fixDocsHomeLink(self);
+          }
+
           for (var i = 0; i < mutations.length; i++) {
             var mutation = mutations[i];
             var newNodes = mutation.addedNodes;
