@@ -30,6 +30,7 @@
    * in the active tile set.
    */
   TileCache.prototype.cache = function (tile) {
+    console.log('CP-TILE-CACHE: caching tile', tile);
     this.store(tile);
     return this.runFilter();
   };
@@ -45,7 +46,7 @@
   /**
    * Get all active tiles as an array.
    */
-  TileCache.prototype.getActiveTiles = function (tile) {
+  TileCache.prototype.getActiveTiles = function () {
     var self = this;
     return _.select(this.tiles, function (tile) {
       return self.tilesActive[tile.source];
@@ -75,6 +76,7 @@
    * false otherwise
    */
   TileCache.prototype.setFilter = function (filter) {
+    console.log('CP-TILE-CACHE:setFilter()');
     this.filter = filter;
     return this.runFilter();
   };
@@ -103,8 +105,10 @@
       activeBeforeFiltering = !!self.tilesActive[tile.source];
 
       if (self.filter(tile)) {
+        tile.setAttribute('data-active', true);
         activeAfterFiltering = true;
       } else {
+        tile.setAttribute('data-active', false);
         activeAfterFiltering = false;
       }
 
@@ -114,6 +118,8 @@
         activeTilesChanged = true;
       }
     });
+
+    console.log('CP-TILE-CACHE: active tiles changed? ' + activeTilesChanged);
 
     return activeTilesChanged;
   };

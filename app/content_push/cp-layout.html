@@ -121,6 +121,13 @@
         },
 
         /**
+         * Get all cp-tile* elements which are visible.
+         */
+        getVisibleTiles: function () {
+          return this.tileCache.getActiveTiles();
+        },
+
+        /**
          * Search for a tile with "source" attribute set to value;
          * returns the found tile; or if not found, returns null
          */

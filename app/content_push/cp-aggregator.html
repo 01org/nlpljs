@@ -146,8 +146,10 @@
                     );
 
                     if (source) {
+                      var sources = {};
+                      sources[sourceName] = source;
                       thisSources = {
-                        sources: {sourceName: source}
+                        sources: sources
                       };
                     }
                   } else {

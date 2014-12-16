@@ -170,6 +170,7 @@
           this.data[groupName].sources[sourceName] = sourceConfig;
 
           fireEvent('sourcecreated', {
+            groupName: groupName,
             sourceName: sourceName,
             source: sourceConfig
           });
@@ -208,6 +209,7 @@
             source.enabled = enabled;
 
             var eventData = {
+              groupName: groupName,
               sourceName: sourceName,
               source: source
             };

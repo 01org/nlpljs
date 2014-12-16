@@ -138,8 +138,8 @@
 
     <cp-sources-storage id="storage"
                         on-newsources="{{onNewSources}}"
-                        on-sourceenabled="{{onSourceEnabled}}"
-                        on-sourcecreated="{{onSourceCreated}}">
+                        on-sourceenabled="{{onSourceEnabledOrCreated}}"
+                        on-sourcecreated="{{onSourceEnabledOrCreated}}">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -220,7 +220,9 @@
       var MAX_KEYWORDS = 5;
 
       var setFilter = function (self) {
+        console.log('CP-PANEL: setFilter()');
         if (!self.activeKeywords) {
+          console.log('CP-PANEL: cannot setFilter as no active keywords');
           return;
         }
 
@@ -233,15 +235,11 @@
         });
       };
 
-      /* perform search for current keyphrase and add to the display */
-      var search = function (self, newKeywords) {
-        if (!self.activeKeywords) {
-          return;
-        }
-
+      /* perform search for keywords and add to the display */
+      var search = function (self, keywords, groupName, sourceName) {
         self.$.display.searchesPending = true;
         self.$.display.wait();
-        self.$.aggregator.aggregate(newKeywords);
+        self.$.aggregator.aggregate(keywords, groupName, sourceName);
       };
 
       /* tests whether the active keywords have changed
@@ -389,7 +387,7 @@
           this.activeKeywords = candidateKeywords;
 
           if (newKeywords.length > 0) {
-            /* we have new keywords, run a fresh search */
+            /* we have new keywords, run a fresh search for them */
             this.$.display.reset();
             search(this, newKeywords);
           } else {
@@ -455,17 +453,15 @@
           this.$.display.stopWaiting();
         },
 
-        /* source added, so do a new search (NB if sources are
-           removed or disabled, the results filter is
-           automatically refreshed via the onNewSources() handler) */
-        onSourceCreated: function (e) {
-          console.log('CP-PANEL: source created', e.detail);
-        },
-
-        /* if there are no results for a source and it is enabled,
+        /* if there are no results for a source and it is added or enabled,
            run a search */
-        onSourceEnabled: function (e) {
-          console.log('CP-PANEL: source enabled', e.detail);
+        onSourceEnabledOrCreated: function (e) {
+          var groupName = e.detail.groupName;
+          var sourceName = e.detail.sourceName;
+
+          if (!this.$.display.hasResultForSourceName(sourceName)) {
+            search(this, this.activeKeywords, groupName, sourceName);
+          }
         },
 
         closePanel: function () {
