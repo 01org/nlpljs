@@ -50,21 +50,15 @@
 
   <script>
     (function () {
-      var NARROW_NUM_COLS = 4;
-      var WIDE_NUM_COLS = 8;
+      var NARROW_NUM_COLS = 2;
+      var WIDE_NUM_COLS = 4;
 
       // when gallery >= this width, switch to WIDE_NUM_COLS
       var WIDE_BREAKPOINT = 456;
 
-      /*
-      length of the side of a row/column for the purpose of
-      choosing a frame
-      */
-      var FRAME_CELL_SIDE = 54;
-
       Polymer({
         created: function () {
-          this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
+          this.frameChooser = new FrameChooser();
           this.tileCache = new TileCache();
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
