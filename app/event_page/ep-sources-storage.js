@@ -1,5 +1,5 @@
 /**
- * Load the stored sources for the tab URL. The schema for the
+ * Load the stored sources for the document id. The schema for the
  * source is as follows. We have 6 groups of Sources. They are,
  * Images, Quotations, Text+Images, Files, Videos and All.
  * Each group has more than 1 sources. The groups have the following
@@ -14,8 +14,8 @@
  *
  * Here is the entire schema layed out. This is how data is stored in the sync storage.
  *
- * <tab_url> <----> <item>
- * (key)           (value)
+ * <document_id> <----> <item>
+ * (key)               (value)
  *
  * <item> = {{title0: group0},{title1: group1},....,{titleN: groupN}}
  *
@@ -30,6 +30,35 @@
  *             enabled: true,
  *           }
  */
+
+// for use from the console
+var cp = cp || {
+  help: function() {
+    console.log('EP-SOURCES-STORAGE: cp.clearStorage() - clear all storage');
+    console.log('EP-SOURCES-STORAGE: cp.removeSources(documentId) - remove just one source property from storage');
+    console.log('EP-SOURCES-STORAGE: cp.dumpStorage(documentId) - dump storage for documentId, or all storage if null');
+  },
+
+  clearStorage: function () {
+    chrome.storage.sync.clear(function () {
+      if (chrome.runtime.lastError) {
+        console.log('EP-SOURCES-STORAGE:', chrome.runtime.lastError);
+      } else {
+        console.log('EP-SOURCES-STORAGE: done' );
+      }
+    });
+  },
+
+  removeSources: function (documentId) {
+    chrome.storage.sync.remove(documentId);
+  },
+
+  dumpStorage: function (documentId) {
+    chrome.storage.sync.get(documentId, function (result) {
+      console.log('EP-SOURCES-STORAGE:', result);
+    });
+  }
+};
 
 (function () {
   var currentItem = {};
@@ -197,39 +226,47 @@
     }
   };
 
-  /* Uncomment to over write the sync storage */
-  //chrome.storage.sync.remove(url);
+  function dumpCurrentItem (documentId) {
+    console.log('EP-SOURCES-STORAGE:Sources selection for:' + documentId);
+    for (var key in currentItem[documentId]) {
+      for (var src in currentItem[documentId][key].sources) {
+        console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
+        console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
+      }
+    }
+    return currentItem[documentId];
+  }
 
-  function loadSources (url, result) {
-    if (result.hasOwnProperty(url)) {
-      console.log('EP-SOURCES-STORAGE:result:' + result[url]);
-      currentItem[url] = result[url];
+  function loadSources (documentId, result) {
+    if (result.hasOwnProperty(documentId)) {
+      console.log('EP-SOURCES-STORAGE:result:' + result[documentId]);
+      currentItem[documentId] = result[documentId];
 
-      dumpCurrentItem(url);
+      dumpCurrentItem(documentId);
 
       var message = {
         component: 'sources',
-        data: currentItem[url]
+        data: currentItem[documentId]
       };
 
      port.postMessage(message);
     } else {
       var obj = {};
-      obj[url] = defaults;
+      obj[documentId] = defaults;
       console.log('EP-SOURCES-STORAGE:Adding defaults');
       chrome.storage.sync.set(obj, function () {
         if (chrome.runtime.lastError) {
           console.log('EP-SOURCES-STORAGE:error storing defaults:' + chrome.runtime.lastError);
         }
       });
-      chrome.storage.sync.get(url, function (result) {
-        loadSources(url, result);
+      chrome.storage.sync.get(documentId, function (result) {
+        loadSources(documentId, result);
       });
     }
   }
 
-  function saveSources (url, sources) {
-    currentItem[url] = sources;
+  function saveSources (documentId, sources) {
+    currentItem[documentId] = sources;
 
     chrome.storage.sync.set(currentItem, function () {
       if (chrome.runtime.lastError) {
@@ -240,16 +277,6 @@
     });
   }
 
-  function dumpCurrentItem (url) {
-    console.log('EP-SOURCES-STORAGE:Sources selection for:' + url);
-    for (var key in currentItem[url]) {
-      console.log('EP-SOURCES-STORAGE:Enabled:' + currentItem[url][key].enabled);
-      for (var src in currentItem[url][key].sources) {
-        console.log('EP-SOURCES-STORAGE:source url:' + currentItem[url][key].sources[src].url);
-        console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[url][key].sources[src].enabled);
-      }
-    }
-  }
 
   chrome.runtime.onConnectExternal.addListener(function (newPort) {
     if (newPort.name === 'sources') {
@@ -259,25 +286,25 @@
       port.onMessage.addListener(function (message) {
         if (message.component === 'sources') {
           console.log('EP-SOURCES-STORAGE:got message:', message);
-          var url = message.url;
+          var documentId = message.documentId;
 
           if (message.action === 'get') {
 
-            if (!currentItem.hasOwnProperty(url)) {
-              chrome.storage.sync.get(url, function(result) {
-                loadSources(url,result);
+            if (!currentItem.hasOwnProperty(documentId)) {
+              chrome.storage.sync.get(documentId, function(result) {
+                loadSources(documentId,result);
               });
             } else {
               var message = {
                 component: 'sources',
-                data: currentItem[url]
+                data: currentItem[documentId]
               };
               port.postMessage(message);
             }
 
           } else
           if (message.action === 'set') {
-            saveSources(url, message.data);
+            saveSources(documentId, message.data);
           } else {
             console.error(new Error('EP-SOURCES-STORAGE:unknown action:'+message.action));
           }
