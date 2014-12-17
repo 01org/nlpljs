@@ -2,6 +2,12 @@
   var EMPTY = 0;
   var FULL = 1;
 
+  /* multiplier for the number of rows to look back over to find gaps;
+     this is multiplied by the height of the element in rows;
+     increase it to consider more rows; set to -1 to consider the
+     whole layout */
+  var LOOKBACK = 4;
+
   /*
   a grid data structure is used throughout, which is an array like:
 
@@ -89,11 +95,16 @@
     // HACK: only consider a fraction of all the rows in the grid,
     // to reduce the search space; this produces a significant
     // performance increase at the expense of a few gaps in the layout;
-    // 5 is an arbitrary number: increasing it makes the algorithm
+    // this is an arbitrary number: increasing it makes the algorithm
     // consider more of the grid; decreasing it to 0 would make the
     // algorithm only consider the last row of the grid
-    var lastGridRow = grid.length - 1;
-    var startRow = Math.max(0, lastGridRow - (height * 4));
+    var startRow;
+    if (LOOKBACK > -1) {
+      var lastGridRow = grid.length - 1;
+      startRow = Math.max(0, lastGridRow - (height * LOOKBACK));
+    } else {
+      startRow = 0;
+    }
 
     return findSequences(grid, startRow, function (row) {
       var emptyCell = _.find(row, function (cell) {
