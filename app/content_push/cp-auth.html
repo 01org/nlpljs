@@ -6,29 +6,14 @@
 
   event: accesstoken - there is a new access token, the detail provides the token and service it is for.
 -->
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="./cp-globals.html">
 
 <polymer-element name="cp-auth">
   <template>
     <cp-globals id="globals"></cp-globals>
-
-    <core-ajax
-      id="verifier"
-      auto
-      handleAs="json"
-      on-core-response="{{handleVerifierResponse}}">
-    </core-ajax>
-
   </template>
   <script>
   (function () {
-
-    var verifyToken = function (self, detail) {
-      self.$.verifier.url = "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" + detail.token;
-      self.$.verifier.go();
-    };
 
     var handleNewToken = function (self, detail) {
       if (detail.component === 'auth' && detail.type === 'accesstoken') {
@@ -36,8 +21,7 @@
           token: detail.token,
           service: detail.service
         };
-        self.temp = detail;
-        verifyToken(self, detail);
+        self.fire('accesstoken', detail);
         console.log('CP-AUTH:received token:', detail.token);
       }
     };
@@ -68,12 +52,6 @@
             handleNewToken(self, detail);
           }
         });
-      },
-
-      handleVerifierResponse: function (e) {
-        console.log('CP-AUTH:handleVerifierResponse():e:', e);
-        this.temp.verifierDetail = e.detail.response;
-        this.fire('accesstoken', this.temp);
       },
 
       removeCachedToken: function (token, service) {
