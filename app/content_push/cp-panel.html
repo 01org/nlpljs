@@ -441,6 +441,7 @@
           /* TODO notify user of search errors in UI */
           this.$.display.receiveResults([]);
           console.error(e.detail.error);
+          console.error(e.detail.error.stack);
           setFilter(this);
         },
 

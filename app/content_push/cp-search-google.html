@@ -5,6 +5,7 @@ search using a Google custom search engine
 <polymer-element name="cp-search-google" extends="cp-search"
                  attributes="searchType">
   <template>
+    <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
   </template>
 
@@ -20,7 +21,6 @@ search using a Google custom search engine
 
       Polymer({
         /* these are associated with sig.exp.london@gmail.com */
-        key: 'AIzaSyARyiQ40rIjCtqtamRW98McMrU1gFgDPDE',
         cx: '010167764530769062315:196d4y__4ss',
 
         /* search safe level */
@@ -33,6 +33,22 @@ search using a Google custom search engine
 
         created: function () {
           this.super();
+          this.access_token = null;
+          this.ready_promise = null;
+        },
+
+        ready: function () {
+          var self = this;
+          this.ready_promise = new Promise(function (resolve, reject) {
+            self.$.authorizer.addEventListener('accesstoken', function (e) {
+              if (e.detail.service === 'google') {
+                self.access_token = e.detail.token;
+                resolve();
+              }
+            });
+
+            self.$.authorizer.getToken('google');
+          });
         },
 
         domReady: function () {
@@ -50,7 +66,7 @@ search using a Google custom search engine
 
           var url = 'https://www.googleapis.com/customsearch/v1?' +
                     (this.searchType === 'image' ? 'searchType=image&' : '') +
-                    'key=' + this.key + '&' +
+                    'access_token=' + this.access_token + '&' +
                     'cx=' + this.cx + '&' +
                     'safe=' + this.safe + '&' +
                     'num=' + MAX_RESULTS_PER_SEARCH + '&' +
@@ -68,24 +84,28 @@ search using a Google custom search engine
 
           console.log('CP-SEARCH-GOOGLE: requesting URL ' + url);
 
-          return new Promise(function (resolve, reject) {
-            var message = {
-              component: 'http',
-              url: url
-            };
+          return this.ready_promise.then(
+            function () {
+              return new Promise(function (resolve, reject) {
+                var message = {
+                  component: 'http',
+                  url: url
+                };
 
-            try {
-              chrome.runtime.sendMessage(self.appId, message, function (response) {
-                self.handleResponse(resultSet, query, self.searchType, response)
-                .then(
-                  resolve, reject
-                )
-                .catch(reject);
+                try {
+                  chrome.runtime.sendMessage(self.appId, message, function (response) {
+                    self.handleResponse(resultSet, query, self.searchType, response)
+                    .then(
+                      resolve, reject
+                    )
+                    .catch(reject);
+                  });
+                } catch (err) {
+                  reject(err);
+                }
               });
-            } catch (err) {
-              reject(err);
             }
-          });
+          );
         },
 
         /*
