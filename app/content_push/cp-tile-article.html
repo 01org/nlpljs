@@ -27,13 +27,11 @@ tile for a general web page (article)
         margin: 0 12px;
       }
 
-      #image {
-        overflow: hidden;
-      }
-
       img {
         height: 100%;
-        width: auto;
+        width: 100%;
+        object-fit: cover;
+        object-position: 50% 50%;
       }
 
       .text-elide {
@@ -50,6 +48,8 @@ tile for a general web page (article)
 
       .left {
         width: 36% !important;
+        height: 100%;
+        overflow: hidden;
       }
 
       .right {
@@ -73,8 +73,7 @@ tile for a general web page (article)
     <div id="container">
       <paper-shadow z="1">
         <div horizontal layout fit id="mainContainer">
-          <div id="image" class="left"
-               data-show="{{src !== null && imageLoaded}}">
+          <div class="left" data-show="{{src !== null && imageLoaded}}">
             <img src="{{src}}" on-load="{{onImageLoaded}}"
                  on-error="{{onImageError}}">
           </div>
