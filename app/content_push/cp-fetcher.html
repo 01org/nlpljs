@@ -14,8 +14,9 @@
                       searchType="article">
     </cp-search-google>
 
-    <cp-search-wikipedia id="searchWikipedia"
-                         resultsPerFetch="{{resultsPerFetch}}">
+    <cp-search-wikipedia id="searchWikipediaImages"
+                         resultsPerFetch="{{resultsPerFetch}}"
+                         searchType="image">
     </cp-search-wikipedia>
 
     <cp-search-google-files id="searchDrive"
@@ -53,7 +54,7 @@
               service = this.$.searchGoogleArticles;
               break;
             case "Wikipedia Image Search":
-              service = this.$.searchWikipedia;
+              service = this.$.searchWikipediaImages;
               break;
             case "Google Drive Search":
               service = this.$.searchDrive;

@@ -4,9 +4,11 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 -->
 <link rel="import" href="./cp-search.html">
 
-<polymer-element name="cp-search-wikipedia" extends="cp-search">
+<polymer-element name="cp-search-wikipedia" extends="cp-search"
+                 attributes="searchType">
   <script src="jsonp.js"></script>
   <script src="cp-thumbnailer.js"></script>
+
   <script>
     (function () {
       /* hard limit on search page size set by Wikipedia */
@@ -26,8 +28,46 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
       /* declare the element */
       Polymer({
+        /* type of search: 'image' or 'article' */
+        searchType: 'image',
+
         created: function () {
           this.super();
+        },
+
+        /* returns a single image object to be added to a result set */
+        parseImageResult: function (result) {
+          var data = result.imageinfo[0];
+          var meta = data.extmetadata;
+          var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
+
+          return {
+            src: data.url,
+            thumbnailSrc: thumbnailSrc,
+            width: data.width,
+            height: data.height,
+            type: 'image',
+            caption: (meta.ObjectName ? meta.ObjectName.value : ''),
+            source: data.descriptionurl,
+            meta: {
+              ExifVersion: (meta.ExifVersion ?
+                                meta.ExifVersion.value : null),
+              DateTime: (meta.DateTime ?
+                            formatDate(meta.DateTime.value) : null),
+              Camera: (meta.Model ? meta.Model.value.trim() : null)
+            }
+          };
+        },
+
+        /* get the URL to use for an image search */
+        getImageSearchUrl: function (resultSet, query) {
+          return 'https://commons.wikimedia.org/w/api.php?action=query' +
+                 '&generator=search&gsrnamespace=6' +
+                 '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
+                 '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
+                 '&gsroffset=' + resultSet.offset +
+                 '&format=json&prop=imageinfo&iiprop=extmetadata|url|size' +
+                 '&rawcontinue'
         },
 
         /* prepare results for query; returns a promise which resolves
@@ -35,13 +75,12 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         searchImpl: function (resultSet, query) {
           var self = this;
 
-          var url = 'https://commons.wikimedia.org/w/api.php?action=query' +
-                    '&generator=search&gsrnamespace=6' +
-                    '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
-                    '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
-                    '&gsroffset=' + resultSet.offset +
-                    '&format=json&prop=imageinfo&iiprop=extmetadata|url|size' +
-                    '&rawcontinue';
+          var url;
+          if (this.searchType === 'image') {
+            url = this.getImageSearchUrl(resultSet, query);
+          }
+
+          console.log('CP-SEARCH-WIKIPEDIA: search URL = ' + url);
 
           return new Promise(function (resolve, reject) {
             jsonp({
@@ -95,26 +134,13 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
             for (var k in pages) {
               if (pages.hasOwnProperty(k)) {
-                var data = pages[k].imageinfo[0];
-                var meta = data.extmetadata;
-                var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
+                var result;
 
-                resultSet.add({
-                  src: data.url,
-                  thumbnailSrc: thumbnailSrc,
-                  width: data.width,
-                  height: data.height,
-                  type: 'image',
-                  caption: (meta.ObjectName ? meta.ObjectName.value : ''),
-                  source: data.descriptionurl,
-                  meta: {
-                    ExifVersion: (meta.ExifVersion ?
-                                      meta.ExifVersion.value : null),
-                    DateTime: (meta.DateTime ?
-                                  formatDate(meta.DateTime.value) : null),
-                    Camera: (meta.Model ? meta.Model.value.trim() : null)
-                  }
-                });
+                if (this.searchType === 'image') {
+                  result = this.parseImageResult(pages[k]);
+                }
+
+                resultSet.add(result);
               }
             }
           }
