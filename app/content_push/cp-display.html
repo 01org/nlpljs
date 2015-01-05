@@ -34,7 +34,7 @@ pushing new tiles into the wrapped layout
       }
 
       #scroller {
-        margin: 3px 3px 0 3px;
+        margin: 0 3px 0 3px;
         width: calc(100% - 6px);
         transition: height 0.2s linear 0.2s;
       }
@@ -627,7 +627,6 @@ pushing new tiles into the wrapped layout
         /* start the waiting sequence (fade in overlay) */
         wait: function () {
           var self = this;
-
           if (this.waiting) {
             return;
           }
