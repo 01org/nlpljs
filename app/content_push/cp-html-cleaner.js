@@ -77,8 +77,7 @@
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = HtmlCleaner;
-  }
-  else {
+  } else {
     window.HtmlCleaner = HtmlCleaner;
   }
 })(
