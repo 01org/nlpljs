@@ -35,13 +35,15 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
           this.super();
         },
 
-        /* returns a single image object to be added to a result set */
+        /* returns a single image object to be added to a result set;
+           this is wrapped in a Promise as the article results have
+           to be returned asynchronously */
         parseImageResult: function (result) {
           var data = result.imageinfo[0];
           var meta = data.extmetadata;
           var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
 
-          return {
+          return Promise.resolve({
             src: data.url,
             thumbnailSrc: thumbnailSrc,
             width: data.width,
@@ -56,18 +58,41 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                             formatDate(meta.DateTime.value) : null),
               Camera: (meta.Model ? meta.Model.value.trim() : null)
             }
-          };
+          });
         },
 
-        /* get the URL to use for an image search */
-        getImageSearchUrl: function (resultSet, query) {
+        parseArticleResult: function (result) {
+          var src = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=3600&resize_w=600&url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff2%2FBattle_of_Hastings-battleplan.png';
+          var thumbnailSrc = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=3600&resize_w=600&url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Ff%2Ff2%2FBattle_of_Hastings-battleplan.png';
+
+          return Promise.resolve({
+            caption: result.title,
+            src: src,
+            thumbnailSrc: thumbnailSrc,
+            type: 'article',
+            source: 'http://wikipedia.org/wiki/' + result.title,
+            snippet: 'foo'
+          });
+        },
+
+        /* get the base URL to use for an image search */
+        getImageSearchUrl: function () {
           return 'https://commons.wikimedia.org/w/api.php?action=query' +
-                 '&generator=search&gsrnamespace=6' +
-                 '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
-                 '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
-                 '&gsroffset=' + resultSet.offset +
-                 '&format=json&prop=imageinfo&iiprop=extmetadata|url|size' +
-                 '&rawcontinue'
+                 '&generator=search' +
+                 '&gsrnamespace=6' +
+                 '&prop=imageinfo' +
+                 '&iiprop=extmetadata|url|size';
+        },
+
+        /* get the base URL to use for an article search; rvparse causes
+           the content to be rendered to HTML before it is returned */
+        getArticleSearchUrl: function () {
+          return 'https://commons.wikimedia.org/w/api.php?action=query' +
+                 '&generator=search' +
+                 '&gsrnamespace=0' +
+                 '&prop=revisions' +
+                 '&rvprop=content' +
+                 '&rvparse';
         },
 
         /* prepare results for query; returns a promise which resolves
@@ -78,9 +103,19 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
           var url;
           if (this.searchType === 'image') {
             url = this.getImageSearchUrl(resultSet, query);
+          } else {
+            url = this.getArticleSearchUrl(resultSet, query);
           }
 
-          console.log('CP-SEARCH-WIKIPEDIA: search URL = ' + url);
+          /* add common parameters to the search URL */
+          url += '&gsrsearch=%22' + encodeURIComponent(query) + '%22' +
+                 '&gsrlimit=' + MAX_RESULTS_PER_SEARCH +
+                 '&gsroffset=' + resultSet.offset +
+                 '&format=json' +
+                 '&rawcontinue';
+
+          console.log('CP-SEARCH-WIKIPEDIA: search ' + this.searchType +
+                      ' URL = ' + url);
 
           return new Promise(function (resolve, reject) {
             jsonp({
@@ -109,43 +144,49 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                                 'ERROR from Wikipedia API: ' +
                                 JSON.stringify(response));
             return Promise.reject(err);
+          }
+
+          if (response['query-continue'] && response['query-continue'].search) {
+            // offset for the next search for this query (according to Wikipedia)
+            var offset = response['query-continue']['search'].gsroffset;
+
+            /* NB another search may have already reset the offset
+               on the ResultSet, so use the biggest value */
+            resultSet.setOffset(Math.max(offset, resultSet.offset));
           } else {
-            if (response['query-continue'] && response['query-continue'].search) {
-              // offset for the next search for this query (according to Wikipedia)
-              var offset = response['query-continue']['search'].gsroffset;
+            // end of result set reached
+            resultSet.setExhausted();
+          }
 
-              /* NB another search may have already reset the offset
-                 on the ResultSet, so use the biggest value */
-              resultSet.setOffset(Math.max(offset, resultSet.offset));
-            } else {
-              // end of result set reached
-              resultSet.setExhausted();
-            }
+          // results for this search
+          if (!(response.query && response.query.pages)) {
+            var err = new Error('CP-SEARCH-WIKIPEDIA: ERROR - ' +
+                                'no "query" property in response: ' +
+                                JSON.stringify(response));
+            return Promise.reject(err);
+          }
 
-            // results for this search
-            if (!(response.query && response.query.pages)) {
-              var err = new Error('CP-SEARCH-WIKIPEDIA: ERROR - ' +
-                                  'no "query" property in response: ' +
-                                  JSON.stringify(response));
-              return Promise.reject(err);
-            }
+          var pages = response.query.pages;
 
-            var pages = response.query.pages;
+          var parsePromises = [];
 
-            for (var k in pages) {
-              if (pages.hasOwnProperty(k)) {
-                var result;
-
-                if (this.searchType === 'image') {
-                  result = this.parseImageResult(pages[k]);
-                }
-
-                resultSet.add(result);
+          for (var k in pages) {
+            if (pages.hasOwnProperty(k)) {
+              if (this.searchType === 'image') {
+                parsePromises.push(this.parseImageResult(pages[k]));
+              } else {
+                parsePromises.push(this.parseArticleResult(pages[k]));
               }
             }
           }
 
-          return Promise.resolve(resultSet);
+          return Promise.all(parsePromises).then(function (results) {
+            for (var i = 0; i < results.length; i++) {
+              resultSet.add(results[i]);
+            }
+
+            return Promise.resolve(resultSet);
+          });
         }
       });
     })();

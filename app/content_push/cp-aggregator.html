@@ -69,7 +69,7 @@
               groupName: 'Images'
             },
             {
-              service: 'Google Article Search',
+              service: 'Wikipedia Article Search',
               groupName: 'Articles'
             },
             {
@@ -128,7 +128,6 @@
 
               switch (thisService) {
                 case 'Google Image Search':
-                case 'Wikipedia Image Search':
                 case 'Google Article Search':
                   /* set this to false if at least one search source
                      is enabled and does a search */
@@ -181,7 +180,8 @@
                   }
 
                   break;
-
+                case 'Wikipedia Image Search':
+                case 'Wikipedia Article Search':
                 case 'Google Drive Search':
                   searches.push([this, thisSearchTerm, thisService]);
                   break;
