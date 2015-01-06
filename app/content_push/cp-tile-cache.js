@@ -5,6 +5,7 @@
  * As a minimum, a tile needs this structure to work with the TileCache:
  * { source: <unique ID for tile> }
  * source will usually be a URI but doesn't have to be
+ * A tile should also have a setAttribute() method.
  */
 (function (_) {
   var TileCache = function () {
@@ -105,12 +106,12 @@
       activeBeforeFiltering = !!self.tilesActive[tile.source];
 
       if (self.filter(tile)) {
-        tile.setAttribute('data-active', true);
         activeAfterFiltering = true;
       } else {
-        tile.setAttribute('data-active', false);
         activeAfterFiltering = false;
       }
+
+      tile.setAttribute('data-active', activeAfterFiltering);
 
       self.tilesActive[tile.source] = activeAfterFiltering;
 

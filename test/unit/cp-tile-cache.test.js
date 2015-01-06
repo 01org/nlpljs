@@ -3,6 +3,12 @@ chai.should();
 var expect = chai.expect;
 var TileCache = require('./../../app/content_push/cp-tile-cache');
 
+// add a fake "setAttribute()" method to a fake tile object
+var makeFakeTile = function (config) {
+  config.setAttribute = function () {};
+  return config;
+};
+
 describe('TileCache', function () {
   var filesOnlyFilter = function (tile) {
     return tile.type === 'file';
@@ -26,8 +32,8 @@ describe('TileCache', function () {
   });
 
   it('should store tiles without running the filter and detect changes when filter runs', function () {
-    var tile1 = { source: 'foo' };
-    var tile2 = { source: 'bar' };
+    var tile1 = makeFakeTile({ source: 'foo' });
+    var tile2 = makeFakeTile({ source: 'bar' });
 
     tileCache.store(tile1);
     tileCache.store(tile2);
@@ -37,26 +43,26 @@ describe('TileCache', function () {
   });
 
   it('should cache a tile and return true if no filter is set', function () {
-    var tile = { source: 'foo' };
+    var tile = makeFakeTile({ source: 'foo' });
     tileCache.cache(tile).should.equal(true);
   });
 
   it('should cache a tile and return true if filter is set and tile passes filter', function () {
-    var tile = { source: 'foo', type: 'file' };
+    var tile = makeFakeTile({ source: 'foo', type: 'file' });
     tileCache.setFilter(filesOnlyFilter);
     tileCache.cache(tile).should.equal(true);
   });
 
   it('should cache a tile and return false if filter is set and tile fails filter', function () {
-    var tile = { source: 'foo', type: 'image' };
+    var tile = makeFakeTile({ source: 'foo', type: 'image' });
     tileCache.setFilter(filesOnlyFilter);
     tileCache.cache(tile).should.equal(false);
   });
 
   it('should return an array of active tiles', function () {
-    var tile1 = { source: 'foo', type: 'image' };
-    var tile2 = { source: 'bar', type: 'file' };
-    var tile3 = { source: 'baz', type: 'file' };
+    var tile1 = makeFakeTile({ source: 'foo', type: 'image' });
+    var tile2 = makeFakeTile({ source: 'bar', type: 'file' });
+    var tile3 = makeFakeTile({ source: 'baz', type: 'file' });
 
     var expected = [tile2, tile3];
 
@@ -74,14 +80,14 @@ describe('TileCache', function () {
   });
 
   it('should return a tile by source', function () {
-    var tile = { source: 'foo', type: 'image' };
+    var tile = makeFakeTile({ source: 'foo', type: 'image' });
     tileCache.cache(tile);
     tileCache.getTileBySource('foo').should.equal(tile);
   });
 
   it('should return the active/inactive status of a tile', function () {
-    var tile1 = { source: 'foo', type: 'image' };
-    var tile2 = { source: 'bar', type: 'file' };
+    var tile1 = makeFakeTile({ source: 'foo', type: 'image' });
+    var tile2 = makeFakeTile({ source: 'bar', type: 'file' });
 
     tileCache.setFilter(filesOnlyFilter);
 
@@ -93,7 +99,7 @@ describe('TileCache', function () {
   });
 
   it('should deactivate a tile if the filter changes and tile fails the filter', function () {
-    var tile = { source: 'foo', type: 'image' };
+    var tile = makeFakeTile({ source: 'foo', type: 'image' });
 
     tileCache.cache(tile);
 
