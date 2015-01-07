@@ -30,7 +30,7 @@
           </paper-fab>
 
           <span id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|stripHTMLTags}}</caption>
+            <caption>{{caption|cleanHTML}}</caption>
           </span>
         </div>
       </div>
@@ -128,7 +128,7 @@
         },
 
         /* clean HTML tags out of the caption */
-        stripHTMLTags: Formatter.stripHTMLTags,
+        cleanHTML: Formatter.cleanHTML,
 
         /* get the domain from a URL */
         domainFromURL: Formatter.domainFromURL,

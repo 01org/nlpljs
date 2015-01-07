@@ -6,13 +6,18 @@
   var DOMAIN_REGEX = new RegExp('http[s]?:\/\/([^\/]+)\/');
 
   var CpFormatter = {
-    /* clean HTML tags out of the caption */
-    stripHTMLTags: function (caption) {
-      if (caption) {
-        return caption.replace(HTML_TAG_REGEX, '');
-      } else {
-        return caption;
+    /* clean HTML tags out of text */
+    cleanHTML: function (text) {
+      if (text) {
+        text = text.replace(HTML_TAG_REGEX, '');
+
+        /* replace nbsp */
+        text = text.replace(/&nbsp;/g, ' ');
+
+        /* replace unicode entities */
+        text = text.replace(/&\#.+?;/g, ' ');
       }
+      return text;
     },
 
     /* format a date string in format '2014-09-08T10:05:15.497Z'

@@ -16,7 +16,7 @@
           </paper-fab>
 
           <h2 id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|stripHTMLTags}}</caption>
+            <caption>{{caption|cleanHTML}}</caption>
           </h2>
         </div>
       </div>
@@ -34,7 +34,7 @@
         </div>
 
         <h2 id="caption" data-show="{{!!caption}}">
-          <caption>{{caption|stripHTMLTags}}</caption>
+          <caption>{{caption|cleanHTML}}</caption>
         </h2>
 
         <p id="articleSource" data-show="{{!!source}}">
@@ -42,7 +42,7 @@
         </p>
 
         <div id="snippet" data-show="{{!!snippet}}">
-          {{snippet|stripHTMLTags}}
+          {{snippet|cleanHTML}}
         </div>
       </div>
     </div>
@@ -82,7 +82,7 @@
           this.imageHasLoaded = false;
         },
 
-        stripHTMLTags: Formatter.stripHTMLTags,
+        cleanHTML: Formatter.cleanHTML,
 
         domainFromURL: Formatter.domainFromURL,
 

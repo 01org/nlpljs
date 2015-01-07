@@ -17,7 +17,7 @@
           </paper-fab>
 
           <h2 id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|stripHTMLTags}}</caption>
+            <caption>{{caption|cleanHTML}}</caption>
           </h2>
         </div>
       </div>
@@ -149,7 +149,7 @@
         },
 
         /* clean HTML tags out of the caption */
-        stripHTMLTags: Formatter.stripHTMLTags,
+        cleanHTML: Formatter.cleanHTML,
 
         srcChanged: function () {
           var self = this;

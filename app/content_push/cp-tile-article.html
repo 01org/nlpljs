@@ -81,11 +81,11 @@ tile for a general web page (article)
           <div id="text"
                class="{{src === null || !imageLoaded ? '' : 'right'}}">
             <h2 id="caption" class="text-elide">
-              {{caption|stripHTMLTags}}
+              {{caption|cleanHTML}}
             </h2>
 
             <p id="snippet" class="text-elide">
-              {{snippet|stripHTMLTags}}
+              {{snippet|cleanHTML}}
             </p>
 
             <div id="meta">
@@ -202,7 +202,7 @@ tile for a general web page (article)
 
         domainFromURL: Formatter.domainFromURL,
 
-        stripHTMLTags: Formatter.stripHTMLTags
+        cleanHTML: Formatter.cleanHTML
       });
     })();
   </script>
