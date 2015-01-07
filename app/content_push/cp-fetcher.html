@@ -72,25 +72,31 @@
               return Promise.resolve([]);
           }
 
-          return service.fetch(query, sourceURL).then(
-            function (results) {
-              var filteredResults = [];
+          var promise = service.fetch(query, sourceURL)
+              .catch(function (err) {
+                return Promise.reject(err);
+              })
+              .then(
+                function (results) {
+                  var filteredResults = [];
 
-              for (var i = 0; i < results.length; i++) {
-                /* filter out any pdfs or svg files */
-                if (!BAD_EXTENSIONS_REGEX.test(results[i].src)) {
-                  results[i].keyword = keyword;
-                  filteredResults.push(results[i]);
+                  for (var i = 0; i < results.length; i++) {
+                    /* filter out any pdfs or svg files */
+                    if (!BAD_EXTENSIONS_REGEX.test(results[i].src)) {
+                      results[i].keyword = keyword;
+                      filteredResults.push(results[i]);
+                    }
+                  }
+
+                  return Promise.resolve(filteredResults);
+                },
+
+                function (err) {
+                  return Promise.reject(err);
                 }
-              }
+              );
 
-              return Promise.resolve(filteredResults);
-            },
-
-            function (err) {
-              return Promise.reject(err);
-            }
-          );
+          return promise;
         }
       });
     })();

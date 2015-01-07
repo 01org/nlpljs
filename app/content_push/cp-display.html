@@ -444,6 +444,9 @@ pushing new tiles into the wrapped layout
           var existingTile = this.$.layout.getTileBySource(tile.source);
 
           if (existingTile) {
+            console.log('CP-DISPLAY: existing tile with source ' +
+                        tile.source);
+
             if (!_.include(existingTile.keywords, keyword)) {
               existingTile.keywords.push(keyword);
             }
