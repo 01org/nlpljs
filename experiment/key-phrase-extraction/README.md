@@ -9,12 +9,15 @@ The idea is to send extracted key phrases to
 and only use key phrases which satisfy some query/queries against that
 endpoint. (SPARQL is a query language for RDF stores, similar to SQL.)
 
-My initial thought was to accept a key phrase if dbpedia contains any
-"thing" with a label containing that key phrase, which also has a
-related Wikipedia page ID. (The label for a thing in dbpedia is a
-general-purpose human-readable name for that thing.) However, it
-later occurred to me that we could go beyond that and use the structure
-of the dbpedia data to help us rank results (see the penultimate section).
+The remainder of this document discusses ways to
+score key phrases according to how often they occur in dbpedia.
+I suggest we could do this by looking for any "things" in dbpedia
+whose labels contain the key phrases we're interested in. (The label
+for a thing in dbpedia is a general-purpose human-readable name for that
+thing.) As a further constraint, I suggest we only count "things"
+which have a related Wikipedia page ID. I also make some suggestions
+about how we could use type information in dbpedia ("this thing is
+a place", "this thing is a person") to refine scoring.
 
 ## SPARQL experiments
 
@@ -439,13 +442,13 @@ passed to it:
 
 * Does the key phrase occur in the label of any "thing"?
 * Does the key phrase occur as the exact English label of a "thing"?
-* Does a regular expression formed from the key phrase match the label
-of any "thing" which is a place, person, organisation or event?
-* How many types of thing are associated with the key phrase?
+* Does the key phrase occur in the label of any "thing" which is a
+place, person, organisation or event?
 * Does a regular expression formed from the key phrase match the label
 of any "thing"? (NOTE: this query sometimes times out, which adds further
 evidence that it's not practical to use regex queries against
 dbpedia)
+* How many types of thing are associated with the key phrase?
 
 To test it, you'll need nodejs and `npm install` to install
 the dependencies. Then run a query like:
