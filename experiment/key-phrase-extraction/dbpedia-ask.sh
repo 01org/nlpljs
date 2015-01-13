@@ -23,5 +23,5 @@ tester.checkForEntity(query);
 // (more associations => more vague query)
 tester.countTypesForQuery(query);
 
-// how many types are then in dbpedia?
+// how many types are there in dbpedia?
 tester.countTypes();

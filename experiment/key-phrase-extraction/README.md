@@ -41,9 +41,6 @@ This is fast, but requires exact matches and is language-specific (the '@en' par
 
 ### Find things with label matching a regex (case insensitive)
 
-This is a lot slower than the exact match above, but better because it is
-not case sensitive and you don't have to specify the language.
-
 <pre>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?thing
@@ -82,6 +79,20 @@ This returns a single result:
 
 Which is linked to
 http://dbpedia.org/page/Battle_of_Hastings
+
+This is a lot slower than the exact match above, but better in other
+respects because it is not case sensitive and you don't have to
+specify the language.
+
+The reason this matters: if the document is not in English, and we want to
+search for labels matching its content, a query for an exact label
+match would have to know about the document's language. Regex searches
+are language-agnostic searches: you just have to search for the key
+phrase (in whatever language) and dbpedia will return any of the labels
+containing it, regardless of the language they're in. So using a
+regex means that the code in CP to construct the search
+query doesn't have to know about the language the document is written
+in, and is thus more generic.
 
 ### Find articles with label matching a regex
 
@@ -132,7 +143,10 @@ ASK
 </pre>
 
 This seems faster than the regex version, but is case sensitive, so
-probably less useful.
+probably less useful: if the key phrase doesn't exactly match a label
+in dbpedia, you won't get a result (e.g. if the key phrase is
+"Battle Of Hastings" but dbpedia has "Battle of Hastings", you won't
+get a result).
 
 ### Ask whether there is an article with a wiki page ID
 
@@ -150,7 +164,7 @@ ASK
 Seems slightly faster than the version which asks for an ID, but
 still pretty slow; but it still takes 10 seconds to return.
 
-### Ask whether there is a article labelled by the key phrase using faster search
+### Ask whether there is an article labelled by the key phrase using faster search
 
 **This is much faster!!! (fast enough).**
 
@@ -172,8 +186,30 @@ ASK
 This returns within 225ms, which is definitely fast enough.
 
 NB bif: is a special prefix which is internal to dbpedia and
-doesn't have a proper namespace URI, which is why is why the namespace
+doesn't have a proper namespace URI, which is why the namespace
 is not defined in the query.
+
+The bif:contains predicate can only be used with strings in this
+format: it is not possible to use a clause like:
+
+<pre>
+?label bif:contains '(Battle of Hastings)' .
+</pre>
+
+To do that, you would have to use the syntax shown earlier (repeated
+below), which is an order of magnitude or more slower:
+
+<pre>
+FILTER (contains(?label, 'Battle of Hastings')) .
+</pre>
+
+This does mean that the query '(Battle AND of AND Hastings)' would
+also match labels like "The Battle of Somewhere Other than Hastings".
+But remember that with this query we are only trying to find out
+whether there is something in dbpedia whose label contains the words
+"Battle", "of" and "Hastings". As suggested in the algorithm below,
+we could follow this up with another query which gives more strength
+to a key phrase if it exactly matches a label in dbpedia.
 
 ## First pass at an algorithm for improving key phrase selection using dbpedia
 
@@ -427,7 +463,7 @@ string match fails; however, it can be up to 40-80 times slower (126ms
 for exact string vs. 4-9s for regex match) and sometimes times out
 or fails altogether. Though I think dbpedia has a query cache which
 makes this difficult to measure: after you've run a query once, the
-cache is already warmed up and its will return more quickly.
+cache is already warmed up and it will return more quickly.
 
 The code in keyphrase-dbpedia-tester.js is reasonably close to the
 implementation we would need to do to query dbpedia from Content Push.
