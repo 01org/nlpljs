@@ -309,31 +309,27 @@ pushing new tiles into the wrapped layout
          * Set criteria for filtering the content of the display.
          *
          * @param {object} criteria Criteria for the filter
-         * @param {object} criteria.activeKeywords An array of active keywords
+         * @param {object} criteria.currentKeywords An array of keywords
+         * which are relevant to the current context
          * @param {object} criteria.sources Sources which are currently
          * enabled
          * @param {string[]} criteria.types Array of types which tiles
          * must match, e.g. ['file', 'image']
-         *
-         * Right now, the first keyword in the keywordInfo.keywords
-         * array is used as the filter. Any tile whose keyword.text
-         * property matches this active keyword and has a type
-         * matching one of the members of "types" will be displayed.
          */
         setFilter: function (criteria) {
           var self = this;
 
-          if (!criteria.activeKeywords) {
+          if (!criteria.currentKeywords) {
             return;
           }
 
-          this.setSliderRange(criteria.activeKeywords);
+          this.setSliderRange(criteria.currentKeywords);
 
-          /* only show the selected number of the active keywords */
+          /* only show the selected number of the current keywords */
           var numKeywords = this.$.slider.immediateValue;
-          var keywordsToUse = criteria.activeKeywords.slice(0, numKeywords);
+          var activeKeywords = criteria.currentKeywords.slice(0, numKeywords);
 
-          var keywords = keywordsToUse.map(function (keyword) {
+          var keywords = activeKeywords.map(function (keyword) {
             return keyword.text;
           });
 
@@ -348,7 +344,7 @@ pushing new tiles into the wrapped layout
               var index = keywords.indexOf(tile.keywords[i].text);
               if (index !== -1) {
                 keywordMatches = true;
-                tile.keywords[i] = criteria.activeKeywords[index];
+                tile.keywords[i] = activeKeywords[index];
               }
             }
 
@@ -681,7 +677,7 @@ pushing new tiles into the wrapped layout
         /* set the slider range to the number of keywords available
            in the current context; the position of the slider is
            set based on the position of the slider with the previous
-           number of keywords: e.g. if there were 4 active keywords
+           number of keywords: e.g. if there were 4 current keywords
            before this method call, and 2 were selected by the slider,
            set the slider value to select 50% of the new set of
            keywords */
