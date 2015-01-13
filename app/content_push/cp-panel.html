@@ -213,32 +213,44 @@
 
   <script>
     (function () {
+      /* maximum number of keywords to consider each time NLP
+         finishes parsing the current context */
+      var MAX_KEYWORDS = 5;
+
       var KeywordSelector = function () {
-        /* all keywords extracted from the document so far */
+        /* array of all keywords extracted from the document so far */
         this.keywords = [];
 
-        /* keywords associated with the currently-visible part
+        /* array of keywords associated with the currently-visible part
            of the document */
         this.activeKeywords = [];
 
         /* "width" across the set of current active keywords; this
            decides which of the active keywords are returned as
            the "current" keywords  */
-        this.width = 5;
+        this.width = 0.5;
       };
 
       /*
        * get the active keywords, filtered by the current "width"
+       * TODO we're currently just return all the active keywords,
+       * which are truncated at the point where they are set
+       * in setActiveKeywords()
        */
       KeywordSelector.prototype.getCurrentKeywords = function () {
-        return this.activeKeywords.slice(0, this.width);
+        return this.activeKeywords;
       };
 
-      /* sets the current active keywords; NB any keywords set
-         here are also added to the array of all keywords in the document */
+      /* sets the active keywords; NB any keywords set
+         here are also added to the array of all keywords in the document;
+         returns an array of the keywords from the array <keywords>
+         which were not in the existing active keywords array */
       KeywordSelector.prototype.setActiveKeywords = function (keywords) {
-        this.activeKeywords = keywords;
+        var keywordsToUse = keywords.slice(0, MAX_KEYWORDS);
+        var newKeywords = this.checkKeywordInfoChanged(keywordsToUse);
         this.keywords = this.keywords.concat(keywords);
+        this.activeKeywords = keywordsToUse;
+        return newKeywords;
       };
 
       KeywordSelector.prototype.setWidth = function (width) {
@@ -268,18 +280,14 @@
         /* no keywords yet, so definitely a change */
         if (newKeywords.length && !currentKeywords.length) {
           return newKeywords;
+        } else {
+          return ArrayUtils.diff(currentKeywords, newKeywords, function (elt1, elt2) {
+            return elt1.text === elt2.text;
+          });
         }
-
-        return ArrayUtils.diff(currentKeywords, newKeywords, function (elt1, elt2) {
-          return elt1.text === elt2.text;
-        });
       };
 
       // private *static* functions and constants
-
-      /* maximum number of keywords to consider each time NLP
-         finishes parsing the current context */
-      var MAX_KEYWORDS = 5;
 
       var setFilter = function (self) {
         console.log('CP-PANEL: setFilter()');
@@ -306,9 +314,8 @@
         self.$.aggregator.aggregate(keywords, groupName, sourceName);
       };
 
-      /* return the keywords from "keywords" which are also in
-       * "sliderKeywords"
-       */
+      /* return the keywords from tileKeywords which also occur
+         in the current keywords (according to the keywordSelector) */
       var getKeywordsToHighlight = function (self, tileKeywords) {
         var results = [];
 
@@ -408,14 +415,9 @@
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
           console.log('CP-PANEL:onNewKeywordInfo', e.detail.keywordInfo);
-          /* only consider the first 5 keywords */
-          /* TODO keywordSelector should manage this? */
-          var candidateKeywords = e.detail.keywordInfo.keywords.slice(0, MAX_KEYWORDS);
 
-          var newKeywords =
-            this.keywordSelector.checkKeywordInfoChanged(candidateKeywords);
-
-          this.keywordSelector.setActiveKeywords(candidateKeywords);
+          var candidateKeywords = e.detail.keywordInfo.keywords;
+          var newKeywords = this.keywordSelector.setActiveKeywords(candidateKeywords);
 
           if (newKeywords.length > 0) {
             console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
