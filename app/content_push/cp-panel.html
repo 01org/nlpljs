@@ -218,9 +218,9 @@
   <script>
     (function () {
       // private *static* functions and constants
-
       var setFilter = function (self) {
-        console.log('CP-PANEL: setFilter()');
+        var sliderFraction = self.$.display.getNormalisedSliderValue();
+        self.keywordSelector.setWidth(sliderFraction);
         var currentKeywords = self.keywordSelector.getCurrentKeywords();
 
         if (!currentKeywords.length) {
