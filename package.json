@@ -29,7 +29,11 @@
     "load-grunt-tasks": "~0.2.0",
     "time-grunt": "~0.3.1",
     "grunt-mochaccino": "^0.1.7",
-    "chai": "^1.9.2"
+    "chai": "^1.9.2",
+    "benchmark": "^1.0.0",
+    "nlp_compromise": "^0.3.0",
+    "natural": "^0.1.29",
+    "request": "^2.51.0"
   },
   "engines": {
     "node": ">=0.8.0"
