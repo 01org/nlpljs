@@ -1,8 +1,17 @@
-// functions to make requests to dbpedia for a given
-// key phrase to determine whether dbpedia contains related resources
-// for that key phrase (a related resource is defined as a thing
-// on dbpedia which has a Wikipedia article ID and a label which
-// matches the key phrase in some way)
+/* functions to make requests to dbpedia for a given
+   keyphrase to determine whether dbpedia contains related resources
+   for that keyphrase (a related resource is defined as a thing
+   on dbpedia which has a Wikipedia article ID and a label which
+   matches the keyphrase in some way)
+
+   note that in most cases we use bif:contains to check whether the
+   words in the keyphrase occur in a dbpedia label: this is far, far
+   faster than doing regex or contains queries the SPARQL standard
+   way, though it is less accurate, e.g.
+
+     "Battle of Hastings" bif:contains "Battle other than the Battle of Hastings"
+
+   is true. */
 var request = require('request');
 
 var BASE_URL = 'http://dbpedia.org/sparql';
@@ -14,19 +23,19 @@ var cleanWhitespace = function (keyphrase) {
                   .replace(/ $/, '');
 };
 
-// convert a keyphrase like "Battle of Hastings" to
-// "Battle AND of AND Hastings", suitable for use in the bif:contains
-// clause of a query to be passed to the dbpedia API;
-// NB we have to remove "and" from the strings to and replace
-// contiguous sequences of whitespace to make query formation work
+/* convert a keyphrase like "Battle of Hastings" to
+   "Battle AND of AND Hastings", suitable for use in the bif:contains
+   clause of a query to be passed to the dbpedia API;
+   NB we have to remove "and" from the strings to and replace
+   contiguous sequences of whitespace to make query formation work */
 var makeBifContainsString = function (keyphrase) {
   var normalised = keyphrase.toLowerCase()
                             .replace(/and/g, ' ');
   return cleanWhitespace(normalised).replace(/ /g, ' AND ');
 };
 
-// ASK dbpedia whether a key phrase has a related article
-var makeQueryForLabel = function (keyphrase) {
+/* ASK whether a keyphrase has a related article */
+var askBifContainsLabelSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
   var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
@@ -40,9 +49,10 @@ var makeQueryForLabel = function (keyphrase) {
   return sparql;
 };
 
-// ASK dbpedia whether an article exists with the exact key phrase
-// as its label; assumes that keyphrase is lower cased and in English
-var makeQueryForExactLabel = function (keyphrase) {
+/* ASK whether an article exists with the exact keyphrase
+   as its label; assumes that keyphrase is lowercased and in English
+   for now, as this is what our NLP engine supplies */
+var askExactLabelSparql = function (keyphrase) {
   var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
                'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
                'ASK {' +
@@ -56,9 +66,9 @@ var makeQueryForExactLabel = function (keyphrase) {
   return sparql;
 };
 
-// ASK dbpedia whether an article exists, matching by regex
-// (case insensitive)
-var makeQueryForLabelRegex = function (keyphrase) {
+/* ASK whether an article exists, matching by regex
+  (case insensitive) */
+var askRegexLabelSparql = function (keyphrase) {
   var expression = cleanWhitespace(keyphrase.toLowerCase());
 
   var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
@@ -74,7 +84,9 @@ var makeQueryForLabelRegex = function (keyphrase) {
   return sparql;
 };
 
-var makeQueryForEntity = function (keyphrase) {
+/* ask whether an article about a place, event, person or organisation
+   has a label containing the keyphrase */
+var askUsefulArticleSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
   var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
@@ -97,7 +109,9 @@ var makeQueryForEntity = function (keyphrase) {
   return sparql;
 };
 
-var makeQueryForTypes = function (keyphrase) {
+/* select the distinct types of thing whose label contains the words
+   in the keyphrase; this returns the types themselves */
+var selectArticleTypesSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
   var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
@@ -113,124 +127,143 @@ var makeQueryForTypes = function (keyphrase) {
   return sparql;
 };
 
+/* select all the articles whose label contains the words in keyphrase;
+   this returns the articles */
+var selectArticlesSparql = function (keyphrase) {
+  var expression = makeBifContainsString(keyphrase);
+
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
+               'SELECT DISTINCT ?thing WHERE {' +
+               '  ?thing rdfs:label ?label .' +
+               '  ?label bif:contains "(' + expression + ')" .' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .' +
+               '}';
+
+  return sparql;
+};
+
 var makeUrl = function (sparql) {
   return BASE_URL + '?format=' + FORMAT + '&query=' + encodeURIComponent(sparql);
 };
 
-var makeBooleanResponseHandler = function (successMsg, failMsg) {
-  return function (timeMsg, body) {
-    var result = JSON.parse(body).boolean;
-    if (result) {
-      console.log(timeMsg + 'SUCCESS - ' + successMsg);
-    } else {
-      console.log(timeMsg + 'FAIL    - ' + failMsg);
-    }
-  };
-};
+/* returns a promise which resolves to the response or
+   rejects with an error; the response has the format
+   { time: <time in ms>, body: <response body> }
+   the time is there for the purpose of benchmarking
+   and represents the time between the start of the request
+   and the time when the response was received */
+var doRequest = function (query, sparql) {
+  return new Promise(function (resolve, reject) {
+    var url = makeUrl(sparql);
+    var start = (new Date()).getTime();
 
-var doRequest = function (url, responseCb) {
-  var start = (new Date()).getTime();
+    request(url, function (error, response, body) {
+      var end = (new Date()).getTime();
+      var ms = end - start;
 
-  request(url, function (error, response, body) {
-    var end = (new Date()).getTime();
-    var ms = end - start;
-    if (ms < 10000) {
-      ms = ' ' + ms;
-    }
-    if (ms < 1000) {
-      ms = ' ' + ms;
-    }
-    var timeMsg = 'TIME: ' + ms + 'ms; ';
-
-    if (!error && response.statusCode == 200) {
-      responseCb(timeMsg, body);
-    } else {
-      console.error('error fetching URL');
-      console.error(url);
-    }
+      if (!error && response.statusCode == 200) {
+        resolve({
+          time: ms,
+          query: query,
+          sparql: sparql,
+          url: url,
+          body: JSON.parse(body)
+        });
+      } else {
+        reject(new Error('error fetching URL "' + url + '"\n' +
+                         JSON.stringify(response)));
+      }
+    });
   });
 };
 
-var checkForThing = function (query) {
-  var sparql = makeQueryForLabel(query);
-  var url = makeUrl(sparql);
-  var successMsg = 'CONTAINS LABEL: "' + query +
-                   '" is in the label of a thing on dbpedia';
-  var failMsg = 'CONTAINS LABEL: keyphrase "' + query +
-                '" IS NOT in the label of a thing on dbpedia';
-  doRequest(url, makeBooleanResponseHandler(successMsg, failMsg));
+/* count the number of bindings in a SPARQL response and return the
+   result */
+var countBindings = function (response) {
+  return response.body.results.bindings.length;
 };
 
-var checkForExactThing = function (query) {
-  var sparql = makeQueryForExactLabel(query);
-  var url = makeUrl(sparql);
-  var successMsg = '   EXACT LABEL: "' + query +
-                    '" has a thing with the exact label on dbpedia';
-  var failMsg = '   EXACT LABEL: "' + query +
-                '" DOES NOT have a thing with the exact label on dbpedia';
-  doRequest(url, makeBooleanResponseHandler(successMsg, failMsg));
+/* PUBLIC API FUNCTIONS */
+
+/* is there an article whose label contains the words in <query>? */
+var isAnyArticle = function (query) {
+  var sparql = askBifContainsLabelSparql(query);
+  return doRequest(query, sparql);
 };
 
-var checkForRegexThing = function (query) {
-  var sparql = makeQueryForLabelRegex(query);
-  var url = makeUrl(sparql);
-  var successMsg = '   REGEX LABEL: "' + query +
-                   '" matches the label of a thing on dbpedia';
-  var failMsg = '   REGEX LABEL: "' + query +
-                '" DOES NOT match the label of a thing on dbpedia';
-  doRequest(url, makeBooleanResponseHandler(successMsg, failMsg));
+/* is there an article whose label exactly matches <query>? NB
+   this is case sensitive and language specific, and the whole label
+   must match <query> */
+var isExactArticle = function (query) {
+  var sparql = askExactLabelSparql(query);
+  return doRequest(query, sparql);
 };
 
-var checkForEntity = function (query) {
-  var sparql = makeQueryForEntity(query);
-  var url = makeUrl(sparql);
-  var successMsg = '  ENTITY LABEL: "' + query +
-                   '" labels a person, place, organisation or event on dbpedia';
-  var failMsg = '  ENTITY LABEL: "' + query +
-                '" DOES NOT label a person, place, organisation or event on dbpedia';
-  doRequest(url, makeBooleanResponseHandler(successMsg, failMsg));
+/* is there an article whose label regex matches <query>? the regex
+   used is /^query$/ */
+var isRegexArticle = function (query) {
+  var sparql = askRegexLabelSparql(query);
+  return doRequest(query, sparql);
 };
 
-// count the number of types which are associated with things which
-// have labels containing the text "query"
-var countTypesForQuery = function (query) {
-  var sparql = makeQueryForTypes(query);
-  var url = makeUrl(sparql);
-
-  var responseCb = function (timeMsg, body) {
-    var numTypes = JSON.parse(body).results.bindings.length;
-    console.log(timeMsg + '# ASSOCIATED TYPES: "' + query +
-                '" occurs in things associated with ' + numTypes + ' types');
-  };
-
-  doRequest(url, responseCb);
+/* is there a useful thing (places, people, organisation etc.)
+   which has an article related to the label? */
+var isUsefulArticle = function (query) {
+  var sparql = askUsefulArticleSparql(query);
+  return doRequest(query, sparql);
 };
 
-// count the number of types in the whole of dbpedia; note that this
-// always returns 10000, as there are 10000+ types
-var countTypes = function () {
-  var sparql = 'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'SELECT DISTINCT ?type WHERE {' +
-               '  ?thing rdf:type ?type . ' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '}';
+/* get types which are associated with things which
+   have labels containing the text "query" */
+var selectArticleTypes = function (query) {
+  var sparql = selectArticleTypesSparql(query);
+  return doRequest(query, sparql);
+};
 
-  var url = makeUrl(sparql);
+/* get things whose label contains the words in query and which
+   have a related Wikipedia article */
+var selectArticles = function (query) {
+  var sparql = selectArticlesSparql(query);
+  return doRequest(query, sparql);
+};
 
-  var responseCb = function (timeMsg, body) {
-    var numTypes = JSON.parse(body).results.bindings.length;
-    console.log(timeMsg + '# TYPES IN DBPEDIA: ' + numTypes);
-  };
+/* get all the dbpedia info relating to query, by calling all of
+   the API methods in tandem and combining their results */
+var getDBpediaStats = function (query) {
+  var promises = [
+    isAnyArticle(query),
+    isExactArticle(query),
+    isRegexArticle(query),
+    isUsefulArticle(query),
+    selectArticleTypes(query),
+    selectArticles(query)
+  ];
 
-  doRequest(url, responseCb);
+  return Promise.all(promises).then(
+    function (
+      results
+    ) {
+      var body = {
+        isAnyArticle: results[0].body.boolean,
+        isExactArticle: results[1].body.boolean,
+        isRegexArticle: results[2].body.boolean,
+        isUsefulArticle: results[3].body.boolean,
+        numArticleTypes: countBindings(results[4]),
+        numArticles: countBindings(results[5])
+      };
+
+      return Promise.resolve({body: body});
+    }
+  );
 };
 
 module.exports = {
-  checkForThing: checkForThing,
-  checkForExactThing: checkForExactThing,
-  checkForRegexThing: checkForRegexThing,
-  checkForEntity: checkForEntity,
-  countTypesForQuery: countTypesForQuery,
-  countTypes: countTypes
+  isAnyArticle: isAnyArticle,
+  isExactArticle: isExactArticle,
+  isRegexArticle: isRegexArticle,
+  isUsefulArticle: isUsefulArticle,
+  selectArticleTypes: selectArticleTypes,
+  selectArticles: selectArticles,
+  getDBpediaStats: getDBpediaStats
 };
