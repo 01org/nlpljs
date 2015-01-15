@@ -153,8 +153,6 @@
           }
 
           this.fire('tileprocessed', tile);
-
-          this.layout();
         },
 
         /**
@@ -172,6 +170,8 @@
           var self = this;
 
           this.tilesLoading += 1;
+
+          console.log('CP-LAYOUT: adding tile', tile);
 
           if (tile.done) {
             this.tileReady(tile);

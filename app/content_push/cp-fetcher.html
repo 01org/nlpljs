@@ -14,8 +14,14 @@
                       searchType="article">
     </cp-search-google>
 
-    <cp-search-wikipedia id="searchWikipedia"
-                         resultsPerFetch="{{resultsPerFetch}}">
+    <cp-search-wikipedia id="searchWikipediaImages"
+                         resultsPerFetch="{{resultsPerFetch}}"
+                         searchType="image">
+    </cp-search-wikipedia>
+
+    <cp-search-wikipedia id="searchWikipediaArticles"
+                         resultsPerFetch="{{resultsPerFetch}}"
+                         searchType="article">
     </cp-search-wikipedia>
 
     <cp-search-google-files id="searchDrive"
@@ -53,7 +59,10 @@
               service = this.$.searchGoogleArticles;
               break;
             case "Wikipedia Image Search":
-              service = this.$.searchWikipedia;
+              service = this.$.searchWikipediaImages;
+              break;
+            case "Wikipedia Article Search":
+              service = this.$.searchWikipediaArticles;
               break;
             case "Google Drive Search":
               service = this.$.searchDrive;
@@ -63,25 +72,31 @@
               return Promise.resolve([]);
           }
 
-          return service.fetch(query, sourceURL).then(
-            function (results) {
-              var filteredResults = [];
+          var promise = service.fetch(query, sourceURL)
+              .catch(function (err) {
+                return Promise.reject(err);
+              })
+              .then(
+                function (results) {
+                  var filteredResults = [];
 
-              for (var i = 0; i < results.length; i++) {
-                /* filter out any pdfs or svg files */
-                if (!BAD_EXTENSIONS_REGEX.test(results[i].src)) {
-                  results[i].keyword = keyword;
-                  filteredResults.push(results[i]);
+                  for (var i = 0; i < results.length; i++) {
+                    /* filter out any pdfs or svg files */
+                    if (!BAD_EXTENSIONS_REGEX.test(results[i].src)) {
+                      results[i].keyword = keyword;
+                      filteredResults.push(results[i]);
+                    }
+                  }
+
+                  return Promise.resolve(filteredResults);
+                },
+
+                function (err) {
+                  return Promise.reject(err);
                 }
-              }
+              );
 
-              return Promise.resolve(filteredResults);
-            },
-
-            function (err) {
-              return Promise.reject(err);
-            }
-          );
+          return promise;
         }
       });
     })();
