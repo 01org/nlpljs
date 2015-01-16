@@ -38,12 +38,12 @@ var makeBifContainsString = function (keyphrase) {
 var askBifContainsLabelSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'ASK {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '  ?label bif:contains "(' + expression + ')" .' +
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'ASK {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
+               '  ?label bif:contains "(' + expression + ')" .\n' +
                '}';
 
   return sparql;
@@ -53,14 +53,14 @@ var askBifContainsLabelSparql = function (keyphrase) {
    as its label; assumes that keyphrase is lowercased and in English
    for now, as this is what our NLP engine supplies */
 var askExactLabelSparql = function (keyphrase) {
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'ASK {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '  FILTER (' +
-               '    ?label = "' + cleanWhitespace(keyphrase) + '"@en' +
-               '  ) .' +
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'ASK {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
+               '  FILTER (\n' +
+               '    ?label = "' + cleanWhitespace(keyphrase) + '"@en\n' +
+               '  ) .\n' +
                '}';
 
   return sparql;
@@ -71,14 +71,14 @@ var askExactLabelSparql = function (keyphrase) {
 var askRegexLabelSparql = function (keyphrase) {
   var expression = cleanWhitespace(keyphrase.toLowerCase());
 
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'ASK {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '  FILTER (' +
-               '    regex(?label, "^' + expression + '$", "i")' +
-               '  ) .' +
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'ASK {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
+               '  FILTER (\n' +
+               '    regex(?label, "^' + expression + '$", "i")\n' +
+               '  ) .\n' +
                '}';
 
   return sparql;
@@ -89,21 +89,21 @@ var askRegexLabelSparql = function (keyphrase) {
 var askUsefulArticleSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'PREFIX foaf: <http://xmlns.com/foaf/0.1/>' +
-               'ASK {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?label bif:contains "(' + expression + ')" .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '  ?thing rdf:type ?t .' +
-               '  FILTER ( ' +
-               '    ?t = dbpedia-owl:Place ||' +
-               '    ?t = dbpedia-owl:Event ||' +
-               '    ?t = foaf:Person ||' +
-               '    ?t = dbpedia-owl:Organisation' +
-               '  ) .' +
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'PREFIX foaf: <http://xmlns.com/foaf/0.1/>\n' +
+               'ASK {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?label bif:contains "(' + expression + ')" .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
+               '  ?thing rdf:type ?t .\n' +
+               '  FILTER (\n' +
+               '    ?t = dbpedia-owl:Place ||\n' +
+               '    ?t = dbpedia-owl:Event ||\n' +
+               '    ?t = foaf:Person ||\n' +
+               '    ?t = dbpedia-owl:Organisation\n' +
+               '  ) .\n' +
                '}';
 
   return sparql;
@@ -114,15 +114,15 @@ var askUsefulArticleSparql = function (keyphrase) {
 var selectArticleTypesSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'SELECT DISTINCT ?type WHERE {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?label bif:contains "(' + expression + ')" .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
-               '  ?thing rdf:type ?type .' +
-               '}';
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'SELECT DISTINCT ?type WHERE {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?label bif:contains "(' + expression + ')" .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
+               '  ?thing rdf:type ?type .\n' +
+               '}\n';
 
   return sparql;
 };
@@ -132,12 +132,12 @@ var selectArticleTypesSparql = function (keyphrase) {
 var selectArticlesSparql = function (keyphrase) {
   var expression = makeBifContainsString(keyphrase);
 
-  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>' +
-               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>' +
-               'SELECT DISTINCT ?thing WHERE {' +
-               '  ?thing rdfs:label ?label .' +
-               '  ?label bif:contains "(' + expression + ')" .' +
-               '  ?thing dbpedia-owl:wikiPageID ?id .' +
+  var sparql = 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n' +
+               'PREFIX dbpedia-owl: <http://dbpedia.org/ontology/>\n' +
+               'SELECT DISTINCT ?thing WHERE {\n' +
+               '  ?thing rdfs:label ?label .\n' +
+               '  ?label bif:contains "(' + expression + ')" .\n' +
+               '  ?thing dbpedia-owl:wikiPageID ?id .\n' +
                '}';
 
   return sparql;
@@ -158,21 +158,33 @@ var doRequest = function (query, sparql) {
     var url = makeUrl(sparql);
     var start = (new Date()).getTime();
 
-    request(url, function (error, response, body) {
+    request.get({
+      url: url,
+      timeout: 30000
+    },
+
+    function (error, response, body) {
       var end = (new Date()).getTime();
       var ms = end - start;
 
-      if (!error && response.statusCode == 200) {
+      if (!error) {
+        if (response.statusCode == 200) {
+          body = JSON.parse(body);
+        } else {
+          body = null;
+        }
+
         resolve({
           time: ms,
           query: query,
           sparql: sparql,
           url: url,
-          body: JSON.parse(body)
+          responseCode: response.statusCode,
+          body: body
         });
       } else {
-        reject(new Error('error fetching URL "' + url + '"\n' +
-                         JSON.stringify(response)));
+        reject(new Error('general error fetching URL "' + url + '"\n' +
+                         JSON.stringify(error)));
       }
     });
   });
@@ -228,34 +240,63 @@ var selectArticles = function (query) {
   return doRequest(query, sparql);
 };
 
-/* get all the dbpedia info relating to query, by calling all of
-   the API methods in tandem and combining their results */
+/* CRUDE FIRST ATTEMPT
+   get all the dbpedia info relating to query, by calling (nearly) all of
+   the API methods in tandem and combining their results;
+   note that if a request times out, any booleans are set to false
+   and any counts to 0, so this is a primitive approach at best */
 var getDBpediaStats = function (query) {
+  var start = (new Date()).getTime();
+
   var promises = [
     isAnyArticle(query),
     isExactArticle(query),
-    isRegexArticle(query),
     isUsefulArticle(query),
     selectArticleTypes(query),
     selectArticles(query)
   ];
 
-  return Promise.all(promises).then(
-    function (
-      results
-    ) {
-      var body = {
-        isAnyArticle: results[0].body.boolean,
-        isExactArticle: results[1].body.boolean,
-        isRegexArticle: results[2].body.boolean,
-        isUsefulArticle: results[3].body.boolean,
-        numArticleTypes: countBindings(results[4]),
-        numArticles: countBindings(results[5])
-      };
+  var promise = Promise.all(promises)
+  .then(
+    function (results) {
+      var end = (new Date()).getTime();
+      var ms = end - start;
 
-      return Promise.resolve({body: body});
+      return Promise.resolve({
+        time: ms,
+        info: {
+          retrieved: true,
+          keyword: query,
+          isAnyArticle: (results[0].body ? results[0].body.boolean : false),
+          isExactArticle: (results[1].body ? results[1].body.boolean : false),
+          isUsefulArticle: (results[2].body ? results[2].body.boolean : false),
+          numArticleTypes: (results[3].body ? countBindings(results[3]) : 0),
+          numArticles: (results[4].body ? countBindings(results[4]) : 0)
+        }
+      });
+    },
+
+    function (err) {
+      var end = (new Date()).getTime();
+      var ms = end - start;
+
+      return Promise.resolve({
+        time: ms,
+        info: {
+          retrieved: false,
+          keyword: query,
+          isAnyArticle: false,
+          isExactArticle: false,
+          isUsefulArticle: false,
+          numArticleTypes: 0,
+          numArticles: 0
+        }
+      });
     }
-  );
+  )
+  .catch(Promise.reject);
+
+  return promise;
 };
 
 module.exports = {

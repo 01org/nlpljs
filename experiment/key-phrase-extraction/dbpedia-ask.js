@@ -61,7 +61,7 @@ tester.selectArticleTypes(query).then(
   function (response) {
     var numTypes = response.body.results.bindings.length;
 
-    console.log('TIME: ' + response.time + 'ms - SUCCESS: ' +
+    console.log('TIME: ' + response.time + 'ms - RESULT: ' +
                 '# article subjects relating to labels containing the ' +
                 'words in "' + query + '" = ' + numTypes);
   },
@@ -75,7 +75,7 @@ tester.selectArticles(query).then(
   function (response) {
     var numArticles = response.body.results.bindings.length;
 
-    console.log('TIME: ' + response.time + 'ms - SUCCESS: ' +
+    console.log('TIME: ' + response.time + 'ms - RESULT: ' +
                 '# articles relating to labels containing the ' +
                 'words in "' + query + '" = ' + numArticles);
   },
@@ -86,7 +86,7 @@ tester.selectArticles(query).then(
 /* get all the stats in one hit */
 tester.getDBpediaStats(query).then(
   function (response) {
-    console.log('SUMMARY:\n' + JSON.stringify(response.body, null, 2));
+    console.log('SUMMARY:\n' + JSON.stringify(response, null, 2));
   },
 
   function (err) {
