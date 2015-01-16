@@ -43,6 +43,13 @@
       var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
       var docsHomeFixed = false; // only once per instance of Content Push tab
 
+      var mutationObserverConfig = {
+        attributes: false,
+        childList: true,
+        subtree: true,
+        characterData: false
+      };
+
       /**
        * find ancestor of node that has className
        * for finding the ancestor with .kix-lineview of whatever line has changed
@@ -83,7 +90,11 @@
         }
       };
 
-      var observeDocumentChanges = function (self) {
+      /**
+       * Creates a mutation observer to track edits to the document's text.
+       * The newly created observer is disabled by default.
+       */
+      var createMutationObserver = function (self) {
         var observer = new MutationObserver(function (mutations, observerInstance) {
           if (!docsHomeFixed) {
             fixDocsHomeLink(self);
@@ -165,16 +176,9 @@
           }
         });
 
-        // Configuration of the observer:
-        var config = {
-          attributes: false,
-          childList: true,
-          subtree: true,
-          characterData: false
-        };
+        console.log("CP-DOCUMENT:mutation observer created.");
 
-        // Pass in the target node, as well as the observer options
-        observer.observe(self.$.iframe.contentDocument, config);
+        self.mutationObserver = observer;
       };
 
       var handleIframeLoad = function (self) {
@@ -198,7 +202,9 @@
 
         self.$.scrollwatcher.getVisibleNodes(getContext, self);
 
-        observeDocumentChanges(self);
+        createMutationObserver(self);
+        self.mutationObserver.observe(self.$.iframe.contentDocument,
+          mutationObserverConfig);
       };
 
       var addIdToLine = function (line, value) {
@@ -280,6 +286,7 @@
         // life cycle handlers
         EDITOVERTIMEOUT: 3000,
         editOverTimer: null,
+        mutationObserver: null,
 
         created: function () {
           this.nlpPort = null;
@@ -356,7 +363,6 @@
           for (var i = 0; i < e.detail.length; i++)
             this.$.highlighter.turn(e.detail[i].groupId, 'off');
         },
-
       }); // Polymer()
     })();
 
