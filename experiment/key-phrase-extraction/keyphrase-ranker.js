@@ -12,28 +12,18 @@ var originalKeywords = [];
 var out = [];
 var longestSearch = null;
 
-/* format keywords and their scores as a comma-separated list */
-var formatKeywords = function (keywords) {
-  return _.reduce(keywords, function (memo, keywordObj) {
-    if (memo !== '') {
-      memo += ', ';
-    }
+var STOP_WORDS = ['And', 'Of', 'From', 'For', 'The', 'At', 'On', 'In', 'As'];
 
-    memo += keywordObj.keyword + ' (' + keywordObj.score + ')';
-
-    return memo;
-  }, '');
-};
-
+/* this is to fix the lowercasing of all keywords temporarily */
 var titleize = function (word) {
+  /* uppercase first letter of all words */
   word = word.replace(/(?:^|\s|-)\S/g, function (c) {
     return c.toUpperCase();
   });
 
   /* lowercase "of", "and", "from" and other prepositions */
-  var toLower = ['And', 'Of', 'From', 'For', 'The', 'At', 'On', 'In', 'As'];
   var regex;
-  _.each(toLower, function (rep) {
+  _.each(STOP_WORDS, function (rep) {
     regex = new RegExp(' ' + rep + ' ', 'g');
     word = word.replace(regex, ' ' + rep.toLowerCase() + ' ');
   });
@@ -48,6 +38,30 @@ var titleize = function (word) {
   });
 
   return word;
+};
+
+/* remove stop words */
+var noStop = function (word) {
+  var regex;
+  _.each(STOP_WORDS, function (rep) {
+    regex = new RegExp(' ' + rep + ' ', 'g');
+    word = word.replace(regex, ' ');
+  });
+
+  return word;
+};
+
+/* format keywords and their scores as a comma-separated list */
+var formatKeywords = function (keywords) {
+  return _.reduce(keywords, function (memo, keywordObj) {
+    if (memo !== '') {
+      memo += ', ';
+    }
+
+    memo += keywordObj.keyword + ' (' + keywordObj.score + ')';
+
+    return memo;
+  }, '');
 };
 
 var showResults = function (duration, longestSearch, originalScores, newScores) {
@@ -91,12 +105,16 @@ process.stdin.on('end', function() {
 
   var parsed = libnlp.keyphrase_extractor.extractFrom(input);
 
+  console.log('...parse done');
+
   _.each(parsed.keywords, function (keyword, index) {
     /* HACK re-capitalise keywords */
     var titleized = titleize(keyword);
+    var keywordNoStop = noStop(keyword);
 
     out.push({
       keyword: titleized,
+      keywordNoStop: keywordNoStop,
       pagerank: parsed.scores[index]
     });
 
@@ -109,14 +127,11 @@ process.stdin.on('end', function() {
   var promises = [];
 
   _.each(out, function (keywordObj) {
-    console.log('testing keyword "' + keywordObj.keyword + '"');
-
-    var promise = tester.getDBpediaStats(keywordObj.keyword);
+    var promise = tester.getDBpediaStats(keywordObj);
 
     promise.then(
       function (result) {
-        _.extend(keywordObj, result.info);
-        keywordObj.time = result.time;
+        _.extend(keywordObj, result);
 
         if (!keywordObj.retrieved) {
          console.error('ERROR: unable to get dbpedia results for "' +
@@ -142,47 +157,62 @@ process.stdin.on('end', function() {
       var end = (new Date()).getTime();
       var duration = end - start;
 
-      /* sum page ranks, number of article types and
-         number of articles */
-      var totalPageRank = 0;
-      var totalNumArticles = 0;
-      var totalNumArticleTypes = 0;
+      /* sum all numerical values: page ranks, number of article types,
+         number of articles etc. */
+      var sums = {};
 
       _.each(out, function (keywordObj) {
-        totalPageRank += keywordObj.pagerank;
-        totalNumArticles += keywordObj.numArticles;
-        totalNumArticleTypes += keywordObj.numArticleTypes;
+        _.each(keywordObj.info, function (value, key) {
+          if (_.isNumber(value)) {
+            if (!sums[key]) {
+              sums[key] = 0;
+            }
+
+            sums[key] += value;
+          }
+        });
       });
 
-      /* normalise page ranks, number of article types and number
-         of articles; combine with scores for is* queries to get
-         final rank */
       var score;
       var vagueness;
-      _.each(out, function (keywordObj) {
-        keywordObj.normalisedPagerank = keywordObj.pagerank / totalPageRank;
 
-        if (keywordObj.isAnyArticle) {
-          keywordObj.numArticles /= totalNumArticles;
-          keywordObj.numArticleTypes /= totalNumArticleTypes;
-        } else {
-          /* no articles, so extra penalty */
-          keywordObj.numArticles = 1;
-          keywordObj.numArticleTypes = 1;
+      /* normalise numeric values */
+      _.each(out, function (keywordObj) {
+        _.each(sums, function (value, key) {
+          if (_.isNumber(value)) {
+            if (!keywordObj.info[key]) {
+              keywordObj.info[key] = 1;
+            } else {
+              keywordObj.info[key] /= sums[key];
+            }
+          }
+        });
+
+        vagueness = 0;
+        numValues = 0;
+
+        _.each(keywordObj.info, function (value, key) {
+          /* pagerank doesn't contribute to vagueness */
+          if (key !== 'pagerank') {
+            if (_.isNumber(value)) {
+              vagueness += value;
+              numValues++;
+            } else if (_.isBoolean(value)) {
+              vagueness += (value === true ? 0 : 1);
+              numValues++;
+            }
+          }
+        });
+
+        if (numValues > 0) {
+          vagueness = vagueness / numValues;
         }
 
-        vagueness = (keywordObj.numArticles +
-                     keywordObj.numArticleTypes +
-                     (keywordObj.isAnyArticle ? 0 : 1) +
-                     (keywordObj.isExactArticle ? 0 : 1) +
-                     (keywordObj.isUsefulArticle ? 0 : 1)) / 3;
-
-        vagueness = (keywordObj.isExactArticle ? 0 : 1);
-
-        console.log(keywordObj.keyword + ' vagueness ' + vagueness);
+        console.log('"' + keywordObj.keyword + '" - vagueness: ' +
+                    vagueness + '; time: ' + keywordObj.time);
 
         /* page rank and vagueness have equal weight */
-        keywordObj.score = (keywordObj.normalisedPagerank + (1 - vagueness)) / 2;
+        keywordObj.score = (keywordObj.info.pagerank + (1 - vagueness)) / 2;
       });
 
       showResults(duration, longestSearch, originalKeywords, out);

@@ -24,9 +24,9 @@ var cleanWhitespace = function (keyphrase) {
 };
 
 /* convert a keyphrase like "Battle of Hastings" to
-   "Battle AND of AND Hastings", suitable for use in the bif:contains
+   "Battle AND Hastings", suitable for use in the bif:contains
    clause of a query to be passed to the dbpedia API;
-   NB we have to remove "and" from the strings to and replace
+   NB we have to remove "and" from the strings to replace
    contiguous sequences of whitespace to make query formation work */
 var makeBifContainsString = function (keyphrase) {
   var normalised = keyphrase.toLowerCase()
@@ -201,7 +201,9 @@ var countBindings = function (response) {
 /* is there an article whose label contains the words in <query>? */
 var isAnyArticle = function (query) {
   var sparql = askBifContainsLabelSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? results.body.boolean : false);
+  });
 };
 
 /* is there an article whose label exactly matches <query>? NB
@@ -209,51 +211,70 @@ var isAnyArticle = function (query) {
    must match <query> */
 var isExactArticle = function (query) {
   var sparql = askExactLabelSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? results.body.boolean : false);
+  });
 };
 
 /* is there an article whose label regex matches <query>? the regex
    used is /^query$/ */
 var isRegexArticle = function (query) {
   var sparql = askRegexLabelSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? results.body.boolean : false);
+  });
 };
 
 /* is there a useful thing (places, people, organisation etc.)
    which has an article related to the label? */
 var isUsefulArticle = function (query) {
   var sparql = askUsefulArticleSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? results.body.boolean : false);
+  });
 };
 
 /* get types which are associated with things which
    have labels containing the text "query" */
 var selectArticleTypes = function (query) {
   var sparql = selectArticleTypesSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? countBindings(results) : 0);
+  });
 };
 
 /* get things whose label contains the words in query and which
    have a related Wikipedia article */
 var selectArticles = function (query) {
   var sparql = selectArticlesSparql(query);
-  return doRequest(query, sparql);
+  return doRequest(query, sparql).then(function (results) {
+    return Promise.resolve(results.body ? countBindings(results) : 0);
+  });
 };
 
 /* CRUDE FIRST ATTEMPT
    get all the dbpedia info relating to query, by calling (nearly) all of
    the API methods in tandem and combining their results;
    note that if a request times out, any booleans are set to false
-   and any counts to 0, so this is a primitive approach at best */
-var getDBpediaStats = function (query) {
+   and any counts to 0, so this is a primitive approach at best;
+   queryObj contains <keyword> (full original phrase) and
+   <keywordNoStop> (phrase without stop words);
+   queriesToRun can contain one or more of the following query names:
+     isAnyArticle
+     isExactArticle
+     isUsefulArticle
+     selectArticleTypes
+     selectArticles
+ */
+var getDBpediaStats = function (queryObj, queriesToRun) {
   var start = (new Date()).getTime();
 
   var promises = [
-    isAnyArticle(query),
-    isExactArticle(query),
-    isUsefulArticle(query),
-    selectArticleTypes(query),
-    selectArticles(query)
+    isAnyArticle(queryObj.keywordNoStop),
+    isExactArticle(queryObj.keyword),
+    isUsefulArticle(queryObj.keywordNoStop),
+    selectArticleTypes(queryObj.keywordNoStop),
+    selectArticles(queryObj.keywordNoStop)
   ];
 
   var promise = Promise.all(promises)
@@ -264,14 +285,16 @@ var getDBpediaStats = function (query) {
 
       return Promise.resolve({
         time: ms,
+        keyword: queryObj.keyword,
+        keywordNoStop: queryObj.keywordNoStop,
+        retrieved: true,
         info: {
-          retrieved: true,
-          keyword: query,
-          isAnyArticle: (results[0].body ? results[0].body.boolean : false),
-          isExactArticle: (results[1].body ? results[1].body.boolean : false),
-          isUsefulArticle: (results[2].body ? results[2].body.boolean : false),
-          numArticleTypes: (results[3].body ? countBindings(results[3]) : 0),
-          numArticles: (results[4].body ? countBindings(results[4]) : 0)
+          pagerank: queryObj.pagerank,
+          isAnyArticle: results[0],
+          isExactArticle: results[1],
+          isUsefulArticle: results[2],
+          numArticleTypes: results[3],
+          numArticles: results[4]
         }
       });
     },
@@ -282,9 +305,11 @@ var getDBpediaStats = function (query) {
 
       return Promise.resolve({
         time: ms,
+        keyword: queryObj.keyword,
+        keywordNoStop: queryObj.keywordNoStop,
+        retrieved: false,
         info: {
-          retrieved: false,
-          keyword: query,
+          pagerank: queryObj.pagerank,
           isAnyArticle: false,
           isExactArticle: false,
           isUsefulArticle: false,
