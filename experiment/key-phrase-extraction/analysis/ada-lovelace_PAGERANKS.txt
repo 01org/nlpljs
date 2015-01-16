@@ -1,0 +1,45 @@
+KEY PHRASES FOR ADA LOVELACE EXTRACT
+as resolved by current NLP, with page ranks
+
+mental problems, 1.507624529029579
+study of mathematics, 1.4268591635960524
+study mathematics, 1.227869149290947
+de morgan, 1.2253273714468218
+mental discipline, 1.222164535556413
+mental instabilities, 1.222164535556413
+new periodical journals, 1.144788672415629
+augustus de morgan, 1.1447886724156284
+diffusion of useful knowledge, 1.1255786543023458
+doting mother, 1.114864864864865
+mother appointed, 1.114864864864865
+common practice, 1.114864864864865
+common language, 1.114864864864865
+much mathematics, 1.101084873441895
+new inventions, 1.0162887256467585
+tutor de, 1.016288725646758
+parenting styles, 1
+young girl, 1
+honourable lady milbanke, 1
+intense application, 1
+scientific nature, 1
+early 19th century, 1
+own amusement, 1
+internal jury, 1
+unusual preoccupation, 1
+finest minds, 1
+important teachers, 1
+symbolic logic, 1
+first class education, 1
+solid grounding, 1
+original mathematical investigator, 1
+arduous journey, 1
+household name, 1
+great tension, 1
+physical power, 1
+mary somerville, 1
+scottish astronomer, 1
+modest woman, 1
+charles babbage, 1
+maths problems, 0.9495653721778865
+close study, 0.8650133405812015
+much affection, 0.7715550123656559

@@ -1,0 +1,38 @@
+KEY PHRASES FOR BATTLE OF HASTINGS EXTRACT 2
+as resolved by current NLP, with page ranks
+
+witenagemot of england, 2.1573
+archbishop of york, 1.935
+archbishop of canterbury, 1.9355
+harald iii of norway, 1.8936
+earl of wessex, 1.8541
+earlier king of england harthacanute, 1.7479
+duke william of normandy, 1.7071
+powerful norman interest, 1.412
+english politics, 1.30630
+english aristocrats, 1.3063
+english throne, 1.306
+william and harald, 1.280
+england and norway, 1.253
+norman courtiers, 1.1357
+norman propaganda, 1.135
+powerful neighbouring rulers, 1.11352
+king edward, 1.052660
+french carolingian ruler charles, 1.00000
+immediate successor, 1
+predecessor magnus, 1
+leader rollo, 1
+several contenders, 1
+clear heir, 1
+local population, 1
+indigenous culture, 1
+many years, 1
+formidable godwin, 1
+separate invasions, 1
+richard ii, 1
+harold godwinson, 1
+duke william, 0.98345
+harald hardrada, 0.89705
+earlier opponent, 0.72578
+son edward, 0.6817
+-------------------------------------------------------------------------------------------------------------
