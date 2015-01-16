@@ -6,6 +6,14 @@ var libnlp = require('../../app/libnlp/libnlp');
 var tester = require('./keyphrase-dbpedia-tester');
 var _ = require('../../app/bower_components/lodash/dist/lodash');
 
+var queriesToRun = [
+  'isExactArticle',
+  'isAnyArticle',
+  'isUsefulArticle',
+  'selectArticleTypes',
+  'selectArticles'
+];
+
 var input = '';
 
 var originalKeywords = [];
@@ -33,9 +41,9 @@ var titleize = function (word) {
 
   /* HACK replace Roman numerals which have been lowercased with their
      uppercase equivalent */
-  word = word.replace(/ [ixvmc]+/gi, function (m) {
+  /*word = word.replace(/ [ixvmc]+/gi, function (m) {
     return m.toUpperCase();
-  });
+  });*/
 
   return word;
 };
@@ -44,27 +52,40 @@ var titleize = function (word) {
 var noStop = function (word) {
   var regex;
   _.each(STOP_WORDS, function (rep) {
-    regex = new RegExp(' ' + rep + ' ', 'g');
+    regex = new RegExp(' ' + rep + ' ', 'gi');
     word = word.replace(regex, ' ');
   });
 
   return word;
 };
 
-/* format keywords and their scores as a comma-separated list */
+/* format keywords and their scores as a newline separated list */
 var formatKeywords = function (keywords) {
   return _.reduce(keywords, function (memo, keywordObj) {
-    if (memo !== '') {
-      memo += ', ';
-    }
-
-    memo += keywordObj.keyword + ' (' + keywordObj.score + ')';
-
+    memo += keywordObj.keyword + ', ' +
+            (keywordObj.keywordNoStop ? keywordObj.keywordNoStop + ', ' : '') +
+            keywordObj.score + '\n';
     return memo;
   }, '');
 };
 
-var showResults = function (duration, longestSearch, originalScores, newScores) {
+/* rank keywords by order (0 = lowest), then alphabetically sort;
+   then convert to string */
+var keywordOrder = function (keywords) {
+  var keywordsWithOrder = _.map(keywords, function (keyword, index) {
+    keyword.order = (keywords.length - 1) - index;
+    return keyword;
+  });
+
+  var sortedByAlpha = _.sortBy(keywordsWithOrder, 'keyword');
+
+  return _.reduce(sortedByAlpha, function (memo, keywordObj) {
+    memo += keywordObj.keyword + ', ' + keywordObj.order + '\n';
+    return memo;
+  }, '');
+};
+
+var showResults = function (queriesRun, duration, longestSearch, originalScores, newScores) {
   /* sort results */
   newScores = _.sortBy(newScores, 'score').reverse();
 
@@ -81,12 +102,16 @@ var showResults = function (duration, longestSearch, originalScores, newScores) 
                 'ms for keyword "' + longestSearch.keyword + '"');
   }
 
-  console.log('************** RESULTS **************');
-  console.log('ORIGINAL ORDER (PAGERANK ONLY), HIGHEST SCORE FIRST');
-  console.log(formatKeywords(originalScores));
+  console.log('\n************** RESULTS **************\n');
+  console.log('QUERIES USED:\n');
+  console.log(queriesRun.join('\n'));
   console.log();
-  console.log('ENHANCED ORDER (AFTER DBPEDIA LOOKUP), HIGHEST SCORE FIRST');
+  console.log('PAGERANK ONLY (HIGHEST SCORE FIRST)\n');
+  console.log(formatKeywords(originalScores));
+  console.log('PAGERANK + VAGUENESS (HIGHEST SCORE FIRST)\n');
   console.log(formatKeywords(newScores));
+  console.log('PAGERANK + VAGUENESS (ALPHABETICAL WITH ORDER)\n');
+  console.log(keywordOrder(newScores));
   console.log('*************************************');
   console.log();
 };
@@ -110,7 +135,7 @@ process.stdin.on('end', function() {
   _.each(parsed.keywords, function (keyword, index) {
     /* HACK re-capitalise keywords */
     var titleized = titleize(keyword);
-    var keywordNoStop = noStop(keyword);
+    var keywordNoStop = noStop(titleized);
 
     out.push({
       keyword: titleized,
@@ -127,7 +152,7 @@ process.stdin.on('end', function() {
   var promises = [];
 
   _.each(out, function (keywordObj) {
-    var promise = tester.getDBpediaStats(keywordObj);
+    var promise = tester.getDBpediaStats(keywordObj, queriesToRun);
 
     promise.then(
       function (result) {
@@ -135,7 +160,8 @@ process.stdin.on('end', function() {
 
         if (!keywordObj.retrieved) {
          console.error('ERROR: unable to get dbpedia results for "' +
-                       keywordObj.keyword + '"');
+                       keywordObj.keyword + '"; error was:\n' +
+                       keywordObj.errorText);
         }
 
         if (!longestSearch || result.time > longestSearch.time) {
@@ -180,7 +206,8 @@ process.stdin.on('end', function() {
       _.each(out, function (keywordObj) {
         _.each(sums, function (value, key) {
           if (_.isNumber(value)) {
-            if (!keywordObj.info[key]) {
+            /* don't reset a page rank of 0 */
+            if (key !== 'pagerank' && !keywordObj.info[key]) {
               keywordObj.info[key] = 1;
             } else {
               keywordObj.info[key] /= sums[key];
@@ -198,7 +225,7 @@ process.stdin.on('end', function() {
               vagueness += value;
               numValues++;
             } else if (_.isBoolean(value)) {
-              vagueness += (value === true ? 0 : 1);
+              vagueness += (value ? 0 : 1);
               numValues++;
             }
           }
@@ -208,21 +235,18 @@ process.stdin.on('end', function() {
           vagueness = vagueness / numValues;
         }
 
-        console.log('"' + keywordObj.keyword + '" - vagueness: ' +
-                    vagueness + '; time: ' + keywordObj.time);
-
         /* page rank and vagueness have equal weight */
         keywordObj.score = (keywordObj.info.pagerank + (1 - vagueness)) / 2;
       });
 
-      showResults(duration, longestSearch, originalKeywords, out);
+      showResults(queriesToRun, duration, longestSearch, originalKeywords, out);
     },
 
     function (err) {
       var end = (new Date()).getTime();
       var duration = end - start;
       console.log('ERROR OCCURRED, STILL SHOWING RESULTS');
-      showResults(duration, longestSearch, originalKeywords, out);
+      showResults(queriesToRun, duration, longestSearch, originalKeywords, out);
     }
   );
 });

@@ -198,138 +198,140 @@ var countBindings = function (response) {
 
 /* PUBLIC API FUNCTIONS */
 
-/* is there an article whose label contains the words in <query>? */
-var isAnyArticle = function (query) {
-  var sparql = askBifContainsLabelSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? results.body.boolean : false);
-  });
-};
+var QUERIES = {
+  /* is there an article whose label contains the words in <query>? */
+  isAnyArticle: function (query) {
+    var sparql = askBifContainsLabelSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? results.body.boolean : false);
+    });
+  },
 
-/* is there an article whose label exactly matches <query>? NB
-   this is case sensitive and language specific, and the whole label
-   must match <query> */
-var isExactArticle = function (query) {
-  var sparql = askExactLabelSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? results.body.boolean : false);
-  });
-};
+  /* is there an article whose label exactly matches <query>? NB
+     this is case sensitive and language specific, and the whole label
+     must match <query> */
+  isExactArticle: function (query) {
+    var sparql = askExactLabelSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? results.body.boolean : false);
+    });
+  },
 
-/* is there an article whose label regex matches <query>? the regex
-   used is /^query$/ */
-var isRegexArticle = function (query) {
-  var sparql = askRegexLabelSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? results.body.boolean : false);
-  });
-};
+  /* is there an article whose label regex matches <query>? the regex
+     used is /^query$/ */
+  isRegexArticle: function (query) {
+    var sparql = askRegexLabelSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? results.body.boolean : false);
+    });
+  },
 
-/* is there a useful thing (places, people, organisation etc.)
-   which has an article related to the label? */
-var isUsefulArticle = function (query) {
-  var sparql = askUsefulArticleSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? results.body.boolean : false);
-  });
-};
+  /* is there a useful thing (places, people, organisation etc.)
+     which has an article related to the label? */
+  isUsefulArticle: function (query) {
+    var sparql = askUsefulArticleSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? results.body.boolean : false);
+    });
+  },
 
-/* get types which are associated with things which
-   have labels containing the text "query" */
-var selectArticleTypes = function (query) {
-  var sparql = selectArticleTypesSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? countBindings(results) : 0);
-  });
-};
+  /* get types which are associated with things which
+     have labels containing the text "query" */
+  selectArticleTypes: function (query) {
+    var sparql = selectArticleTypesSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? countBindings(results) : 0);
+    });
+  },
 
-/* get things whose label contains the words in query and which
-   have a related Wikipedia article */
-var selectArticles = function (query) {
-  var sparql = selectArticlesSparql(query);
-  return doRequest(query, sparql).then(function (results) {
-    return Promise.resolve(results.body ? countBindings(results) : 0);
-  });
-};
+  /* get things whose label contains the words in query and which
+     have a related Wikipedia article */
+  selectArticles: function (query) {
+    var sparql = selectArticlesSparql(query);
+    return doRequest(query, sparql).then(function (results) {
+      return Promise.resolve(results.body ? countBindings(results) : 0);
+    });
+  },
 
-/* CRUDE FIRST ATTEMPT
-   get all the dbpedia info relating to query, by calling (nearly) all of
-   the API methods in tandem and combining their results;
-   note that if a request times out, any booleans are set to false
-   and any counts to 0, so this is a primitive approach at best;
-   queryObj contains <keyword> (full original phrase) and
-   <keywordNoStop> (phrase without stop words);
-   queriesToRun can contain one or more of the following query names:
-     isAnyArticle
-     isExactArticle
-     isUsefulArticle
-     selectArticleTypes
-     selectArticles
- */
-var getDBpediaStats = function (queryObj, queriesToRun) {
-  var start = (new Date()).getTime();
+  /* CRUDE FIRST ATTEMPT
+     get all the dbpedia info relating to query, by calling (nearly) all of
+     the API methods in tandem and combining their results;
+     note that if a request times out, any booleans are set to false
+     and any counts to 0, so this is a primitive approach at best;
+     queryObj contains <keyword> (full original phrase) and
+     <keywordNoStop> (phrase without stop words);
+     queriesToRun can contain one or more of the following query names:
+       isAnyArticle
+       isExactArticle
+       isUsefulArticle
+       selectArticleTypes
+       selectArticles
+   */
+  getDBpediaStats: function (queryObj, queriesToRun) {
+    var start = (new Date()).getTime();
 
-  var promises = [
-    isAnyArticle(queryObj.keywordNoStop),
-    isExactArticle(queryObj.keyword),
-    isUsefulArticle(queryObj.keywordNoStop),
-    selectArticleTypes(queryObj.keywordNoStop),
-    selectArticles(queryObj.keywordNoStop)
-  ];
+    var promises = [];
+    var queryName;
 
-  var promise = Promise.all(promises)
-  .then(
-    function (results) {
-      var end = (new Date()).getTime();
-      var ms = end - start;
+    for (var i = 0; i < queriesToRun.length; i++) {
+      queryName = queriesToRun[i];
 
-      return Promise.resolve({
-        time: ms,
-        keyword: queryObj.keyword,
-        keywordNoStop: queryObj.keywordNoStop,
-        retrieved: true,
-        info: {
-          pagerank: queryObj.pagerank,
-          isAnyArticle: results[0],
-          isExactArticle: results[1],
-          isUsefulArticle: results[2],
-          numArticleTypes: results[3],
-          numArticles: results[4]
-        }
-      });
-    },
-
-    function (err) {
-      var end = (new Date()).getTime();
-      var ms = end - start;
-
-      return Promise.resolve({
-        time: ms,
-        keyword: queryObj.keyword,
-        keywordNoStop: queryObj.keywordNoStop,
-        retrieved: false,
-        info: {
-          pagerank: queryObj.pagerank,
-          isAnyArticle: false,
-          isExactArticle: false,
-          isUsefulArticle: false,
-          numArticleTypes: 0,
-          numArticles: 0
-        }
-      });
+      /* we only use the version of the keyword with its stop words
+         for the exact label search */
+      if (queryName === 'isExactArticle') {
+        promises.push(QUERIES[queryName](queryObj.keyword));
+      } else {
+        promises.push(QUERIES[queryName](queryObj.keywordNoStop));
+      }
     }
-  )
-  .catch(Promise.reject);
 
-  return promise;
+    /* set some default "no info" values on the response */
+    var response = {
+      time: 0,
+      retrieved: false,
+      keyword: queryObj.keyword,
+      keywordNoStop: queryObj.keywordNoStop,
+      info: {
+        pagerank: queryObj.pagerank,
+        isAnyArticle: false,
+        isExactArticle: false,
+        isUsefulArticle: false,
+        numArticleTypes: 0,
+        numArticles: 0
+      }
+    };
+
+    return Promise.all(promises)
+    .then(
+      function (results) {
+        response.retrieved = true;
+
+        /* overwrite the info properties with real values derived
+           from the response */
+        for (var j = 0; j < queriesToRun.length; j++) {
+          response.info[queriesToRun[j]] = results[j];
+        }
+
+        return Promise.resolve(response);
+      },
+
+      function (err) {
+        response.errorText = 'could not get dbpedia data for query of type ' +
+                             queryName;
+
+        return Promise.resolve(response);
+      }
+    )
+    .then(function (response) {
+      response.time = (new Date()).getTime() - start;
+      return Promise.resolve(response);
+    })
+    .catch(function (err) {
+      console.error(err.message);
+      console.error(err.stack);
+      Promise.reject(err);
+    });
+  }
 };
 
-module.exports = {
-  isAnyArticle: isAnyArticle,
-  isExactArticle: isExactArticle,
-  isRegexArticle: isRegexArticle,
-  isUsefulArticle: isUsefulArticle,
-  selectArticleTypes: selectArticleTypes,
-  selectArticles: selectArticles,
-  getDBpediaStats: getDBpediaStats
-};
+module.exports = QUERIES;
