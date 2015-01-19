@@ -313,7 +313,7 @@ pushing new tiles into the wrapped layout
          * which are relevant to the current context and which have
          * been selected by the current slider position
          * @param {object} criteria.sources Sources which are currently
-         * enabled
+         * enabled, or null if sources should not be used for filtering
          * @param {string[]} criteria.types Array of types which tiles
          * must match, e.g. ['file', 'image']
          */
@@ -352,10 +352,12 @@ pushing new tiles into the wrapped layout
 
             /* sources (if any sources are enabled) */
             var sourcesForTileType = null;
-            if (tile.type === 'image') {
-              sourcesForTileType = criteria.sources['Images'].sources;
-            } else if (tile.type === 'article') {
-              sourcesForTileType = criteria.sources['Articles'].sources;
+            if (criteria.sources) {
+              if (tile.type === 'image') {
+                sourcesForTileType = criteria.sources['Images'].sources;
+              } else if (tile.type === 'article') {
+                sourcesForTileType = criteria.sources['Articles'].sources;
+              }
             }
 
             if (sourcesForTileType) {

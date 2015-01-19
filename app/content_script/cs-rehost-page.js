@@ -1,7 +1,7 @@
 (function () {
   /* 'Wikipedia' or 'Google'; sets the search service for images
      and articles */
-  var SEARCH_SERVICE = 'Wikipedia';
+  var SEARCH_SERVICE = 'Google';
 
   var open = true;
 
