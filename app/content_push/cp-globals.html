@@ -30,6 +30,10 @@
          get documentId () {
            return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
          },
+
+         get searchService () {
+          return this.data.searchservice;
+         }
       });
     })();
   </script>
