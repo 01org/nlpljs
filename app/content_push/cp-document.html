@@ -247,19 +247,20 @@
         self.nlpPort = null;
       };
 
-      var handleIframeLoad = function (self) {
+      /**
+       * Start tracking which part of the text is currently visible
+       */
+      var startScrollwatcher = function (self) {
         var lines =
           self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
 
         var editor =
           self.$.iframe.contentDocument.querySelector(SCROLLING_ELEMENT_SELECTOR);
 
-        self.$.highlighter.targetElement = self.$.iframe.contentDocument;
-
         self.$.scrollwatcher.setScrollableNode(editor);
-        self.$.scrollwatcher.addOnScrollListener(getContext, self);
+        self.$.scrollwatcher.setOnScrollListener(getContext, self);
 
-        for (var i = 0; i < lines.length; i++) {
+        for (var i = lines.length - 1; i >= 0 && !lines[i].hasAttribute("cp_line_id"); i--) {
           addIdToLine(lines[i], self.lineIdAccumulator);
           self.lineIdAccumulator++;
 
@@ -267,6 +268,12 @@
         }
 
         self.$.scrollwatcher.getVisibleNodes(getContext, self);
+      };
+
+      var handleIframeLoad = function (self) {
+        startScrollwatcher(self);
+
+        self.$.highlighter.targetElement = self.$.iframe.contentDocument;
 
         createMutationObserver(self);
         self.mutationObserver.observe(self.$.iframe.contentDocument,
