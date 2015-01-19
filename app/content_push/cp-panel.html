@@ -209,27 +209,29 @@
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
+
+  <!-- required by cp-keyword-selector -->
   <script src="cp-array-utils.js"></script>
+
+  <script src="cp-keyword-selector.js"></script>
 
   <script>
     (function () {
       // private *static* functions and constants
-
-      /* maximum number of keywords to consider each time NLP
-         finishes parsing the current context */
-      var MAX_KEYWORDS = 5;
-
       var setFilter = function (self) {
-        console.log('CP-PANEL: setFilter()');
-        if (!self.activeKeywords) {
-          console.log('CP-PANEL: cannot setFilter as no active keywords');
+        var sliderFraction = self.$.display.getNormalisedSliderValue();
+        self.keywordSelector.setWidth(sliderFraction);
+        var currentKeywords = self.keywordSelector.getCurrentKeywords();
+
+        if (!currentKeywords.length) {
+          console.log('CP-PANEL: cannot setFilter as no current keywords');
           return;
         }
 
         /* set filter on the display based on current keywordInfo,
            selected result types and enabled sources */
         self.$.display.setFilter({
-          activeKeywords: self.activeKeywords,
+          currentKeywords: currentKeywords,
           types: self.typeFilter,
           sources: self.$.storage.retrieveAllSources()
         });
@@ -242,45 +244,17 @@
         self.$.aggregator.aggregate(keywords, groupName, sourceName);
       };
 
-      /* tests whether the active keywords have changed
-       *
-       * oldKeywords and newKeywords have this format:
-       * [
-       *   {
-       *     text: "keyword text",
-       *     score: 1.66,
-       *     groupId: 10
-       *   },
-       *   ...
-       * ]
-       *
-       * returns an array of new keywords in the same format as the input
-       */
-      var checkKeywordInfoChanged = function (oldKeywords, newKeywords) {
-        /* no keywords set yet, so definitely a change */
-        if (!oldKeywords) {
-          return newKeywords;
-        }
-
-        return ArrayUtils.diff(oldKeywords, newKeywords, function (elt1, elt2) {
-          return elt1.text === elt2.text;
-        });
-      };
-
-      /* return the keywords from "keywords" which are also in
-       * "sliderKeywords"
-       */
+      /* return the keywords from tileKeywords which also occur
+         in the current keywords (according to the keywordSelector) */
       var getKeywordsToHighlight = function (self, tileKeywords) {
         var results = [];
 
-        /* only consider activeKeywords which are selected on the slider */
-        var sliderValue = self.$.display.getSliderValue();
-        var selectedKeywords = self.activeKeywords.slice(0, sliderValue);
+        var currentKeywords = self.keywordSelector.getCurrentKeywords();
 
         for (var i = 0; i < tileKeywords.length; i++) {
-          for (var j = 0; j < selectedKeywords.length; j++) {
-            if (tileKeywords[i].text === selectedKeywords[j].text) {
-              results.push(tileKeywords[i])
+          for (var j = 0; j < currentKeywords.length; j++) {
+            if (tileKeywords[i].text === currentKeywords[j].text) {
+              results.push(tileKeywords[i]);
               break;
             }
           }
@@ -292,16 +266,11 @@
       Polymer({
         // functions and properties used in API and bindings
         created: function () {
-          this.activeKeywords = null;
-
           /* an array of types of result to show in the display,
              or empty array to have no filter set */
           this.typeFilter = [];
-        },
 
-        ready: function () {
-          var selector = this.$.groups.$.selector;
-          var aggregator = this.$.aggregator;
+          this.keywordSelector = new KeywordSelector(ArrayUtils);
         },
 
         domReady: function () {
@@ -376,24 +345,20 @@
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
           console.log('CP-PANEL:onNewKeywordInfo', e.detail.keywordInfo);
-          /* only consider the first 5 keywords */
-          var candidateKeywords = e.detail.keywordInfo.keywords.slice(0, MAX_KEYWORDS);
 
-          var newKeywords =
-            checkKeywordInfoChanged(this.activeKeywords, candidateKeywords);
-
-          console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
-
-          this.activeKeywords = candidateKeywords;
+          var candidateKeywords = e.detail.keywordInfo.keywords;
+          var newKeywords = this.keywordSelector.setActiveKeywords(candidateKeywords);
 
           if (newKeywords.length > 0) {
+            console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
+
             /* we have new keywords, run a fresh search for them */
             this.$.display.reset();
             search(this, newKeywords);
           } else {
-            /* just reset active keywords and filter (the new set
+            /* just reset current keywords and filter (the new set
                of keywords is either the same as or a subset of the
-               existing active keywords) */
+               existing current keywords) */
             setFilter(this);
           }
         },
@@ -412,7 +377,7 @@
 
         /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
-          search(this, this.activeKeywords);
+          search(this, this.keywordSelector.getCurrentKeywords());
         },
 
         onDisplayMouseover: function (e) {
@@ -461,7 +426,8 @@
           var sourceName = e.detail.sourceName;
 
           if (!this.$.display.hasResultForSourceName(sourceName)) {
-            search(this, this.activeKeywords, groupName, sourceName);
+            var currentKeywords = this.keywordSelector.getCurrentKeywords();
+            search(this, currentKeywords, groupName, sourceName);
           }
         },
 

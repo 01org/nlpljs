@@ -255,7 +255,7 @@ pushing new tiles into the wrapped layout
            on-mouseover="{{onSliderMouseOver}}"
            on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="100" value="50"
+        <paper-slider id="slider" min="1" max="5" value="1"
                       pin snaps step="1"
                       on-change="{{sliderChanged}}">
         </paper-slider>
@@ -309,31 +309,25 @@ pushing new tiles into the wrapped layout
          * Set criteria for filtering the content of the display.
          *
          * @param {object} criteria Criteria for the filter
-         * @param {object} criteria.activeKeywords An array of active keywords
+         * @param {object} criteria.currentKeywords An array of keywords
+         * which are relevant to the current context and which have
+         * been selected by the current slider position
          * @param {object} criteria.sources Sources which are currently
          * enabled
          * @param {string[]} criteria.types Array of types which tiles
          * must match, e.g. ['file', 'image']
-         *
-         * Right now, the first keyword in the keywordInfo.keywords
-         * array is used as the filter. Any tile whose keyword.text
-         * property matches this active keyword and has a type
-         * matching one of the members of "types" will be displayed.
          */
         setFilter: function (criteria) {
           var self = this;
 
-          if (!criteria.activeKeywords) {
+          if (!criteria.currentKeywords) {
             return;
           }
 
-          this.setSliderRange(criteria.activeKeywords);
+          /* only show the selected number of the current keywords */
+          var currentKeywords = criteria.currentKeywords;
 
-          /* only show the selected number of the active keywords */
-          var numKeywords = this.$.slider.immediateValue;
-          var keywordsToUse = criteria.activeKeywords.slice(0, numKeywords);
-
-          var keywords = keywordsToUse.map(function (keyword) {
+          var keywords = currentKeywords.map(function (keyword) {
             return keyword.text;
           });
 
@@ -348,7 +342,7 @@ pushing new tiles into the wrapped layout
               var index = keywords.indexOf(tile.keywords[i].text);
               if (index !== -1) {
                 keywordMatches = true;
-                tile.keywords[i] = criteria.activeKeywords[index];
+                tile.keywords[i] = currentKeywords[index];
               }
             }
 
@@ -383,8 +377,8 @@ pushing new tiles into the wrapped layout
 
             /* type */
             var typeMatches;
-            /* no types criteria, so always matches */
             if (criteria.types.length === 0) {
+              /* no types criteria, so always matches */
               return true;
             } else {
               return _.contains(criteria.types, tile.type);
@@ -678,33 +672,10 @@ pushing new tiles into the wrapped layout
           this.fire('slider-change');
         },
 
-        /* set the slider range to the number of keywords available
-           in the current context; the position of the slider is
-           set based on the position of the slider with the previous
-           number of keywords: e.g. if there were 4 active keywords
-           before this method call, and 2 were selected by the slider,
-           set the slider value to select 50% of the new set of
-           keywords */
-        setSliderRange: function (newKeywords) {
-          /* don't do anything if the number of newKeywords matches
-             the max value of the slider */
-          if (newKeywords.length === this.$.slider.max) {
-            return;
-          }
-
-          var currentValueFraction = Math.max(this.$.slider.immediateValue, 1) /
-                                     Math.max(this.$.slider.max, 1);
-
-          var newValue = Math.floor(
-            newKeywords.length * currentValueFraction
-          );
-
-          this.$.slider.value = Math.max(newValue, 1);
-          this.$.slider.max = Math.max(newKeywords.length, 1);
-        },
-
-        getSliderValue: function () {
-          return this.$.slider.immediateValue;
+        /* normalise the slider value to a value between 0 and 1
+           so it can set the width of the KeywordSelector */
+        getNormalisedSliderValue: function () {
+          return (this.$.slider.immediateValue - 1) / (this.$.slider.max - 1);
         },
 
         /* returns true if the layout has a visible result for
