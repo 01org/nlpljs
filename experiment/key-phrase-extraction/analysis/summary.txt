@@ -1,0 +1,219 @@
+DBPEDIA LOOKUP TO IMPROVE KEYPHRASE SELECTION IN CP: SUMMARY SO FAR
+Elliot Smith 2015-01-19
+
+# Overview
+
+We're interested in finding out if we can improve key phrase
+extraction for Content Push. Currently, we just use pagerank to
+determine the importance of each key phrase. The aim of these experiments
+is to determine whether using DBpedia lookups can help to improve
+the importance assigned to a key phrase, resulting in higher
+quality key phrase extraction.
+
+For these experiments, we used the ada-lovelace.txt text as input and
+manual key phrase rankings (by Elliot). The results are in the
+score-comparison.ods spreadsheet, on the "Ada comparison" and
+"Ada top 10" sheets.
+
+The difference between the manual ranking method and an automated
+ranking is defined as the sum of the distances for the key phrases
+as assigned by the two methods. So the distance for a key phrase with
+respect to two ranking methods A and B is the difference between the
+rank given method A and the rank given by method B, e.g.
+
+key phrase: "Augustus de Morgan"
+rank assigned by "Human" method (A): 41
+rank assigned by "Page rank" method (B): 34
+rank assigned by "Page rank + DBpedia exact label match" method (C): 40
+distance between A and B = 7
+distance between A and C = 1
+
+The distances we're interested in are those between the "Human"
+(manual ordering) method and the automated methods. A smaller distance
+is better, as it means an automated ordering is close to the human
+ordering.
+
+NB the human ordering is highly subjective, but my emphasis
+for this text is on finding interesting related people, concepts, and
+places which a writer may want to find out more about. This seems fair
+for a factual text. I'm not sure how you would rank the keyphrases
+for texts which are more abstract, creative and/or fictional.
+
+# Comparison of ranking methods
+
+Here are some examples to give a flavour of the orderings produced by
+the 3 methods above, in order of importance (most important first) for
+the 10 most important keyphrases in the ada-lovelace.txt text
+(as ranked by Elliot):
+
+HUMAN
+augustus de morgan
+charles babbage
+symbolic logic
+mary somerville
+honourable lady milbanke
+de morgan
+early 19th century
+scottish astronomer
+original mathematical investigator
+new inventions
+mental instabilities
+mental problems
+
+PAGERANK - AUTOMATED
+mental problems
+study of mathematics
+study mathematics
+de morgan
+mental discipline
+mental instabilities
+new periodical journals
+augustus de morgan
+diffusion of useful knowledge
+doting mother
+
+PAGERANK + DBPEDIA EXACT LABEL (P+DEL) - AUTOMATED
+de morgan
+augustus de morgan
+common language
+charles babbage
+mary somerville
+household name
+symbolic logic
+early 19th century
+young girl
+mental problems
+
+The methods which use DBpedia lookups, like "DBpedia exact label" (shown
+here), use the following formula to calculate the score for a keyphrase:
+
+score = (normalised pagerank + (1 - vagueness)) / 2
+
+("normalised pagerank" just means sum all of the pageranks of the
+keyphrases under consideration, then divide each pagerank by the total
+to get an average)
+
+The "vagueness" of a keyphrase can be calculated in a variety of ways.
+The DBpedia exact label method assigns it as follows:
+
+vaguess of a keyphrase = 0 if there is an article which has a title
+exactly matching the keyphrase (case sensitive), 1 otherwise
+
+Note that the P+DEL method does better than the pagerank only method:
+using the distance scoring method, P+DEL is twice as good as pagerank
+on its own for the top 10 keywords. (For the whole list of keywords,
+it is 40% better.)
+
+*   Top 10 keyphrase results:
+      pagerank distance (from human rank) = 204
+      P+DEL distance (from human rank) = 97
+
+*   All keyphrase results:
+      pagerank distance (from human rank) = 546
+      P+DEL distance (from human rank) = 388
+
+For the top 10 keyphrases, we can also calculate precision and recall
+values (common statistics for measuring the effectiveness of
+information retrieval systems). For the pagerank and P+DEL methods these
+are:
+
+*   Precision = number of relevant selected keyphrases / number of selected keyphrases
+      pagerank precision = 2/10 = 0.2
+      P+DEL precision = 6/10 = 0.6
+
+Or, in other words, pagerank selects 2 of the same keyphrases as
+the human, while P+DEL selects 6 the same.
+
+For recall, the values are the same, as the number of selected keyphrases
+is the same as the number of relevant keyphrases, i.e. 10.
+
+P+DEL tends to make fewer big ranking mistakes than pagerank alone:
+the maximum difference between a rank for a keyphrase assigned by
+P+DEL (as compared to the human rank) was 33; the maximum for pagerank
+was 37.
+
+The median rank assigned by P+DEL is also better: a distance of 5 from
+the human rank, as compared to a distance of 11 for pagerank. Again,
+this comparison is even more favourable for the top 10 keyphrases.
+
+Note that I tried other combinations of DBpedia lookups to improve the
+results, which are given in score-comparison.ods. However, in most
+cases the simple "does an article with this keyphrase as a title exist
+on Wikipedia?" method works as well as or better than any of the more
+complicated measures.
+
+NB I did try DBpedia exact label on its own, without pagerank, but
+its performance is worse than P+DEL for this document.
+
+# Conclusions
+
+The main conclusion is:
+
+Using DBpedia exact label + pagerank is better than using just pagerank
+for ranking keyphrases.
+
+However, these results come with caveats:
+
+a)  They are based on a single document ranked by only one person. We
+ought to do more experiments with rankings produced by multiple people
+and across multiple documents.
+
+b)  All of the possible types and combinations of DBpedia lookup have
+not been tried. Other queries might yield better results.
+
+c)  The scripts used for these experiments have not been optimised. We
+may need to do some work to figure out how to run the queries more
+efficiently and/or even run our own DBpedia if we are putting
+too much load on the public API.
+
+d)  It may be that we can get results as good as these (or better)
+using other approaches (e.g. NER). Though it might be that NER + pagerank +
+DBpedia exact label produces even better results.
+
+    One point to make about NER is that it may fail to find particular
+noun phrases which are actually useful and interesting. The chief
+example here is "symbolic logic", which occurs in the text in
+lowercase and would be unlikely to be treated as a named entity
+by NER. However, it does have a dedicated page on Wikipedia, and
+is particularly interesting in the context of this passage. We need
+to ensure that NER does not remove useful keyphrases like this.
+
+e)  There are many ways we could weight or calculate a keyphrases
+value depending on information in DBpedia. This approach uses only
+one of these. Experiments with weighting the parts of the equation
+differently might give better results if we try them.
+
+f)  This method doesn't improve which keyphrases are extracted by
+the NLP engine: it just filters the keyphrases after extraction to
+help rank them better, so the best ones are tried first.
+
+# Next steps
+
+1.  Implement a more efficient way of doing the DBpedia lookup, so
+we can check a whole load of titles in one request. We need to do some
+more work to figure out the most efficient way of doing this so we don't
+hammer DBpedia's API.
+
+    At the moment, we do a quick ASK query for each keyphrase, which returns
+true/false, depending on whether there is an article with matching title.
+This may not be scalable or reliable. Instead, we might want to do a
+combined label lookup (SELECT) query for all keyphrases, then manually
+figure out which keyphrases have a matching article. But this may be
+too slow to be practical.
+
+2.  Compare/combine this method with NER.
+
+3.  Try this approach on more documents and with more manual
+rankings produced by different people, to get better statistics about
+its effectiveness.
+
+4.  If we do decide to put this into Content Push, modify the UI so
+that it's clear that some processing is going on while the DBpedia
+lookups occur. At the moment, keyphrases are ready as soon as NLP finishes;
+with DBpedia lookup, we have another step in processing keyphrases.
+This is going to make the workflow for handling events and giving
+feedback about them in the UI even more complicated than it already is.
+
+    I suggest we extend the top progress bar so it turns itself off
+once the keyphrases have been looked up and are ready to be searched for,
+rather than when the keyphrases first arrive from the NLP engine.
