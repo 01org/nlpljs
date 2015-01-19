@@ -10,15 +10,26 @@
   var KeywordSelector = function (ArrayUtils) {
     this.ArrayUtils = ArrayUtils;
 
-    /* array of all keywords extracted from the document so far;
-       each keyword has this format:
+    /* hash of all keywords extracted from the document so far
+       with this format:
        {
-         text: "keyword text",
-         score: 1.66,
-         groupId: 10
+         "keyword text": [
+           {
+             text: "keyword text",
+             score: 1.66,
+             groupId: 10
+           },
+           {
+             text: "keyword text",
+             score: 1.2,
+             groupId: 11
+           }
+         ],
+         ...
        }
+
     */
-    this.keywords = [];
+    this.keywords = {};
 
     /* array of keywords associated with the currently-visible part
        of the document; NB the current keywords are the subset of
@@ -34,9 +45,28 @@
 
   /* get the active keywords narrowed to the current "width" */
   KeywordSelector.prototype.getCurrentKeywords = function () {
-    var numActiveKeywords = this.activeKeywords.length;
-    var numToReturn = 1 + parseInt((numActiveKeywords - 1) * this.width, 10);
-    return this.activeKeywords.slice(0, numToReturn);
+    return this.sliceKeywords(this.activeKeywords);
+  };
+
+  /* add keywords to the hash */
+  KeywordSelector.prototype.storeKeywords = function (keywords) {
+    var keytext;
+    for (var i = 0; i < keywords.length; i++) {
+      keytext = keywords[i].text;
+      if (!this.keywords[keytext]) {
+        this.keywords[keytext] = [];
+      }
+
+      this.keywords[keytext].push(keywords[i]);
+    }
+  };
+
+  /* get a slice from an array of keywords depending on the current
+     width */
+  KeywordSelector.prototype.sliceKeywords = function (keywords) {
+    var numKeywords = keywords.length;
+    var numToReturn = 1 + parseInt((numKeywords - 1) * this.width, 10);
+    return keywords.slice(0, numToReturn);
   };
 
   /* sets the active keywords; NB any keywords set
@@ -47,7 +77,7 @@
   KeywordSelector.prototype.setActiveKeywords = function (keywords) {
     var keywordsToUse = keywords.slice(0, MAX_KEYWORDS);
     var newKeywords = this.checkKeywordInfoChanged(keywordsToUse);
-    this.keywords = this.keywords.concat(keywords);
+    this.storeKeywords(keywords);
     this.activeKeywords = keywordsToUse;
     return newKeywords;
   };
@@ -56,10 +86,12 @@
     this.width = width;
   };
 
-  /* TODO fire an event when the current keywords changed rather
+  /* TODO fire an event when the active keywords changed rather
    * than having to manually test whether they have
    *
-   * tests whether the current keywords have changed
+   * tests whether the current keywords have changed;
+   * NB newKeywords is sliced the same as current keywords,
+   * and only the selected top N keywords are tested (based on width)
    *
    * returns an array of new keywords in the same format as
    * this.activeKeywords
