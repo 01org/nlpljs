@@ -181,6 +181,72 @@
         self.mutationObserver = observer;
       };
 
+      /**
+       * Opens a communication channel to the ep-nlp event page and then sends
+       * a message to it to indicate that the nlp worker needs to be created and
+       * initialized. All communication with the worker is carried out via this
+       * channel.
+       */
+      var createNlpWorker = function (self) {
+        if (self.nlpPort !== null) {
+          console.log("CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!");
+
+          return;
+        }
+
+        console.log('CP-DOCUMENT: connecting to ep-nlp');
+        var nlpPort = chrome.runtime.connect(self.$.globals.data.app_id,
+          { name: 'nlp' });
+
+        console.log('CP-DOCUMENT: connected to ep-nlp:', nlpPort);
+        nlpPort.onMessage.addListener(function (detail) {
+          console.log('CP-DOCUMENT: message from ep-nlp:', detail);
+          if (detail.component === 'nlp') {
+            if (detail.message.type === 'keywordlist') {
+              setKeywordInfo(self, detail.message.data);
+              self.fire('nlpstop');
+            }
+          }
+        });
+
+        var message = {
+          component: 'nlp',
+          message: {
+            type: 'create'
+          }
+        };
+
+        console.log('CP-DOCUMENT: message to ep-nlp:', message);
+        nlpPort.postMessage(message);
+
+        self.nlpPort = nlpPort;
+      };
+
+      /**
+       * Closes the communication channel to ep-nlp and terminates the currently
+       * running nlp worker.
+       */
+      var closeNlpWorker = function (self) {
+        if (nlpPort === null) {
+          console.log("CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn't exist!");
+
+          return;
+        }
+
+        var message = {
+          component: 'nlp',
+          message: {
+            type: 'close'
+          }
+        };
+
+        console.log('CP-DOCUMENT: message to ep-nlp:', message);
+        self.nlpPort.postMessage(message);
+
+        self.nlpPort.disconnect();
+        self.nlpPort = null;
+      };
+
       var handleIframeLoad = function (self) {
         var lines =
           self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
@@ -307,34 +373,7 @@
             handleIframeLoad(self);
           };
 
-          if (this.nlpPort === null) {
-            console.log('CP-DOCUMENT: connecting to ep-nlp');
-            this.nlpPort = chrome.runtime.connect(
-              this.$.globals.data.app_id,
-              { name: 'nlp' }
-            );
-
-            console.log('CP-DOCUMENT: connected to ep-nlp:', this.nlpPort);
-            this.nlpPort.onMessage.addListener(function (detail) {
-              console.log('CP-DOCUMENT: message from ep-nlp:', detail);
-              if (detail.component === 'nlp') {
-                if (detail.message.type === 'keywordlist') {
-                  setKeywordInfo(self, detail.message.data);
-                  self.fire('nlpstop');
-                }
-              }
-            });
-
-            var message = {
-              component: 'nlp',
-              message: {
-                type: 'initialize'
-              }
-            };
-
-            console.log('CP-DOCUMENT: message to ep-nlp:', message);
-            this.nlpPort.postMessage(message);
-          }
+          createNlpWorker(self);
         },
 
         // API functions

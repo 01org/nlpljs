@@ -94,13 +94,13 @@ function escapeRegExp(str) {
 this.onmessage = function (event) {
   var message = JSON.parse(event.data);
 
-  if (loaded === false && message.type !== 'initialize') {
+  if (loaded === false && message.type !== 'create') {
     queuedMessages[queuedMessages.length] = event;
     return;
   }
 
   switch (message.type) {
-    case 'initialize':
+    case 'create':
       require(['libnlp'], function (result) {
         libnlp = result;
 	      if (libnlp) {
@@ -206,6 +206,9 @@ this.onmessage = function (event) {
         keywords: currentContext.keywords,
         ranges: currentContext.ranges
       }));
+      break;
+    case 'close':
+      close();
       break;
     default:
       console.warn('nlp_worker: ' + message.type + ' is not recognized');
