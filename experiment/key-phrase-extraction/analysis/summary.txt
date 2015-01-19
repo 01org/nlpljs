@@ -9,7 +9,7 @@ determine the importance of each key phrase. The aim of these experiments
 is to determine whether using DBpedia lookups can help to improve
 the importance assigned to a key phrase, resulting in higher
 quality key phrase extraction.
-
+k
 For these experiments, we used the ada-lovelace.txt text as input and
 manual key phrase rankings (by Elliot). The results are in the
 score-comparison.ods spreadsheet, on the "Ada comparison" and
@@ -101,7 +101,7 @@ exactly matching the keyphrase (case sensitive), 1 otherwise
 
 Note that the P+DEL method does better than the pagerank only method:
 using the distance scoring method, P+DEL is twice as good as pagerank
-on its own for the top 10 keywords. (For the whole list of keywords,
+on its own for the top 10 keyphrases. (For the whole list of keyphrases,
 it is 40% better.)
 
 *   Top 10 keyphrase results:
@@ -178,7 +178,7 @@ by NER. However, it does have a dedicated page on Wikipedia, and
 is particularly interesting in the context of this passage. We need
 to ensure that NER does not remove useful keyphrases like this.
 
-e)  There are many ways we could weight or calculate a keyphrases
+e)  There are many ways we could weight or calculate a keyphrase's
 value depending on information in DBpedia. This approach uses only
 one of these. Experiments with weighting the parts of the equation
 differently might give better results if we try them.
