@@ -27,7 +27,9 @@
     "paper-input": "Polymer/paper-input#~0.5.1",
     "clearsans-1.00": "https://01.org/sites/default/files/downloads/clear-sans/clearsans-1.00.zip",
     "web-animations-js": "web-animations/web-animations-js-legacy#master",
-    "SparkMD5": "https://github.com/satazor/SparkMD5.git#~0.0.5"
+    "SparkMD5": "https://github.com/satazor/SparkMD5.git#~0.0.5",
+    "paper-dropdown-menu": "Polymer/paper-dropdown-menu#~0.5.2",
+    "paper-dropdown": "Polymer/paper-dropdown#~0.5.2"
   },
   "devDependencies": {},
   "resolutions": {
@@ -50,6 +52,18 @@
     "core-a11y-keys": "~0.5.0",
     "core-style": "~0.5.0",
     "paper-input": "~0.5.1",
-    "core-selection": "~0.5.0"
+    "core-selection": "^0.5.0",
+    "paper-item": "^0.4.0",
+    "paper-icon-button": "^0.5.0",
+    "core-icon-button": "^0.5.0",
+    "core-animation": "^0.5.0",
+    "web-animations-js": "1.0.1",
+    "core-dropdown": "^0.5.0",
+    "core-overlay": "^0.5.0",
+    "core-menu": "^0.4.0",
+    "core-collapse": "^0.5.0",
+    "core-item": "^0.4.0",
+    "core-transition": "^0.5.0",
+    "core-selector": "^0.5.0"
   }
 }
