@@ -1,0 +1,87 @@
+METHOD USED TO ANALYSE DBPEDIA LOOKUP EFFECTIVENESS
+Elliot Smith 2015-01-16
+
+1.  Choose a piece of text, e.g. ada-lovelace-extract.txt.
+
+2.  Run the keyphrase extractor on it, without showing the pagerank scores:
+
+       cat ada-lovelace-extract.txt | ./extract.sh hide
+
+    This will give you a list of key phrases.
+
+3.  Read the text and manually order the key phrases from step 2, with
+the least useful getting a score of 0 and the most useful a score of N - 1,
+where N is the number of key phrases. Other keyphrases are scored
+in between those values, according to your proclivities.
+
+4.  Organise the keyphrases alphabetically (keeping their scores with them).
+    A spreadsheet is a good way to manage this.
+
+5.  Run the keyphrase extractor again, this time showing the pagerank scores:
+
+        cat ada-lovelace-extract.txt | ./extract.sh
+
+    The results are sorted alphabetically and look like this:
+
+        arduous journey, 1, 31
+        augustus de morgan, 1.1447886724156284, 7
+        charles babbage, 1, 38
+        close study, 0.8650133405812015, 40
+        common language, 1.114864864864865, 12
+        ...
+
+    i.e. <keyphrase>, <page rank>, <order>
+
+    Import these into the spreadsheet.
+
+6.  The distance between the orderings for a keyphrase K is calculated as:
+
+    magnitude(manual_order(K) - pagerank_order(K))
+
+    To get the distance for the whole ordering, the distances for
+    all keyphrases are added together. See score-comparison.ods for
+    an example.
+
+7.  To test how dbpedia lookup affects this, use the keyphrase-ranker.js
+    script. This requires some manual configuration to try out different
+    combinations of lookups (by default it does all of them).
+
+    To configure the lookups used, edit the queriesToRun variable
+    near the top of the file. The queries available are:
+
+    'isExactArticle': does the keyphrase exactly match the English label
+    of an article?
+
+    'isAnyArticle': does any article's label contain the words in the
+    keyphrase?
+
+    'isUsefulArticle': do the words in the keyphrase occur in the label
+    of an article about a person, event, organisation or location?
+
+    'selectArticleTypes': how many types of thing are described in
+    articles whose label contains the words in the keyphrase? (SLOW)
+
+    'selectArticles': how many articles have the words in the keyphrase
+    in their label? (SLOW)
+
+8.  Run the keyphrase-ranker.js script:
+
+        cat ada-lovelace-extract.txt | ./keyphrase-ranker.js
+
+    At the bottom of the output are the keyphrases and their
+    orderings, as for the extract.sh script, e.g.
+
+        Arduous Journey, 15
+        Augustus De Morgan, 40
+        Charles Babbage, 38
+        Close Study, 1
+        Common Language, 39
+        Common Practice, 25
+        ...
+
+    These can be cut and pasted into the spreadsheet, and the
+    distance calculation done as before:
+
+    sum(i, N): magnitude(manual_order(Ki) - ranker_order(Ki))
+
+    where N is the number of keyphrases.
