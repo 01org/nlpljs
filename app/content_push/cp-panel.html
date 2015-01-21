@@ -57,7 +57,7 @@
         -webkit-user-select: none;
         line-height: 24px;
         position: absolute;
-        top: 12px;
+        top: 10px;
         right: 12px;
       }
 
@@ -104,6 +104,10 @@
         color: #fff !important;
       }
 
+      #menu::shadow #label {
+        margin-top: -2px;
+      }
+
       #menu paper-item {
         font-size: 14px;
       }
@@ -120,12 +124,12 @@
       /* this is a bit hacky because we have to set the fill and
          stroke properties of the SVG for the CP icon, rather than
          just set its colour */
-      [data-selected-filter="true"]::shadow .triangle {
-        stroke: #C42B7F !important;
+      #toolbaricon .triangle {
+        stroke: #fff !important;
       }
 
-      [data-selected-filter="true"]::shadow .filled-triangle {
-        fill: #C42B7F !important;
+      #toolbaricon .fill {
+        fill: #fff !important;
       }
     </style>
 
