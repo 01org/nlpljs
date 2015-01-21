@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="./cp-globals.html">
 <link rel="import" href="./cp-icons-svg.html">
 <link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-aggregator.html">
@@ -134,6 +135,8 @@
       }
     </style>
 
+    <cp-globals id="globals"></cp-globals>
+
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage"
@@ -160,9 +163,11 @@
               </paper-item>
             </template>
 
-            <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
-                        id="itemEditSources">
-            </paper-item>
+            <template if="{{searchService === 'Google'}}">
+              <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
+                          id="itemEditSources">
+              </paper-item>
+            </template>
           </paper-menu-button>
 
           <span id="toolbartext" flex>Content Push</span>
@@ -228,12 +233,17 @@
           return;
         }
 
+        var sources = null;
+        if (self.searchService === 'Google') {
+          self.$.storage.retrieveAllSources()
+        }
+
         /* set filter on the display based on current keywordInfo,
            selected result types and enabled sources */
         self.$.display.setFilter({
           currentKeywords: currentKeywords,
           types: self.typeFilter,
-          sources: self.$.storage.retrieveAllSources()
+          sources: sources
         });
       };
 
@@ -274,6 +284,7 @@
         },
 
         domReady: function () {
+          this.searchService = this.$.globals.searchService;
           this.onNewSources();
         },
 
