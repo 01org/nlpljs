@@ -1,7 +1,9 @@
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="./cp-icons-svg.html">
@@ -29,33 +31,41 @@
         display: flex;
         flex-direction: column;
         height: 64px;
+        width: 100%;
         background-color: #B8578C;
         margin: 0;
         padding: 0;
-        z-index: 500;
       }
 
       #toolbar::shadow #bottomBar {
-        padding: 0;
+        width: 100%;
       }
 
-      #toolbartext {
-        color: #FFFFFF;
-        -webkit-user-select: none;
-        font-size: 20px;
-        line-height: 25px;
+      #toolbarmain {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+      }
+
+      #toolbaricon {
+        margin-left: 12px;
+        margin-right: 16px;
       }
 
       #toolbaraction {
-        color: #FFFFFF;
+        color: #fff;
         -webkit-user-select: none;
-        margin-right: -8px;
         line-height: 24px;
+        position: absolute;
+        top: 10px;
+        right: 12px;
       }
 
       #progress {
         width: 100%;
-        margin: 60px 0 0 0;
+        margin: 60px 0 0 -8px;
         opacity: 0;
         transition: opacity 0.25 ease-out;
       }
@@ -66,6 +76,14 @@
 
       #progress.fadeout {
         opacity: 0;
+      }
+
+      #progress::shadow #activeProgress {
+        background-color: rgba(255, 243, 115, 1);
+      }
+
+      #progress::shadow #progressContainer {
+        background-color: rgba(255, 243, 115, 0.5);
       }
 
       #display {
@@ -89,28 +107,19 @@
         padding: 0;
         margin-left: 8px;
         margin-right: 16px;
-        line-height: 24px;
+        border-bottom: none;
       }
 
-      #menu::shadow core-icon, core-icon {
-        color: white;
+      #menu::shadow #label, #menu::shadow #arrow {
+        color: #fff !important;
       }
 
-      #menu::shadow core-dropdown, core-dropdown {
-        left: 32px;
+      #menu::shadow #label {
+        margin-top: -2px;
       }
 
       #menu paper-item {
         font-size: 14px;
-      }
-
-      #menu paper-item::shadow #icon {
-        margin-right: 32px;
-        margin-left: 4px;
-      }
-
-      #menu paper-item::shadow core-icon, #menu paper-item::shadow #label {
-        color: rgba(0, 0, 0, 0.87);
       }
 
       [data-show="false"] {
@@ -125,12 +134,12 @@
       /* this is a bit hacky because we have to set the fill and
          stroke properties of the SVG for the CP icon, rather than
          just set its colour */
-      [data-selected-filter="true"]::shadow .triangle {
-        stroke: #C42B7F !important;
+      #toolbaricon .triangle {
+        stroke: #fff !important;
       }
 
-      [data-selected-filter="true"]::shadow .filled-triangle {
-        fill: #C42B7F !important;
+      #toolbaricon .fill {
+        fill: #fff !important;
       }
     </style>
 
@@ -145,31 +154,36 @@
     <cp-swapper id="swapper">
       <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
-        <core-toolbar id="toolbar">
-          <!-- items in this menu set the "types" part of the display filter -->
-          <paper-menu-button id="menu" icon="menu" on-click="{{onMenuClick}}">
-            <paper-item icon="cp-icons-svg:cp-icon"
-                        label="Content Push"
-                        data-type-filter="no-filter"
-                        data-selected-filter="true">
-            </paper-item>
+        <core-toolbar id="toolbar" class="toolbar-shadow">
+          <div id="toolbarmain">
+            <core-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></core-icon>
 
-            <template repeat="{{groupName in groupNames}}">
-              <paper-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
-                          data-type-filter="{{groupName|lowercaseSingular}}">
-              </paper-item>
-            </template>
+            <!-- items in this menu set the "types" part of the display filter -->
+            <paper-dropdown-menu label="All" id="menu">
+              <paper-dropdown class="dropdown">
+                <core-menu class="menu" on-click="{{onMenuClick}}">
+                  <paper-item label="All"
+                              data-type-filter="no-filter"
+                              data-selected-filter="true">
+                  </paper-item>
 
-            <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
-                        id="itemEditSources">
-            </paper-item>
-          </paper-menu-button>
+                  <template repeat="{{groupName in groupNames}}">
+                    <paper-item label="{{groupName}}"
+                                data-type-filter="{{groupName|lowercaseSingular}}">
+                    </paper-item>
+                  </template>
 
-          <span id="toolbartext" flex>Content Push</span>
+                  <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
+                              id="itemEditSources">
+                  </paper-item>
+                </core-menu>
+              </paper-dropdown>
+            </paper-dropdown-menu>
 
-          <paper-icon-button id="toolbaraction" icon="close"
-                             on-tap="{{closePanel}}">
-          </paper-icon-button>
+            <paper-icon-button id="toolbaraction" icon="close"
+                               on-tap="{{closePanel}}">
+            </paper-icon-button>
+          </div>
 
           <paper-progress id="progress" indeterminate class="bottom"></paper-progress>
         </core-toolbar>
@@ -320,10 +334,8 @@
             /* switch title bar text based on menu item selection */
             if (typeFilter === 'no-filter') {
               this.typeFilter = [];
-              this.$.toolbartext.innerHTML = 'Content Push';
             } else {
               this.typeFilter = typeFilter.split(',');
-              this.$.toolbartext.innerHTML = elt.label;
             }
 
             /* remove any highlight */
