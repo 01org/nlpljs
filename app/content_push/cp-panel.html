@@ -1,7 +1,6 @@
 <link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-menu/core-menu.html">
-<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -37,7 +36,6 @@
         background-color: #B8578C;
         margin: 0;
         padding: 0;
-        z-index: 500;
       }
 
       #toolbar::shadow #bottomBar {
@@ -151,7 +149,7 @@
     <cp-swapper id="swapper">
       <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
-        <core-toolbar id="toolbar">
+        <core-toolbar id="toolbar" class="toolbar-shadow">
           <div id="toolbarmain">
             <core-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></core-icon>
 
