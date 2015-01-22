@@ -23,16 +23,16 @@
 
       <div id="detailbody">
         <div id="imgContainer" image-available="{{imageAvailable}}" data-show="{{imageAvailable}}">
-          <div id="aspect-ratio-frame">
+          <div id="aspectRatioFrame">
             <div id="spinner" data-show="{{!loaded}}">
               <template if="{{!loaded}}">
                 <paper-spinner active></paper-spinner>
               </template>
             </div>
 
-            <div id="aspect-ratio-spacer"></div>
+            <div id="aspectRatioSpacer"></div>
 
-            <div id="img-placer" data-show="{{loaded}}">
+            <div id="imgPlacer" data-show="{{loaded}}">
               <img id="image" src="{{src}}" on-error="{{onImageError}}"
                    on-load="{{onImageLoad}}" data-show="{{!!imageHasLoaded}}">
             </div>
