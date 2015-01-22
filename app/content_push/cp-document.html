@@ -227,7 +227,7 @@
        * running nlp worker.
        */
       var closeNlpWorker = function (self) {
-        if (nlpPort === null) {
+        if (self.nlpPort === null) {
           console.log("CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn't exist!");
 
           return;
@@ -260,11 +260,13 @@
         self.$.scrollwatcher.setScrollableNode(editor);
         self.$.scrollwatcher.setOnScrollListener(getContext, self);
 
-        for (var i = lines.length - 1; i >= 0 && !lines[i].hasAttribute("cp_line_id"); i--) {
-          addIdToLine(lines[i], self.lineIdAccumulator);
-          self.lineIdAccumulator++;
+        for (var i = 0; i < lines.length; i++) {
+          if (!lines[i].hasAttribute("cp_line_id")) {
+            addIdToLine(lines[i], self.lineIdAccumulator);
+            self.lineIdAccumulator++;
 
-          self.$.scrollwatcher.addTargetNode(lines[i]);
+            self.$.scrollwatcher.addTargetNode(lines[i]);
+          }
         }
 
         self.$.scrollwatcher.getVisibleNodes(getContext, self);
@@ -376,6 +378,7 @@
           var self = this;
           this.$.iframe.src = this.$.globals.data.iframeurl;
 
+
           this.$.iframe.onload = function () {
             handleIframeLoad(self);
           };
@@ -409,6 +412,19 @@
           for (var i = 0; i < e.detail.length; i++)
             this.$.highlighter.turn(e.detail[i].groupId, 'off');
         },
+
+        onAppToggled: function (isOpen) {
+          if (isOpen) {
+            createNlpWorker(this);
+            startScrollwatcher(this);
+            this.mutationObserver.observe(this.$.iframe.contentDocument,
+              mutationObserverConfig);
+          } else {
+            this.mutationObserver.disconnect();
+            closeNlpWorker(this);
+            this.$.scrollwatcher.removeOnScrollListener();
+          }
+        }
       }); // Polymer()
     })();
 

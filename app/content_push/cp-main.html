@@ -44,6 +44,7 @@
         toggleChanged: function (oldValue, newValue) {
           this.$.panel.classList.toggle('off');
           this.open = !this.open;
+          this.$.document.onAppToggled(this.open);
         },
 
         // event handlers
@@ -85,6 +86,7 @@
         onPanelClosePanel: function () {
           this.$.panel.classList.add('off');
           this.open = false;
+          this.$.document.onAppToggled(this.open);
         }
       }); // Polymer()
     })();
