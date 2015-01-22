@@ -39,16 +39,44 @@
   margin-bottom: 0;
 }
 
+#aspect-ratio-frame {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+#aspect-ratio-spacer {
+  padding-top: 100%;
+}
+
+#img-placer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 #spinner {
-  margin-top: 20px;
-  margin-left: 10px;
-  width: calc(100% - 10px);
-  height: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 #image {
   width: 100%;
   height: auto;
+  object-fit: contain;
 }
 
 #backbutton {
@@ -99,7 +127,7 @@ paper-button[raised].colored {
 }
 
 [data-show="false"] {
-  display: none;
+  display: none !important;
 }
 
 #caption {

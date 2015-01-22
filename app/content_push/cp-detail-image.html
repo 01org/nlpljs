@@ -37,13 +37,19 @@
 
       <div id="detailbody">
         <div id="imgContainer">
-          <div id="spinner" data-show="{{!loaded}}">
-            <template if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
-          </div>
+          <div id="aspect-ratio-frame">
+            <div id="spinner" data-show="{{!loaded}}">
+              <template if="{{!loaded}}">
+                <paper-spinner active></paper-spinner>
+              </template>
+            </div>
 
-          <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+            <div id="aspect-ratio-spacer"></div>
+
+            <div id="img-placer" data-show="{{loaded}}">
+              <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+            </div>
+          </div>
         </div>
 
         <table id="imageInfo">
