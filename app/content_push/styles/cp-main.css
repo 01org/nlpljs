@@ -77,3 +77,8 @@
 :host /deep/ h4 {
   font-weight: normal;
 }
+
+:host /deep/ .toolbar-shadow {
+  box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
