@@ -131,6 +131,9 @@
           this.sourceName = tile.article.sourceName;
           this.snippet = tile.article.snippet;
           this.imageAvailable = tile.imageLoaded;
+
+          /* reset scroll to top */
+          this.$.detailbody.scrollTop = 0;
         },
 
         visitWebpage: function () {

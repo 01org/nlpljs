@@ -193,6 +193,9 @@
           this.meta = tile.image.meta;
           this.width = tile.image.width;
           this.height = tile.image.height;
+
+          /* reset scroll to top */
+          this.$.detailbody.scrollTop = 0;
         },
 
         /* set visibility of EXIF panel by checking metadata */

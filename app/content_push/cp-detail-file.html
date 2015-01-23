@@ -198,6 +198,9 @@
           this.lastModifiedByUser = tile.file.lastModifiedByUser;
           this.modifiedDate = tile.file.modifiedDate;
           this.createdDate = tile.file.createdDate;
+
+          /* reset scroll to top */
+          this.$.detailbody.scrollTop = 0;
         },
 
         visitWebpage: function () {
