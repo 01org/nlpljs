@@ -10,13 +10,22 @@
   margin-top: 0px;
 }
 
+#detailbody {
+  overflow-y: auto;
+  margin: 0;
+  margin-bottom: 50px;
+  width: 100%;
+}
+
 #detailbody > * {
   position: relative;
   overflow: hidden;
-  margin: 20px 16px 0px 16px;
   width: calc(100% - 32px);
+  margin-left: 16px;
+  margin-right: 16px;
   color: rgba(0, 0, 0, 0.87);
   text-align: left;
+  padding-bottom: 18px;
 }
 
 #container > table {
@@ -32,10 +41,8 @@
 }
 
 #imgContainer {
-  max-height: 50%;
   width: 100% !important;
-  margin-left: 0;
-  margin-top: 0;
+  margin: 0;
   overflow-y: hidden;
 }
 
@@ -105,23 +112,26 @@
   padding-bottom: 5px;
   text-align: right !important;
   color: #C42B7F;
-  width: calc(100% - 32px);
-  margin: 0 16px;
+  width: 100%;
+  border-top: 1px #e6e6e6 solid;
 }
 
-#spacer, #hr {
-  margin-top: 0;
-  margin-bottom: 0;
-  width: auto;
-}
-
-tr {
+#imgSource, #imgSize {
   height: 40px;
-}
-
-td {
   font-size: 14px;
   line-height: 16px;
+  display: flex;
+  flex-direction: row;
+}
+
+.infoKey {
+  width: 40%;
+}
+
+.infoValue {
+  width: 60%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
 }
 
 paper-button[raised].colored {
@@ -135,6 +145,7 @@ paper-button[raised].colored {
 
 #caption {
   line-height: 28px;
+  margin-top: 0;
 }
 
 #backcaption {
@@ -151,22 +162,11 @@ paper-button[raised].colored {
   margin-left: 5px;
 }
 
-#imageInfo {
-  margin-top: 0;
-}
-
 .top-bar {
   background-color: #B8578C;
   margin: 0 !important;
   width: 100% !important;
   min-height: 64px;
-}
-
-#detailbody {
-  overflow-y: auto;
-  margin: 0;
-  margin-bottom: 50px;
-  width: 100%;
 }
 
 #articleSource {

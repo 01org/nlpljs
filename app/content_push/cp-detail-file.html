@@ -23,13 +23,19 @@
       </div>
 
       <div id="imgContainer">
-        <div id="spinner" data-show="{{!loaded}}">
-          <template if="{{!loaded}}">
-            <paper-spinner active></paper-spinner>
-          </template>
-        </div>
+        <div id="aspectRatioFrame">
+          <div id="spinner" data-show="{{!loaded}}">
+            <template if="{{!loaded}}">
+              <paper-spinner active></paper-spinner>
+            </template>
+          </div>
 
-        <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+          <div id="aspectRatioSpacer"></div>
+
+          <div id="imgPlacer" data-show="{{loaded}}">
+            <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+          </div>
+        </div>
       </div>
 
       <div id="detailbody">
@@ -87,7 +93,6 @@
       </div>
 
       <div id="visitSrc" data-show="{{source}}">
-        <hr id="hr">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
           OPEN FILE

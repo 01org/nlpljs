@@ -52,23 +52,21 @@
           </div>
         </div>
 
-        <table id="imageInfo">
-          <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
-            <td>Source</td>
-            <td>{{sourceName || source|domainFromURL}}</td>
-          </tr>
+        <div id="imageInfo">
+          <div id="imgSource" data-show="{{!!sourceName || !!source}}">
+            <div class="infoKey">Source</div>
+            <div class="infoValue">{{sourceName || source|domainFromURL}}</div>
+          </div>
 
-          <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
-            <td>Size</td>
-            <td>{{width}}x{{height}}</td>
-          </tr>
-        </table>
+          <div id="imgSize" data-show="{{width > 0 && height > 0}}">
+            <div class="infoKey">Size</div>
+            <div class="infoValue">{{width}}x{{height}}</div>
+          </div>
+        </div>
 
         <div id="exif" data-show="{{hasEXIF}}">
-          <hr>
-
           <div id="exifHeader">
-            <h4 id="exifTitle">Image info</h4>
+            <p id="exifTitle">More Info</p>
             <core-icon id="exifToggle" on-click="{{exifToggle}}"
                        icon="expand-more">
             </core-icon>
@@ -87,7 +85,6 @@
       </div>
 
       <div id="visitSrc" data-show="{{!!source}}">
-        <hr id="hr">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
           VISIT PAGE
