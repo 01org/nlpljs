@@ -21,24 +21,24 @@
         </div>
       </div>
 
-      <div id="detailbody">
-        <div id="imgContainer" data-show="{{imageAvailable}}">
-          <div id="aspectRatioFrame">
-            <div id="spinner" data-show="{{!loaded}}">
-              <template if="{{!loaded}}">
-                <paper-spinner active></paper-spinner>
-              </template>
-            </div>
+      <div id="imgContainer" data-show="{{imageAvailable}}">
+        <div id="aspectRatioFrame">
+          <div id="spinner" data-show="{{!loaded}}">
+            <template if="{{!loaded}}">
+              <paper-spinner active></paper-spinner>
+            </template>
+          </div>
 
-            <div id="aspectRatioSpacer"></div>
+          <div id="aspectRatioSpacer"></div>
 
-            <div id="imgPlacer" data-show="{{loaded}}">
-              <img id="image" src="{{src}}" on-error="{{onImageError}}"
-                   on-load="{{onImageLoad}}">
-            </div>
+          <div id="imgPlacer" data-show="{{loaded}}">
+            <img id="image" src="{{src}}" on-error="{{onImageError}}"
+                 on-load="{{onImageLoad}}">
           </div>
         </div>
+      </div>
 
+      <div id="detailbody">
         <h2 id="caption" data-show="{{!!caption}}">
           <caption>{{caption|cleanHTML}}</caption>
         </h2>

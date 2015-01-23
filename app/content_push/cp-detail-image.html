@@ -20,6 +20,10 @@
       #exifToggle {
         float: right;
       }
+
+      #exifDropdown {
+        margin-top: 20px;
+      }
     </style>
 
     <div id="container" vertical layout>
@@ -35,32 +39,32 @@
         </div>
       </div>
 
-      <div id="detailbody">
-        <div id="imgContainer">
-          <div id="aspectRatioFrame">
-            <div id="spinner" data-show="{{!loaded}}">
-              <template if="{{!loaded}}">
-                <paper-spinner active></paper-spinner>
-              </template>
-            </div>
+      <div id="imgContainer">
+        <div id="aspectRatioFrame">
+          <div id="spinner" data-show="{{!loaded}}">
+            <template if="{{!loaded}}">
+              <paper-spinner active></paper-spinner>
+            </template>
+          </div>
 
-            <div id="aspectRatioSpacer"></div>
+          <div id="aspectRatioSpacer"></div>
 
-            <div id="imgPlacer" data-show="{{loaded}}">
-              <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
-            </div>
+          <div id="imgPlacer" data-show="{{loaded}}">
+            <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
           </div>
         </div>
+      </div>
 
+      <div id="detailbody">
         <div id="imageInfo">
-          <div id="imgSource" data-show="{{!!sourceName || !!source}}">
-            <div class="infoKey">Source</div>
-            <div class="infoValue">{{sourceName || source|domainFromURL}}</div>
+          <div class="imageMeta" data-show="{{!!sourceName || !!source}}">
+            <div class="imageMetaKey">Source</div>
+            <div class="imageMetaValue">{{sourceName || source|domainFromURL}}</div>
           </div>
 
-          <div id="imgSize" data-show="{{width > 0 && height > 0}}">
-            <div class="infoKey">Size</div>
-            <div class="infoValue">{{width}}x{{height}}</div>
+          <div class="imageMeta" data-show="{{width > 0 && height > 0}}">
+            <div class="imageMetaKey">Size</div>
+            <div class="imageMetaValue">{{width}}x{{height}}</div>
           </div>
         </div>
 
@@ -73,13 +77,19 @@
           </div>
 
           <core-collapse id="exifDropdown">
-            <p data-show="{{meta.Camera}}">
-              <strong>Camera:</strong> {{meta.Camera}}
-            </p>
+            <div class="imageMeta" data-show="{{meta.Camera}}">
+              <div class="imageMetaKey">Camera</div>
+              <div class="imageMetaValue">
+                {{meta.Camera}}
+              </div>
+            </div>
 
-            <p data-show="{{meta.DateTime}}">
-              <strong>Date:</strong> {{meta.DateTime}}
-            </p>
+            <div class="imageMeta" data-show="{{meta.DateTime}}">
+              <div class="imageMetaKey">Date</div>
+              <div class="imageMetaValue">
+                {{meta.DateTime}}
+              </div>
+            </div>
           </core-collapse>
         </div>
       </div>
@@ -87,7 +97,7 @@
       <div id="visitSrc" data-show="{{!!source}}">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
-          VISIT PAGE
+          VIEW IMAGE
         </paper-button>
       </div>
     </div>

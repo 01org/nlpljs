@@ -39,57 +39,61 @@
       </div>
 
       <div id="detailbody">
-        <table>
-          <tr>
-            <td>Source</td>
-            <td>
-              <span data-show="{{!!serviceIcon}}">
-                <core-icon icon="{{serviceIcon}}"></core-icon>
-              </span>
-              &nbsp;&nbsp;
-              <span data-show="{{!!service}}">
-                {{service}}
-              </span>
-            </td>
-          </tr>
+        <div class="imageMeta">
+          <div class="imageMetaKey">Source</div>
+          <div class="imageMetaValue">
+            <span data-show="{{!!serviceIcon}}">
+              <core-icon icon="{{serviceIcon}}"></core-icon>
+            </span>
+            &nbsp;&nbsp;
+            <span data-show="{{!!service}}">
+              {{service}}
+            </span>
+          </div>
+        </div>
 
-          <tr data-show="{{!!fileType}}">
-            <td>Type</td>
-            <td>
-              <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
-            </td>
-          </tr>
+        <div class="imageMeta" data-show="{{!!fileType}}">
+          <div class="imageMetaKey">Type</div>
+          <div class="imageMetaValue">
+            <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
+          </div>
+        </div>
 
-          <tr data-show="{{size !== null && size !== undefined}}">
-            <td>Size</td>
-            <td>{{size|bytesToKb}}Kb</td>
-          </tr>
+        <div class="imageMeta" data-show="{{size !== null && size !== undefined}}">
+          <div class="imageMetaKey">Size</div>
+          <div class="imageMetaValue">
+            {{size|bytesToKb}}Kb
+          </div>
+        </div>
 
-          <tr data-show="{{!!folder}}">
-            <td>Location</td>
-            <td>
-              <core-icon icon="folder"></core-icon>
-              &nbsp;&nbsp;{{folder}}
-            </td>
-          </tr>
+        <div class="imageMeta" data-show="{{!!folder}}">
+          <div class="imageMetaKey">Location</div>
+          <div class="imageMetaValue">
+            <core-icon icon="folder"></core-icon>
+            &nbsp;&nbsp;{{folder}}
+          </div>
+        </div>
 
-          <tr data-show="{{!!owner}}">
-            <td>Owner</td>
-            <td>{{owner}}</td>
-          </tr>
+        <div class="imageMeta" data-show="{{!!owner}}">
+          <div class="imageMetaKey">Owner</div>
+          <div class="imageMetaValue">
+            {{owner}}
+          </div>
+        </div>
 
-          <tr data-show="{{!!modifiedDate}}">
-            <td>Modified</td>
-            <td>{{modifiedDate|formatDate}} by {{lastModifiedByUser}}</td>
-          </tr>
+        <div class="imageMeta" data-show="{{!!modifiedDate}}">
+          <div class="imageMetaKey">Modified</div>
+          <div class="imageMetaValue">
+            {{modifiedDate|formatDate}} by {{lastModifiedByUser}}
+          </div>
+        </div>
 
-          <tr>
-            <td>Created</td>
-            <td>
-              {{createdDate|formatDate}}
-            </td>
-          </tr>
-        </table>
+        <div class="imageMeta">
+          <div class="imageMetaKey">Created</div>
+          <div class="imageMetaValue">
+            {{createdDate|formatDate}}
+          </div>
+        </div>
       </div>
 
       <div id="visitSrc" data-show="{{source}}">

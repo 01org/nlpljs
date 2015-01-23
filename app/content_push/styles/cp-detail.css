@@ -12,8 +12,7 @@
 
 #detailbody {
   overflow-y: auto;
-  margin: 0;
-  margin-bottom: 50px;
+  margin: 16px 0 50px 0;
   width: 100%;
 }
 
@@ -25,7 +24,6 @@
   margin-right: 16px;
   color: rgba(0, 0, 0, 0.87);
   text-align: left;
-  padding-bottom: 18px;
 }
 
 #container > table {
@@ -116,19 +114,21 @@
   border-top: 1px #e6e6e6 solid;
 }
 
-#imgSource, #imgSize {
+.imageMeta {
   height: 40px;
-  font-size: 14px;
-  line-height: 16px;
   display: flex;
   flex-direction: row;
 }
 
-.infoKey {
+.imageMeta, #snippet {
+  font-size: 14px;
+}
+
+.imageMetaKey {
   width: 40%;
 }
 
-.infoValue {
+.imageMetaValue {
   width: 60%;
   overflow-x: hidden;
   text-overflow: ellipsis;
@@ -146,6 +146,8 @@ paper-button[raised].colored {
 #caption {
   line-height: 28px;
   margin-top: 0;
+  margin-bottom: 12px;
+  padding-bottom: 0 !important;
 }
 
 #backcaption {
@@ -172,9 +174,4 @@ paper-button[raised].colored {
 #articleSource {
   line-height: 12px;
   font-size: 10px;
-}
-
-#snippet {
-  line-height: 16px;
-  font-size: 14px;
 }
