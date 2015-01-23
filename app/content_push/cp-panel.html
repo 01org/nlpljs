@@ -165,20 +165,21 @@
             <paper-dropdown-menu label="All" id="menu">
               <paper-dropdown class="dropdown">
                 <core-menu class="menu" on-click="{{onMenuClick}}">
-                  <paper-item label="All"
-                              data-type-filter="no-filter"
+                  <paper-item data-type-filter="no-filter"
                               data-selected-filter="true">
+                    All
                   </paper-item>
 
                   <template repeat="{{groupName in groupNames}}">
-                    <paper-item label="{{groupName}}"
-                                data-type-filter="{{groupName|lowercaseSingular}}">
+                    <paper-item data-type-filter="{{groupName|lowercaseSingular}}">
+                      {{groupName}}
                     </paper-item>
                   </template>
 
                   <template if="{{searchService === 'Google'}}">
-                    <paper-item icon="{{$.icons.editSources}}" label="EDIT SOURCES"
-                                id="itemEditSources">
+                    <paper-item id="itemEditSources"
+                                icon="{{$.icons.editSources}}">
+                      EDIT SOURCES
                     </paper-item>
                   </template>
                 </core-menu>
