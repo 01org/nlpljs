@@ -7,13 +7,14 @@
           this.targetNodes = [];
           this.timeout = 500;
           this.scrollTimer = null;
+          this.onScrollCallback = null;
         },
 
         setScrollableNode: function (node) {
           this.scrollableNode = node;
         },
 
-        addOnScrollListener: function (listener, data) {
+        setOnScrollListener: function (listener, data) {
           var onScroll = function (self) {
             if (self.scrollTimer !== null) {
               clearTimeout(self.scrollTimer);
@@ -31,10 +32,25 @@
             this.scrollableNode.addEventListener('scroll', callback, false);
           }
 
-          window.addEventListener('DOMContentLoaded', callback, false); 
-          window.addEventListener('load', callback, false); 
-          window.addEventListener('scroll', callback, false); 
+          window.addEventListener('DOMContentLoaded', callback, false);
+          window.addEventListener('load', callback, false);
+          window.addEventListener('scroll', callback, false);
           window.addEventListener('resize', callback, false);
+
+          this.onScrollCallback = callback;
+        },
+
+        removeOnScrollListener: function () {
+          if (this.scrollableNode !== null) {
+            this.scrollableNode.removeEventListener('scroll',
+              this.onScrollCallback, false);
+          }
+
+          window.removeEventListener('DOMContentLoaded',
+            this.onScrollCallback, false);
+          window.removeEventListener('load', this.onScrollCallback, false);
+          window.removeEventListener('scroll', this.onScrollCallback, false);
+          window.removeEventListener('resize', this.onScrollCallback, false);
         },
 
         getVisibleNodes: function (callback, data) {

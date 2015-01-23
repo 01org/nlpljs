@@ -42,12 +42,24 @@
       newPort.onMessage.addListener(function (event) {
         console.log('EP-NLP:message from CP:', event);
         if (event.component === 'nlp') {
-          if (nlp_worker === null) {
-            createWorker();
+          if (event.message.type === 'create') {
+            if (nlp_worker === null) {
+              createWorker();
+            } else {
+              console.log("EP-NLP:trying to start a new worker before closing the old one!");
+            }
           }
 
-          nlp_worker.postMessage(workerMessage(event.message.type,
-                                               event.message.data));
+          if (nlp_worker !== null) {
+            nlp_worker.postMessage(workerMessage(event.message.type,
+                                                 event.message.data));
+
+            if (event.message.type === 'close') {
+              nlp_worker = null;
+            }
+          } else {
+            console.log ("EP-NLP:trying to send messages to the worker before creating it!");
+          }
         }
       });
     }

@@ -91,31 +91,26 @@ function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
 }
 
-this.onmessage = function (event) {
-  var message = JSON.parse(event.data);
-
-  if (loaded === false && message.type !== 'initialize') {
-    queuedMessages[queuedMessages.length] = event;
-    return;
-  }
-
+var processMessage = function (message) {
   switch (message.type) {
-    case 'initialize':
+    case 'create':
       require(['libnlp'], function (result) {
         libnlp = result;
-	      if (libnlp) {
+        if (libnlp) {
           loaded = true;
         }
 
-	      if (loaded) {
-          while (queuedMessages.length > 0)
-            this.onmessage(queuedMessages.unshift());
+        if (loaded) {
+          while (queuedMessages.length > 0) {
+            var prevMessage = queuedMessages.shift();
+            processMessage(prevMessage);
+          }
 
           console.log('Loaded libnlp module');
-	      } else {
-	        postMessage(eventPageMessage('initerror', 'error loading nlp modules'));
+        } else {
+          postMessage(eventPageMessage('initerror', 'error loading nlp modules'));
           console.log('error loading libnlp module');
-	      }
+        }
       });
       break;
     case 'newcontext':
@@ -150,7 +145,6 @@ this.onmessage = function (event) {
 
       currentContext.text = [currentContext.text.slice(0, startChar), text,
         currentContext.text.slice(startChar)].join('');
-
       break;
     case 'processcontext':
       var textForExtractor = currentContext.text.replace(/\[\w+\]/g, '');
@@ -207,8 +201,22 @@ this.onmessage = function (event) {
         ranges: currentContext.ranges
       }));
       break;
+    case 'close':
+      close();
+      break;
     default:
       console.warn('nlp_worker: ' + message.type + ' is not recognized');
       break;
   }
+};
+
+this.onmessage = function (event) {
+  var message = JSON.parse(event.data);
+
+  if (loaded === false && message.type !== 'create') {
+    queuedMessages[queuedMessages.length] = message;
+    return;
+  }
+
+  processMessage(message);
 };

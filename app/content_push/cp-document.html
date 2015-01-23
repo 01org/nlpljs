@@ -43,6 +43,13 @@
       var SCROLLING_ELEMENT_SELECTOR = '.kix-appview-editor';
       var docsHomeFixed = false; // only once per instance of Content Push tab
 
+      var mutationObserverConfig = {
+        attributes: false,
+        childList: true,
+        subtree: true,
+        characterData: false
+      };
+
       /**
        * find ancestor of node that has className
        * for finding the ancestor with .kix-lineview of whatever line has changed
@@ -83,7 +90,11 @@
         }
       };
 
-      var observeDocumentChanges = function (self) {
+      /**
+       * Creates a mutation observer to track edits to the document's text.
+       * The newly created observer is disabled by default.
+       */
+      var createMutationObserver = function (self) {
         var observer = new MutationObserver(function (mutations, observerInstance) {
           if (!docsHomeFixed) {
             fixDocsHomeLink(self);
@@ -165,40 +176,110 @@
           }
         });
 
-        // Configuration of the observer:
-        var config = {
-          attributes: false,
-          childList: true,
-          subtree: true,
-          characterData: false
-        };
+        console.log("CP-DOCUMENT:mutation observer created.");
 
-        // Pass in the target node, as well as the observer options
-        observer.observe(self.$.iframe.contentDocument, config);
+        self.mutationObserver = observer;
       };
 
-      var handleIframeLoad = function (self) {
+      /**
+       * Opens a communication channel to the ep-nlp event page and then sends
+       * a message to it to indicate that the nlp worker needs to be created and
+       * initialized. All communication with the worker is carried out via this
+       * channel.
+       */
+      var createNlpWorker = function (self) {
+        if (self.nlpPort !== null) {
+          console.log("CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!");
+
+          return;
+        }
+
+        console.log('CP-DOCUMENT: connecting to ep-nlp');
+        var nlpPort = chrome.runtime.connect(self.$.globals.data.app_id,
+          { name: 'nlp' });
+
+        console.log('CP-DOCUMENT: connected to ep-nlp:', nlpPort);
+        nlpPort.onMessage.addListener(function (detail) {
+          console.log('CP-DOCUMENT: message from ep-nlp:', detail);
+          if (detail.component === 'nlp') {
+            if (detail.message.type === 'keywordlist') {
+              setKeywordInfo(self, detail.message.data);
+              self.fire('nlpstop');
+            }
+          }
+        });
+
+        var message = {
+          component: 'nlp',
+          message: {
+            type: 'create'
+          }
+        };
+
+        console.log('CP-DOCUMENT: message to ep-nlp:', message);
+        nlpPort.postMessage(message);
+
+        self.nlpPort = nlpPort;
+      };
+
+      /**
+       * Closes the communication channel to ep-nlp and terminates the currently
+       * running nlp worker.
+       */
+      var closeNlpWorker = function (self) {
+        if (self.nlpPort === null) {
+          console.log("CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn't exist!");
+
+          return;
+        }
+
+        var message = {
+          component: 'nlp',
+          message: {
+            type: 'close'
+          }
+        };
+
+        console.log('CP-DOCUMENT: message to ep-nlp:', message);
+        self.nlpPort.postMessage(message);
+
+        self.nlpPort.disconnect();
+        self.nlpPort = null;
+      };
+
+      /**
+       * Start tracking which part of the text is currently visible
+       */
+      var startScrollwatcher = function (self) {
         var lines =
           self.$.iframe.contentDocument.querySelectorAll(LINE_SELECTOR);
 
         var editor =
           self.$.iframe.contentDocument.querySelector(SCROLLING_ELEMENT_SELECTOR);
 
-        self.$.highlighter.targetElement = self.$.iframe.contentDocument;
-
         self.$.scrollwatcher.setScrollableNode(editor);
-        self.$.scrollwatcher.addOnScrollListener(getContext, self);
+        self.$.scrollwatcher.setOnScrollListener(getContext, self);
 
         for (var i = 0; i < lines.length; i++) {
-          addIdToLine(lines[i], self.lineIdAccumulator);
-          self.lineIdAccumulator++;
+          if (!lines[i].hasAttribute("cp_line_id")) {
+            addIdToLine(lines[i], self.lineIdAccumulator);
+            self.lineIdAccumulator++;
 
-          self.$.scrollwatcher.addTargetNode(lines[i]);
+            self.$.scrollwatcher.addTargetNode(lines[i]);
+          }
         }
 
         self.$.scrollwatcher.getVisibleNodes(getContext, self);
+      };
 
-        observeDocumentChanges(self);
+      var handleIframeLoad = function (self) {
+        startScrollwatcher(self);
+
+        self.$.highlighter.targetElement = self.$.iframe.contentDocument;
+
+        createMutationObserver(self);
+        self.mutationObserver.observe(self.$.iframe.contentDocument,
+          mutationObserverConfig);
       };
 
       var addIdToLine = function (line, value) {
@@ -280,6 +361,7 @@
         // life cycle handlers
         EDITOVERTIMEOUT: 3000,
         editOverTimer: null,
+        mutationObserver: null,
 
         created: function () {
           this.nlpPort = null;
@@ -296,38 +378,12 @@
           var self = this;
           this.$.iframe.src = this.$.globals.data.iframeurl;
 
+
           this.$.iframe.onload = function () {
             handleIframeLoad(self);
           };
 
-          if (this.nlpPort === null) {
-            console.log('CP-DOCUMENT: connecting to ep-nlp');
-            this.nlpPort = chrome.runtime.connect(
-              this.$.globals.data.app_id,
-              { name: 'nlp' }
-            );
-
-            console.log('CP-DOCUMENT: connected to ep-nlp:', this.nlpPort);
-            this.nlpPort.onMessage.addListener(function (detail) {
-              console.log('CP-DOCUMENT: message from ep-nlp:', detail);
-              if (detail.component === 'nlp') {
-                if (detail.message.type === 'keywordlist') {
-                  setKeywordInfo(self, detail.message.data);
-                  self.fire('nlpstop');
-                }
-              }
-            });
-
-            var message = {
-              component: 'nlp',
-              message: {
-                type: 'initialize'
-              }
-            };
-
-            console.log('CP-DOCUMENT: message to ep-nlp:', message);
-            this.nlpPort.postMessage(message);
-          }
+          createNlpWorker(self);
         },
 
         // API functions
@@ -357,6 +413,18 @@
             this.$.highlighter.turn(e.detail[i].groupId, 'off');
         },
 
+        onAppToggled: function (isOpen) {
+          if (isOpen) {
+            createNlpWorker(this);
+            startScrollwatcher(this);
+            this.mutationObserver.observe(this.$.iframe.contentDocument,
+              mutationObserverConfig);
+          } else {
+            this.mutationObserver.disconnect();
+            closeNlpWorker(this);
+            this.$.scrollwatcher.removeOnScrollListener();
+          }
+        }
       }); // Polymer()
     })();
 
