@@ -20,6 +20,10 @@
       #exifToggle {
         float: right;
       }
+
+      #exifDropdown {
+        margin-top: 20px;
+      }
     </style>
 
     <div id="container" vertical layout>
@@ -35,56 +39,65 @@
         </div>
       </div>
 
-      <div id="detailbody">
-        <div id="imgContainer">
+      <div id="imgContainer">
+        <div id="aspectRatioFrame">
           <div id="spinner" data-show="{{!loaded}}">
             <template if="{{!loaded}}">
               <paper-spinner active></paper-spinner>
             </template>
           </div>
 
-          <img id="image" src="{{src}}" on-load="{{onImageLoad}}" data-show="{{loaded}}">
+          <div id="aspectRatioSpacer"></div>
+
+          <div id="imgPlacer" data-show="{{loaded}}">
+            <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+          </div>
+        </div>
+      </div>
+
+      <div id="detailbody">
+        <div id="imageInfo">
+          <div class="imageMeta" data-show="{{!!sourceName || !!source}}">
+            <div class="imageMetaKey">Source</div>
+            <div class="imageMetaValue">{{sourceName || source|domainFromURL}}</div>
+          </div>
+
+          <div class="imageMeta" data-show="{{width > 0 && height > 0}}">
+            <div class="imageMetaKey">Size</div>
+            <div class="imageMetaValue">{{width}}x{{height}}</div>
+          </div>
         </div>
 
-        <table id="imageInfo">
-          <tr id="imgSource" data-show="{{!!sourceName || !!source}}">
-            <td>Source</td>
-            <td>{{sourceName || source|domainFromURL}}</td>
-          </tr>
-
-          <tr id="imgSize" data-show="{{width > 0 && height > 0}}">
-            <td>Size</td>
-            <td>{{width}}x{{height}}</td>
-          </tr>
-        </table>
-
         <div id="exif" data-show="{{hasEXIF}}">
-          <hr>
-
           <div id="exifHeader">
-            <h4 id="exifTitle">Image info</h4>
+            <p id="exifTitle">More Info</p>
             <core-icon id="exifToggle" on-click="{{exifToggle}}"
                        icon="expand-more">
             </core-icon>
           </div>
 
           <core-collapse id="exifDropdown">
-            <p data-show="{{meta.Camera}}">
-              <strong>Camera:</strong> {{meta.Camera}}
-            </p>
+            <div class="imageMeta" data-show="{{meta.Camera}}">
+              <div class="imageMetaKey">Camera</div>
+              <div class="imageMetaValue">
+                {{meta.Camera}}
+              </div>
+            </div>
 
-            <p data-show="{{meta.DateTime}}">
-              <strong>Date:</strong> {{meta.DateTime}}
-            </p>
+            <div class="imageMeta" data-show="{{meta.DateTime}}">
+              <div class="imageMetaKey">Date</div>
+              <div class="imageMetaValue">
+                {{meta.DateTime}}
+              </div>
+            </div>
           </core-collapse>
         </div>
       </div>
 
       <div id="visitSrc" data-show="{{!!source}}">
-        <hr id="hr">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
-          VISIT PAGE
+          VIEW IMAGE
         </paper-button>
       </div>
     </div>
@@ -190,6 +203,9 @@
           this.meta = tile.image.meta;
           this.width = tile.image.width;
           this.height = tile.image.height;
+
+          /* reset scroll to top */
+          this.$.detailbody.scrollTop = 0;
         },
 
         /* set visibility of EXIF panel by checking metadata */

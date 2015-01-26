@@ -21,18 +21,24 @@
         </div>
       </div>
 
-      <div id="detailbody">
-        <div id="imgContainer" data-show="{{!!src}}">
+      <div id="imgContainer" data-show="{{imageAvailable}}">
+        <div id="aspectRatioFrame">
           <div id="spinner" data-show="{{!loaded}}">
             <template if="{{!loaded}}">
               <paper-spinner active></paper-spinner>
             </template>
           </div>
 
-          <img id="image" src="{{src}}" on-error="{{onImageError}}"
-               on-load="{{onImageLoad}}" data-show="{{!!imageHasLoaded}}">
-        </div>
+          <div id="aspectRatioSpacer"></div>
 
+          <div id="imgPlacer" data-show="{{loaded}}">
+            <img id="image" src="{{src}}" on-error="{{onImageError}}"
+                 on-load="{{onImageLoad}}">
+          </div>
+        </div>
+      </div>
+
+      <div id="detailbody">
         <h2 id="caption" data-show="{{!!caption}}">
           <caption>{{caption|cleanHTML}}</caption>
         </h2>
@@ -48,7 +54,6 @@
     </div>
 
     <div id="visitSrc" data-show="{{!!source}}">
-      <hr id="hr">
       <paper-button class="colored" on-click="{{visitWebpage}}"
                     data-source-link="{{source}}">
         GO TO ARTICLE
@@ -76,6 +81,10 @@
 
         /* extract from the article */
         snippet: null,
+
+        /* does this article have an image available (i.e. it
+           has already been loaded in the tile) */
+        imageAvailable: null,
 
         created: function () {
           this.loaded = false;
@@ -121,6 +130,10 @@
           this.source = tile.article.source;
           this.sourceName = tile.article.sourceName;
           this.snippet = tile.article.snippet;
+          this.imageAvailable = tile.imageLoaded;
+
+          /* reset scroll to top */
+          this.$.detailbody.scrollTop = 0;
         },
 
         visitWebpage: function () {

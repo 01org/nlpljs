@@ -8,7 +8,7 @@ random image with some info to it.
   <template>
     <!-- make the card span a percentage of the window to check centering -->
     <style>
-      #container {
+      .container {
         width: 300px;
         background-color: #F0F0F0;
         margin-left: auto;
@@ -17,11 +17,19 @@ random image with some info to it.
     </style>
 
     <p>
-      Create a cp-detail-image with 1 random image inside it; fills 50% of
-      screen to check for centering of image inside.
+      Create a cp-detail-image with 1 random landscape image inside it;
+      fills 50% of screen to check for centering of image inside.
     </p>
-    <div id="container">
-      <cp-detail-image id="detail"></cp-detail-image>
+    <div class="container">
+      <cp-detail-image id="detail1"></cp-detail-image>
+    </div>
+
+    <p>
+      Create a cp-detail-image with 1 random portrait image inside it;
+      fills 50% of screen to check for centering of image inside.
+    </p>
+    <div class="container">
+      <cp-detail-image id="detail2"></cp-detail-image>
     </div>
   </template>
 
@@ -30,13 +38,20 @@ random image with some info to it.
   <script>
     Polymer({
       domReady: function () {
-        // add a random image with URL from lorempixel
-        this.$.detail.src = makeImageUrl(800, 600);
-        this.$.detail.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
-        this.$.detail.width = 800;
-        this.$.detail.height = 600;
-        this.$.detail.source = 'http://flickr.com/';
-        this.$.detail.meta = {
+        // add random images with URLs from lorempixel
+        this.$.detail1.src = makeImageUrl(800, 600);
+        this.$.detail1.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
+        this.$.detail1.source = 'http://flickr.com/';
+        this.$.detail1.meta = {
+          ExifVersion: 1,
+          Camera: 'Some old Kodak thing',
+          DateTime: '2014-11-25'
+        };
+
+        this.$.detail2.src = makeImageUrl(400, 800);
+        this.$.detail2.caption = '<span class="fn"> <i><span style="font-weight:bold">\n<i>The Battle of Hastings in 1066</i></span></i></span>';
+        this.$.detail2.source = 'http://flickr.com/';
+        this.$.detail2.meta = {
           ExifVersion: 1,
           Camera: 'Some old Kodak thing',
           DateTime: '2014-11-25'
