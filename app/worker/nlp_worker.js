@@ -38,8 +38,9 @@ var createLine = function (lineId, fromChar, toChar) {
 
 var currentContext = null;
 
-var createContext = function () {
+var createContext = function (requestTabId) {
   return {
+    tabId: requestTabId,
     lines: [],
     lineIds: [],
     graph: null,
@@ -114,9 +115,14 @@ var processMessage = function (message) {
       });
       break;
     case 'newcontext':
-      currentContext = createContext();
+      currentContext = createContext(message.tabId);
       break;
     case 'lineadded':
+      if (currentContext.tabId !== message.tabId) {
+        console.log("NLP-WORKER: Tab id mismatch!");
+        break;
+      }
+
       var prevLineId = message.data.prevLineId;
       var prevLineIndex = currentContext.lineIds.indexOf(prevLineId);
       var newLine;
@@ -147,6 +153,11 @@ var processMessage = function (message) {
         currentContext.text.slice(startChar)].join('');
       break;
     case 'processcontext':
+      if (currentContext.tabId !== message.tabId) {
+        console.log("NLP-WORKER: Tab id mismatch!");
+        break;
+      }
+
       var textForExtractor = currentContext.text.replace(/\[\w+\]/g, '');
 
       var keywords = [];
@@ -196,9 +207,15 @@ var processMessage = function (message) {
 
       break;
     case 'getkeywords':
+      if (currentContext.tabId !== message.tabId) {
+        console.log("NLP-WORKER: Tab id mismatch!");
+        break;
+      }
+
       postMessage(eventPageMessage('keywordlist', {
         keywords: currentContext.keywords,
-        ranges: currentContext.ranges
+        ranges: currentContext.ranges,
+        tabId: currentContext.tabId
       }));
       break;
     case 'close':
