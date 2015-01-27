@@ -63,7 +63,6 @@ var cp = cp || {
 (function () {
   var currentItem = {};
   var storage = null;
-  var port;
 
   /*
   // I'm leaving these here as this is the actual list the designers
@@ -237,7 +236,7 @@ var cp = cp || {
     return currentItem[documentId];
   }
 
-  function loadSources (documentId, result) {
+  function loadSources (documentId, result, port) {
     if (result.hasOwnProperty(documentId)) {
       console.log('EP-SOURCES-STORAGE:result:' + result[documentId]);
       currentItem[documentId] = result[documentId];
@@ -260,7 +259,7 @@ var cp = cp || {
         }
       });
       chrome.storage.sync.get(documentId, function (result) {
-        loadSources(documentId, result);
+        loadSources(documentId, result, port);
       });
     }
   }
@@ -280,10 +279,7 @@ var cp = cp || {
 
   chrome.runtime.onConnectExternal.addListener(function (newPort) {
     if (newPort.name === 'sources') {
-
-      port = newPort;
-
-      port.onMessage.addListener(function (message) {
+      newPort.onMessage.addListener(function (message) {
         if (message.component === 'sources') {
           console.log('EP-SOURCES-STORAGE:got message:', message);
           var documentId = message.documentId;
@@ -292,14 +288,14 @@ var cp = cp || {
 
             if (!currentItem.hasOwnProperty(documentId)) {
               chrome.storage.sync.get(documentId, function(result) {
-                loadSources(documentId,result);
+                loadSources(documentId,result, newPort);
               });
             } else {
               var message = {
                 component: 'sources',
                 data: currentItem[documentId]
               };
-              port.postMessage(message);
+              newPort.postMessage(message);
             }
 
           } else
@@ -310,7 +306,6 @@ var cp = cp || {
           }
         }
       });
-
     }
   });
 
