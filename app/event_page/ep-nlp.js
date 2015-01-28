@@ -1,9 +1,9 @@
 (function () {
   var nlp_worker = null;
-  var nlp_port = null;
+  var active_nlp_ports = {};
 
-  var workerMessage = function (type, data) {
-    return JSON.stringify({ type: type, data: data }, null, 4);
+  var workerMessage = function (type, data, tabId) {
+    return JSON.stringify({ type: type, data: data, tabId: tabId }, null, 4);
   };
 
   //Create a web worker for NLP tasks
@@ -15,6 +15,8 @@
       var message = JSON.parse(event.data);
       switch (message.type) {
         case "keywordlist":
+          var nlp_port = active_nlp_ports[message.data.tabId];
+
           if (nlp_port) {
             var message = {
               component: 'nlp',
@@ -37,7 +39,7 @@
   chrome.runtime.onConnectExternal.addListener(function (newPort) {
     console.log('EP-NLP:connecting: newPort:', newPort);
     if (newPort.name === 'nlp') {
-      nlp_port = newPort;
+      active_nlp_ports[newPort.sender.tab.id] = newPort;
 
       newPort.onMessage.addListener(function (event) {
         console.log('EP-NLP:message from CP:', event);
@@ -52,7 +54,8 @@
 
           if (nlp_worker !== null) {
             nlp_worker.postMessage(workerMessage(event.message.type,
-                                                 event.message.data));
+                                                 event.message.data,
+                                                 newPort.sender.tab.id));
 
             if (event.message.type === 'close') {
               nlp_worker = null;
@@ -62,6 +65,14 @@
           }
         }
       });
+
+      newPort.onDisconnect.addListener(function () {
+        delete active_nlp_ports[newPort.sender.tab.id];
+      });
     }
+  });
+
+  chrome.runtime.onSuspend.addListener(function() {
+    console.log("EP-NLP: The event page is suspenended.");
   });
 })();
