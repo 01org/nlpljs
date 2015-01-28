@@ -17,7 +17,7 @@
     "<all_urls>"
   ],
   "page_action": {
-    "default_icon": "images/icon-16.png"
+    "default_icon": "images/CP_icon_128.png"
   },
   "content_scripts": [
     {
@@ -30,9 +30,7 @@
     }
   ],
   "icons": {
-    "16": "images/icon-16.png",
-    "48": "images/icon-48.png",
-    "128": "images/icon-128.png"
+    "128": "images/CP_icon_128.png"
   },
   "background": {
     "scripts": [
