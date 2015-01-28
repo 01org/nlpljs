@@ -1,6 +1,6 @@
 (function () {
   var nlp_worker = null;
-  var active_nlp_ports = [];
+  var active_nlp_ports = {};
 
   var workerMessage = function (type, data, tabId) {
     return JSON.stringify({ type: type, data: data, tabId: tabId }, null, 4);
@@ -67,8 +67,12 @@
       });
 
       newPort.onDisconnect.addListener(function () {
-        active_nlp_ports.splice(newPort.sender.tab.id, 1);
+        delete active_nlp_ports[newPort.sender.tab.id];
       });
     }
+  });
+
+  chrome.runtime.onSuspend.addListener(function() {
+    console.log("EP-NLP: The event page is suspenended.");
   });
 })();
