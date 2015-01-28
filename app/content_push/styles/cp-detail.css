@@ -104,6 +104,10 @@
    display: none;
 }
 
+#backbutton /deep/ .paper-shadow-bottom-z-1 {
+  box-shadow: none !important;
+}
+
 #visitSrc {
   position: absolute;
   bottom: 0;
