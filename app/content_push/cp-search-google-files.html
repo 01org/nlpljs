@@ -100,7 +100,12 @@
        */
       var retrieveAllFiles = function (self, query, callback) {
 
-        var q = encodeURIComponent("fullText contains '" + query + "' and trashed = false");
+        // format query in the same style as on the try-it page
+        // of the google apis docs
+        var q =  "fullText contains '" + '"' + query +'"' + "' and trashed = false";
+        var spaces = new RegExp(' ', 'g');
+        q = q.replace(spaces, '+');
+        q = encodeURI(q);
 
         var url =
             'https://www.googleapis.com/drive/v2/files?' +
