@@ -2,6 +2,8 @@
 
 This is the repository for the Content Push application.
 
+Content Push is a Chrome browser extension which works alongside a Google Docs document. As a document is populated with text, Content Push parses it for keywords (noun phrases). Those keywords are then used to seed searches against a search service (Google Custom Search or Wikipedia; see below for configuration).
+
 ## Quick Start
 
 1. bower install
@@ -22,11 +24,3 @@ To change the search service used, follow these steps:
 3. In Chrome, open `chrome://extensions`.
 4. Reload the Content Push extension.
 5. Reload the Google Doc you are using with Content Push.
-
-## Developers discussion
-
-The app files are in `app/`.
-The app is partly a chrome extension and partly a web app that is 'injected' using a content script.
-* `app/event_page/ep-main.js` is the event page (a type of background page). It adds the page action button and sends a message to the content script to 'start'.
-* `app/content_script/cs-rehost-page.js` is the content script that is injected into the docs.google.com page. It records the docs url, empties the document and rebuilds the page content including the `<content-push>` element, and the final thing done in the content script is to set an `iframeurl` attribute on that so that it knows what url to load in its iframe.
-* `app/content_push/content-push.html` is the content push polymer element. *This is where most of our work is done* - extracting text from the docs iframe, adding images to the CP panel, and communicating with the NLP libraries.
