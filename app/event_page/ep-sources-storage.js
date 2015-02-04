@@ -172,6 +172,7 @@ var cp = cp || {
   var defaults = {
     'Images': {
       order: 1,
+      enabled: true,
       'sources': {
         'Flickr': {
           url: 'flickr.com',
@@ -185,6 +186,7 @@ var cp = cp || {
     },
     'Articles': {
       order: 2,
+      enabled: true,
       'sources': {
         'Yahoo! news': {
           url: 'news.yahoo.com',
@@ -198,6 +200,7 @@ var cp = cp || {
     },
     'Quotes': {
       order: 3,
+      enabled: false,
       'sources': {
         'iHeart Quotes': {
           url: 'iheartquotes.com',
@@ -211,6 +214,7 @@ var cp = cp || {
     },
     'Files': {
       order: 4,
+      enabled: true,
       'sources': {
         'Google Drive': {
           title: 'Google Drive',
@@ -220,6 +224,7 @@ var cp = cp || {
     },
     'Videos': {
       order: 5,
+      enabled: false,
       'sources': {
       }
     }
