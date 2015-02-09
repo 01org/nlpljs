@@ -1,0 +1,155 @@
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/core-icon/core-icon.html">
+<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../bower_components/core-item/core-item.html">
+<link rel="import" href="./cp-icons.html">
+<link rel="import" href="./cp-swapper.html">
+<link rel="import" href="./cp-sources-storage.html">
+<link rel="import" href="./cp-sources-selector.html">
+
+<polymer-element name="cp-sources-groups">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      #panel {
+        height: 100%;
+      }
+
+      #panel::shadow #dropShadow {
+        box-shadow: none !important;
+      }
+
+      #panel::shadow #mainContainer {
+        padding: 16px;
+      }
+
+      #header {
+        background-color: #B8578C;
+        text-align: left;
+        color: white;
+        padding-top: 14px;
+        height: 96px;
+      }
+
+      #back::shadow core-icon {
+        height: 20px;
+        width: 20px;
+      }
+
+      #toolbar::shadow #bottomBar {
+        padding: 0;
+      }
+
+      #headertext {
+        margin: 0; 
+        font-size: 20px;
+      }
+
+      #subheading {
+        font-size: 14px;
+      }
+
+      #back {
+        margin-left: 0 !important;
+        margin-top: -30px !important;
+      }
+
+      #back::shadow paper-ripple {
+        display: none;
+      }
+
+      #items {
+        padding-top: 12px;
+      }
+
+      core-item {
+        -webkit-user-select: none;
+        cursor: pointer;
+        margin: 5px 0;
+      }
+
+      core-item::shadow #label {
+        font-size: 14px;
+      }
+
+      cp-swapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      cp-swapper, [swapper-fix], [swapper-slide] {
+        background-color: #fafafa;
+      }
+    </style>
+
+    <cp-icons id="icons"></cp-icons>
+
+    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    </cp-sources-storage>
+
+    <cp-swapper id="swapper">
+      <div swapper-fix>
+        <core-header-panel id="panel" flex>
+          <core-toolbar id="header">
+            <paper-icon-button id="back" icon="arrow-back"
+                              on-tap="{{onBackButtonClick}}">
+            </paper-icon-button>
+
+            <div flex>
+              <div id="headertext">Sources</div>
+              <span id="subheading">Select sources for your content</span>
+            </div>
+          </core-toolbar>
+
+          <div id="items">
+            <template repeat="{{groupName in groupNames}}">
+              <core-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
+                         on-click="{{editSourcesFor}}"></core-item>
+            </template>
+          </div>
+        </core-header-panel>
+      </div>
+
+      <cp-sources-selector id="selector"
+                  on-close="{{closeSelector}}"
+                  swapper-slide swap-id="selector">
+      </cp-sources-selector>
+    </cp-swapper>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        domReady: function () {
+          this.onNewSources();
+        },
+
+        onNewSources: function () {
+          this.groupNames = this.$.storage.getGroupNames();
+        },
+
+        onBackButtonClick: function () {
+          this.fire('back');
+        },
+
+        editSourcesFor: function (e) {
+          var elt = e.toElement;
+
+          this.$.selector.setGroup(elt.label);
+          this.$.swapper.slideIn('selector');
+        },
+
+        closeSelector: function () {
+          this.$.swapper.slideOut('selector');
+        }
+      });
+    })();
+  </script>
+</polymer-element>

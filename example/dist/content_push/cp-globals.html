@@ -1,0 +1,40 @@
+<!--
+ - cp-globals
+ -
+ - initialise by setting attributes (strings) on the element
+ -
+ - example of use :
+ - <link rel="import" href="./cp-globals.html">
+ - ...
+ -  <cp-globals data='{{globalData}}'><cp-globals>
+ - ...
+ -  console.log('app_id', this.globalData.app_id);
+ -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="cp-globals">
+  <script>
+    (function () {
+      var data = {};
+
+      Polymer({
+         ready: function () {
+           this.data = data;
+           // initialize values from attributes (note: strings only)
+           for (var i = 0; i < this.attributes.length; i++) {
+             var attr = this.attributes[i];
+             data[attr.nodeName] = attr.value;
+           }
+         },
+
+         get documentId () {
+           return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
+         },
+
+         get searchService () {
+          return this.data.searchservice;
+         }
+      });
+    })();
+  </script>
+</polymer-element>

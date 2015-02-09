@@ -1,0 +1,194 @@
+<!--
+  search users files on Google Drive
+-->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./cp-ajax-multiplexer.html">
+<link rel="import" href="./cp-auth.html">
+<link rel="import" href="./cp-globals.html">
+
+<polymer-element name="cp-search-google-files" attributes="resultsPerFetch">
+  <template>
+    <cp-auth id="authorizer"></cp-auth>
+    <cp-globals id="globals"></cp-globals>
+
+    <cp-ajax-multiplexer id="multiplexer"></core-ajax>
+  </template>
+  <script>
+    (function () {
+
+      var getResultsToReturn = function (self, query) {
+        var resultsToReturn = [];
+
+        var numResults = self.results[query].length;
+        var from = self.cursor[query];
+        var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
+        var resultsToReturn = self.results[query].slice(from, to);
+
+        self.cursor[query] += (to - from);
+
+        return resultsToReturn;
+      };
+
+      var onCoreResponse = function (self, e) {
+        var id = e.detail.id;
+        var response = e.detail.detail.response;
+        var query = self.queries[id];
+
+        console.log('CP-SEARCH-GOOGLE-FILES: response for query:%s id:%d', query, id);
+
+        if (response.error) {
+          self.callbacks[id](response.error.message);
+          delete self.callbacks[id];
+          delete self.queries[id];
+        } else {
+          // accumulate the response items as results
+
+          console.log('CP-SEARCH-GOOGLE-FILES: found %d files', response.items.length);
+
+          for (var i = 0; i < response.items.length; i++) {
+            var thisItem = response.items[i];
+
+            console.log('CP-SEARCH-GOOGLE-FILES: found file:', thisItem.title);
+
+            if (thisItem.id !== self.$.globals.documentId) {
+              console.log('CP-SEARCH-GOOGLE-FILES: adding');
+              self.results[query].push({
+                type: 'file',
+                service: 'Drive',
+                description: thisItem.description,
+                caption: thisItem.title,
+                source: thisItem.alternateLink,
+                iconLink: thisItem.iconLink,
+                src: thisItem.thumbnailLink,
+                mimeType: thisItem.mimeType,
+                size: thisItem.fileSize,
+                thumbnailSrc: thisItem.thumbnailLink,
+                owner: thisItem.owners[0].displayName,
+                lastModifiedByUser: thisItem.lastModifyingUserName,
+                modifiedDate: thisItem.modifiedDate,
+                createdDate: thisItem.createdDate
+              });
+            } else {
+              console.log('CP-SEARCH-GOOGLE-FILES: ignoring');
+            }
+          }
+
+          var nextPageToken = response.nextPageToken;
+          if (nextPageToken) {
+            // get the next page
+            var nextId = self.$.multiplexer.url(url + '&pageToken=' + nextPageToken);
+
+            // next page is a new id, so move the callback and query to new id
+            self.callbacks[nextId] = self.callbacks[id];
+            self.queries[nextId] = query;
+            delete self.callbacks[id];
+            delete self.queries[id];
+          } else {
+            var resultsToReturn = getResultsToReturn(self, query);
+
+            self.callbacks[id](resultsToReturn);
+            delete self.callbacks[id];
+            delete self.queries[id];
+          }
+        }
+      };
+
+      /**
+       * Retrieve a list of File resources.
+       *
+       * @param {Function} callback Function to call when the request is complete.
+       */
+      var retrieveAllFiles = function (self, query, callback) {
+
+        // format query in the same style as on the try-it page
+        // of the google apis docs
+        var q =  "fullText contains '" + '"' + query +'"' + "' and trashed = false";
+        var spaces = new RegExp(' ', 'g');
+        q = q.replace(spaces, '+');
+        q = encodeURI(q);
+
+        var url =
+            'https://www.googleapis.com/drive/v2/files?' +
+            'access_token=' + self.access_token + '&' +
+            'fields=items(alternateLink,createdDate,description,fileSize,' +
+            'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
+            'thumbnailLink,title)&' +
+            'q=' + q;
+
+        var id = self.$.multiplexer.url(url);
+
+        self.callbacks[id] = callback;
+        self.queries[id] = query;
+      };
+
+      /**
+       * searches user's files for files containing 'query', adds  them in resultSet.
+       * returns a promise that is resolved when finished searching.
+       */
+      function searchForFiles (self, query) {
+        self.results[query] = [];
+        self.cursor[query] = 0;
+
+        var promise = new Promise(function (resolve, reject) {
+          retrieveAllFiles(self, query, function (results) {
+            if (results.error) {
+              reject(results.error);
+            } else {
+              resolve(results);
+            }
+          });
+        });
+
+        return promise;
+      }
+
+      Polymer({
+        created: function () {
+          this.access_token = null;
+          this.ready_promise = null;
+          this.results = {}; // this.results[query] = [...results...]
+          this.cursor = {};  // this.cursor[query] = 0..length-1
+          this.callbacks = {}; // this.callbacks[id] = function... id comes from cp-ajax-multiplexer.url()
+          this.queries = {}; // this.queries[id] = querystring...
+        },
+
+        ready: function () {
+          var self = this;
+          this.ready_promise = new Promise(function (resolve, reject) {
+            self.$.authorizer.addEventListener('accesstoken', function (e) {
+              if (e.detail.service === 'google') {
+                self.access_token = e.detail.token;
+                resolve();
+              }
+            });
+            self.$.authorizer.getToken('google');
+          });
+
+          this.$.multiplexer.addEventListener('multi-response', function (e) {
+            onCoreResponse(self, e);
+          });
+        },
+
+        fetch: function (query) {
+          console.log('CP-SEARCH-GOOGLE-FILES: fetch for query:', query);
+          if (this.results[query]) {
+            var resultsToReturn = getResultsToReturn(this, query);
+            return Promise.resolve(resultsToReturn);
+          } else {
+            var self = this;
+
+            return this.ready_promise.then(
+              function () {
+                return searchForFiles(self, query);
+              },
+              function (error) {
+                return Promise.reject(error);
+              }
+            );
+          }
+        },
+
+      });
+    })();
+  </script>
+</polymer-element>

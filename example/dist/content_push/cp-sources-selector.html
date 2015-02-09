@@ -1,0 +1,426 @@
+<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./cp-sources-storage.html">
+
+<polymer-element name="cp-sources-selector">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      #title-back {
+        margin-top: 26px;
+      }
+
+      #back::shadow core-icon {
+        height: 20px;
+        width: 20px;
+      }
+
+      #back::shadow paper-ripple {
+        display: none;
+      }
+
+      #panel_overlay {
+        position:absolute;
+        top:0px;
+        left:0px;
+        bottom:0px;
+        right:0px;
+        background-color:rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        visibility: hidden;
+      }
+
+      #panel {
+        height: 100%;
+        width: 100%;
+      }
+
+      #panel::shadow #dropShadow {
+        box-shadow: none !important;
+      }
+
+      #header {
+        background-color: #B8578C;
+        text-align: left;
+        color: white;
+        padding-top: 6px;
+        height: 96px;
+      }
+
+      #headertext {
+        margin-left: 15px;
+        font-size: 20px;
+      }
+
+      #back {
+        padding-left: 0 !important;
+      }
+
+      #add {
+        background-color: #FFF373;
+        bottom: -20px;
+        z-index: 1;
+        width: 40px;
+        height: 40px;
+        box-shadow: #888 0px 3px 5px;
+      }
+
+      #add[disabled] {
+        background-color: #c9c9c9;
+      }
+
+      #add::shadow core-icon {
+        color: black;
+        width: 20px;
+        height: 20px;
+        top: 10px;
+        left: 10px;
+      }
+
+      #select_all_container {
+        padding-top: 45px;
+        padding-bottom: 20px;
+        width: calc(100% - 48px);
+        margin-left: 24px;
+        border-bottom: 1px solid #afafaf;
+        font-size: 14px;
+      }
+
+      #sources {
+        width: calc(100% - 48px);
+        margin-left: 24px;
+      }
+
+      #sources div {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      #sources div:first-child {
+        padding-top: 14px;
+      }
+
+      #sources core-icon {
+        color: gray;
+        width: 16px;
+        height: 16px;
+      }
+
+      paper-dialog {
+        left: 0;
+        right: 0;
+        width: 200px;
+        height: 150px;
+        margin: auto;
+        display: flex;
+      }
+
+      #add_dialog::shadow #container {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #main {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #actions {
+        padding: 0;
+      }
+
+      #add_dialog paper-input-decorator {
+        padding: 0;
+        width: 70%;
+        height: 35%;
+        margin: auto;
+        font-size: 70%;
+      }
+
+      #add_dialog_button_wrapper {
+        width:70%;
+        height:30%;
+        margin: auto;
+      }
+
+      #add_dialog_button_wrapper paper-button {
+        font-size: 70%;
+        text-align: center;
+        width: 30%;
+        height: 70%;
+        margin: auto;
+      }
+
+      paper-checkbox {
+        margin-right: 32px;
+      }
+
+      paper-checkbox::shadow #checkboxContainer {
+        width: 18px;
+        height: 18px;
+      }
+
+      paper-checkbox::shadow #checkbox.checked {
+        border-color: #B8578C;
+      }
+    </style>
+
+    <div id="panel_overlay"></div>
+
+    <cp-sources-storage id="storage" on-newsources="{{setSources}}">
+    </cp-sources-storage>
+
+    <core-header-panel id="panel">
+      <core-toolbar id="header">
+        <div vertical layout>
+          <div id="title-back" horizontal layout center>
+            <paper-icon-button id="back" icon="arrow-back"
+                              on-tap="{{onBackButtonClick}}">
+            </paper-icon-button>
+
+            <div flex>
+              <div id="headertext">Sources</div>
+            </div>
+          </div>
+          <paper-fab
+            id="add"
+            icon="add"
+            disabled?="{{currentGroupName==='Files'}}"
+            on-click="{{onAddClick}}">
+          </paper-fab>
+        </div>
+      </core-toolbar>
+
+      <div id="select_all_container" horizontal layout>
+        <paper-checkbox
+          id="select_all"
+          checked?="{{allEnabled}}"
+          disabled?="{{currentGroupName==='Files'}}"
+          on-change="{{toggleAllSourcesEnabled}}">
+        </paper-checkbox>
+        <div flex>Select All</div>
+      </div>
+
+      <div id="sources" vertical layout>
+        <template repeat="{{sources}}">
+          <div horizontal layout>
+            <paper-checkbox disabled?="{{currentGroupName === 'Files'}}"
+                            on-change="{{toggleSourceEnabled}}"
+                            for-source-name="{{name}}"
+                            checked?="{{enabled}}">
+            </paper-checkbox>
+            <div flex>{{name}}</div>
+            <core-icon icon="delete" on-click="{{removeSource}}"
+                       for-source-name="{{name}}">
+            </core-icon>
+          </div>
+        </template>
+      </div>
+
+      <paper-dialog id="add_dialog" flex transition="paper-dialog-transition-center" autoCloseDisabled="{{true}}">
+        <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
+          <input id="inputName" is="core-input" required>
+        </paper-input-decorator>
+
+        <paper-input-decorator label="Source URL" floatingLabel error="input is required!">
+          <input id="inputUrl" is="core-input" required>
+        </paper-input-decorator>
+
+        <div id="add_dialog_button_wrapper" horizontal justified layout>
+          <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">Cancel</paper-button>
+          <paper-button id="done" on-click="{{onAddDoneClick}}">Done</paper-button>
+        </div>
+      </paper-dialog>
+    </core-header-panel>
+  </template>
+
+  <script>
+    (function () {
+      Polymer({
+        created: function() {
+          /* an array of sources for the selected group */
+          this.sources = [];
+
+          this.allEnabled = false;
+
+          this.currentGroupName = null;
+        },
+
+        setSources: function () {
+          if (this.currentGroupName) {
+            var rawSources = this.$.storage.getSourcesForGroup(this.currentGroupName);
+            this.sources = this.sourcesAsArray(rawSources.sources);
+          } else {
+            this.sources = [];
+          }
+        },
+
+        setGroup: function (groupName) {
+          this.$.headertext.innerText = groupName;
+          this.currentGroupName = groupName;
+          this.setSources();
+        },
+
+        sourcesChanged: function () {
+          /* set the state of the "select all" checkbox */
+          if (this.sources.length) {
+            /* is at least one source disabled? */
+            var disabled = _.find(this.sources, function (source) {
+              return source.enabled === false;
+            });
+
+            this.allEnabled = !disabled;
+          } else {
+            this.allEnabled = false;
+          }
+        },
+
+        removeSource: function (e) {
+          var sourceName = e.target.getAttribute('for-source-name');
+
+          if (this.$.storage.retrieveSource(this.currentGroupName, sourceName)) {
+            this.$.storage.removeSource(this.currentGroupName, sourceName);
+          }
+        },
+
+        toggleSourceEnabled: function (e) {
+          var checkbox = e.path[0];
+          var sourceName = checkbox.getAttribute('for-source-name');
+          var source = this.$.storage.retrieveSource(
+            this.currentGroupName,
+            sourceName
+          );
+
+          if (source) {
+            this.$.storage.setSourceEnabled(
+              this.currentGroupName,
+              sourceName,
+              !!checkbox.checked
+            );
+          }
+        },
+
+        toggleAllSourcesEnabled: function (e) {
+          var self = this;
+          var enabled = !!(e.path[0].checked);
+          var sourcesGroup = this.$.storage.getSourcesForGroup(this.currentGroupName);
+
+          _.each(_.keys(sourcesGroup.sources), function (sourceName) {
+            self.$.storage.setSourceEnabled(
+              self.currentGroupName,
+              sourceName,
+              enabled
+            );
+          });
+        },
+
+        onBackButtonClick: function () {
+          this.fire('close');
+          this.currentGroupName = null;
+        },
+
+        onAddClick: function () {
+          this.$.panel_overlay.style.visibility = 'visible';
+          this.$.add_dialog.toggle();
+        },
+
+        onAddDoneClick: function () {
+          var name = this.$.inputName.committedValue;
+          var url = this.$.inputUrl.committedValue;
+
+          var valid = this.$.inputName.validity.valid &&
+                      this.$.inputUrl.validity.valid;
+
+          /* matching name? */
+          var source = this.$.storage.retrieveSource(
+            this.currentGroupName,
+            name
+          );
+
+          if (source) {
+            valid = false;
+          }
+
+          /* matching url? */
+          source = this.$.storage.retrieveSourceByUrl(
+            this.currentGroupName,
+            url
+          );
+
+          if (source) {
+            valid = false;
+          }
+
+          /* everything OK */
+          if (valid) {
+            this.closeAddDialog();
+
+            if (!this.$.storage.groupExists(this.currentGroupName)) {
+              this.$.storage.createGroup(this.currentGroupname);
+            }
+
+            this.$.storage.createSource(
+              this.currentGroupName,
+              name,
+              {
+                url: url,
+                enabled: true
+              }
+            );
+          }
+        },
+
+        closeAddDialog: function () {
+          this.$.add_dialog.toggle();
+
+          this.$.panel_overlay.style.visibility = 'hidden';
+
+          var inputFields = this.$.add_dialog.querySelectorAll('paper-input-decorator');
+
+          for (var i = 0; i < inputFields.length; i++) {
+            inputFields[i].querySelector('input').value = '';
+            inputFields[i].querySelector('input').commit();
+            inputFields[i].isInvalid = false;
+            inputFields[i].focusedChanged();
+          }
+        },
+
+        /**
+         * Flatten sources object into an array in form
+         * [{name: <source name>, enabled: <boolean>, url: <source url>]
+         */
+        sourcesAsArray: function (sources) {
+          if (sources) {
+            return _.map(sources, function (source, sourceName) {
+              source.name = sourceName;
+              return source;
+            });
+          } else {
+            return [];
+          }
+        }
+      });
+    })();
+  </script>
+</polymer-element>

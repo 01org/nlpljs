@@ -1,0 +1,70 @@
+{
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "version": "0.0.1.22",
+  "manifest_version": 2,
+  "minimum_chrome_version": "23",
+  "default_locale": "en",
+  "permissions": [
+    "activeTab",
+    "management",
+    "declarativeContent",
+    "tabs",
+    "identity",
+    "storage",
+    "https://www.facebook.com/",
+    "https://graph.facebook.com/",
+    "<all_urls>"
+  ],
+  "page_action": {
+    "default_icon": "images/CP_icon_128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://docs.google.com/*/document/d/*",
+        "https://docs.google.com/document/d/*"
+      ],
+      "run_at": "document_start",
+      "js": ["content_script/cs-rehost-page.js"]
+    }
+  ],
+  "icons": {
+    "128": "images/CP_icon_128.png"
+  },
+  "background": {
+    "scripts": [
+      "event_page/ep-http.js",
+      "event_page/ep-auth.js",
+      "event_page/ep-sources-storage.js",
+      "event_page/ep-main.js",
+      "event_page/ep-nlp.js"
+    ],
+    "persistent": false
+  },
+  "web_accessible_resources": [
+    "",
+    "/",
+    "images/*",
+    "content_push/*",
+    "content_push/ClearSans/*",
+    "content_push/styles/*",
+    "styles/main.css",
+    "bower_components/*/*",
+    "libnlp/models/*"
+  ],
+  "oauth2": {
+    "client_id": "375300658553-ollsgctiqracj6ab6r1oo4je1hjag7i4.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive",
+      "https://www.googleapis.com/auth/cse"
+    ]
+  },
+  "externally_connectable": {
+    "matches": [
+      "https://docs.google.com/*/document/*",
+      "https://docs.google.com/document/*"
+    ]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiSYlXaRoFRtHz015t6/3VdPVsMG6pM7SsMv86/Nw1TWP+IDPWLc2kSTTsc9mjxPM02YW3du/TUL+0pjf0KMvxOz6XQjzdpvSLDHJwYxUPqr00OhR5lJv4qWYQTcOzqm9J+4Lvw+KxkSWjCE67BSbE8g2cp2j2pb1m36lA57yyNnLxBvfX4BmJnNpsPNOYu5YPgWqjZxvBbnT1Wj0WgVkZDgMxPgEL4KSg2TNsdBM6/tLnGSxW5V0DkzGmnV+Q2JgFWe7U6lxkNv0t1f21q61P1PQkOE4mtJp0R9V/AQYZ38Ub77iFIUomD01r4O5YmiqlevzsukTQNkj0hs5BBlD6wIDAQAB"
+}
