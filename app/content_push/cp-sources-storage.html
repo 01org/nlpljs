@@ -236,13 +236,16 @@
         },
 
         /**
-         * Get the names of all the groups as an array, sorted according
-         * to the "order" property of each group.
+         * Get the names of all the enabled groups as an array, sorted
+         * according to the "order" property of each group.
          */
         getGroupNames: function () {
-          var flattened = _.map(this.data, function (config, groupName) {
-            return { groupName: groupName, order: config.order };
-          });
+          var flattened = _.reduce(this.data, function (memo, config, groupName) {
+            if (config.enabled) {
+              memo.push({ groupName: groupName, order: config.order });
+            }
+            return memo;
+          }, []);
 
           var sorted = _.sortBy(flattened, 'order');
 
