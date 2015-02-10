@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<title>simple libnlp usage</title>
+</head>
+<body>
+
+<p>Paste text to extract key phrases from below:</p>
+
+<textarea id="text" cols="60" rows="10" disabled>Loading...</textarea>
+
+<p><button id="extract-btn">Extract</button></p>
+
+<div id="results"></div>
+
+<script src="requirejs/require.js"></script>
+
+<script>
+var textArea = document.getElementById('text');
+var results = document.getElementById('results');
+var extractBtn = document.getElementById('extract-btn');
+
+require.config({
+  baseUrl: '../../src',
+  paths: {
+    'text': '../test/functional/requirejs/text'
+  }
+});
+
+require(['libnlp'], function (libnlp) {
+  textArea.value = '';
+  textArea.removeAttribute('disabled');
+
+  extractBtn.addEventListener('click', function () {
+    var text = textArea.value;
+
+    if (text == '') {
+      results.innerHTML = 'No text supplied for extraction';
+    }
+    else {
+      results.innerHTML = 'Extracting...';
+
+      // the setTimeout() allows the DOM to update (and show the
+      // 'Extracting...' message) before the extractor starts and
+      // prevents the DOM from updating
+      setTimeout(function () {
+        var keyphrases = libnlp.keyphrase_extractor.extractFrom(text);
+
+        var str = '<p><strong>Results</strong></p>';
+
+        for (var i = 0; i < keyphrases.keywords.length; i++) {
+          str += '<p>' +
+                 keyphrases.keywords[i] +
+                 '; textrank score = ' +
+                 keyphrases.scores[i] +
+                 '</p>';
+        }
+
+        if (i == 0) {
+          str += '<p>No key phrases extracted</p>';
+        }
+
+        results.innerHTML = str;
+      }, 0);
+    }
+  });
+});
+</script>
+</body>
+</html>
