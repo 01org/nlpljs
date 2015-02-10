@@ -3,13 +3,14 @@
 var path = require('path');
 var fs = require('fs');
 
-var _ = require('../../app/bower_components/lodash/dist/lodash');
+var _ = require('lodash');
 var Benchmark = require('benchmark');
 
-var libnlp = require('../../app/libnlp/libnlp');
 var nlpc = require('nlp_compromise');
 var nlpn = require('natural');
-var nlpn_tagger = new nlpn.();
+
+var libnlp = require('../../src/libnlp');
+var nlpn_tokenizer = new nlpn.WordTokenizer();
 
 var textPath = path.join(__dirname, 'battle-of-hastings.txt');
 var text = fs.readFileSync(textPath, 'utf8');

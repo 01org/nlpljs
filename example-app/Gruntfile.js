@@ -12,7 +12,7 @@ module.exports = function (grunt) {
   var config = {
     app: 'app',
     dist: 'dist',
-    libnlp: path.join(__dirname, '..', 'libnlp')
+    libnlp: path.join(__dirname, '..', 'src')
   };
 
   // Define the configuration for all the tasks

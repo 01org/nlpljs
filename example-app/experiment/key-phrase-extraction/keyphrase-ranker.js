@@ -1,17 +1,20 @@
 #!/usr/bin/env node
-/* get keyphrases from a piece of text (with pageranks);
+/* get keyphrases from a piece of text (with pageranks) [echo or
+   cat the text to process into this script];
    for each, do a barrage of dbpedia lookups to get stats
    about related articles */
-var libnlp = require('../../app/libnlp/libnlp');
+var libnlp = require('../../../src/libnlp');
 var tester = require('./keyphrase-dbpedia-tester');
 var _ = require('../../app/bower_components/lodash/dist/lodash');
 
+/* this is used to set the queriesToRun argument passed to
+   tester.getDBpediaStats() */
 var queriesToRun = [
   'isExactArticle',
-  'isAnyArticle',
-  'isUsefulArticle',
-  'selectArticleTypes',
-  'selectArticles'
+  //'isAnyArticle',
+  //'isUsefulArticle',
+  //'selectArticleTypes',
+  //'selectArticles'
 ];
 
 var input = '';
@@ -218,16 +221,17 @@ process.stdin.on('end', function() {
         vagueness = 0;
         numValues = 0;
 
-        _.each(keywordObj.info, function (value, key) {
-          /* pagerank doesn't contribute to vagueness */
-          if (key !== 'pagerank') {
-            if (_.isNumber(value)) {
-              vagueness += value;
-              numValues++;
-            } else if (_.isBoolean(value)) {
-              vagueness += (value ? 0 : 1);
-              numValues++;
-            }
+        /* add up vagueness values, but only using keys which
+           occur in the queriesToRun array */
+        _.each(queriesToRun, function (key) {
+          var value = keywordObj.info[key];
+
+          if (_.isNumber(value)) {
+            vagueness += value;
+            numValues++;
+          } else if (_.isBoolean(value)) {
+            vagueness += (value ? 0 : 1);
+            numValues++;
           }
         });
 

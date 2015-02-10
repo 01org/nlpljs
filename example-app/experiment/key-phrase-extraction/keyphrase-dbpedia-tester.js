@@ -260,7 +260,7 @@ var QUERIES = {
      and any counts to 0, so this is a primitive approach at best;
      queryObj contains <keyword> (full original phrase) and
      <keywordNoStop> (phrase without stop words);
-     queriesToRun can contain one or more of the following query names:
+     queriesToRun is an array containing one or more of the following query names:
        isAnyArticle
        isExactArticle
        isUsefulArticle
@@ -293,8 +293,8 @@ var QUERIES = {
       keywordNoStop: queryObj.keywordNoStop,
       info: {
         pagerank: queryObj.pagerank,
-        isAnyArticle: false,
         isExactArticle: false,
+        isAnyArticle: false,
         isUsefulArticle: false,
         numArticleTypes: 0,
         numArticles: 0

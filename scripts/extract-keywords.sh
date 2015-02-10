@@ -4,7 +4,7 @@
 // echo "the blue sun hates all interfering mind parasites" | ./extract.sh
 // or to hide scores:
 // echo "hello Ghandi, fancy a sandwich?" | ./extract.sh hide
-var libnlp = require('../../app/libnlp/libnlp');
+var libnlp = require('../../src/libnlp');
 
 var input = '';
 
