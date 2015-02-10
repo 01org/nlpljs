@@ -537,6 +537,7 @@
 
         return tagged;
       },
+
       train: function (corpora) {
         model = hiddenMarkovModel();
 
@@ -547,6 +548,7 @@
         model.recalculateProbabilities();
         return this;
       },
+
       fromJSON: function (jsonFile) {
         var data = JSON.parse(jsonFile);
         model = hiddenMarkovModel();
@@ -567,6 +569,7 @@
 
         return this;
       },
+
       getJSON: function () {
         return JSON.stringify(model, null, 4);
       }
