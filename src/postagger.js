@@ -159,9 +159,9 @@
 
               if (/[a-zA-Z]/.test(j)) {
                 if (j[0] === j[0].toUpperCase()) {
-                  ending = ' ' + 'UPPER';
+                  ending = ' UPPER';
                 } else {
-                  ending = ' ' + 'LOWER'
+                  ending = ' LOWER'
                 }
               }
 
@@ -259,7 +259,6 @@
           return 0;
         },
         getSuffixProbability: function (state, suffix) {
-
           if (typeof this.suffixes[suffix] !== 'undefined' &&
               typeof this.suffixes[suffix].tags[state] !== 'undefined') {
             return this.suffixes[suffix].tags[state].probability;
@@ -301,9 +300,9 @@
 
             if (/[a-zA-Z]/.test(observation)) {
               if (observation[0] === observation[0].toUpperCase()) {
-                ending = ' ' + 'UPPER';
+                ending = ' UPPER';
               } else {
-                ending = ' ' + 'LOWER';
+                ending = ' LOWER';
               }
             }
 
@@ -538,6 +537,19 @@
         return tagged;
       },
 
+      /* corpora is an array of arrays; each subarray is a corpus
+       * in the form:
+       *
+       * [
+       *   { observation: 'The', state: 'DT' },
+       *   { observation: 'Battle', state: 'NNP' },
+       *   { observation: 'of', state: 'IN' },
+       *   { observation: 'Hastings', state: 'NNP' },
+       *   { observation: '.', state: 'SB' }
+       * ]
+       *
+       * i.e. an array of mappings from tokens to parts of speech
+       */
       train: function (corpora) {
         model = hiddenMarkovModel();
 
@@ -546,6 +558,7 @@
         }
 
         model.recalculateProbabilities();
+
         return this;
       },
 

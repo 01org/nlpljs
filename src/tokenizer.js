@@ -16,26 +16,27 @@
         var tokens = [];
         var token = '';
         var i = 0;
+        var char;
 
         while (i < text.length) {
-          if (specialCharacters.indexOf(text[i]) !== -1) {
+          char = text[i];
+
+          if (specialCharacters.indexOf(char) !== -1) {
             if (token !== '') {
               tokens.push(token);
             }
 
-            tokens.push(text[i]);
+            tokens.push(char);
             token = '';
           }
-          else if (text[i] === " ") {
+          else if (char === " ") {
             if (token !== '') {
               tokens.push(token);
             }
             token = '';
           }
-          else if (text[i] === ".") {
-            if (token === '') {
-              tokens.push(text[i]);
-            } else if (digitRegex.test(token[0]) && !alphaRegex.test(token)) {
+          else if (char === ".") {
+            if (digitRegex.test(token[0]) && !alphaRegex.test(token)) {
               if (!notDigitRegex.test(token) && notDigitRegex.test(text[i + 1])) {
                 tokens.push(token);
                 token = '';
@@ -43,40 +44,38 @@
                 tokens.push(token);
                 token = '';
               }
-            }
-            else {
+            } else {
               if (capitalRegex.test(token[0])) {
                 if (!notAlphaRegex.test(token) && (/[aeyuo]/.test(token.slice(1)) ||
                     token.length > 3)) {
                   tokens.push(token);
                   token = '';
                 }
-              }
-              else if (token.length > 1 && token[token.length - 2] !== ".") {
+              } else if (token.length > 1 && token[token.length - 2] !== ".") {
                 tokens.push(token);
                 token = '';
               }
             }
 
             if (token === '') {
-              tokens.push(text[i]);
+              tokens.push(char);
             } else {
-              token += text[i];
+              token += char;
             }
           }
-          else if (text[i] === "'") {
+          else if (char === "'") {
             if (token !== '') {
               if (notDigitRegex.test(token)) {
                 tokens.push(token);
-                token = text[i];
+                token = char;
               } else {
-                token += text[i];
+                token += char;
               }
             } else {
-              tokens.push(text[i]);
+              tokens.push(char);
             }
           } else {
-            token += text[i];
+            token += char;
           }
 
           if (i === lastCharPosition && token !== '') {

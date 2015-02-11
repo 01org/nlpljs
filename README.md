@@ -113,6 +113,16 @@ API is the same regardless of platform).
       scores: [ 1, 1 ] }
     ```
 
+## Running the tests
+
+libnlp has a very basic unit test suite. To run it, do:
+
+    grunt test
+
+Test coverage reports are also available with:
+
+    grunt cov
+
 ## Scripts
 
 Although libnlp is intended to be used as a library, the `scripts/`
