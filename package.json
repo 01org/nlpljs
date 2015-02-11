@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "devDependencies": {
     "benchmark": "^1.0.0",
+    "blanket": "^1.1.6",
     "chai": "^1.10.0",
     "grunt": "^0.4.5",
     "grunt-mochaccino": "^0.1.7",
@@ -12,5 +13,10 @@
   },
   "engines": {
     "node": ">=0.8.0"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "src/"
+    }
   }
 }
