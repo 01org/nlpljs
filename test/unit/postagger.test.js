@@ -37,4 +37,28 @@ describe('postagger', function () {
     actual.should.eql(expected);
   });
 
+  it('should be trainable using a corpus', function () {
+    var corpus = [
+      { observation: 'The', state: 'DT' },
+      { observation: 'Battle', state: 'NNP' },
+      { observation: 'of', state: 'IN' },
+      { observation: 'Hastings', state: 'NNP' },
+      { observation: '.', state: 'SB' }
+    ];
+
+    postagger.train([corpus]);
+
+    var expected = [
+      { token: 'The', tag: 'DT' },
+      { token: 'Battle', tag: 'NNP' },
+      { token: 'of', tag: 'IN' },
+      { token: 'Hastings', tag: 'NNP' },
+      { token: '.', tag: 'SB' }
+    ];
+
+    var actual = postagger.tag('The Battle of Hastings.');
+
+    actual.should.eql(expected);
+  });
+
 });
