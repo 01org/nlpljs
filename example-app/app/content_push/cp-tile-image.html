@@ -6,10 +6,19 @@ the smallest image which will display OK is about 50x50px; any smaller
 than this and there's not enough room for the metadata about the image
 size
 -->
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
 <polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
   <template>
     <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
+      #imageShadow {
+        margin: 3px;
+        height: calc(100% - 6px); /* -margin * 2 */
+        width: calc(100% - 6px); /* -margin * 2 */
+        box-sizing: border-box;
+      }
+
       [data-revealed="true"] {
         display: block;
         position: absolute;
@@ -32,11 +41,13 @@ size
     </style>
 
     <div id="container" on-mouseover="{{revealmetaOff}}" on-mouseout="{{revealmetaOff}}">
-      <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+      <paper-shadow z="1" id="imageShadow">
+        <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
-      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
-        {{width}}x{{height}}
-      </p>
+        <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
+          {{width}}x{{height}}
+        </p>
+      </paper-shadow>
     </div>
   </template>
 
