@@ -31,7 +31,7 @@ size
       }
     </style>
 
-    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
+    <div id="container" on-mouseover="{{revealmetaOff}}" on-mouseout="{{revealmetaOff}}">
       <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
       <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
