@@ -10,21 +10,22 @@ wrapper for a Google Drive file thumbnail
     <style>
       #imageShadow {
         margin: 3px;
-        height: calc(100% - 46px); /* -height of meta -margin * 2 */
+        height: calc(100% - 6px); /* -margin * 2 */
         width: calc(100% - 6px); /* -margin * 2 */
         box-sizing: border-box;
       }
 
       #imageContainer {
-        height: 100%;
+        height: calc(100% - 46px);
         width: 100%;
         overflow: hidden;
         border-radius: 2px;
       }
 
       #image {
-        width: 100%;
-        height: auto;
+        object-fit: contain;
+        object-position: 50% 50%;
+        background-color: #eee;
       }
 
       #meta {
@@ -37,6 +38,7 @@ wrapper for a Google Drive file thumbnail
         padding: 0.5em;
         box-sizing: border-box;
         width: 100%;
+        border-top: 1px solid #e6e6e6;
       }
 
       #caption {
@@ -48,6 +50,11 @@ wrapper for a Google Drive file thumbnail
         font-size: 14px;
         padding-left: 8px;
       }
+
+      #icon {
+        min-width: 16px;
+        min-height: 16px;
+      }
     </style>
 
     <div id="container">
@@ -55,12 +62,12 @@ wrapper for a Google Drive file thumbnail
         <div id="imageContainer">
           <img id="image" src="{{src}}">
         </div>
-      </paper-shadow>
 
-      <div id="meta">
-        <img id="icon" src="{{iconLink}}">
-        <span id="caption">{{caption}}</span>
-      </div>
+        <div id="meta">
+          <img id="icon" src="{{iconLink}}">
+          <span id="caption">{{caption}}</span>
+        </div>
+      </paper-shadow>
     </div>
   </template>
 
@@ -81,7 +88,7 @@ wrapper for a Google Drive file thumbnail
         type: 'file',
 
         /* hard-code the frame for file tiles */
-        frame: FrameChooser.FRAMES['large_square'],
+        frame: FrameChooser.FRAMES['small_square'],
 
         created: function () {
           /* THESE PROPERTIES SHOULD BE SET */
