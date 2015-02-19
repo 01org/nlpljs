@@ -56,7 +56,14 @@ tile for a general web page (article)
         margin-bottom: -2px;
         overflow: hidden;
         text-overflow: ellipsis;
-      }mainContainer
+      }
+
+      #image {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
 
       #meta p {
         margin: 0.25em 0;
@@ -68,7 +75,7 @@ tile for a general web page (article)
       <paper-shadow z="1" id="imageShadow">
         <div horizontal layout fit id="mainContainer">
           <div class="left" data-show="{{src !== null && imageLoaded}}">
-            <img src="{{src}}" on-load="{{onImageLoaded}}"
+            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
                  on-error="{{onImageError}}">
           </div>
 
