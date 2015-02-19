@@ -15,11 +15,19 @@
   box-sizing: border-box;
   border: 3px solid #fafafa;
   background-color: #fafafa;
+}
+
+#imageShadow {
+  margin: 3px;
+  height: calc(100% - 6px); /* -margin * 2 */
+  width: calc(100% - 6px); /* -margin * 2 */
+  box-sizing: border-box;
+  border: 3px solid rgba(0, 0, 0, 0);
   border-radius: 4px;
 }
 
-#container:hover {
-  border-color: #C42B7F;
+#imageShadow:hover {
+  border: 3px solid #C42B7F;
 }
 
 #image {

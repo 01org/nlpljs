@@ -8,12 +8,6 @@ tile for a general web page (article)
     <link rel="stylesheet" href="styles/cp-tile.css">
 
     <style>
-      paper-shadow {
-        width: calc(100% - 6px);
-        height: calc(100% - 6px);
-        margin: 3px;
-      }
-
       #mainContainer {
         border-radius: 2px;
       }
@@ -71,7 +65,7 @@ tile for a general web page (article)
     </style>
 
     <div id="container">
-      <paper-shadow z="1">
+      <paper-shadow z="1" id="imageShadow">
         <div horizontal layout fit id="mainContainer">
           <div class="left" data-show="{{src !== null && imageLoaded}}">
             <img src="{{src}}" on-load="{{onImageLoaded}}"
