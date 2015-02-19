@@ -23,8 +23,19 @@
   border-radius: 4px;
 }
 
-#imageShadow:hover {
+#overlay {
+  pointer-events: none;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+#container:hover #overlay {
   border: 3px solid #C42B7F;
+  border-radius: 4px;
 }
 
 #image {

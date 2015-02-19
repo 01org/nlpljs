@@ -37,8 +37,10 @@ size
       }
     </style>
 
-    <div id="container" on-mouseover="{{revealmetaOff}}" on-mouseout="{{revealmetaOff}}">
+    <div id="container">
       <paper-shadow z="1" id="imageShadow">
+        <div id="overlay"></div>
+
         <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
         <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
@@ -112,22 +114,6 @@ size
               self.fire('done', self);
             }
           }, CP_CONSTANTS.TIMEOUT);
-        },
-
-        revealmetaOn: function () {
-          if (this.revealmeta === 'always') {
-            return;
-          }
-
-          this.revealmeta = 'on';
-        },
-
-        revealmetaOff: function () {
-          if (this.revealmeta === 'always') {
-            return;
-          }
-
-          this.revealmeta = 'off';
         },
 
         srcChanged: function () {

@@ -66,13 +66,15 @@ tile for a general web page (article)
       }
 
       #meta p {
-        margin: 0.25em 0;
+        margin: 0.4em 0;
         white-space: nowrap;
       }
     </style>
 
     <div id="container">
       <paper-shadow z="1" id="imageShadow">
+        <div id="overlay"></div>
+
         <div horizontal layout fit id="mainContainer">
           <div class="left" data-show="{{src !== null && imageLoaded}}">
             <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
