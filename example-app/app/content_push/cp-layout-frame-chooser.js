@@ -4,7 +4,7 @@
   // no other frame is suitable
   var FRAMES = [
     { name: 'small_square', rows: 2, columns: 2, ratio: 1 },
-    { name: 'large_square', rows: 4, columns: 4, ratio: 1 },
+    //{ name: 'large_square', rows: 4, columns: 4, ratio: 1 },
     { name: 'portrait', columns: 2, rows: 4, ratio: 0.5 },
     { name: 'landscape1', columns: 4, rows: 2, ratio: 2 }
     //{ name: 'landscape2', columns: 4, rows: 3, ratio: 1.333333 }

@@ -6,6 +6,8 @@ the smallest image which will display OK is about 50x50px; any smaller
 than this and there's not enough room for the metadata about the image
 size
 -->
+<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+
 <polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
   <template>
     <link rel="stylesheet" href="styles/cp-tile.css">
@@ -25,18 +27,26 @@ size
         display: none;
       }
 
+      #image {
+        border-radius: 4px;
+      }
+
       #meta {
         max-width: 100%;
         margin: 0;
       }
     </style>
 
-    <div id="container" on-mouseover="{{revealmetaOn}}" on-mouseout="{{revealmetaOff}}">
-      <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+    <div id="container">
+      <paper-shadow z="1" id="imageShadow">
+        <div id="overlay"></div>
 
-      <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
-        {{width}}x{{height}}
-      </p>
+        <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+
+        <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
+          {{width}}x{{height}}
+        </p>
+      </paper-shadow>
     </div>
   </template>
 
@@ -104,22 +114,6 @@ size
               self.fire('done', self);
             }
           }, CP_CONSTANTS.TIMEOUT);
-        },
-
-        revealmetaOn: function () {
-          if (this.revealmeta === 'always') {
-            return;
-          }
-
-          this.revealmeta = 'on';
-        },
-
-        revealmetaOff: function () {
-          if (this.revealmeta === 'always') {
-            return;
-          }
-
-          this.revealmeta = 'off';
         },
 
         srcChanged: function () {
