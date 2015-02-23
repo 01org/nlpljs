@@ -20,7 +20,7 @@
   width: calc(100% - 6px); /* -margin * 2 */
   box-sizing: border-box;
   border: 3px solid rgba(0, 0, 0, 0);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 #overlay {
@@ -35,7 +35,7 @@
 
 #container:hover #overlay {
   border: 3px solid #C42B7F;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 #image {
