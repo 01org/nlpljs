@@ -16,8 +16,8 @@
 }
 
 #imageShadow {
-  height: calc(100% - 6px); /* -margin * 2 */
-  width: calc(100% - 6px); /* -margin * 2 */
+  height: calc(100% - 4px); /* -margin * 2 + 2 (for correct tile spacing) */
+  width: calc(100% - 4px); /* -margin * 2 + 2 (for correct tile spacing) */
   box-sizing: border-box;
   border: 3px solid rgba(0, 0, 0, 0);
   border-radius: 2px;
@@ -25,8 +25,8 @@
 
 #overlay {
   pointer-events: none;
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
   position: absolute;
   top: 0;
   left: 0;
