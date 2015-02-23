@@ -38,6 +38,7 @@
   background-color: #fafafa;
   height: 100%;
   width: 320px;
+  min-width: 320px;
   max-width: 40%;
   float: right;
 }
