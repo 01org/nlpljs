@@ -111,6 +111,19 @@
         border-bottom: none;
       }
 
+      #menu paper-dropdown, #menu core-dropdown {
+        border-radius: 2px;
+      }
+
+      #menu core-menu {
+        margin: 8px 16px;
+      }
+
+      #menu /deep/ .button-content {
+        padding: 0 !important;
+        height: 100%;
+      }
+
       #menu::shadow #label, #menu::shadow #arrow {
         color: #fff !important;
       }
@@ -120,7 +133,10 @@
       }
 
       #menu paper-item {
-        font-size: 14px;
+        font-size: 16px;
+        height: 48px;
+        color: rgba(0, 0, 0, 0.8);
+        overflow: hidden;
       }
 
       #menu paper-item.core-selected {
@@ -133,7 +149,7 @@
 
       /* highlight for filter selected in the menu */
       [data-selected-filter="true"]::shadow * {
-        color: #C42B7F !important;
+        color: #b8578c !important;
       }
 
       /* this is a bit hacky because we have to set the fill and
