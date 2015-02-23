@@ -56,9 +56,16 @@
   position: absolute !important;
 }
 
+:host /deep/ p,
+:host /deep/ h2,
+:host /deep/ h3,
+:host /deep/ h4 {
+  color: rgba(0, 0, 0, 0.8);
+}
+
 :host /deep/ p {
   font-size: 14px;
-  line-height: 16px;
+  line-height: 18px;
 }
 
 :host /deep/ p.small {
