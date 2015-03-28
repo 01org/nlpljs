@@ -1,0 +1,50 @@
+<link rel="import" href="../bower_components/paper-dialog/paper-action-dialog.html">
+
+<polymer-element name="cp-sources-dialog" attributes="container" extends="paper-action-dialog">
+<template>
+  <shadow>
+  </shadow>
+</template>
+<script>
+(function () {
+  Polymer({
+
+    container: null,
+
+    /*
+    onAddCancelClick: function (e) {
+      this.fire('addCancelClick',e);
+    },
+
+    onAddDoneClick: function (e) {
+      this.fire('addDoneClick',e);
+    },
+    */
+
+    // vertically and horizontally center if not positioned
+    repositionTarget: function () {
+      // only center if position fixed.      
+      if (this.dimensions.position.css !== 'fixed') {
+        return; 
+      }
+
+      var containerElement = (this.container)?document.querySelector(this.container):null;
+
+      if (!this.dimensions.position.v) {
+        var containerHeight = (containerElement)?containerElement.offsetHeight:window.innerHeight;
+        var t = (containerHeight - this.target.offsetHeight) / 2;
+        t -= this.dimensions.margin.top;
+        this.target.style.top = t + 'px';
+      }
+
+      if (!this.dimensions.position.h) {
+        var containerWidth = (containerElement)?containerElement.offsetWidth:window.innerWidth;
+        var l = (containerWidth - this.target.offsetWidth) / 2;
+        l -= this.dimensions.margin.left;
+        this.target.style.left = l + 'px';
+      }
+    },
+  });
+})();
+</script>
+</polymer-element>
