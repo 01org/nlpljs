@@ -94,6 +94,8 @@ search using a Google custom search engine
 
                 try {
                   chrome.runtime.sendMessage(self.appId, message, function (response) {
+                    console.log('CP-SEARCH-GOOGLE: cb from ep-http:', response);
+                    console.log('CP-SEARCH-GOOGLE: numResults:', response.searchInformation.totalResults);
                     self.handleResponse(resultSet, query, self.searchType, response)
                     .then(
                       resolve, reject
