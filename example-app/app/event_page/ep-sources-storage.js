@@ -31,38 +31,8 @@
  *           }
  */
 
-// for use from the console
-var cp = cp || {
-  help: function() {
-    console.log('EP-SOURCES-STORAGE: cp.clearStorage() - clear all storage');
-    console.log('EP-SOURCES-STORAGE: cp.removeSources(documentId) - remove just one source property from storage');
-    console.log('EP-SOURCES-STORAGE: cp.dumpStorage(documentId) - dump storage for documentId, or all storage if null');
-  },
-
-  clearStorage: function () {
-    chrome.storage.sync.clear(function () {
-      if (chrome.runtime.lastError) {
-        console.log('EP-SOURCES-STORAGE:', chrome.runtime.lastError);
-      } else {
-        console.log('EP-SOURCES-STORAGE: done' );
-      }
-    });
-  },
-
-  removeSources: function (documentId) {
-    chrome.storage.sync.remove(documentId);
-  },
-
-  dumpStorage: function (documentId) {
-    chrome.storage.sync.get(documentId, function (result) {
-      console.log('EP-SOURCES-STORAGE:', result);
-    });
-  }
-};
-
 (function () {
   var currentItem = {};
-  var storage = null;
 
   /*
   // I'm leaving these here as this is the actual list the designers
@@ -168,8 +138,52 @@ var cp = cp || {
   };
   */
 
+  // for use from the console
+  window.cp = window.cp || {
+    help: function() {
+      console.log('EP-SOURCES-STORAGE: cp.clearStorage() - clear all storage');
+      console.log('EP-SOURCES-STORAGE: cp.removeSources(documentId) - remove just one source property from storage');
+      console.log('EP-SOURCES-STORAGE: cp.dumpStorage(documentId) - dump storage for documentId, or all storage if null');
+      console.log('EP-SOURCES-STORAGE: cp.useGoogle() - use Google as a search service');
+      console.log('EP-SOURCES-STORAGE: cp.useWikipedia() - use Wikipedia as a search service');
+    },
+
+    useGoogle: function () {
+      defaults.SearchService = 'Google';
+      this.clearStorage();
+    },
+
+    useWikipedia: function () {
+      defaults.SearchService = 'Wikipedia';
+      this.clearStorage();
+    },
+
+    clearStorage: function () {
+      currentItem = {};
+      chrome.storage.sync.clear(function () {
+        if (chrome.runtime.lastError) {
+          console.log('EP-SOURCES-STORAGE:', chrome.runtime.lastError);
+        } else {
+          console.log('EP-SOURCES-STORAGE: done' );
+          console.log('EP-SOURCES-STORAGE: please reload tabs');
+        }
+      });
+    },
+
+    removeSources: function (documentId) {
+      chrome.storage.sync.remove(documentId);
+    },
+
+    dumpStorage: function (documentId) {
+      chrome.storage.sync.get(documentId, function (result) {
+        console.log('EP-SOURCES-STORAGE:', result);
+      });
+    }
+  };
+
   // cut down version of the defaults
   var defaults = {
+    'SearchService': 'Wikipedia',
     'Images': {
       order: 1,
       enabled: true,
@@ -293,7 +307,7 @@ var cp = cp || {
 
             if (!currentItem.hasOwnProperty(documentId)) {
               chrome.storage.sync.get(documentId, function(result) {
-                loadSources(documentId,result, newPort);
+                loadSources(documentId, result, newPort);
               });
             } else {
               var message = {

@@ -1,6 +1,5 @@
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-sources-storage.html">
-<link rel="import" href="./cp-globals.html">
 
 <polymer-element name="cp-aggregator">
   <template>
@@ -8,8 +7,6 @@
     </cp-sources-storage>
 
     <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
-
-    <cp-globals id="globals"></cp-globals>
   </template>
 
   <script>
@@ -66,30 +63,34 @@
 
       Polymer({
         domReady: function () {
-          var searchService = this.$.globals.searchService;
-
-          this.services = [
-            {
-              service: searchService + ' Image Search',
-              groupName: 'Images'
-            },
-            {
-              service: searchService + ' Article Search',
-              groupName: 'Articles'
-            },
-            {
-              service: 'Google Drive Search',
-              groupName: 'Files'
-            }
-          ];
-
           this.pendingSearches = 0;
-
           this.onNewSources();
         },
 
         onNewSources: function () {
-          this.sources = this.$.storage.retrieveAllSources();
+          var searchService = this.$.storage.getSearchService();
+
+          // if this is the first run, then searchService can be undefined
+          if (searchService) {
+            console.log('MAXMAXMAX: searchService: ',searchService);
+            this.sources = this.$.storage.retrieveAllSources();
+
+            this.services = [
+              {
+                service: searchService + ' Image Search',
+                groupName: 'Images'
+              },
+              {
+                service: searchService + ' Article Search',
+                groupName: 'Articles'
+              },
+              {
+                service: 'Google Drive Search',
+                groupName: 'Files'
+              }
+            ];
+          }
+
         },
 
         /**
