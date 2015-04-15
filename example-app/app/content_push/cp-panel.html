@@ -181,14 +181,14 @@
             <!-- items in this menu set the "types" part of the display filter -->
             <paper-dropdown-menu label="All" id="menu">
               <paper-dropdown class="dropdown">
-                <core-menu class="menu" on-click="{{onMenuClick}}">
-                  <paper-item data-type-filter="no-filter"
+                <core-menu class="menu" valueattr="id" on-click="{{onMenuClick}}">
+                  <paper-item id="itemAll" data-type-filter="no-filter"
                               data-selected-filter="true">
                     All
                   </paper-item>
 
                   <template repeat="{{groupName in groupNames}}">
-                    <paper-item data-type-filter="{{groupName|lowercaseSingular}}">
+                    <paper-item id="item{{groupName}}" data-type-filter="{{groupName|lowercaseSingular}}">
                       {{groupName}}
                     </paper-item>
                   </template>
@@ -267,7 +267,7 @@
 
         var sources = null;
         if (self.searchService === 'Google') {
-          self.$.storage.retrieveAllSources()
+          sources = self.$.storage.retrieveAllSources()
         }
 
         /* set filter on the display based on current keywordInfo,
@@ -381,6 +381,13 @@
           } else if (elt.id === 'itemEditSources') {
             /* open sources editor */
             this.$.swapper.slideIn('groups');
+            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            var coreMenu = this.$.menu.querySelector('paper-dropdown > core-menu');
+
+            this.async( function () {
+              // reselect previously selected item
+              coreMenu.selected = [selected.id];
+            });
           }
         },
 

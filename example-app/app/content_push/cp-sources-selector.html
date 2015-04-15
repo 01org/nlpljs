@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="./cp-sources-dialog.html">
 <link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name="cp-sources-selector">
@@ -41,6 +41,10 @@
         background-color:rgba(0, 0, 0, 0.5);
         z-index: 5;
         visibility: hidden;
+      }
+
+      #panel_overlay.visible {
+        visibility: visible;
       }
 
       #panel {
@@ -121,9 +125,9 @@
         height: 16px;
       }
 
-      paper-dialog {
-        left: 0;
-        right: 0;
+      cp-sources-dialog {
+        left: auto;
+        right: auto;
         width: 200px;
         height: 150px;
         margin: auto;
@@ -158,6 +162,10 @@
         font-size: 70%;
       }
 
+      #add_dialog::shadow #scroller {
+        overflow: hidden;
+      }
+
       #add_dialog_button_wrapper {
         width:70%;
         height:30%;
@@ -186,7 +194,9 @@
       }
     </style>
 
-    <div id="panel_overlay"></div>
+    <div
+      id="panel_overlay"
+      class="{{ {visible: ($.add_dialog.style.display !== 'none')} | tokenList }}"></div>
 
     <cp-sources-storage id="storage" on-newsources="{{setSources}}">
     </cp-sources-storage>
@@ -238,7 +248,13 @@
         </template>
       </div>
 
-      <paper-dialog id="add_dialog" flex transition="paper-dialog-transition-center" autoCloseDisabled="{{true}}">
+      <cp-sources-dialog
+        id="add_dialog"
+        container="html /deep/ cp-panel"
+        flex
+        layered="false"
+        transition="paper-dialog-transition-center"
+        autoCloseDisabled="{{true}}">
         <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
           <input id="inputName" is="core-input" required>
         </paper-input-decorator>
@@ -248,23 +264,34 @@
         </paper-input-decorator>
 
         <div id="add_dialog_button_wrapper" horizontal justified layout>
-          <paper-button id="cancel" dismissive on-click="{{onAddCancelClick}}">Cancel</paper-button>
-          <paper-button id="done" on-click="{{onAddDoneClick}}">Done</paper-button>
+          <paper-button id="cancel" dismissive>Cancel</paper-button>
+          <paper-button
+            id="done"
+            affirmative
+            on-click="{{onAddDoneClick}}"
+            >Done</paper-button>
         </div>
-      </paper-dialog>
+      </cp-sources-dialog>
     </core-header-panel>
   </template>
 
   <script>
     (function () {
       Polymer({
-        created: function() {
+        created: function () {
           /* an array of sources for the selected group */
           this.sources = [];
 
           this.allEnabled = false;
 
           this.currentGroupName = null;
+        },
+
+        ready: function () {
+          var self = this;
+          document.addEventListener('polymer-ready', function () {
+            self.$.add_dialog.parentNode = document.querySelector('html /deep/ cp-panel');
+          });
         },
 
         setSources: function () {
@@ -341,8 +368,7 @@
         },
 
         onAddClick: function () {
-          this.$.panel_overlay.style.visibility = 'visible';
-          this.$.add_dialog.toggle();
+          this.$.add_dialog.open();
         },
 
         onAddDoneClick: function () {
@@ -392,9 +418,8 @@
         },
 
         closeAddDialog: function () {
-          this.$.add_dialog.toggle();
-
-          this.$.panel_overlay.style.visibility = 'hidden';
+          console.log('MAXMAXMAX closeAddDialog()');
+          //this.$.add_dialog.close();
 
           var inputFields = this.$.add_dialog.querySelectorAll('paper-input-decorator');
 

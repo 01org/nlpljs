@@ -26,6 +26,7 @@
     var head = document.createElement('head');
     var body = document.createElement('body');
     body.setAttribute('unresolved', '');
+    body.setAttribute('fit', '');
 
     var base = document.createElement('base');
     base.setAttribute('href', extensionUrl);

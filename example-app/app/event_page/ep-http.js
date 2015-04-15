@@ -34,6 +34,7 @@
     };
 
     handlers[handlerId] = function (id, response) {
+      console.log('EP-HTTP:message from http_worker:', id, response);
       parameters.cb(response);
       delete handlers[id];
       handlers[id] = null;
@@ -41,6 +42,7 @@
 
     handlerId++;
 
+    console.log('EP-HTTP:send message to http_worker:', request);
     obj.worker.postMessage(request);
   };
 
