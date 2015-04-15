@@ -10,8 +10,7 @@
  - }
  -->
 
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="cp-globals.html">
+<link rel="import" href="./cp-globals.html">
 
 <polymer-element name="cp-sources-storage">
   <template>
@@ -87,6 +86,7 @@
 
           this.port.onMessage.addListener(function (detail) {
             if (detail.component === 'sources') {
+              console.log('CP-SOURCES-STORAGE:got sources: ', detail.data);
               setData(detail.data);
             }
           });
@@ -309,6 +309,14 @@
         retrieveAllSources: function () {
           return this.data;
         },
+
+        /**
+         * Return the search service.
+         */
+        getSearchService: function () {
+          return this.data['SearchService'];
+        },
+
       }); // Polymer()
     })();
 

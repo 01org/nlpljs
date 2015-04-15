@@ -1,8 +1,4 @@
 (function () {
-  /* 'Wikipedia' or 'Google'; sets the search service for images
-     and articles */
-  var SEARCH_SERVICE = 'Wikipedia';
-
   var open = true;
 
   chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -57,7 +53,6 @@
     var cpGlobals = document.createElement('cp-globals');
     cpGlobals.setAttribute('app_id', chrome.runtime.id);
     cpGlobals.setAttribute('iframeurl', currentTabUrl);
-    cpGlobals.setAttribute('searchService', SEARCH_SERVICE);
 
     body.appendChild(cpGlobals);
 

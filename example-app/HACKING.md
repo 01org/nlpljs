@@ -114,7 +114,7 @@ The code which does this is in `app/content_push/cp-keyword-highlighter.html`.
 
 ## Differences between Google and Wikipedia as search services
 
-Either a Google Custom Search engine or Wikipedia's API can be used as search services. This is done by modifying the `SEARCH_SERVICE` global variable (see the README.md for details).
+Either a Google Custom Search engine or Wikipedia's API can be used as search services. This is done by running ```cp.useGoogle()``` or ```cp.useWikipedia()``` in the background page console - note that you then need to reload any tabs using Content Push.
 
 Note that Video and Quote search results are not available for either service, even though they are in the filter menu.
 

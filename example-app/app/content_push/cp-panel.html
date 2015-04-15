@@ -6,7 +6,6 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
-<link rel="import" href="./cp-globals.html">
 <link rel="import" href="./cp-icons-svg.html">
 <link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-aggregator.html">
@@ -164,8 +163,6 @@
       }
     </style>
 
-    <cp-globals id="globals"></cp-globals>
-
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage"
@@ -319,11 +316,12 @@
         },
 
         domReady: function () {
-          this.searchService = this.$.globals.searchService;
+          this.searchService = this.$.storage.getSearchService();
           this.onNewSources();
         },
 
         onNewSources: function () {
+          this.searchService = this.$.storage.getSearchService();
           this.groupNames = this.$.storage.getGroupNames();
           setFilter(this);
         },
