@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 # Natural Language Processing Library for JavaScript
 #
 # A client-side NLP utility library for web applications
@@ -23,7 +25,6 @@
 #   Max Waterman <max.waterman@intel.com>
 #   Plamena Manolova <plamena.manolova@intel.com>
 
-#!/usr/bin/env node
 // extract keywords from a piece of text on the command line;
 // echo or cat something into this script to see the results, e.g.
 // echo "the blue sun hates all interfering mind parasites" | ./extract.sh
