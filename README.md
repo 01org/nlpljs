@@ -1,6 +1,6 @@
-# libnlp
+# Natural Language Processing Library for JavaScript (NLPL for JavaScript)
 
-libnlp is a library for natural language processing. It is implemented in
+NLPL for JavaScript is a library for natural language processing. It is implemented in
 JavaScript and can run in a browser or in a standalone JavaScript engine
 (e.g. [node](http://nodejs.org/)).
 
@@ -22,19 +22,19 @@ reasonably accurate) noun phrase chunking.
 [TextRank](http://web.eecs.umich.edu/~mihalcea/papers/mihalcea.emnlp04.pdf)
 algorithm.
 
-Note that libnlp has no multi-lingual capabilities: the part of speech
+Note that NLPL for JavaScript has no multi-lingual capabilities: the part of speech
 tagger is only capable of tagging English text.
 
 ## Installation
 
-libnlp has no runtime dependencies. However, to run the tests and benchmarks,
+NLPL for JavaScript has no runtime dependencies. However, to run the tests and benchmarks,
 you will need to install a few packages:
 
     npm install
 
 ## Usage
 
-libnlp requires that you use an AMD module loader like
+NLPL for JavaScript requires that you use an AMD module loader like
 [requirejs](http://requirejs.org/). Then you can use it from your
 JavaScript files as per usual:
 
@@ -43,9 +43,9 @@ JavaScript files as per usual:
     });
 
 `test/functional/simple.html` gives an example of how to use
-libnlp in this way.
+NLPL for JavaScript in this way.
 
-It would be possible to use libnlp without requirejs, though this would
+It would be possible to use NLPL for JavaScript without requirejs, though this would
 require that the language model file be loaded by an alternative mechanism
 (currently, we use the
 [requirejs text plugin](http://requirejs.org/docs/api.html#text) to do
@@ -115,7 +115,7 @@ API is the same regardless of platform).
 
 ## Running the tests
 
-libnlp has a very basic unit test suite. To run it, do:
+NLPL for JavaScript has a very basic unit test suite. To run it, do:
 
     grunt test
 
@@ -125,7 +125,7 @@ Test coverage reports are also available with:
 
 ## Scripts
 
-Although libnlp is intended to be used as a library, the `scripts/`
+Although NLPL for JavaScript is intended to be used as a library, the `scripts/`
 directory contains some command line programs which demonstrate how
 to use it.
 
@@ -137,8 +137,8 @@ to use it.
 
 The `example-app/` directory contains an application called Content
 Push. This application was the original impetous behind the
-creation of libnlp. Although no longer maintained, Content Push is included
-here to demonstrate the potential of libnlp.
+creation of NLPL for JavaScript. Although no longer maintained, Content Push is included
+here to demonstrate the potential of NLPL for JavaScript.
 
 Content Push is a browser extension which acts as a companion for
 Google Docs, living in a panel alongside your documents.
