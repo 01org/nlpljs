@@ -1,4 +1,4 @@
-Please take a look at the Google JavaScript Style Guide, which seems like a
-good starting point for JS coding style.
+Please take a look at the Google JavaScript Style Guide, which seems
+like a good starting point for JS coding style.
 
 URL:https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml

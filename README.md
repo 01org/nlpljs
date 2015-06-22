@@ -137,7 +137,7 @@ to use it.
 
 The `example-app/` directory contains an application called Content
 Push. This application was the original impetous behind the
-creation of NLPL for JavaScript. Although no longer maintained, Content Push is included
+creation of NLPL for JavaScript. Content Push is included
 here to demonstrate the potential of NLPL for JavaScript.
 
 Content Push is a browser extension which acts as a companion for
