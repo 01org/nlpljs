@@ -30,15 +30,21 @@ superclass for elements which perform searches; subclasses of this component
 should implement a searchImpl() method (see cp-search-wikipedia.html
 for an example)
 -->
-<polymer-element name="cp-search"
-                 attributes="resultsPerFetch">
+<dom-module id="cp-search">
   <script src="cp-resultset.js"></script>
   <script>
     (function () {
       // declare the element
       Polymer({
-        // number of results to return when fetch() is invoked
-        resultsPerFetch: 10,
+        is: 'cp-search',
+
+        properties: {
+          resultsPerFetch: {
+            type: Number,
+            value: 10,
+            notify: true
+          }
+        },
 
         created: function () {
           // map from key phrases to ResultSets
@@ -117,4 +123,4 @@ for an example)
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

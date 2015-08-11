@@ -31,10 +31,9 @@
  -->
 
 <!-- import links here -->
-
-<polymer-element name="my-element">
+<dom-module id="my-element">
+  <style></style>
   <template>
-    <style></style>
     <div id="container"></div>
   </template>
   <script>
@@ -42,6 +41,8 @@
       // private *static* functions and constants
 
       Polymer({
+        is: 'my-element',
+
         // functions and properties used in API and bindings
 
         // life cycle handlers
@@ -57,6 +58,5 @@
 
       }); // Polymer()
     })();
-
   </script>
-</polymer-element>
+</dom-module>

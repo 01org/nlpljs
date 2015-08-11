@@ -28,12 +28,27 @@
 <link rel="import" 
 href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
-<polymer-element name="cp-detail-file" attributes="src caption source">
+<dom-module id="cp-detail-file">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+  </style>
   <template>
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
@@ -44,16 +59,16 @@ href="../bower_components/paper-spinner/paper-spinner.html">
                      on-click="{{onBackButtonClick}}">
           </paper-fab>
 
-          <h2 id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|cleanHTML}}</caption>
+          <h2 id="backcaption" data-show="{{computeData-show(caption)}}" flex> <!-- TODO RENAME -->
+            <span>{{computeExpression1(caption, cleanHTML)}}</span> <!-- TODO RENAME -->
           </h2>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{!loaded}}">
-            <template if="{{!loaded}}">
+          <div id="spinner" data-show="{{computeData-show(loaded)}}"> <!-- TODO RENAME -->
+            <template is="dom-if" if="{{computeIf(loaded)}}"> <!-- TODO RENAME -->
               <paper-spinner active></paper-spinner>
             </template>
           </div>
@@ -70,56 +85,56 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         <div class="imageMeta">
           <div class="imageMetaKey">Source</div>
           <div class="imageMetaValue">
-            <span data-show="{{!!serviceIcon}}">
-              <core-icon icon="{{serviceIcon}}"></core-icon>
+            <span data-show="{{computeData-show(serviceIcon)}}"> <!-- TODO RENAME -->
+              <iron-icon icon="{{serviceIcon}}"></iron-icon> <!-- TODO RENAME -->
             </span>
             &nbsp;&nbsp;
-            <span data-show="{{!!service}}">
-              {{service}}
+            <span data-show="{{computeData-show(service)}}"> <!-- TODO RENAME -->
+              <span>{{service}}</span> <!-- TODO RENAME -->
             </span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{!!fileType}}">
+        <div class="imageMeta" data-show="{{computeData-show(fileType)}}"> <!-- TODO RENAME -->
           <div class="imageMetaKey">Type</div>
           <div class="imageMetaValue">
-            <img src="{{iconLink}}">&nbsp;&nbsp;{{fileType}}
+            <img src="{{iconLink}}">&nbsp;&nbsp;<span>{{fileType}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{size !== null && size !== undefined}}">
+        <div class="imageMeta" data-show="{{computeData-show(size, undefined)}}"> <!-- TODO RENAME -->
           <div class="imageMetaKey">Size</div>
           <div class="imageMetaValue">
-            {{size|bytesToKb}}Kb
+            <span>{{computeExpression4(bytesToKb, size)}}</span>Kb <!-- TODO RENAME -->
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{!!folder}}">
+        <div class="imageMeta" data-show="{{computeData-show(folder)}}"> <!-- TODO RENAME -->
           <div class="imageMetaKey">Location</div>
           <div class="imageMetaValue">
-            <core-icon icon="folder"></core-icon>
-            &nbsp;&nbsp;{{folder}}
+            <iron-icon icon="folder"></iron-icon>
+            &nbsp;&nbsp;<span>{{folder}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{!!owner}}">
+        <div class="imageMeta" data-show="{{computeData-show(owner)}}"> <!-- TODO RENAME -->
           <div class="imageMetaKey">Owner</div>
           <div class="imageMetaValue">
-            {{owner}}
+            <span>{{owner}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{!!modifiedDate}}">
+        <div class="imageMeta" data-show="{{computeData-show(modifiedDate)}}"> <!-- TODO RENAME -->
           <div class="imageMetaKey">Modified</div>
           <div class="imageMetaValue">
-            {{modifiedDate|formatDate}} by {{lastModifiedByUser}}
+            <span>{{computeExpression7(formatDate, modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span> <!-- TODO RENAME -->
           </div>
         </div>
 
         <div class="imageMeta">
           <div class="imageMetaKey">Created</div>
           <div class="imageMetaValue">
-            {{createdDate|formatDate}}
+            <span>{{computeExpression8(createdDate, formatDate)}}</span> <!-- TODO RENAME -->
           </div>
         </div>
       </div>
@@ -132,6 +147,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       </div>
     </div>
   </template>
+</dom-module>
 
   <script src="./cp-constants.js"></script>
   <script src="./cp-formatter.js"></script>
@@ -139,47 +155,66 @@ href="../bower_components/paper-spinner/paper-spinner.html">
   <script>
     (function () {
       Polymer({
-        /* source URL of the file thumbnail */
-        src: null,
+        is: 'cp-detail-file',
+        properties: {
+          /* source URL of the file thumbnail */
+          src: {
+            value: null,
+            notify: true,
+            observer: 'srcChanged'
+          },
 
-        /* text describing the file */
-        caption: null,
+          /* text describing the file */
+          caption: {
+            value: null,
+            notify: true
+          },
 
-        /* where the file came from */
-        source: null,
+          /* where the file came from */
+          source: {
+            value: null,
+            notify: true
+          },
 
-        /* service which returned the file */
-        service: null,
+          /* service which returned the file */
+          service: {
+            value: null,
+            observer: 'serviceChanged'
+          },
 
-        /* file size in bytes */
-        size: null,
+          /* file size in bytes */
+          size: { value: null },
 
-        /* file mime type */
-        mimeType: null,
+          /* file mime type */
+          mimeType: {
+            value: null,
+            observer: 'mimeTypeChanged'
+          },
 
-        /* URL of the icon for this type of file */
-        iconLink: null,
+          /* URL of the icon for this type of file */
+          iconLink: { value: null },
 
-        /* file owner */
-        owner: null,
+          /* file owner */
+          owner: { value: null },
 
-        /* folder which holds the file */
-        folder: null,
+          /* folder which holds the file */
+          folder: { value: null },
 
-        /* display name of last user to modify the file */
-        lastModifiedByUser: null,
+          /* display name of last user to modify the file */
+          lastModifiedByUser: { value: null },
 
-        /* last modified datetime */
-        modifiedDate: null,
+          /* last modified datetime */
+          modifiedDate: { value: null },
 
-        /* created datetime */
-        createdDate: null,
+          /* created datetime */
+          createdDate: { value: null },
 
-        /* icon for the service (SET AUTOMATICALLY VIA service) */
-        serviceIcon: null,
+          /* icon for the service (SET AUTOMATICALLY VIA service) */
+          serviceIcon: { value: null },
 
-        /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
-        fileType: null,
+          /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
+          fileType: { value: null },
+        },
 
         created: function () {
           this.loaded = false;
@@ -247,9 +282,51 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           return Formatter.round(val / 1024, 2);
         },
 
+        computeData-show: function (caption) {
+          return !!caption;
+        },
+        computeData-show: function (loaded) {
+          return !loaded;
+        },
+        computeIf: function (loaded) {
+          return !loaded;
+        },
+        computeData-show: function (serviceIcon) {
+          return !!serviceIcon;
+        },
+        computeData-show: function (service) {
+          return !!service;
+        },
+        computeData-show: function (fileType) {
+          return !!fileType;
+        },
+        computeData-show: function (size, undefined) {
+          return size !== null && size !== undefined;
+        },
+        computeData-show: function (folder) {
+          return !!folder;
+        },
+        computeData-show: function (owner) {
+          return !!owner;
+        },
+        computeData-show: function (modifiedDate) {
+          return !!modifiedDate;
+        },
+        computeExpression1: function (caption, cleanHTML) {
+          return caption | cleanHTML;
+        },
+        computeExpression4: function (bytesToKb, size) {
+          return size | bytesToKb;
+        },
+        computeExpression7: function (formatDate, modifiedDate) {
+          return modifiedDate | formatDate;
+        },
+        computeExpression8: function (createdDate, formatDate) {
+          return createdDate | formatDate;
+        },
+
         /* no clean-up necessary, but needed by the API */
         close: function () {}
       });
     })();
   </script>
-</polymer-element>

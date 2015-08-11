@@ -39,12 +39,14 @@
  -->
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-globals">
+<dom-module id="cp-globals">
   <script>
     (function () {
       var data = {};
 
       Polymer({
+         is: 'cp-globals',
+ 
          ready: function () {
            this.data = data;
            // initialize values from attributes (note: strings only)
@@ -60,4 +62,4 @@
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

@@ -25,10 +25,12 @@
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<polymer-element name="cp-scrollwatcher">
+<dom-module id="cp-scrollwatcher">
   <script>
     (function () {
       Polymer({
+        is: 'cp-scrollwatcher',
+
         created: function () {
           this.scrollableNode = null;
           this.targetNodes = [];
@@ -135,4 +137,4 @@
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

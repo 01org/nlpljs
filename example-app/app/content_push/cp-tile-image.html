@@ -34,10 +34,9 @@ the smallest image which will display OK is about 50x50px; any smaller
 than this and there's not enough room for the metadata about the image
 size
 -->
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
 
-<polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
-  <template>
+<dom-module id="cp-tile-image">
     <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
       [data-revealed="true"] {
@@ -65,16 +64,17 @@ size
       }
     </style>
 
+  <template>
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
-        <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
-          {{width}}x{{height}}
+        <p id="meta" data-revealed="{{computeData-revealed(revealmeta)}}">
+          <span>{{width}}</span>x<span>{{height}}</span>
         </p>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
 
@@ -89,6 +89,17 @@ size
       };
 
       Polymer({
+        is: 'cp-tile-image',
+
+        properties: {
+          done: { notify: true },
+          height: { observer: 'heightChanged' },
+          loaded: { notify: true },
+          revealmeta: { notify: true },
+          src: { notify: true, observer: 'srcChanged' },
+          width: { observer: 'widthChanged' }
+        },
+
         created: function () {
           var self = this;
 
@@ -177,8 +188,12 @@ size
 
           // notify the error, in case anyone cares
           this.fire('error', e);
+        },
+
+        computeData-revealed: function (revealmeta) {
+          return revealmeta === 'on' || revealmeta === 'always';
         }
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

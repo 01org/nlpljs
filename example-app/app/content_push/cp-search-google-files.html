@@ -33,7 +33,7 @@
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element name="cp-search-google-files" attributes="resultsPerFetch">
+<dom-module id="cp-search-google-files">
   <template>
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
@@ -170,6 +170,10 @@
       }
 
       Polymer({
+        is: 'cp-search-google-files',
+
+        properties: { resultsPerFetch: { notify: true } },
+
         created: function () {
           this.access_token = null;
           this.ready_promise = null;
@@ -218,4 +222,4 @@
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

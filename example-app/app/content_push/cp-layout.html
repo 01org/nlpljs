@@ -30,9 +30,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
 
-<polymer-element name="cp-layout">
-  <template>
-    <style>
+<dom-module id="cp-layout">
+  <style>
       :host {
         display: block;
         margin: 16px 0 16px 10px;
@@ -60,12 +59,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       }
     </style>
 
-    <div id="container" data-show="{{tilesVisible > 0}}"
+  <template>
+
+    <div id="container" data-show="{{computeData-show(tilesVisible)}}"
          data-loading-tiles="{{tilesLoading}}">
     </div>
 
-    <div id="loading" data-show="{{tilesLoading > 0}}">
-      <template if="{{tilesLoading > 0}}">
+    <div id="loading" data-show="{{computeData-show(tilesLoading)}}">
+      <template is="dom-if" if="{{computeIf(tilesLoading)}}">
         <paper-spinner active></paper-spinner>
       </template>
     </div>
@@ -92,6 +93,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       var FRAME_CELL_SIDE = 74;
 
       Polymer({
+        is: 'cp-layout',
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.tileCache = new TileCache();
@@ -123,7 +125,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           }
         },
 
-        domReady: function () {
+        ready: function () {
           this.setLayoutParams();
         },
 
@@ -327,8 +329,20 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           );
 
           return this.layoutInProgress;
+        },
+
+        computeData-show: function (tilesVisible) {
+          return tilesVisible > 0;
+        },
+
+        computeData-show: function (tilesLoading) {
+          return tilesLoading > 0;
+        },
+
+        computeIf: function (tilesLoading) {
+          return tilesLoading > 0;
         }
       })
     })();
   </script>
-</polymer-element>
+</dom-module>

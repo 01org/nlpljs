@@ -24,7 +24,6 @@
  *   Max Waterman <max.waterman@intel.com>
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
-
 (function () {
   /**
    * Send a jsonp request (useful for cross-domain requests) by
@@ -41,53 +40,48 @@
    * "data-cb_contentpush_jsonp-id" attribute set to this returned ID);
    * NB <script> elements are inserted into the body of the page
    */
-
   /* unique identifier for callbacks, incremented each time we create one */
-  var cbId = 1;
-
+  var cbId = 1;  /* prefix for our callbacks (which are attached to the window) */
+                 /* prefix for our callbacks (which are attached to the window) */
+  /* prefix for our callbacks (which are attached to the window) */
   /* prefix for our callbacks (which are attached to the window) */
   var cbKey = '_contentpush_jsonp';
-
   var jsonp = function (opts) {
     var thisCbId = cbId;
-
-    var url = opts.url +
-              /* if no question mark, add one */
-              (/\?/.test(opts.url) ? '' : '?') +
-
-              /* if at least one character in querystring, add '&' */
-              (/\?.+/.test(opts.url) ? '&' : '') +
-
-              (opts.cbParam || 'callback') +
-              '=' + cbKey + thisCbId;
-
+    var url = opts.url + /* if no question mark, add one */
+    (/\?/.test(opts.url) ? '' : '?') + /* if at least one character in querystring, add '&' */
+    (/\?.+/.test(opts.url) ? '&' : '') + (opts.cbParam || 'callback') + '=' + cbKey + thisCbId;
     var script = document.createElement('script');
     script.setAttribute('data-cb' + cbKey + '-id', thisCbId);
-    script.src = url;
-
+    script.src = url;  /* we make a uniquely-named callback function, globally visible,
+                       which will be invoked with the object parsed from the response */
+                       /* we make a uniquely-named callback function, globally visible,
+                       which will be invoked with the object parsed from the response */
     /* we make a uniquely-named callback function, globally visible,
-       which will be invoked with the object parsed from the response */
+     which will be invoked with the object parsed from the response */
+    /* we make a uniquely-named callback function, globally visible,
+     which will be invoked with the object parsed from the response */
     window[cbKey + thisCbId] = function (obj) {
       /* invoke the original callback */
-      opts.cb(obj);
-
+      opts.cb(obj);  /* remove _this_ global callback */
+                     /* remove _this_ global callback */
+      /* remove _this_ global callback */
       /* remove _this_ global callback */
       window[cbKey + thisCbId] = null;
-    };
-
+    };  /* make the magic happen */
+        /* make the magic happen */
     /* make the magic happen */
-    document.body.appendChild(script);
-
+    /* make the magic happen */
+    document.body.appendChild(script);  /* increment the counter ready to create the next callback */
+                                        /* increment the counter ready to create the next callback */
+    /* increment the counter ready to create the next callback */
     /* increment the counter ready to create the next callback */
     cbId++;
-
     return thisCbId;
   };
-
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = jsonp;
-  }
-  else {
+  } else {
     window.jsonp = jsonp;
   }
-})();
+}());

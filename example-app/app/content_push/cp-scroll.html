@@ -31,9 +31,9 @@ if the wrapped element is the same height or taller than the scroller,
 a vertical scrollbar is added; when the scroll reaches nearly the
 end, a "scrollend" event is fired
 -->
-<polymer-element name="cp-scroll" attributes="scrollgap">
-  <template>
-    <style>
+
+<dom-module id="cp-scroll">
+  <style>
       :host {
         display: block;
         position: relative;
@@ -42,6 +42,7 @@ end, a "scrollend" event is fired
       }
     </style>
 
+  <template>
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*"></content>
   </template>
@@ -55,6 +56,10 @@ end, a "scrollend" event is fired
       var DEFAULT_SCROLL_GAP = 100;
 
       Polymer({
+        is: 'cp-scroll',
+
+        properties: { scrollgap: { notify: true } },
+
         created: function () {
           /* record the scroll position so we can determine whether
              we are scrolling downwards */
@@ -67,7 +72,7 @@ end, a "scrollend" event is fired
           this.inScrollGap = false;
         },
 
-        domReady: function () {
+        ready: function () {
           // event handler for scroll events on the container
           this.addEventListener('scroll', this.onScroll.bind(this));
         },
@@ -99,4 +104,4 @@ end, a "scrollend" event is fired
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

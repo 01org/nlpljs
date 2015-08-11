@@ -29,8 +29,12 @@
 search using a Google custom search engine
 -->
 <link rel="import" href="./cp-search.html">
-<polymer-element name="cp-search-google" extends="cp-search"
-                 attributes="searchType">
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+
+<dom-module id="cp-search-google">
   <template>
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
@@ -47,16 +51,22 @@ search using a Google custom search engine
       var LANGUAGE = 'lang_en';
 
       Polymer({
-        /* these are associated with sig.exp.london@gmail.com */
-        cx: '010167764530769062315:196d4y__4ss',
+        is: 'cp-search-google',
 
-        /* search safe level */
-        safe: 'high',
+        extends: 'cp-search',
 
-        /* search type: 'image' or 'article' */
-        searchType: 'image',
+        properties: {
+          /* these are associated with sig.exp.london@gmail.com */
+          cx: { type: String, value: '010167764530769062315:196d4y__4ss' },
 
-        sourceURL: '',
+          /* search safe level */
+          safe: { type: String, value: 'high' },
+
+          /* search type: 'image' or 'article' */
+          searchType: { type: String, value: 'image', notify: true },
+
+          sourceURL: { type: String, value: '' }
+        },
 
         created: function () {
           this.super();
@@ -76,9 +86,7 @@ search using a Google custom search engine
 
             self.$.authorizer.getToken('google');
           });
-        },
 
-        domReady: function () {
           this.appId = this.$.globals.data.app_id;
         },
 
@@ -221,4 +229,4 @@ search using a Google custom search engine
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

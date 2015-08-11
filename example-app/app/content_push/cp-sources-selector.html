@@ -26,18 +26,34 @@
 -->
 
 <link rel="import" 
-href="../bower_components/core-header-panel/core-header-panel.html">
+href="../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="./cp-sources-dialog.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-sources-selector">
-  <template>
+<dom-module id="cp-sources-selector">
     <style>
+      [layout] {
+        @apply(--layout);
+      }
+      [layout][vertical] {
+        @apply(--layout-vertical);
+      }
+      [layout][horizontal] {
+        @apply(--layout-horizontal);
+      }
+      [layout][center] {
+        @apply(--layout-center);
+      }
+      [layout][justified] {
+        @apply(--layout-justified);
+      }
+
       :host {
         display: block;
         position: relative;
@@ -221,16 +237,17 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         border-color: #B8578C;
       }
     </style>
+  <template>
 
     <div
       id="panel_overlay"
-      class="{{ {visible: ($.add_dialog.style.display !== 'none')} | tokenList }}"></div>
+      class="{{computeClass($, tokenList)}}"></div>
 
     <cp-sources-storage id="storage" on-newsources="{{setSources}}">
     </cp-sources-storage>
 
-    <core-header-panel id="panel">
-      <core-toolbar id="header">
+    <paper-header-panel id="panel">
+      <paper-toolbar id="header">
         <div vertical layout>
           <div id="title-back" horizontal layout center>
             <paper-icon-button id="back" icon="arrow-back"
@@ -244,34 +261,39 @@ href="../bower_components/core-header-panel/core-header-panel.html">
           <paper-fab
             id="add"
             icon="add"
-            disabled?="{{currentGroupName==='Files'}}"
+            disabled?="{{computeDisabled?(currentGroupName)}}"
             on-click="{{onAddClick}}">
           </paper-fab>
         </div>
-      </core-toolbar>
+      </paper-toolbar>
 
       <div id="select_all_container" horizontal layout>
         <paper-checkbox
           id="select_all"
           checked?="{{allEnabled}}"
-          disabled?="{{currentGroupName==='Files'}}"
+          disabled?="{{computeDisabled?(currentGroupName)}}"
           on-change="{{toggleAllSourcesEnabled}}">
         </paper-checkbox>
         <div flex>Select All</div>
       </div>
 
       <div id="sources" vertical layout>
-        <template repeat="{{sources}}">
+        <!--
+            TODO(polyup): convert bindings inside this dom-repeat instance below
+            from {{foo}} to {{item.foo}}
+         -->
+
+        <template is="dom-repeat" items="{{sources}}">
           <div horizontal layout>
-            <paper-checkbox disabled?="{{currentGroupName === 'Files'}}"
+            <paper-checkbox disabled?="{{computeDisabled?(item.currentGroupName)}}"
                             on-change="{{toggleSourceEnabled}}"
-                            for-source-name="{{name}}"
-                            checked?="{{enabled}}">
+                            for-source-name="{{item.name}}"
+                            checked?="{{item.enabled}}">
             </paper-checkbox>
-            <div flex>{{name}}</div>
-            <core-icon icon="delete" on-click="{{removeSource}}"
-                       for-source-name="{{name}}">
-            </core-icon>
+            <div flex>{{item.name}}</div>
+            <iron-icon icon="delete" on-click="{{removeSource}}"
+                       for-source-name="{{item.name}}">
+            </iron-icon>
           </div>
         </template>
       </div>
@@ -282,7 +304,7 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         flex
         layered="false"
         transition="paper-dialog-transition-center"
-        autoCloseDisabled="{{true}}">
+        autoCloseDisabled="{{computeAutoclosedisabled()}}">
         <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
           <input id="inputName" is="core-input" required>
         </paper-input-decorator>
@@ -300,12 +322,16 @@ href="../bower_components/core-header-panel/core-header-panel.html">
             >Done</paper-button>
         </div>
       </cp-sources-dialog>
-    </core-header-panel>
+    </paper-header-panel>
   </template>
 
   <script>
     (function () {
       Polymer({
+        is: 'cp-sources-selector',
+
+        properties: { sources: { observer: 'sourcesChanged' } },
+
         created: function () {
           /* an array of sources for the selected group */
           this.sources = [];
@@ -365,7 +391,7 @@ href="../bower_components/core-header-panel/core-header-panel.html">
           var source = this.$.storage.retrieveSource(
             this.currentGroupName,
             sourceName
-          );
+            );
 
           if (source) {
             this.$.storage.setSourceEnabled(
@@ -469,8 +495,28 @@ href="../bower_components/core-header-panel/core-header-panel.html">
           } else {
             return [];
           }
+        },
+
+        computeClass: function ($, tokenList) {
+          return { visible: $.add_dialog.style.display !== 'none' } | tokenList;
+        },
+
+        computeDisabled?: function (currentGroupName) {
+          return currentGroupName === 'Files';
+        },
+
+        computeDisabled?: function (currentGroupName) {
+          return currentGroupName === 'Files';
+        },
+
+        computeAutoclosedisabled: function () {
+          return true;
+        },
+
+        computeDisabled?: function (currentGroupName) {
+          return currentGroupName === 'Files';
         }
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

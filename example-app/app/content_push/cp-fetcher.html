@@ -29,7 +29,7 @@
 <link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-files.html">
 
-<polymer-element name="cp-fetcher" attributes="resultsPerFetch">
+<dom-module id="cp-fetcher">
   <template>
     <cp-search-google id="searchGoogleImages"
                       resultsPerFetch="{{resultsPerFetch}}"
@@ -62,8 +62,11 @@
       var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
 
       Polymer({
-        // number of results to fetch per call to the fetch() method
-        resultsPerFetch: 5,
+        is: 'cp-fetcher',
+
+        properties: {
+          resultsPerFetch: { type: Number, value: 5, notify: true }
+        },
 
         /* returns a promise which resolves to an array of results or
            rejects with an error */
@@ -128,4 +131,4 @@
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

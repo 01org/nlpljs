@@ -29,12 +29,30 @@
 <!--
 tile for a general web page (article)
 -->
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
-<polymer-element name="cp-tile-article" attributes="src loaded done">
-  <template>
+<dom-module id="cp-tile-article">
     <link rel="stylesheet" href="styles/cp-tile.css">
 
+    <style>
+      /* TODO(polyup): For speed, consider reworking these styles with .classes
+                       and #ids rather than [attributes].
+      */
+      [layout] {
+        @apply(--layout);
+      }
+      [layout][horizontal] {
+        @apply(--layout-horizontal);
+      }
+      [fit] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+    </style>
     <style>
       #mainContainer {
         border-radius: 2px;
@@ -103,34 +121,35 @@ tile for a general web page (article)
       }
     </style>
 
+  <template>
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <div horizontal layout fit id="mainContainer">
-          <div class="left" data-show="{{src !== null && imageLoaded}}">
+          <div class="left" data-show="{{computeData-show(imageLoaded, src)}}">
             <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
                  on-error="{{onImageError}}">
           </div>
 
           <div id="text"
-               class="{{src === null || !imageLoaded ? '' : 'right'}}">
+               class="{{computeClass(imageLoaded, src)}}">
             <h2 id="caption" class="text-elide">
-              {{caption|cleanHTML}}
+              <span>{{computeExpression1(caption, cleanHTML)}}</span>
             </h2>
 
             <p id="snippet" class="text-elide">
-              {{snippet|cleanHTML}}
+              <span>{{computeExpression2(cleanHTML, snippet)}}</span>
             </p>
 
             <div id="meta">
               <p id="source" class="small">
-                {{sourceName || source|domainFromURL}}
+                <span>{{computeExpression3(domainFromURL, source, sourceName)}}</span>
               </p>
             </div>
           </div>
         </div>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
 
@@ -141,6 +160,14 @@ tile for a general web page (article)
   <script>
     (function () {
       Polymer({
+        is: 'cp-tile-article',
+
+        properties: {
+          done: { notify: true },
+          loaded: { notify: true },
+          src: { notify: true, observer: 'srcChanged' }
+        },
+
         created: function () {
           var self = this;
 
@@ -237,8 +264,24 @@ tile for a general web page (article)
 
         domainFromURL: Formatter.domainFromURL,
 
-        cleanHTML: Formatter.cleanHTML
+        cleanHTML: Formatter.cleanHTML,
+
+        computeData-show: function (imageLoaded, src) {
+          return src !== null && imageLoaded;
+        },
+        computeClass: function (imageLoaded, src) {
+          return src === null || !imageLoaded ? '' : 'right';
+        },
+        computeExpression1: function (caption, cleanHTML) {
+          return caption | cleanHTML;
+        },
+        computeExpression2: function (cleanHTML, snippet) {
+          return snippet | cleanHTML;
+        },
+        computeExpression3: function (domainFromURL, source, sourceName) {
+          return sourceName || source | domainFromURL;
+        }
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

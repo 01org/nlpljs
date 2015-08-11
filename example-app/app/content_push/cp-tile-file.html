@@ -30,10 +30,9 @@
 wrapper for a Google Drive file thumbnail
 -->
 
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
 
-<polymer-element name="cp-tile-file" attributes="src loaded done">
-  <template>
+<dom-module id="cp-tile-file">
     <link rel="stylesheet" href="styles/cp-tile.css">
     <style>
       #imageContainer {
@@ -79,8 +78,9 @@ wrapper for a Google Drive file thumbnail
       }
     </style>
 
+  <template>
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <div id="imageContainer">
@@ -91,7 +91,7 @@ wrapper for a Google Drive file thumbnail
           <img id="icon" src="{{iconLink}}">
           <p id="caption">{{caption}}</p>
         </div>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
 
@@ -100,16 +100,22 @@ wrapper for a Google Drive file thumbnail
   <script>
     (function () {
       Polymer({
-        /* file tiles are always ready */
-        done: true,
+        is: 'cp-tile-file',
 
-        /* we always set loaded to true, so that file tiles are
-           loaded into cp-display regardless of whether their related
-           thumbnail loads */
-        loaded: true,
+        properties: {
+          /* file tiles are always ready */
+          done: { type: Boolean, value: true, notify: true },
 
-        /* type of object used to create the tile */
-        type: 'file',
+          /* we always set loaded to true, so that file tiles are
+             loaded into cp-display regardless of whether their related
+             thumbnail loads */
+          loaded: { type: Boolean, value: true, notify: true },
+
+          src: { notify: true },
+
+          /* type of object used to create the tile */
+          type: { type: String, value: 'file' }
+        },
 
         /* hard-code the frame for file tiles */
         frame: FrameChooser.FRAMES['small_square'],
@@ -141,4 +147,4 @@ wrapper for a Google Drive file thumbnail
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

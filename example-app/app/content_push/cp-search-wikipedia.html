@@ -31,8 +31,11 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 -->
 <link rel="import" href="./cp-search.html">
 
-<polymer-element name="cp-search-wikipedia" extends="cp-search"
-                 attributes="searchType">
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="cp-search-wikipedia">
   <script src="jsonp.js"></script>
   <script src="cp-thumbnailer.js"></script>
 
@@ -67,8 +70,13 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
       /* declare the element */
       Polymer({
-        /* type of search: 'image' or 'article' */
-        searchType: 'image',
+        is: 'cp-search-wikipedia',
+
+        extends: 'cp-search'
+
+        properties: {
+          searchType: { type: String, value: 'image', notify: true }
+        },
 
         created: function () {
           this.extractor = new WikipediaExtractor({
@@ -334,4 +342,4 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

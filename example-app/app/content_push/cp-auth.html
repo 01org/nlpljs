@@ -35,10 +35,11 @@
 -->
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element name="cp-auth">
+<dom-module id="cp-auth">
   <template>
     <cp-globals id="globals"></cp-globals>
   </template>
+
   <script>
   (function () {
 
@@ -54,7 +55,7 @@
     };
 
     Polymer({
-
+      is: 'cp-auth',
       getToken: function (service) {
         if (!this.$.globals.data.app_id) {
           console.log('CP-AUTH:getToken() called but app_id not set yet');
@@ -102,4 +103,4 @@
   })();
 
   </script>
-</polymer-element>
+</dom-module>

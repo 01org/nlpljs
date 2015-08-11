@@ -37,8 +37,7 @@ mark the fixed element with "swapper-fix" then the slide-able
 elements with "swapper-slide"; any slide-able elements should also be
 marked with swap-id="<ID>"
 -->
-<polymer-element name="cp-swapper">
-  <template>
+<dom-module id="cp-swapper">
     <style>
       :host {
         display: block;
@@ -68,6 +67,7 @@ marked with swap-id="<ID>"
         transform: translateX(0);
       }
     </style>
+  <template>
 
     <div id="container">
       <content select="[swapper-fix]"></content>
@@ -110,7 +110,9 @@ marked with swap-id="<ID>"
       };
 
       Polymer({
-        domReady: function () {
+        is: 'cp-swapper',
+
+        ready: function () {
           this.open = false;
 
           /* active slide element */
@@ -139,4 +141,4 @@ marked with swap-id="<ID>"
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

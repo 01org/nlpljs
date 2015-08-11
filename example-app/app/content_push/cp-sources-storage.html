@@ -40,7 +40,7 @@
 
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element name="cp-sources-storage">
+<dom-module id="cp-sources-storage">
   <template>
     <cp-globals id="globals"></cp-globals>
   </template>
@@ -68,30 +68,34 @@
       };
 
       Polymer({
-        /* deliberately share state between all cp-sources-storage instances,
-           so they all reference the same object; this has the structure:
+        is: 'cp-sources-storage',
 
-        {
-          "Articles": {
-            "enabled": true,
-            "order": 2,
-            "sources": {
-              "Wikipedia": {
-                "enabled": true,
-                "url": "wikipedia.org"
-              },
-              "Yahoo! news": {
-                "enabled": true,
-                "url": "news.yahoo.com"
+        properties: {
+          /* deliberately share state between all cp-sources-storage instances,
+             so they all reference the same object; this has the structure:
+
+          {
+            "Articles": {
+              "enabled": true,
+              "order": 2,
+              "sources": {
+                "Wikipedia": {
+                  "enabled": true,
+                  "url": "wikipedia.org"
+                },
+                "Yahoo! news": {
+                  "enabled": true,
+                  "url": "news.yahoo.com"
+                }
               }
-            }
-          },
-          ...
-        }
+            },
+            ...
+          }
 
-        (see ep-sources-storage for details)
-        */
-        data: {},
+          (see ep-sources-storage for details)
+          */
+          data: { type: Object, value: {} }
+        },
 
         created: function () {
           instances.push(this);
@@ -349,4 +353,4 @@
     })();
 
   </script>
-</polymer-element>
+</dom-module>

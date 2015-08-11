@@ -28,17 +28,26 @@
 <link rel="import" 
 href="../bower_components/paper-dialog/paper-action-dialog.html">
 
-<polymer-element name="cp-sources-dialog" attributes="container" extends="paper-action-dialog">
-<template>
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+
+<dom-module id="cp-sources-dialog">
+  <template>
   <shadow>
   </shadow>
 </template>
 <script>
 (function () {
   Polymer({
+    is: 'cp-sources-dialog',
 
-    container: null,
+    extends: 'paper-action-dialog'
 
+    properties: {
+      container: { value: null, notify: true }
+    },
     /*
     onAddCancelClick: function (e) {
       this.fire('addCancelClick',e);
@@ -75,4 +84,4 @@ href="../bower_components/paper-dialog/paper-action-dialog.html">
   });
 })();
 </script>
-</polymer-element>
+</dom-module>

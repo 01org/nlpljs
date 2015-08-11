@@ -68,7 +68,7 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-keyword-highlighter" attributes="onStyle offStyle">
+<dom-module id="cp-keyword-highlighter">
   <script>
     (function () {
       // private properties
@@ -418,13 +418,19 @@
       };
 
       Polymer({
+        is: 'cp-keyword-highlighter',
+        properties: {
+          offStyle: { notify: true },
+          onStyle: { notify: true },
+          targetElement: { observer: 'targetElementChanged' }
+        },
         created: function () {
           this.lineIds = [];
           this.offStyle = '';
           this.onStyle = 'background-color: #FFB2F0';
         },
 
-        targetElementChanged: function (oldValue, newValue) {
+        targetElementChanged: function (newValue, oldValue) {
           var targetDocument = this.targetElement.ownerDocument ||
             this.targetElement.body.ownerDocument;
 
@@ -497,4 +503,4 @@
     })();
 
   </script>
-</polymer-element>
+</dom-module>

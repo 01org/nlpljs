@@ -28,7 +28,7 @@
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-aggregator">
+<dom-module id="cp-aggregator">
   <template>
     <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
     </cp-sources-storage>
@@ -89,7 +89,9 @@
       };
 
       Polymer({
-        domReady: function () {
+        is: 'cp-aggregator',
+
+        ready: function () {
           this.pendingSearches = 0;
           this.onNewSources();
         },
@@ -232,4 +234,4 @@
       });
     })();
   </script>
-</polymer-element>
+</dom-module>

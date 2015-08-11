@@ -23,40 +23,37 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
+    -->
 
 <!--
  - cp-document
  -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel='import' href='./cp-scrollwatcher.html'>
-<link rel='import' href='./cp-keyword-highlighter.html'>
+<link rel="import" href="./cp-scrollwatcher.html">
+<link rel="import" href="./cp-keyword-highlighter.html">
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element
-  name="cp-document"
-  on-mouseoverimage="{{onMouseOverImage}}"
-  on-mouseoutimage="{{onMouseOutImage}}">
+<dom-module id="cp-document">
+  <style>
+    :host {
+      position: relative;
+    }
+
+    #iframe {
+      position: absolute;
+      display: block;
+      background-color: #f0f0f0;
+      height: 100%;
+      width: 100%;
+      border: none;
+    }
+
+    #iframe.nopointerevents {
+      pointer-events: none;
+    };
+  </style>
   <template>
-    <style>
-      :host {
-        position: relative;
-      }
-
-      #iframe {
-        position: absolute;
-        display: block;
-        background-color: #f0f0f0;
-        height: 100%;
-        width: 100%;
-        border: none;
-      }
-
-      #iframe.nopointerevents {
-        pointer-events: none;
-      };
-    </style>
     <iframe id="iframe"></iframe>
     <cp-keyword-highlighter id="highlighter"></cp-keyword-highlighter>
     <cp-scrollwatcher id="scrollwatcher"></cp-scrollwatcher>
@@ -203,7 +200,7 @@
           }
         });
 
-        console.log("CP-DOCUMENT:mutation observer created.");
+        console.log('CP-DOCUMENT:mutation observer created.');
 
         self.mutationObserver = observer;
       };
@@ -216,7 +213,7 @@
        */
       var createNlpWorker = function (self) {
         if (self.nlpPort !== null) {
-          console.log("CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!");
+          console.log('CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!');
 
           return;
         }
@@ -255,7 +252,7 @@
        */
       var closeNlpWorker = function (self) {
         if (self.nlpPort === null) {
-          console.log("CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn't exist!");
+          console.log('CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn\'t exist!');
 
           return;
         }
@@ -384,11 +381,21 @@
       };
 
       Polymer({
-        // functions and properties used in API and bindings
-        // life cycle handlers
-        EDITOVERTIMEOUT: 3000,
-        editOverTimer: null,
-        mutationObserver: null,
+        is: 'cp-document',
+
+        hostAttributes: {
+          on-mouseoverimage: '{{onMouseOverImage}}',
+          on-mouseoutimage: '{{onMouseOutImage}}'
+        },
+
+        properties: {
+          // functions and properties used in API and bindings
+          // life cycle handlers
+          EDITOVERTIMEOUT: { type: Number, value: 3000 },
+          editOverTimer: { value: null },
+          iframeurl: { observer: 'iframeurlChanged' },
+          mutationObserver: { value: null }
+        },
 
         created: function () {
           this.nlpPort = null;
@@ -423,7 +430,7 @@
         },
 
         // propertyChanged handlers
-        iframeurlChanged: function (oldValue, newValue) {
+        iframeurlChanged: function (newValue, oldValue) {
           this.$.iframe.src = newValue;
         },
 
@@ -456,5 +463,5 @@
     })();
 
   </script>
-</polymer-element>
+</dom-module>
 

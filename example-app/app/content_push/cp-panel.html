@@ -25,11 +25,11 @@
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-menu/core-menu.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
@@ -44,12 +44,8 @@
 <link rel="import" href="./cp-sources-groups.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-panel"
-                 on-newkeywordinfo="{{onNewKeywordInfo}}"
-                 on-nlpstart="{{onNlpStart}}"
-                 on-nlpstop="{{onNlpStop}}">
-  <template>
-    <style>
+<dom-module id="cp-panel">
+  <style>
       :host {
         height: 100%;
       }
@@ -190,6 +186,7 @@
       }
     </style>
 
+  <template>
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage"
@@ -201,33 +198,33 @@
     <cp-swapper id="swapper">
       <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
-        <core-toolbar id="toolbar" class="toolbar-shadow">
+        <paper-toolbar id="toolbar" class="toolbar-shadow">
           <div id="toolbarmain">
-            <core-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></core-icon>
+            <iron-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></iron-icon>
 
             <!-- items in this menu set the "types" part of the display filter -->
             <paper-dropdown-menu label="All" id="menu">
-              <paper-dropdown class="dropdown">
-                <core-menu class="menu" valueattr="id" on-click="{{onMenuClick}}">
+              <iron-dropdown class="dropdown">
+                <paper-menu class="menu" valueattr="id" on-click="{{onMenuClick}}">
                   <paper-item id="itemAll" data-type-filter="no-filter"
                               data-selected-filter="true">
                     All
                   </paper-item>
 
-                  <template repeat="{{groupName in groupNames}}">
-                    <paper-item id="item{{groupName}}" data-type-filter="{{groupName|lowercaseSingular}}">
-                      {{groupName}}
+                  <template is="dom-repeat" items="{{groupNames}}" as="groupName">
+                    <paper-item id="{{computeId(groupName)}}" data-type-filter="{{computeData-type-filter(groupName, lowercaseSingular)}}">
+                      <span>{{groupName}}</span>
                     </paper-item>
                   </template>
 
-                  <template if="{{searchService === 'Google'}}">
+                  <template is="dom-if" if="{{computeIf(searchService)}}">
                     <paper-item id="itemEditSources"
                                 icon="{{$.icons.editSources}}">
                       EDIT SOURCES
                     </paper-item>
                   </template>
-                </core-menu>
-              </paper-dropdown>
+                </paper-menu>
+              </iron-dropdown>
             </paper-dropdown-menu>
 
             <paper-icon-button id="toolbaraction" icon="close"
@@ -236,7 +233,7 @@
           </div>
 
           <paper-progress id="progress" indeterminate class="bottom"></paper-progress>
-        </core-toolbar>
+        </paper-toolbar>
 
         <cp-display id="display"
                     on-moreresults="{{onDisplayMoreResults}}"
@@ -333,6 +330,14 @@
       };
 
       Polymer({
+        is: 'cp-panel',
+
+        hostAttributes: {
+          on-newkeywordinfo: '{{onNewKeywordInfo}}',
+          on-nlpstart: '{{onNlpStart}}',
+          on-nlpstop: '{{onNlpStop}}'
+        },
+
         // functions and properties used in API and bindings
         created: function () {
           /* an array of types of result to show in the display,
@@ -342,7 +347,7 @@
           this.keywordSelector = new KeywordSelector(ArrayUtils);
         },
 
-        domReady: function () {
+        ready: function () {
           this.searchService = this.$.storage.getSearchService();
           this.onNewSources();
         },
@@ -517,8 +522,20 @@
 
         lowercaseSingular: function (value) {
           return value.toLowerCase().replace(/s$/, '');
+        },
+
+        computeIf: function (searchService) {
+          return searchService === 'Google';
+        },
+
+        computeId: function (groupName) {
+          return 'item' + groupName;
+        },
+
+        computeData-type-filter: function (groupName, lowercaseSingular) {
+          return groupName | lowercaseSingular;
         }
       }); // Polymer()
     })();
   </script>
-</polymer-element>
+</dom-module>
