@@ -59,16 +59,16 @@ href="../bower_components/paper-spinner/paper-spinner.html">
                      on-click="{{onBackButtonClick}}">
           </paper-fab>
 
-          <h2 id="backcaption" data-show="{{computeData-show(caption)}}" flex> <!-- TODO RENAME -->
-            <span>{{computeExpression1(caption, cleanHTML)}}</span> <!-- TODO RENAME -->
+          <h2 id="backcaption" data-show="{{showBackCaption(caption)}}" flex>
+            <span>{{cleanHTML(caption)}}</span>
           </h2>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{computeData-show(loaded)}}"> <!-- TODO RENAME -->
-            <template is="dom-if" if="{{computeIf(loaded)}}"> <!-- TODO RENAME -->
+          <div id="spinner" data-show="{{showSpinner(loaded)}}"> <!-- TODO RENAME -->
+            <template is="dom-if" if="{{showSpinner(loaded)}}"> <!-- TODO RENAME -->
               <paper-spinner active></paper-spinner>
             </template>
           </div>
@@ -85,31 +85,31 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         <div class="imageMeta">
           <div class="imageMetaKey">Source</div>
           <div class="imageMetaValue">
-            <span data-show="{{computeData-show(serviceIcon)}}"> <!-- TODO RENAME -->
-              <iron-icon icon="{{serviceIcon}}"></iron-icon> <!-- TODO RENAME -->
+            <span data-show="{{showServiceIcon(serviceIcon)}}">
+              <iron-icon icon="{{serviceIcon}}"></iron-icon>
             </span>
             &nbsp;&nbsp;
-            <span data-show="{{computeData-show(service)}}"> <!-- TODO RENAME -->
-              <span>{{service}}</span> <!-- TODO RENAME -->
+            <span data-show="{{showService(service)}}">
+              {{service}}
             </span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{computeData-show(fileType)}}"> <!-- TODO RENAME -->
+        <div class="imageMeta" data-show="{{showImageType(fileType)}}">
           <div class="imageMetaKey">Type</div>
           <div class="imageMetaValue">
             <img src="{{iconLink}}">&nbsp;&nbsp;<span>{{fileType}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{computeData-show(size, undefined)}}"> <!-- TODO RENAME -->
+        <div class="imageMeta" data-show="{{showImageSize(size)}}">
           <div class="imageMetaKey">Size</div>
           <div class="imageMetaValue">
-            <span>{{computeExpression4(bytesToKb, size)}}</span>Kb <!-- TODO RENAME -->
+            <span>{{bytesToKb(size)}}</span>Kb
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{computeData-show(folder)}}"> <!-- TODO RENAME -->
+        <div class="imageMeta" data-show="{{showImageLocation(folder)}}">
           <div class="imageMetaKey">Location</div>
           <div class="imageMetaValue">
             <iron-icon icon="folder"></iron-icon>
@@ -117,24 +117,24 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{computeData-show(owner)}}"> <!-- TODO RENAME -->
+        <div class="imageMeta" data-show="{{showImageOwner(owner)}}">
           <div class="imageMetaKey">Owner</div>
           <div class="imageMetaValue">
-            <span>{{owner}}</span>
+            {{owner}}
           </div>
         </div>
 
-        <div class="imageMeta" data-show="{{computeData-show(modifiedDate)}}"> <!-- TODO RENAME -->
+        <div class="imageMeta" data-show="{{showImageModified(modifiedDate)}}">
           <div class="imageMetaKey">Modified</div>
           <div class="imageMetaValue">
-            <span>{{computeExpression7(formatDate, modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span> <!-- TODO RENAME -->
+            <span>{{formatDate(modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span>
           </div>
         </div>
 
         <div class="imageMeta">
           <div class="imageMetaKey">Created</div>
           <div class="imageMetaValue">
-            <span>{{computeExpression8(createdDate, formatDate)}}</span> <!-- TODO RENAME -->
+            <span>{{formatDate(createdDate)}}</span>
           </div>
         </div>
       </div>
@@ -147,7 +147,6 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       </div>
     </div>
   </template>
-</dom-module>
 
   <script src="./cp-constants.js"></script>
   <script src="./cp-formatter.js"></script>
@@ -330,3 +329,4 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       });
     })();
   </script>
+</dom-module>

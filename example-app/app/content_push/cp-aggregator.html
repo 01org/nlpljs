@@ -38,9 +38,9 @@
 
   <script>
     (function () {
-      var searches = [];
+      'use strict';
 
-      var logSearch = function (self, searchInfo) {
+      var logSearch = function (self) {
         self.pendingSearches--;
 
         /* if there are no pending searches, fire event */
@@ -139,6 +139,7 @@
         aggregate: function (searchTerms, groupName, sourceName) {
           /* get the services we want to search against, depending on
              the groupName; or default to all services if no groupName */
+          var self = this;
           var services = this.services;
           if (groupName) {
             /* only use services for the specified group name */
@@ -151,6 +152,45 @@
           }
 
           var searches = [];
+
+          var searchAllSources = function (groupName, sourceName) {
+            var source = self.$.storage.retrieveSource(
+              groupName,
+              sourceName
+            );
+
+            if (source) {
+              var sources = {};
+              sources[sourceName] = source;
+              thisSources = {
+                sources: sources
+              };
+            }
+          };
+
+          var pushSourcesOntoSearches = function (inputs, searches) {
+            var noSourcesUsed = true;
+            var thisSources = inputs.thisSources;
+
+            for (var i=0; i<thisSources.sources.length; i++) {
+            //for (var sourceKey in thisSources.sources) {
+              var sourceKey = thisSources.sources[i];
+              var thisSource = thisSources.sources[sourceKey];
+
+              if (thisSource.enabled) {
+                noSourcesUsed = false;
+
+                searches.push(inputs.arrayBits);
+                searches.push([
+                  thisSource.url,
+                  sourceKey
+                ]);
+              }
+
+            }
+
+            return noSourcesUsed;
+          };
 
           for (var termIndex = 0; termIndex < searchTerms.length; termIndex++) {
             var thisSearchTerm = searchTerms[termIndex];
@@ -165,44 +205,28 @@
                      is enabled and does a search */
                   var noSourcesUsed = true;
 
-                  var groupName = services[serviceIndex].groupName;
+                  groupName = services[serviceIndex].groupName;
 
                   /* if sourceName isn't set, we'll just search all sources for
                      this sources group */
                   var thisSources;
                   if (sourceName) {
-                    var source = this.$.storage.retrieveSource(
-                      groupName,
-                      sourceName
-                    );
-
-                    if (source) {
-                      var sources = {};
-                      sources[sourceName] = source;
-                      thisSources = {
-                        sources: sources
-                      };
-                    }
+                    thisSources = searchAllSources(groupName, sourceName);
                   } else {
                     thisSources = this.$.storage.getSourcesForGroup(groupName);
                   }
 
                   if (thisSources) {
-                    for (var sourceKey in thisSources.sources) {
-                      var thisSource = thisSources.sources[sourceKey];
+                    var inputs = {
+                      thisSources: thisSources,
+                      arrayBits: [
+                        this,
+                        thisSearchTerm,
+                        thisService
+                      ]
+                    };
 
-                      if (thisSource.enabled) {
-                        noSourcesUsed = false;
-
-                        searches.push([
-                          this,
-                          thisSearchTerm,
-                          thisService,
-                          thisSource.url,
-                          sourceKey
-                        ]);
-                      }
-                    }
+                    noSourcesUsed = pushSourcesOntoSearches(inputs, searches);
                   }
 
                   /* none of the sources were enabled/available, so do an

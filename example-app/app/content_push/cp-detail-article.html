@@ -58,16 +58,16 @@ href="../bower_components/paper-spinner/paper-spinner.html">
                      on-click="{{onBackButtonClick}}">
           </paper-fab>
 
-          <h2 id="backcaption" data-show="{{computeData-show(caption)}}" flex> <!-- TODO RENAME -->
-            <span>{{computeExpression1(caption, cleanHTML)}}</span> <!-- TODO RENAME -->
+          <h2 id="backcaption" data-show="{{showBackCaption(caption)}}" flex>
+            <span>{{cleanHTML(caption)}}</span>
           </h2>
         </div>
       </div>
 
       <div id="imgContainer" data-show="{{imageAvailable}}">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{computeData-show(loaded)}}"> <!-- TODO RENAME -->
-            <template is="dom-if" if="{{computeIf(loaded)}}"> <!-- TODO RENAME -->
+          <div id="spinner" data-show="{{showSpinner(loaded)}}">
+            <template is="dom-if" if="{{showSpinner(loaded)}}">
               <paper-spinner active></paper-spinner>
             </template>
           </div>
@@ -82,21 +82,21 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-show="{{computeData-show(caption)}}"> <!-- TODO RENAME -->
-          <span>{{computeExpression2(caption, cleanHTML)}}</span> <!-- TODO RENAME -->
+        <h2 id="caption" data-show="{{showCaption(caption)}}">
+          <span>{{cleanHTML(caption)}}</span>
         </h2>
 
-        <p id="articleSource" data-show="{{computeData-show(source)}}"> <!-- TOTO RENAME -->
-          <span>{{computeExpression3(domainFromURL, source, sourceName)}}</span> <!-- TODO RENAME --> <!-- TODO RENAME -->
+        <p id="articleSource" data-show="{{showArticleSource(source)}}">
+          <span>{{domainFromURL(source, sourceName)}}</span>
         </p>
 
-        <div id="snippet" data-show="{{computeData-show(snippet)}}"> <!-- TODO RENAME -->
-          <span>{{computeExpression4(cleanHTML, snippet)}}</span> <!-- TODO RENAME -->
+        <div id="snippet" data-show="{{showSnippet(snippet)}}">
+          <span>{{cleanHTML(snippet)}}</span>
         </div>
       </div>
     </div>
 
-    <div id="visitSrc" data-show="{{computeData-show(source)}}"> <!-- TODO RENAME -->
+    <div id="visitSrc" data-show="{{showVisitSrc(source)}}">
       <paper-button class="colored" on-click="{{visitWebpage}}"
                     data-source-link="{{source}}">
         GO TO ARTICLE
@@ -109,6 +109,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-detail-article',
 
@@ -131,8 +133,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           /* does this article have an image available (i.e. it
              has already been loaded in the tile) */
           imageAvailable: { value: null },
-
         },
+
         created: function () {
           this.loaded = false;
           this.imageHasLoaded = false;
@@ -192,32 +194,23 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         /* no clean-up necessary, but needed by the API */
         close: function () {},
 
-        computeData-show: function (caption) {
+        showBackCaption: function (caption) {
           return !!caption;
         },
-        computeData-show: function (loaded) {
+        showSpinner: function (loaded) {
           return !loaded;
         },
-        computeIf: function (loaded) {
-          return !loaded;
-        },
-        computeData-show: function (caption) {
+        showCaption: function (caption) {
           return !!caption;
         },
-        computeData-show: function (source) {
+        showArticleSource: function (source) {
           return !!source;
         },
-        computeData-show: function (snippet) {
+        showSnippet: function (snippet) {
           return !!snippet;
         },
-        computeData-show: function (source) {
+        showVisitSrc: function (source) {
           return !!source;
-        },
-        computeExpression1: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-        computeExpression2: function (caption, cleanHTML) {
-          return caption | cleanHTML;
         },
         computeExpression3: function (domainFromURL, source, sourceName) {
           return sourceName || source | domainFromURL;

@@ -42,6 +42,35 @@ module.exports = function (grunt) {
     libnlp: path.join(__dirname, '..', 'src')
   };
 
+  var lintOptions = {
+    camelcase: false,
+    curly: true,
+    eqeqeq: true,
+    forin: true,
+    immed: true,
+    indent: 2,
+    noempty: true,
+    quotmark: 'single',
+
+    undef: true,
+
+    // words which are allowed globally (or not)
+    globals: {
+      console: false,
+      Polymer: false,
+      chrome: false,
+      Formatter: false, /* app/content_push/cp-formatter.js */
+      CP_CONSTANTS: false, /* app/content_push/cp-constants.js */
+    },
+
+    unused: true,
+    browser: true,
+    strict: true,
+    trailing: true,
+    maxdepth: 3,
+    newcap: false // otherwise factory functions throw errors
+  };
+
   // Define the configuration for all the tasks
   grunt.initConfig({
     clean: [ config.dist ],
@@ -54,6 +83,27 @@ module.exports = function (grunt) {
           { src: 'test/unit/*.test.js' }
         ]
       }
+    },
+
+    // custom element linting
+    inlinelint: {
+      all: ['app/content_push/**/*.html'],
+
+      // see http://jshint.com/docs/
+      options: lintOptions
+    },
+
+    // pure js linting
+    jshint: {
+      all: [
+        'app/worker/*.js',
+        'app/event_page/*.js',
+        'app/content_push/*.js',
+        'app/content_script/*.js'
+      ],
+
+      // see http://jshint.com/docs/
+      options: lintOptions
     },
 
     copy: {

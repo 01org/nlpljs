@@ -48,6 +48,7 @@
 <dom-module id="cp-ajax-multiplexer">
   <script>
     (function () {
+      'use strict';
       var coreAjaxes = []; // array of core-ajax elements
       var idleAjaxes = []; // array of indexes into coreAjaxes, those that are idle
 
@@ -63,7 +64,7 @@
         };
 
         return callback;
-      };
+      }
 
       function findFreeCoreAjaxIndex (self) {
         var i = idleAjaxes.pop();
@@ -79,7 +80,7 @@
         }
 
         return i;
-      };
+      }
 
       function makeNewCoreAjax (self, id) {
         var coreAjax = document.createElement('core-ajax');
@@ -88,7 +89,7 @@
         coreAjax.addEventListener('core-response', makeCallback(self, id));
 
         return coreAjax;
-      };
+      }
 
       Polymer({
         is: 'cp-ajax-multiplexer',
