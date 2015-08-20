@@ -23,7 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
-    -->
+-->
 
 <!--
  - cp-document
@@ -61,6 +61,8 @@
   </template>
   <script>
     (function () {
+      'use strict';
+
       // private *static* functions and constants
       var LINE_CLASS = 'kix-lineview';        /* Handle to the current Page */
       var LINE_SELECTOR = '.kix-lineview';
@@ -84,7 +86,7 @@
         var thisNode = node;
         var cssSelectorNotFound = true;
 
-        while (cssSelectorNotFound && thisNode && thisNode.nodeName != 'BODY') {
+        while (cssSelectorNotFound && thisNode && thisNode.nodeName !== 'BODY') {
           cssSelectorNotFound = !thisNode.classList.contains(className);
           if (cssSelectorNotFound) {
             // move into parent node
@@ -125,13 +127,21 @@
           }
 
           for (var i = 0; i < mutations.length; i++) {
+            var j, thisNode;
             var mutation = mutations[i];
             var newNodes = mutation.addedNodes;
             var removedNodes = mutation.removedNodes;
 
+            var makeTimeoutHandler = function () {
+              return function () {
+                self.$.scrollwatcher.getVisibleNodes(getContext, self);
+              };
+            };
+
             if (removedNodes !== null) {
-              for (var j = 0; j < removedNodes.length; j++) {
-                var thisNode = removedNodes[j];
+
+              for (j = 0; j < removedNodes.length; j++) {
+                thisNode = removedNodes[j];
                 if (thisNode) {
                   if (typeof thisNode.classList !== 'undefined' &&
                       thisNode.classList.contains(LINE_CLASS) &&
@@ -145,17 +155,16 @@
                       clearTimeout(self.editOverTimer);
                     }
 
-                    self.editOverTimer = setTimeout(function () {
-                      self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                    }, self.EDITOVERTIMEOUT);
+                    self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                   }
                 }
               }
             }
 
             if (newNodes !== null) {
-              for (var j = 0; j < newNodes.length; j++) {
-                var thisNode = newNodes[j];
+
+              for (j = 0; j < newNodes.length; j++) {
+                thisNode = newNodes[j];
                 if (thisNode) {
                   if (thisNode.nodeName === 'SPAN') {
                     var line = findAncestor(thisNode, LINE_CLASS);
@@ -170,9 +179,7 @@
                         clearTimeout(self.editOverTimer);
                       }
 
-                      self.editOverTimer = setTimeout(function () {
-                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.EDITOVERTIMEOUT);
+                      self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                     }
                   }
                   else if (typeof thisNode.classList !== 'undefined' &&
@@ -189,9 +196,7 @@
                         clearTimeout(self.editOverTimer);
                       }
 
-                      self.editOverTimer = setTimeout(function () {
-                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.EDITOVERTIMEOUT);
+                      self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                     }
                   }
                 }
@@ -285,7 +290,7 @@
         self.$.scrollwatcher.setOnScrollListener(getContext, self);
 
         for (var i = 0; i < lines.length; i++) {
-          if (!lines[i].hasAttribute("cp_line_id")) {
+          if (!lines[i].hasAttribute('cp_line_id')) {
             addIdToLine(lines[i], self.lineIdAccumulator);
             self.lineIdAccumulator++;
 
@@ -384,8 +389,8 @@
         is: 'cp-document',
 
         hostAttributes: {
-          on-mouseoverimage: '{{onMouseOverImage}}',
-          on-mouseoutimage: '{{onMouseOutImage}}'
+          'on-mouseoverimage': '{{onMouseOverImage}}',
+          'on-mouseoutimage': '{{onMouseOutImage}}'
         },
 
         properties: {

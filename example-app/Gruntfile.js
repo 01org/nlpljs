@@ -69,7 +69,7 @@ module.exports = function (grunt) {
     browser: true,
     strict: true,
     trailing: true,
-    maxdepth: 3,
+    maxdepth: 7,
     newcap: false // otherwise factory functions throw errors
   };
 
