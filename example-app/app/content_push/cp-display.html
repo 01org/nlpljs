@@ -295,6 +295,8 @@ pushing new tiles into the wrapped layout
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         /* state of the results; 'preresults', 'noresults' or 'results' */
         state: 'preresults',
@@ -348,8 +350,6 @@ pushing new tiles into the wrapped layout
          * must match, e.g. ['file', 'image']
          */
         setFilter: function (criteria) {
-          var self = this;
-
           if (!criteria.currentKeywords) {
             return;
           }
@@ -384,9 +384,9 @@ pushing new tiles into the wrapped layout
             var sourcesForTileType = null;
             if (criteria.sources) {
               if (tile.type === 'image') {
-                sourcesForTileType = criteria.sources['Images'].sources;
+                sourcesForTileType = criteria.sources.Images.sources;
               } else if (tile.type === 'article') {
-                sourcesForTileType = criteria.sources['Articles'].sources;
+                sourcesForTileType = criteria.sources.Articles.sources;
               }
             }
 
@@ -408,7 +408,6 @@ pushing new tiles into the wrapped layout
             }
 
             /* type */
-            var typeMatches;
             if (criteria.types.length === 0) {
               /* no types criteria, so always matches */
               return true;
@@ -700,7 +699,7 @@ pushing new tiles into the wrapped layout
           this.$.waiting.classList.add('fadeout');
         },
 
-        sliderChanged: function (e) {
+        sliderChanged: function () {
           this.fire('slider-change');
         },
 
