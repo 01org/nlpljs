@@ -379,8 +379,9 @@
         self.fire('newkeywordinfo', {keywordInfo: keywordInfo});
 
         self.$.highlighter.clear();
-        self.$.highlighter.prepare(keywordInfo.ranges);
-
+        if (keywordInfo.ranges !== null) {
+          self.$.highlighter.prepare(keywordInfo.ranges);
+        }
       };
 
       Polymer({

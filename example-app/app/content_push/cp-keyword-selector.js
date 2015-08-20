@@ -78,7 +78,9 @@
   /* add keywords to the hash */
   KeywordSelector.prototype.storeKeywords = function (keywords) {
     var keytext;
-    for (var i = 0; i < keywords.length; i++) {
+    var numKeywords = (keywords === null) ? 0 : keywords.length;
+
+    for (var i = 0; i < numKeywords; i++) {
       keytext = keywords[i].text;
       if (!this.keywords[keytext]) {
         this.keywords[keytext] = [];
@@ -102,7 +104,7 @@
      which were not in the existing activeKeywords array;
      we currently just keep the first 5 keywords for consideration */
   KeywordSelector.prototype.setActiveKeywords = function (keywords) {
-    var keywordsToUse = keywords.slice(0, MAX_KEYWORDS);
+    var keywordsToUse = (keywords===null) ? [] : keywords.slice(0, MAX_KEYWORDS);
     var newKeywords = this.checkKeywordInfoChanged(keywordsToUse);
     this.storeKeywords(keywords);
     this.activeKeywords = keywordsToUse;

@@ -53,13 +53,6 @@
     "bower_components/*/*",
     "libnlp/models/*"
   ],
-  "oauth2": {
-    "client_id": "375300658553-ollsgctiqracj6ab6r1oo4je1hjag7i4.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/drive",
-      "https://www.googleapis.com/auth/cse"
-    ]
-  },
   "externally_connectable": {
     "matches": [
       "https://docs.google.com/*/document/*",
