@@ -76,16 +76,16 @@ href="../bower_components/paper-spinner/paper-spinner.html">
                      on-click="{{onBackButtonClick}}">
           </paper-fab>
 
-          <span id="backcaption" data-show="{{computeData-show(caption)}}" flex>
-            <span>{{computeExpression1(caption, cleanHTML)}}</span>
+          <span id="backcaption" data-show="{{showBackCaption(caption)}}" flex>
+            <span>{{cleanHTML(caption)}}</span>
           </span>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{computeData-show(loaded)}}">
-            <template is="dom-if" if="{{computeIf(loaded)}}">
+          <div id="spinner" data-show="{{showSpinner(loaded)}}">
+            <template is="dom-if" if="{{showSpinner(loaded)}}">
               <paper-spinner active></paper-spinner>
             </template>
           </div>
@@ -93,19 +93,19 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           <div id="aspectRatioSpacer"></div>
 
           <div id="imgPlacer" data-show="{{loaded}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+            <img id="image" src="{{src}}" on-load="onImageLoad">
           </div>
         </div>
       </div>
 
       <div id="detailbody">
         <div id="imageInfo">
-          <div class="imageMeta" data-show="{{computeData-show(source, sourceName)}}">
+          <div class="imageMeta" data-show="{{showImageMetaSource(source, sourceName)}}">
             <div class="imageMetaKey">Source</div>
-            <div class="imageMetaValue">{{computeExpression2(domainFromURL, source, sourceName)}}</div>
+            <div class="imageMetaValue">{{domainFromURL(source, sourceName)}}</div>
           </div>
 
-          <div class="imageMeta" data-show="{{computeData-show(height, width)}}">
+          <div class="imageMeta" data-show="{{showImageMetaSize(height, width)}}">
             <div class="imageMetaKey">Size</div>
             <div class="imageMetaValue"><span>{{width}}</span>x<span>{{height}}</span></div>
           </div>
@@ -137,7 +137,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         </div>
       </div>
 
-      <div id="visitSrc" data-show="{{computeData-show(source)}}">
+      <div id="visitSrc" data-show="{{showVisitSrc(source)}}">
         <paper-button class="colored" on-click="{{visitWebpage}}"
                       data-source-link="{{source}}">
           VIEW IMAGE
@@ -151,12 +151,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-detail-image',
 
         properties: {
           /* source URL of the image itself */
-          src: { value: null, notify: true, observer: 'srcChanged' }
+          src: { value: null, notify: true, observer: 'srcChanged' },
 
           /* text describing the image */
           caption: { value: null, notify: true },
@@ -267,29 +269,20 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           }
         },
 
-        computeData-show: function (caption) {
+        showBackCaption: function (caption) {
           return !!caption;
         },
-        computeData-show: function (loaded) {
+        showSpinner: function (loaded) {
           return !loaded;
         },
-        computeIf: function (loaded) {
-          return !loaded;
-        },
-        computeData-show: function (source, sourceName) {
+        showImageMetaSource: function (source, sourceName) {
           return !!sourceName || !!source;
         },
-        computeData-show: function (height, width) {
+        showImageMetaSize: function (height, width) {
           return width > 0 && height > 0;
         },
-        computeData-show: function (source) {
+        showVisitSource: function (source) {
           return !!source;
-        },
-        computeExpression1: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-        computeExpression2: function (domainFromURL, source, sourceName) {
-          return sourceName || source | domainFromURL;
         }
       });
     })();
