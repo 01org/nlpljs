@@ -25,6 +25,8 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 (function () {
+  'use strict';
+
   /* base URL for Google's image resizer (undocumented);
    see http://carlo.zottmann.org/2013/04/14/google-image-resizer/ */
   var RESIZER_BASE_URL = 'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy';
@@ -34,6 +36,7 @@
     'resize_w=600&' + // set max image width to 600px
     'url=' + encodeURIComponent(imageURL);
   };
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Thumbnailer;
   } else {

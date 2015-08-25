@@ -25,6 +25,8 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 (function () {
+  'use strict';
+
   window.CP_CONSTANTS = {
     /* icons for services which can serve files */
     SERVICE_ICONS: { 'Drive': 'cloud' },
