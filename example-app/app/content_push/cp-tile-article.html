@@ -127,24 +127,24 @@ tile for a general web page (article)
         <div id="overlay"></div>
 
         <div horizontal layout fit id="mainContainer">
-          <div class="left" data-show="{{computeData-show(imageLoaded, src)}}">
+          <div class="left" data-show="{{showImage()}}">
             <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
                  on-error="{{onImageError}}">
           </div>
 
           <div id="text"
-               class="{{computeClass(imageLoaded, src)}}">
+               class="{{computeRight()}}">
             <h2 id="caption" class="text-elide">
-              <span>{{computeExpression1(caption, cleanHTML)}}</span>
+              <span>{{cleanHTML(caption)}}</span>
             </h2>
 
             <p id="snippet" class="text-elide">
-              <span>{{computeExpression2(cleanHTML, snippet)}}</span>
+              <span>{{cleanHTML(snippet)}}</span>
             </p>
 
             <div id="meta">
               <p id="source" class="small">
-                <span>{{computeExpression3(domainFromURL, source, sourceName)}}</span>
+                <span>{{computeDomain()}}</span>
               </p>
             </div>
           </div>
@@ -159,6 +159,8 @@ tile for a general web page (article)
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-tile-article',
 
@@ -207,7 +209,8 @@ tile for a general web page (article)
           this.type = 'article';
 
           /* always use the landscape frame */
-          this.frame = FrameChooser.FRAMES['landscape1'];
+          /* globals FrameChooser: true */
+          this.frame = FrameChooser.FRAMES.landscape1;
 
           /* set to true once the image loads, which enables the
              image part of the tile to be shown */
@@ -266,20 +269,14 @@ tile for a general web page (article)
 
         cleanHTML: Formatter.cleanHTML,
 
-        computeData-show: function (imageLoaded, src) {
-          return src !== null && imageLoaded;
+        showImage: function () {
+          return this.src !== null && this.imageLoaded;
         },
-        computeClass: function (imageLoaded, src) {
-          return src === null || !imageLoaded ? '' : 'right';
+        computeRight: function () {
+          return this.src === null || !this.imageLoaded ? '' : 'right';
         },
-        computeExpression1: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-        computeExpression2: function (cleanHTML, snippet) {
-          return snippet | cleanHTML;
-        },
-        computeExpression3: function (domainFromURL, source, sourceName) {
-          return sourceName || source | domainFromURL;
+        computeDomain: function () {
+          return this.domainFromURL(this.sourceName || this.source);
         }
       });
     })();

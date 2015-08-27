@@ -40,10 +40,12 @@ href="../bower_components/paper-dialog/paper-action-dialog.html">
 </template>
 <script>
 (function () {
+  'use strict';
+
   Polymer({
     is: 'cp-sources-dialog',
 
-    extends: 'paper-action-dialog'
+    extends: 'paper-action-dialog',
 
     properties: {
       container: { value: null, notify: true }

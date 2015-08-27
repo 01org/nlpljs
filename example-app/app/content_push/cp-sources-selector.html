@@ -241,9 +241,10 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
 
     <div
       id="panel_overlay"
-      class="{{computeClass($, tokenList)}}"></div>
+      class="{{computeClass()}}"></div>
+    <!--class="{{ {visible: ($.add_dialog.style.display !== 'none')} | tokenList }}"></div>-->
 
-    <cp-sources-storage id="storage" on-newsources="{{setSources}}">
+    <cp-sources-storage id="storage" on-newsources="setSources">
     </cp-sources-storage>
 
     <paper-header-panel id="panel">
@@ -251,7 +252,7 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
         <div vertical layout>
           <div id="title-back" horizontal layout center>
             <paper-icon-button id="back" icon="arrow-back"
-                              on-tap="{{onBackButtonClick}}">
+                              on-tap="onBackButtonClick">
             </paper-icon-button>
 
             <div flex>
@@ -261,8 +262,8 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
           <paper-fab
             id="add"
             icon="add"
-            disabled?="{{computeDisabled?(currentGroupName)}}"
-            on-click="{{onAddClick}}">
+            disabled$="{{groupIsFiles(currentGroupName)}}"
+            on-click="onAddClick">
           </paper-fab>
         </div>
       </paper-toolbar>
@@ -270,28 +271,23 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
       <div id="select_all_container" horizontal layout>
         <paper-checkbox
           id="select_all"
-          checked?="{{allEnabled}}"
-          disabled?="{{computeDisabled?(currentGroupName)}}"
-          on-change="{{toggleAllSourcesEnabled}}">
+          checked$="{{allEnabled}}"
+          disabled$="{{groupIsFiles(currentGroupName)}}"
+          on-change="toggleAllSourcesEnabled">
         </paper-checkbox>
         <div flex>Select All</div>
       </div>
 
       <div id="sources" vertical layout>
-        <!--
-            TODO(polyup): convert bindings inside this dom-repeat instance below
-            from {{foo}} to {{item.foo}}
-         -->
-
         <template is="dom-repeat" items="{{sources}}">
           <div horizontal layout>
-            <paper-checkbox disabled?="{{computeDisabled?(item.currentGroupName)}}"
-                            on-change="{{toggleSourceEnabled}}"
+            <paper-checkbox disabled$="{{groupIsFiles(item.currentGroupName)}}"
+                            on-change="toggleSourceEnabled"
                             for-source-name="{{item.name}}"
-                            checked?="{{item.enabled}}">
+                            checked$="{{item.enabled}}">
             </paper-checkbox>
             <div flex>{{item.name}}</div>
-            <iron-icon icon="delete" on-click="{{removeSource}}"
+            <iron-icon icon="delete" on-click="removeSource"
                        for-source-name="{{item.name}}">
             </iron-icon>
           </div>
@@ -304,7 +300,7 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
         flex
         layered="false"
         transition="paper-dialog-transition-center"
-        autoCloseDisabled="{{computeAutoclosedisabled()}}">
+        autoCloseDisabled="{{true}}">
         <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
           <input id="inputName" is="core-input" required>
         </paper-input-decorator>
@@ -327,6 +323,8 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-sources-selector',
 
@@ -391,7 +389,7 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
           var source = this.$.storage.retrieveSource(
             this.currentGroupName,
             sourceName
-            );
+          );
 
           if (source) {
             this.$.storage.setSourceEnabled(
@@ -497,23 +495,11 @@ href="../bower_components/paper-header-panel/paper-header-panel.html">
           }
         },
 
-        computeClass: function ($, tokenList) {
-          return { visible: $.add_dialog.style.display !== 'none' } | tokenList;
+        computeClass: function () {
+          return (this.$.add_dialog.style.display !== 'none')?'visible':'';
         },
 
-        computeDisabled?: function (currentGroupName) {
-          return currentGroupName === 'Files';
-        },
-
-        computeDisabled?: function (currentGroupName) {
-          return currentGroupName === 'Files';
-        },
-
-        computeAutoclosedisabled: function () {
-          return true;
-        },
-
-        computeDisabled?: function (currentGroupName) {
+        groupIsFiles: function (currentGroupName) {
           return currentGroupName === 'Files';
         }
       });

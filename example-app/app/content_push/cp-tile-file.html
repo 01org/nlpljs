@@ -99,6 +99,8 @@ wrapper for a Google Drive file thumbnail
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-tile-file',
 
@@ -118,7 +120,8 @@ wrapper for a Google Drive file thumbnail
         },
 
         /* hard-code the frame for file tiles */
-        frame: FrameChooser.FRAMES['small_square'],
+        /* globals FrameChooser: true */
+        frame: FrameChooser.FRAMES.small_square,
 
         created: function () {
           /* THESE PROPERTIES SHOULD BE SET */

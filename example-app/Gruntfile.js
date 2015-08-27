@@ -63,6 +63,7 @@ module.exports = function (grunt) {
       CP_CONSTANTS: false, /* app/content_push/cp-constants.js */
       FilterDeduplicate: false, /* app/content_push/cp-filter-deduplicate.js */
       _: false, /* app/bower_components/lodash/ */
+      SparkMD5: false
     },
 
     unused: true,

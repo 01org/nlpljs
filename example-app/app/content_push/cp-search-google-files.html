@@ -42,10 +42,9 @@
   </template>
   <script>
     (function () {
+      'use strict';
 
       var getResultsToReturn = function (self, query) {
-        var resultsToReturn = [];
-
         var numResults = self.results[query].length;
         var from = self.cursor[query];
         var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
@@ -103,6 +102,7 @@
           var nextPageToken = response.nextPageToken;
           if (nextPageToken) {
             // get the next page
+            var url = makeUrl(self, query);
             var nextId = self.$.multiplexer.url(url + '&pageToken=' + nextPageToken);
 
             // next page is a new id, so move the callback and query to new id
@@ -120,6 +120,15 @@
         }
       };
 
+      var makeUrl = function (self, q) {
+        return 'https://www.googleapis.com/drive/v2/files?' +
+          'access_token=' + self.access_token + '&' +
+          'fields=items(alternateLink,createdDate,description,fileSize,' +
+          'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
+          'thumbnailLink,title)&' +
+          'q=' + q;
+      };
+
       /**
        * Retrieve a list of File resources.
        *
@@ -129,18 +138,12 @@
 
         // format query in the same style as on the try-it page
         // of the google apis docs
-        var q =  "fullText contains '" + '"' + query +'"' + "' and trashed = false";
+        var q =  'fullText contains \'' + '"' + query +'"' + '\' and trashed = false';
         var spaces = new RegExp(' ', 'g');
         q = q.replace(spaces, '+');
         q = encodeURI(q);
 
-        var url =
-            'https://www.googleapis.com/drive/v2/files?' +
-            'access_token=' + self.access_token + '&' +
-            'fields=items(alternateLink,createdDate,description,fileSize,' +
-            'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
-            'thumbnailLink,title)&' +
-            'q=' + q;
+        var url = makeUrl(self, q);
 
         var id = self.$.multiplexer.url(url);
 
@@ -185,7 +188,7 @@
 
         ready: function () {
           var self = this;
-          this.ready_promise = new Promise(function (resolve, reject) {
+          this.ready_promise = new Promise(function (resolve) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
               if (e.detail.service === 'google') {
                 self.access_token = e.detail.token;

@@ -61,12 +61,12 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <template>
 
-    <div id="container" data-show="{{computeData-show(tilesVisible)}}"
+    <div id="container" data-show="{{showContainer(tilesVisible)}}"
          data-loading-tiles="{{tilesLoading}}">
     </div>
 
-    <div id="loading" data-show="{{computeData-show(tilesLoading)}}">
-      <template is="dom-if" if="{{computeIf(tilesLoading)}}">
+    <div id="loading" data-show="{{showLoading(tilesLoading)}}">
+      <template is="dom-if" if="{{showLoading(tilesLoading)}}">
         <paper-spinner active></paper-spinner>
       </template>
     </div>
@@ -80,6 +80,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <script>
     (function () {
+      'use strict';
+
       var NARROW_NUM_COLS = 4;
       var WIDE_NUM_COLS = 8;
 
@@ -95,8 +97,11 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       Polymer({
         is: 'cp-layout',
         created: function () {
+          /* globals FrameChooser: true */
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
+          /* globals TileCache: true */
           this.tileCache = new TileCache();
+          /* globals LayoutGenerator: true */
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
 
@@ -297,12 +302,12 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
             shape.tile.style.left = x + 'px';
             shape.tile.style.top = y + 'px';
-            shape.tile.style.width = width + 'px'
+            shape.tile.style.width = width + 'px';
             shape.tile.style.height = height + 'px';
           });
 
           /* set the container height */
-          var height = layout.grid.length * cellSide;
+          height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
 
           this.tilesVisible = this.tileCache.getActiveTilesCount();
@@ -315,7 +320,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
           this.layoutInProgress = this.layoutInProgress.then(
             function () {
-              return new Promise(function (resolve, reject) {
+              return new Promise(function (resolve) {
                 var layoutDoneCb = function () {
                   resolve();
                   self.removeEventListener('layout', layoutDoneCb);
@@ -331,18 +336,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           return this.layoutInProgress;
         },
 
-        computeData-show: function (tilesVisible) {
+        showContainer: function (tilesVisible) {
           return tilesVisible > 0;
         },
 
-        computeData-show: function (tilesLoading) {
-          return tilesLoading > 0;
-        },
-
-        computeIf: function (tilesLoading) {
+        showLoading: function (tilesLoading) {
           return tilesLoading > 0;
         }
-      })
+      });
     })();
   </script>
 </dom-module>

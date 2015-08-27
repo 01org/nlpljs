@@ -121,7 +121,7 @@
        * The newly created observer is disabled by default.
        */
       var createMutationObserver = function (self) {
-        var observer = new MutationObserver(function (mutations, observerInstance) {
+        var observer = new MutationObserver(function (mutations) {
           if (!docsHomeFixed) {
             fixDocsHomeLink(self);
           }
@@ -435,7 +435,7 @@
         },
 
         // propertyChanged handlers
-        iframeurlChanged: function (newValue, oldValue) {
+        iframeurlChanged: function (newValue) {
           this.$.iframe.src = newValue;
         },
 
@@ -448,8 +448,9 @@
         },
 
         onMouseOutImage: function (e) {
-          for (var i = 0; i < e.detail.length; i++)
+          for (var i = 0; i < e.detail.length; i++) {
             this.$.highlighter.turn(e.detail[i].groupId, 'off');
+          }
         },
 
         onAppToggled: function (isOpen) {

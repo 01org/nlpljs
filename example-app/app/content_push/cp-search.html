@@ -33,7 +33,10 @@ for an example)
 <dom-module id="cp-search">
   <script src="cp-resultset.js"></script>
   <script>
+    /* globals ResultSet: true */
     (function () {
+      'use strict';
+
       // declare the element
       Polymer({
         is: 'cp-search',
@@ -67,7 +70,7 @@ for an example)
             return promise.then(
               function (resultSet) {
                 self.queries[key] = resultSet;
-                return Promise.resolve(resultSet)
+                return Promise.resolve(resultSet);
               },
 
               function (err) {

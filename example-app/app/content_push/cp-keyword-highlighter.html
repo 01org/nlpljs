@@ -71,6 +71,8 @@
 <dom-module id="cp-keyword-highlighter">
   <script>
     (function () {
+      'use strict';
+
       // private properties
       var hl = {
         open: function (groupId, tag) { return '<keyword-highlight debugTag="' + tag + '" group-id="' + groupId + '">'; },
@@ -119,12 +121,15 @@
 
         var currentPosition = 0;
 
+        var nextTag;
+        var keywordChars;
+
         // TODO: examine the two endian cases and combine
         if (endian === 'begin') {
           var endOfTag = skipTags(chars);
           currentPosition = endOfTag;
-          var keywordChars = 0;
-          var nextTag = chars.indexOf('<', currentPosition);
+          keywordChars = 0;
+          nextTag = chars.indexOf('<', currentPosition);
           while (nextTag !== -1 && nextTag <= currentPosition + position - keywordChars) {
             // update current count of keyword characters
             keywordChars += nextTag - currentPosition;
@@ -140,15 +145,14 @@
           currentPosition += position - keywordChars; // *before* position
         } else
         if (endian === 'end') {
-          var nextTag = chars.indexOf('<');
+          nextTag = chars.indexOf('<');
           if (nextTag === -1) {
             currentPosition = chars.length;
           } else {
             var endOfTags = skipTags(chars);
             currentPosition = endOfTags;
-            var keywordChars = 0;
-            var nextTag = chars.indexOf('<', currentPosition);
-            var sanityCheck = 0;
+            keywordChars = 0;
+            nextTag = chars.indexOf('<', currentPosition);
             while (nextTag !== -1 && nextTag < currentPosition + position - keywordChars + 1) {
               // update current count of keyword characters
               keywordChars += nextTag - currentPosition;
@@ -171,7 +175,7 @@
         }
 
         // replace char 160 with nbsp again
-        var re = new RegExp(fakeSpace, 'g');
+        re = new RegExp(fakeSpace, 'g');
         retVal.before = chars.substr(0, currentPosition).replace(re, NBSP);
         retVal.after = chars.substr(currentPosition).replace(re, NBSP);
 
@@ -357,8 +361,8 @@
           
           // 7.5a in .before add hl.open(groupId) after final '>'
           var gtPosition = bits.before.lastIndexOf('>');
-          if (gtPosition!=-1) {
-            var insertAtPos=gtPosition+1;
+          if (gtPosition !== -1) {
+            var insertAtPos = gtPosition + 1;
             bits.before = 
               bits.before.substr(0, insertAtPos) +
               hl.open(groupId, tag) +
@@ -381,7 +385,7 @@
           result.push(elements[i].innerText);
         }
         var concatResult=[result.join('')].join('');
-        if (start.lineId===end.lineId && concatResult.length!=(end.charNo-start.charNo+1)) {
+        if (start.lineId === end.lineId && concatResult.length !== (end.charNo-start.charNo+1)) {
           console.log('HL:Result: ', '/' + concatResult + '/');
           console.log('HL:Tag:',tag);
           // only checking when the same line
@@ -405,8 +409,8 @@
           '}',
         ].join('\n');
 
-        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
-        style = targetDocument.createElement('style');
+        var head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
+        var style = targetDocument.createElement('style');
         style.type = 'text/css';
         if (style.styleSheet) {
           style.styleSheet.cssText = css;
@@ -430,7 +434,7 @@
           this.onStyle = 'background-color: #FFB2F0';
         },
 
-        targetElementChanged: function (newValue, oldValue) {
+        targetElementChanged: function () {
           var targetDocument = this.targetElement.ownerDocument ||
             this.targetElement.body.ownerDocument;
 
@@ -439,11 +443,12 @@
 
         prepare: function (ranges) {
           var lines = this.targetElement.querySelectorAll('[cp_line_id]');
-          for (var i = 0; i < lines.length; i++) {
+          var i;
+          for (i = 0; i < lines.length; i++) {
             this.lineIds[i] = lines[i].getAttribute('cp_line_id');
           }
 
-          for (var i = 0; i < ranges.length; i++) {
+          for (i = 0; i < ranges.length; i++) {
             highlightRange(this, ranges[i]);
           }
 
@@ -452,20 +457,26 @@
         },
 
         turn: function (groupId, state) {
+          var elements, element, numElements, i;
+
           if (state === 'on') {
-            var elements = this.targetElement.querySelectorAll(
+            elements = this.targetElement.querySelectorAll(
               'keyword-highlight[group-id="' + groupId + '"]:not(.on)'
             );
+            numElements = elements.length;
 
-            for (var i = 0, element; element = elements[i]; i++) {
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
               element.classList.add('on');
             }
           } else {
-            var elements = this.targetElement.querySelectorAll(
+            elements = this.targetElement.querySelectorAll(
               'keyword-highlight.on[group-id="' + groupId + '"]'
             );
+            numElements = elements.length;
 
-            for (var i = 0, element; element = elements[i]; i++) {
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
               element.classList.remove('on');
             }
           }

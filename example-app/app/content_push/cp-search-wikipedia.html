@@ -48,7 +48,10 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
   <script src="../bower_components/SparkMD5/spark-md5.js"></script>
 
   <script>
+    /* globals Thumbnailer: true */
     (function () {
+      'use strict';
+
       /* maximum number of pages for which Wikipedia will return
          extracts in response to a search */
       var MAX_RESULTS_PER_SEARCH = 20;
@@ -72,13 +75,14 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
       Polymer({
         is: 'cp-search-wikipedia',
 
-        extends: 'cp-search'
+        extends: 'cp-search',
 
         properties: {
           searchType: { type: String, value: 'image', notify: true }
         },
 
         created: function () {
+          /* globals WikipediaExtractor:true */
           this.extractor = new WikipediaExtractor({
             minImageSide: 100,
             numImages: 1
@@ -129,7 +133,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                                '&prop=images' +
                                '&format=json';
 
-          return new Promise(function (resolve, reject) {
+          return new Promise(function (resolve) {
+            /* globals jsonp:true */
             jsonp({
               url: imageSearchUrl,
 
@@ -176,7 +181,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                  http://commons.wikimedia.org/wiki/Commons:FAQ#What_are_the_strangely_named_components_in_file_paths.3F
                 */
                 for (var i = 0; i < images.length; i++) {
-                  if (matches = ALLOWED_IMAGE_REGEX.exec(images[i].title)) {
+                  var matches = ALLOWED_IMAGE_REGEX.exec(images[i].title);
+                  if (matches) {
                     var toHash = matches[1].replace(/ /g, '_');
                     var hash = SparkMD5.hash(toHash);
                     url = 'https://upload.wikimedia.org/wikipedia/commons/' +
@@ -222,7 +228,6 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         },
 
         parseArticleResult: function (result) {
-          var src = '';
           var thumbnailSrc = '';
           var snippet = '';
 
@@ -289,8 +294,10 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         /* returns the resultSet, populated with the images from
            response */
         handleResponse: function (resultSet, query, response) {
+          var err;
+
           if (response.error) {
-            var err = new Error('CP-SEARCH-WIKIPEDIA: ' +
+            err = new Error('CP-SEARCH-WIKIPEDIA: ' +
                                 'ERROR from Wikipedia API: ' +
                                 JSON.stringify(response));
             return Promise.reject(err);
@@ -298,7 +305,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
           if (response['query-continue'] && response['query-continue'].search) {
             // offset for the next search for this query (according to Wikipedia)
-            var offset = response['query-continue']['search'].gsroffset;
+            var offset = response['query-continue'].search.gsroffset;
 
             /* NB another search may have already reset the offset
                on the ResultSet, so use the biggest value */
@@ -310,7 +317,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
           // results for this search
           if (!(response.query && response.query.pages)) {
-            var err = new Error('CP-SEARCH-WIKIPEDIA: ERROR FOR QUERY ' +
+            err = new Error('CP-SEARCH-WIKIPEDIA: ERROR FOR QUERY ' +
                                 query + ' - ' +
                                 'no "query" property in response: ' +
                                 JSON.stringify(response));

@@ -68,6 +68,8 @@
 
   <script>
     (function () {
+      'use strict';
+
       // private properties
 
       Polymer({
@@ -85,7 +87,7 @@
         },
 
         // propertyChanged functions
-        toggleChanged: function (newValue, oldValue) {
+        toggleChanged: function () {
           this.$.panel.classList.toggle('off');
           this.open = !this.open;
           this.$.document.onAppToggled(this.open);

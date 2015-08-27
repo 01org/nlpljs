@@ -212,12 +212,12 @@
                   </paper-item>
 
                   <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-                    <paper-item id="{{computeId(groupName)}}" data-type-filter="{{computeData-type-filter(groupName, lowercaseSingular)}}">
+                    <paper-item id="{{groupName2ItemName(groupName)}}" data-type-filter="{{lowercaseSingular(groupName)}}">
                       <span>{{groupName}}</span>
                     </paper-item>
                   </template>
 
-                  <template is="dom-if" if="{{computeIf(searchService)}}">
+                  <template is="dom-if" if="{{isGoogle(searchService)}}">
                     <paper-item id="itemEditSources"
                                 icon="{{$.icons.editSources}}">
                       EDIT SOURCES
@@ -278,6 +278,8 @@
 
   <script>
     (function () {
+      'use strict';
+
       // private *static* functions and constants
       var setFilter = function (self) {
         var sliderFraction = self.$.display.getNormalisedSliderValue();
@@ -291,7 +293,7 @@
 
         var sources = null;
         if (self.searchService === 'Google') {
-          sources = self.$.storage.retrieveAllSources()
+          sources = self.$.storage.retrieveAllSources();
         }
 
         /* set filter on the display based on current keywordInfo,
@@ -332,10 +334,10 @@
       Polymer({
         is: 'cp-panel',
 
-        hostAttributes: {
-          on-newkeywordinfo: '{{onNewKeywordInfo}}',
-          on-nlpstart: '{{onNlpStart}}',
-          on-nlpstop: '{{onNlpStop}}'
+        listeners: {
+          newkeywordinfo: 'onNewKeywordInfo',
+          nlpstart: 'onNlpStart',
+          nlpstop: 'onNlpStop'
         },
 
         // functions and properties used in API and bindings
@@ -344,6 +346,8 @@
              or empty array to have no filter set */
           this.typeFilter = [];
 
+          /* globals KeywordSelector: true */
+          /* globals ArrayUtils: true */
           this.keywordSelector = new KeywordSelector(ArrayUtils);
         },
 
@@ -392,6 +396,8 @@
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
 
+          var selected;
+
           if (typeFilter) {
             /* switch title bar text based on menu item selection */
             if (typeFilter === 'no-filter') {
@@ -401,7 +407,7 @@
             }
 
             /* remove any highlight */
-            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
             if (selected && selected !== elt) {
               selected.setAttribute('data-selected-filter', 'false');
             }
@@ -413,7 +419,7 @@
           } else if (elt.id === 'itemEditSources') {
             /* open sources editor */
             this.$.swapper.slideIn('groups');
-            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
             var coreMenu = this.$.menu.querySelector('paper-dropdown > core-menu');
 
             this.async( function () {
@@ -524,16 +530,12 @@
           return value.toLowerCase().replace(/s$/, '');
         },
 
-        computeIf: function (searchService) {
+        isGoogle: function (searchService) {
           return searchService === 'Google';
         },
 
-        computeId: function (groupName) {
+        groupName2ItemName: function (groupName) {
           return 'item' + groupName;
-        },
-
-        computeData-type-filter: function (groupName, lowercaseSingular) {
-          return groupName | lowercaseSingular;
         }
       }); // Polymer()
     })();

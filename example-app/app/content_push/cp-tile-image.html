@@ -71,7 +71,7 @@ size
 
         <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
 
-        <p id="meta" data-revealed="{{computeData-revealed(revealmeta)}}">
+        <p id="meta" data-revealed="{{computeRevealed()}}">
           <span>{{width}}</span>x<span>{{height}}</span>
         </p>
       </paper-material>
@@ -82,6 +82,8 @@ size
 
   <script>
     (function () {
+      'use strict';
+
       var setRatio = function (self) {
         if (self.width > 0 && self.height > 0) {
           self.ratio = self.width / self.height;
@@ -190,8 +192,8 @@ size
           this.fire('error', e);
         },
 
-        computeData-revealed: function (revealmeta) {
-          return revealmeta === 'on' || revealmeta === 'always';
+        computeDataRevealed: function () {
+          return this.revealmeta === 'on' || this.revealmeta === 'always';
         }
       });
     })();

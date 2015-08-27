@@ -58,6 +58,8 @@
 
   <script>
     (function () {
+      'use strict';
+
       // for testing for PDF or SVG files returned as image results
       var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
 
@@ -82,23 +84,23 @@
           }
 
           switch (preferredService) {
-            case "Google Image Search":
+            case 'Google Image Search':
               service = this.$.searchGoogleImages;
               break;
-            case "Google Article Search":
+            case 'Google Article Search':
               service = this.$.searchGoogleArticles;
               break;
-            case "Wikipedia Image Search":
+            case 'Wikipedia Image Search':
               service = this.$.searchWikipediaImages;
               break;
-            case "Wikipedia Article Search":
+            case 'Wikipedia Article Search':
               service = this.$.searchWikipediaArticles;
               break;
-            case "Google Drive Search":
+            case 'Google Drive Search':
               service = this.$.searchDrive;
               break;
             default:
-              console.warn("cp-fetcher: Unrecognized preferred service!:", preferredService);
+              console.warn('cp-fetcher: Unrecognized preferred service!:', preferredService);
               return Promise.resolve([]);
           }
 

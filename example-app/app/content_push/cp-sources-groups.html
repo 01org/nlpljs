@@ -119,7 +119,7 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
 
     <cp-icons id="icons"></cp-icons>
 
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    <cp-sources-storage id="storage" on-newsources="onNewSources">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -127,7 +127,7 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
         <paper-header-panel id="panel" flex>
           <paper-toolbar id="header">
             <paper-icon-button id="back" icon="arrow-back"
-                              on-tap="{{onBackButtonClick}}">
+                              on-tap="onBackButtonClick">
             </paper-icon-button>
 
             <div flex>
@@ -138,8 +138,8 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
 
           <div id="items">
             <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-              <!-- MAXMAXMAX undefined?? -->
-              <paper-item undefined="{{groupName}}" on-click="{{editSourcesFor}}"></paper-item>
+            <paper-item icon="{{getIcon(groupName)}}" label="{{groupName}}"
+                        on-click="editSourcesFor"></paper-item>
             </template>
           </div>
         </paper-header-panel>
@@ -150,9 +150,12 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
                   swapper-slide swap-id="selector">
       </cp-sources-selector>
     </cp-swapper>
-  </template>
+    </template>
+
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-sources-groups',
 
@@ -179,8 +182,8 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
           this.$.swapper.slideOut('selector');
         },
 
-        computeIcon: function ($) {
-          return $.icons[groupName];
+        getIcon: function (groupName) {
+          return this.$.icons[groupName];
         }
       });
     })();

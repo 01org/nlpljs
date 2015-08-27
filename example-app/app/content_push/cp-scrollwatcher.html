@@ -28,6 +28,8 @@
 <dom-module id="cp-scrollwatcher">
   <script>
     (function () {
+      'use strict';
+
       Polymer({
         is: 'cp-scrollwatcher',
 
@@ -84,7 +86,6 @@
 
         getVisibleNodes: function (callback, data) {
           var visibleNodes = [];
-          var visibleId = '';
 
           if (this.targetNodes !== null) {
             for (var i = 0; i < this.targetNodes.length; i++) {
@@ -103,8 +104,8 @@
 
           var nodeStyle = document.defaultView.getComputedStyle(node, null);
 
-          if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
-              'hidden' === nodeStyle['visiblity']) {
+          if ('0' === nodeStyle.opacity || 'none' === nodeStyle.display ||
+              'hidden' === nodeStyle.visiblity) {
             return false;
           }
 
