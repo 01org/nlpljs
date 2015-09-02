@@ -49,6 +49,7 @@
   <script>
     (function () {
       'use strict';
+
       var coreAjaxes = []; // array of core-ajax elements
       var idleAjaxes = []; // array of indexes into coreAjaxes, those that are idle
 
@@ -93,6 +94,7 @@
 
       Polymer({
         is: 'cp-ajax-multiplexer',
+
         ready: function () {
           // make one ajax and make it idle
           var newCoreAjax = makeNewCoreAjax(this, 0);

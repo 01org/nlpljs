@@ -30,7 +30,7 @@
 
 <dom-module id="cp-aggregator">
   <template>
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    <cp-sources-storage id="storage" on-newsources="onNewSources">
     </cp-sources-storage>
 
     <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
@@ -211,7 +211,10 @@
                      this sources group */
                   var thisSources;
                   if (sourceName) {
-                    thisSources = searchAllSources(groupName, sourceName);
+                    thisSources = searchAllSources(
+                      groupName,
+                      sourceName
+                    );
                   } else {
                     thisSources = this.$.storage.getSourcesForGroup(groupName);
                   }

@@ -34,28 +34,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <dom-module id="cp-detail-article">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
   <template>
     <link rel="stylesheet" href="./styles/cp-detail.css">
 
-    <div id="container" vertical layout>
+    <div id="container" class="vertical layout">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal layout>
+        <div id="back" class="horizontal layout">
           <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                     on-click="{{onBackButtonClick}}">
+                     on-click="onBackButtonClick">
           </paper-fab>
 
           <h2 id="backcaption" data-show="{{showBackCaption(caption)}}" flex>
@@ -75,8 +61,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           <div id="aspectRatioSpacer"></div>
 
           <div id="imgPlacer" data-show="{{loaded}}">
-            <img id="image" src="{{src}}" on-error="{{onImageError}}"
-                 on-load="{{onImageLoad}}">
+            <img id="image" src="{{src}}" on-error="onImageError"
+                 on-load="onImageLoad">
           </div>
         </div>
       </div>
@@ -97,7 +83,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
     </div>
 
     <div id="visitSrc" data-show="{{showVisitSrc(source)}}">
-      <paper-button class="colored" on-click="{{visitWebpage}}"
+      <paper-button class="colored" on-click="visitWebpage"
                     data-source-link="{{source}}">
         GO TO ARTICLE
       </paper-button>

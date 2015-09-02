@@ -128,8 +128,8 @@ tile for a general web page (article)
 
         <div horizontal layout fit id="mainContainer">
           <div class="left" data-show="{{showImage()}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
-                 on-error="{{onImageError}}">
+            <img id="image" src="{{src}}" on-load="onImageLoaded"
+                 on-error="onImageError">
           </div>
 
           <div id="text"

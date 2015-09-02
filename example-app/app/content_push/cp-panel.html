@@ -190,9 +190,9 @@
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage"
-                        on-newsources="{{onNewSources}}"
-                        on-sourceenabled="{{onSourceEnabledOrCreated}}"
-                        on-sourcecreated="{{onSourceEnabledOrCreated}}">
+                        on-newsources="onNewSources"
+                        on-sourceenabled="onSourceEnabledOrCreated"
+                        on-sourcecreated="onSourceEnabledOrCreated">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
@@ -205,7 +205,7 @@
             <!-- items in this menu set the "types" part of the display filter -->
             <paper-dropdown-menu label="All" id="menu">
               <iron-dropdown class="dropdown">
-                <paper-menu class="menu" valueattr="id" on-click="{{onMenuClick}}">
+                <paper-menu class="menu" valueattr="id" on-click="onMenuClick">
                   <paper-item id="itemAll" data-type-filter="no-filter"
                               data-selected-filter="true">
                     All
@@ -228,7 +228,7 @@
             </paper-dropdown-menu>
 
             <paper-icon-button id="toolbaraction" icon="close"
-                               on-tap="{{closePanel}}">
+                               on-tap="closePanel">
             </paper-icon-button>
           </div>
 
@@ -236,36 +236,36 @@
         </paper-toolbar>
 
         <cp-display id="display"
-                    on-moreresults="{{onDisplayMoreResults}}"
-                    on-mouse-over="{{onDisplayMouseover}}"
-                    on-mouse-out="{{onDisplayMouseout}}"
-                    on-mouse-down="{{showDetail}}"
-                    on-slider-change="{{sliderChange}}">
+                    on-moreresults="onDisplayMoreResults"
+                    on-mouse-over="onDisplayMouseover"
+                    on-mouse-out="onDisplayMouseout"
+                    on-mouse-down="showDetail"
+                    on-slider-change="sliderChange">
         </cp-display>
       </div>
 
-      <cp-detail-article id="detailArticle" on-back="{{closeDetail}}"
+      <cp-detail-article id="detailArticle" on-back="closeDetail"
                          swapper-slide swap-id="detailarticle">
       </cp-detail-article>
 
-      <cp-detail-image id="detailImage" on-back="{{closeDetail}}"
+      <cp-detail-image id="detailImage" on-back="closeDetail"
                        swapper-slide swap-id="detailimage">
       </cp-detail-image>
 
-      <cp-detail-file id="detailFile" on-back="{{closeDetail}}"
+      <cp-detail-file id="detailFile" on-back="closeDetail"
                       swapper-slide swap-id="detailfile">
       </cp-detail-file>
 
       <cp-sources-groups id="groups"
-                  on-back="{{closeGroups}}"
+                  on-back="closeGroups"
                   swapper-slide swap-id="groups">
       </cp-sources-groups>
     </cp-swapper>
 
     <cp-aggregator id="aggregator"
-                   on-receivedresults="{{onReceivedResults}}"
-                   on-searchfailed="{{onSearchFailed}}"
-                   on-nopendingsearches="{{onNoPendingSearches}}">
+                   on-receivedresults="onReceivedResults"
+                   on-searchfailed="onSearchFailed"
+                   on-nopendingsearches="onNoPendingSearches">
     </cp-aggregator>
   </template>
 

@@ -69,7 +69,7 @@ size
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+        <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
 
         <p id="meta" data-revealed="{{computeRevealed()}}">
           <span>{{width}}</span>x<span>{{height}}</span>

@@ -261,12 +261,12 @@ pushing new tiles into the wrapped layout
     <div id="results" class="fill">
       <!-- image display (results) -->
       <cp-scroll id="scroller"
-                 on-scrollend="{{onScrollerScrollend}}"
+                 on-scrollend="onScrollerScrollend"
                  data-visible="{{state === 'results'}}"
                  class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
         <!-- results -->
-        <cp-layout id="layout" on-layout="{{checkResultState}}"
-                   on-tileprocessed="{{onLayoutTileProcessed}}"
+        <cp-layout id="layout" on-layout="checkResultState"
+                   on-tileprocessed="onLayoutTileProcessed"
                    data-visible="{{state === 'results'}}"></cp-layout>
       </cp-scroll>
 
@@ -278,12 +278,12 @@ pushing new tiles into the wrapped layout
 
       <div id="slider_wrapper" vertical justified layout
            class="{{ {'hide': !sliderVisible}|tokenList }}"
-           on-mouseover="{{onSliderMouseOver}}"
-           on-mouseout="{{onSliderMouseOut}}">
+           on-mouseover="onSliderMouseOver"
+           on-mouseout="onSliderMouseOut">
         <!-- "widen the search" slider -->
         <paper-slider id="slider" min="1" max="5" value="1"
                       pin snaps step="1"
-                      on-change="{{sliderChanged}}">
+                      on-change="sliderChanged">
         </paper-slider>
       </div>
     </div>

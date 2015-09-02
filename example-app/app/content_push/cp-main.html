@@ -47,21 +47,21 @@
     <div id="container" horizontal layout>
       <cp-document id="document"
                    flex
-                   on-newkeywordinfo="{{onDocumentNewKeywordInfo}}"
-                   on-nlpstart="{{onNlpStart}}"
-                   on-nlpstop="{{onNlpStop}}">
+                   on-newkeywordinfo="onDocumentNewKeywordInfo"
+                   on-nlpstart="onNlpStart"
+                   on-nlpstop="onNlpStop">
       </cp-document>
       <core-splitter id="splitter"
                      direction="right"
                      minSize="320px"
-                     on-down="{{onSplitterDownAction}}"
-                     on-up="{{onSplitterUpAction}}"
-                     on-track="{{onSplitterTrackAction}}">
+                     on-down="onSplitterDownAction"
+                     on-up="onSplitterUpAction"
+                     on-track="onSplitterTrackAction">
       </core-splitter>
       <cp-panel id="panel"
-                on-close-panel="{{onPanelClosePanel}}"
-                on-mouseoverimage="{{onPanelMouseOverImage}}"
-                on-mouseoutimage="{{onPanelMouseOutImage}}">
+                on-close-panel="onPanelClosePanel"
+                on-mouseoverimage="onPanelMouseOverImage"
+                on-mouseoutimage="onPanelMouseOutImage">
       </cp-panel>
     </div><!-- #container -->
   </template>

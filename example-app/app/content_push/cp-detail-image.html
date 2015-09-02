@@ -73,7 +73,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       <div class="top-bar toolbar-shadow">
         <div id="back" horizontal layout>
           <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                     on-click="{{onBackButtonClick}}">
+                     on-click="onBackButtonClick">
           </paper-fab>
 
           <span id="backcaption" data-show="{{showBackCaption(caption)}}" flex>
@@ -114,7 +114,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         <div id="exif" data-show="{{hasEXIF}}">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
-            <iron-icon id="exifToggle" on-click="{{exifToggle}}"
+            <iron-icon id="exifToggle" on-click="exifToggle"
                        icon="expand-more">
             </iron-icon>
           </div>
@@ -138,7 +138,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       </div>
 
       <div id="visitSrc" data-show="{{showVisitSrc(source)}}">
-        <paper-button class="colored" on-click="{{visitWebpage}}"
+        <paper-button class="colored" on-click="visitWebpage"
                       data-source-link="{{source}}">
           VIEW IMAGE
         </paper-button>
