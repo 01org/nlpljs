@@ -92,10 +92,10 @@
         };
         console.log('EP-AUTH:sending message:', message);
         sendResponse(message);
-      };
+      }
 
       return true; // response sent asynchronously
-    };
+    }
 
     return {
       getToken: getToken
@@ -153,7 +153,7 @@
       var options = {
         'interactive': true,
         url: url
-      }
+      };
 
       chrome.identity.launchWebAuthFlow(options, function (redirectUri) {
         if (chrome.runtime.lastError) {
@@ -194,7 +194,7 @@
         } else {
           console.log(new Error('EP-AUTH:Neither access_token nor code available.'));
         }
-      };
+      }
 
       function exchangeCodeForToken (code) {
         console.log('EP-AUTH:exchangeCodeForToken');
@@ -223,7 +223,7 @@
           }
         };
         xhr.send();
-      };
+      }
 
       function setAccessToken (token) {
         cache.access_token = token;
@@ -235,10 +235,10 @@
         };
         console.log('EP-AUTH:sending message:', message);
         sendResponse(message);
-      };
+      }
 
       return true; // response sent asynchronously
-    };
+    }
 
     var removeCachedToken = function (token_to_remove) {
       if (cache.access_token === token_to_remove) {

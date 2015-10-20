@@ -81,7 +81,7 @@
     var self = this;
     return _.select(this.tiles, function (tile) {
       return self.tilesActive[tile.source];
-    })
+    });
   };
 
   /**

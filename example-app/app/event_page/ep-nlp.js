@@ -63,7 +63,7 @@
           break;
       }
     };
-  };
+  }
 
   chrome.runtime.onConnectExternal.addListener(function (newPort) {
     console.log('EP-NLP:connecting: newPort:', newPort);
