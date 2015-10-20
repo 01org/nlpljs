@@ -37,7 +37,7 @@
     }
   });
 
-  chrome.runtime.sendMessage("cp-init");
+  chrome.runtime.sendMessage('cp-init');
 
   rehostPage();
 

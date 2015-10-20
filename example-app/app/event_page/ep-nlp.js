@@ -37,13 +37,13 @@
 
   //Create a web worker for NLP tasks
   function createWorker() {
-    nlp_worker = new Worker("worker/nlp_worker.js");
+    nlp_worker = new Worker('worker/nlp_worker.js');
 
     //TODO: Error handling & fallback.
     nlp_worker.onmessage = function (event) {
       var message = JSON.parse(event.data);
       switch (message.type) {
-        case "keywordlist":
+        case 'keywordlist':
           var nlp_port = active_nlp_ports[message.data.tabId];
 
           if (nlp_port) {
@@ -55,11 +55,11 @@
             console.log('EP-NLP:posting message: ', message);
             nlp_port.postMessage(message);
           } else {
-            console.log("EP-NLP:got keywords before port was initialized!");
+            console.log('EP-NLP:got keywords before port was initialized!');
           }
           break;
         default:
-          console.warn("EP-NLP:Unable to recognize response " + message.type);
+          console.warn('EP-NLP:Unable to recognize response ' + message.type);
           break;
       }
     };
@@ -77,7 +77,7 @@
             if (nlp_worker === null) {
               createWorker();
             } else {
-              console.log("EP-NLP:trying to start a new worker before closing the old one!");
+              console.log('EP-NLP:trying to start a new worker before closing the old one!');
             }
           }
 
@@ -90,7 +90,7 @@
               nlp_worker = null;
             }
           } else {
-            console.log ("EP-NLP:trying to send messages to the worker before creating it!");
+            console.log ('EP-NLP:trying to send messages to the worker before creating it!');
           }
         }
       });
@@ -102,6 +102,6 @@
   });
 
   chrome.runtime.onSuspend.addListener(function() {
-    console.log("EP-NLP: The event page is suspenended.");
+    console.log('EP-NLP: The event page is suspenended.');
   });
 })();

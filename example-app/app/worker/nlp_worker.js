@@ -158,7 +158,7 @@ var processMessage = function (message) {
       break;
     case 'lineadded':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
@@ -193,7 +193,7 @@ var processMessage = function (message) {
       break;
     case 'processcontext':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
@@ -247,7 +247,7 @@ var processMessage = function (message) {
       break;
     case 'getkeywords':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
