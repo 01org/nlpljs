@@ -130,7 +130,7 @@
 
         // format query in the same style as on the try-it page
         // of the google apis docs
-        var q =  "fullText contains '" + '"' + query +'"' + "' and trashed = false";
+        var q =  'fullText contains \'' + '"' + query +'"' + '\' and trashed = false';
         var spaces = new RegExp(' ', 'g');
         q = q.replace(spaces, '+');
         q = encodeURI(q);

@@ -205,7 +205,7 @@
           }
         });
 
-        console.log("CP-DOCUMENT:mutation observer created.");
+        console.log('CP-DOCUMENT:mutation observer created.');
 
         self.mutationObserver = observer;
       };
@@ -218,7 +218,7 @@
        */
       var createNlpWorker = function (self) {
         if (self.nlpPort !== null) {
-          console.log("CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!");
+          console.log('CP-DOCUMENT:trying to connect to ep-nlp when a connection already exists!');
 
           return;
         }
@@ -257,7 +257,7 @@
        */
       var closeNlpWorker = function (self) {
         if (self.nlpPort === null) {
-          console.log("CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn't exist!");
+          console.log('CP-DOCUMENT:trying to close a connection to ep-nlp when one doesn\'t exist!');
 
           return;
         }
@@ -290,7 +290,7 @@
         self.$.scrollwatcher.setOnScrollListener(getContext, self);
 
         for (var i = 0; i < lines.length; i++) {
-          if (!lines[i].hasAttribute("cp_line_id")) {
+          if (!lines[i].hasAttribute('cp_line_id')) {
             addIdToLine(lines[i], self.lineIdAccumulator);
             self.lineIdAccumulator++;
 
