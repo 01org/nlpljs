@@ -45,7 +45,6 @@
 
   // grid: array representation of a grid
   // width: number of cells in the row
-  var nextRow = 0;
   var addEmptyRow = function (grid, width) {
     var row = [];
 
@@ -72,9 +71,11 @@
       return seq.length === length;
     };
 
+    /* never used
     var incompleteSequences = function (seq) {
       return seq.length < length;
     };
+    */
 
     // sequences currently in progress
     var inProgress = [];

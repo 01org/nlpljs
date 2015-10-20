@@ -95,7 +95,7 @@
 
     // the image must be the same height or taller than the frame
     // for the frame to be a candidate
-    var heightGreater;
+    var heightGreaterOrEqual;
 
     for (var i = 0; i < FRAMES.length; i++) {
       candidateFrame = FRAMES[i];

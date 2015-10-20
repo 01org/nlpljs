@@ -48,7 +48,7 @@
 
     /* this is set to the real filter as the user selects tile
        type, keywords change, enabled sources change etc. */
-    this.filter = function (tile) {
+    this.filter = function (/*tile*/) {
       return true;
     };
   };

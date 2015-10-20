@@ -41,7 +41,7 @@
    * }
    */
 
-  chrome.runtime.onInstalled.addListener(function (details) {
+  chrome.runtime.onInstalled.addListener(function () {
     obj.google.getToken(function (message) {
       console.log('EP-AUTH:message:', message);
     });

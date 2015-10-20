@@ -25,7 +25,7 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (message, sender) {
   'use strict';
 
   if (message === 'cp-init' ) {

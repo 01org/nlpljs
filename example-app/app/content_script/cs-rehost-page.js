@@ -30,7 +30,7 @@
 
   var open = true;
 
-  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message) {
     if (message === 'cp-toggle') {
       document.querySelector('cp-main').setAttribute('toggle', open);
       open = !open;
