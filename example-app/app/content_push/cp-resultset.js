@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   /* representation of the results for a single query */
   var ResultSet = function (query) {
     /* the key phrase these results relate to */

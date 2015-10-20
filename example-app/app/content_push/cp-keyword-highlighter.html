@@ -71,6 +71,8 @@
 <polymer-element name="cp-keyword-highlighter" attributes="onStyle offStyle">
   <script>
     (function () {
+      'use strict';
+
       // private properties
       var hl = {
         open: function (groupId, tag) { return '<keyword-highlight debugTag="' + tag + '" group-id="' + groupId + '">'; },

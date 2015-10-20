@@ -25,9 +25,9 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-'use strict';
-
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  'use strict';
+
   if (message === "cp-init" ) {
     chrome.pageAction.show(sender.tab.id);
   }
@@ -35,6 +35,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
 if (chrome.pageAction) {
   chrome.pageAction.onClicked.addListener(function (tab) {
+    'use strict';
+
     chrome.tabs.sendMessage(tab.id, "cp-toggle");
   });
 }

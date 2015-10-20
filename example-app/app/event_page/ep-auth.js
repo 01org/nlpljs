@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   var obj = {};
 
   /**

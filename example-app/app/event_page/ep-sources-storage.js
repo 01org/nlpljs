@@ -60,6 +60,8 @@
  */
 
 (function () {
+  'use strict';
+
   var currentItem = {};
 
   /*

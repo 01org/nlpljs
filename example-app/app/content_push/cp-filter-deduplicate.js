@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   /**
    * Filter which returns true if a value does not occur
    * in its comparisonValues array (using strict equality test).

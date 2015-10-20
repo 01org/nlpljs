@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   /* regexp for HTML tags */
   var HTML_TAG_REGEX = new RegExp('<\/?[^<>]+?\/?>', 'gm');
 

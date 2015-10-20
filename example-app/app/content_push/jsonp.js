@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   /**
    * Send a jsonp request (useful for cross-domain requests) by
    * inserting a <script> into the page.

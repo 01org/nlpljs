@@ -26,6 +26,8 @@
  */
 
 (function (_, ArrayUtils) {
+  'use strict';
+
   var EMPTY = 0;
   var FULL = 1;
 

@@ -26,6 +26,8 @@
  */
 
 onmessage = function (event) {
+  'use strict';
+
   var request = event.data;
   var requestId = request.id;
   var url = request.url;

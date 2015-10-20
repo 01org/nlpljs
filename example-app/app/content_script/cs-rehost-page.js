@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   var open = true;
 
   chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {

@@ -26,6 +26,8 @@
  */
 
 (function (_) {
+  'use strict';
+
   // returns true if arr1 and arr2 contain the same elements
   var same = function (arr1, arr2) {
     if (arr1.length !== arr2.length) {

@@ -36,6 +36,8 @@
  * A tile should also have a setAttribute() method.
  */
 (function (_) {
+  'use strict';
+
   var TileCache = function () {
     /* keyed by tile source; stores Tile instances */
     this.tiles = {};

@@ -26,6 +26,8 @@
  */
 
 (function (_, HtmlCleaner) {
+  'use strict';
+
   var chunkRegexes = [
     /<p[\s\S]*?>([\s\S]+?)<\/p>/gm,
     /<div[\s\S]*?>([\s\S]+?)<\/div>/gm

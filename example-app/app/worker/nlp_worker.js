@@ -58,6 +58,8 @@ var groupIds = {};
 var nextGroupId = 0;
 
 var createLine = function (lineId, fromChar, toChar) {
+  'use strict';
+
   return {
     id: lineId,
     fromChar: fromChar,
@@ -68,6 +70,8 @@ var createLine = function (lineId, fromChar, toChar) {
 var currentContext = null;
 
 var createContext = function (requestTabId) {
+  'use strict';
+
   return {
     tabId: requestTabId,
     lines: [],
@@ -105,6 +109,8 @@ var createContext = function (requestTabId) {
 };
 
 var eventPageMessage = function (type, data) {
+  'use strict';
+
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
 
@@ -115,6 +121,8 @@ var eventPageMessage = function (type, data) {
  * @return {string} The string with escaped special characters.
  */
 function escapeRegExp(str) {
+  'use strict';
+
   // the first parameter is a list of characters that are special to RegExp()
   // $& is the string matched in the first parameter
   // \\ is a single backslash to escape the character
@@ -122,6 +130,8 @@ function escapeRegExp(str) {
 }
 
 var processMessage = function (message) {
+  'use strict';
+
   switch (message.type) {
     case 'create':
       require(['libnlp'], function (result) {
@@ -257,6 +267,8 @@ var processMessage = function (message) {
 };
 
 this.onmessage = function (event) {
+  'use strict';
+
   var message = JSON.parse(event.data);
 
   if (loaded === false && message.type !== 'create') {

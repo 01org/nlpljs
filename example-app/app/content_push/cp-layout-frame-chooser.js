@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   // frames around image-item elements inside a cp-layout;
   // NB the first item in this object will be the default if
   // no other frame is suitable

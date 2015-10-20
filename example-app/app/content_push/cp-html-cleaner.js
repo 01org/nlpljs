@@ -26,6 +26,8 @@
  */
 
 (function (_) {
+  'use strict';
+
   /**
    * @class HtmlCleaner
    *

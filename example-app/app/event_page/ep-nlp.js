@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   var nlp_worker = null;
   var active_nlp_ports = {};
 
