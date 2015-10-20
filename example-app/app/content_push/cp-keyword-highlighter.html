@@ -358,7 +358,7 @@
           
           // 7.5a in .before add hl.open(groupId) after final '>'
           var gtPosition = bits.before.lastIndexOf('>');
-          if (gtPosition!=-1) {
+          if (gtPosition!==-1) {
             var insertAtPos=gtPosition+1;
             bits.before = 
               bits.before.substr(0, insertAtPos) +
@@ -382,7 +382,7 @@
           result.push(elements[i].innerText);
         }
         var concatResult=[result.join('')].join('');
-        if (start.lineId===end.lineId && concatResult.length!=(end.charNo-start.charNo+1)) {
+        if (start.lineId===end.lineId && concatResult.length!==(end.charNo-start.charNo+1)) {
           console.log('HL:Result: ', '/' + concatResult + '/');
           console.log('HL:Tag:',tag);
           // only checking when the same line

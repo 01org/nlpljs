@@ -89,7 +89,7 @@
         var thisNode = node;
         var cssSelectorNotFound = true;
 
-        while (cssSelectorNotFound && thisNode && thisNode.nodeName != 'BODY') {
+        while (cssSelectorNotFound && thisNode && thisNode.nodeName !== 'BODY') {
           cssSelectorNotFound = !thisNode.classList.contains(className);
           if (cssSelectorNotFound) {
             // move into parent node
