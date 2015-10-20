@@ -63,7 +63,7 @@ for an example)
             return promise.then(
               function (resultSet) {
                 self.queries[key] = resultSet;
-                return Promise.resolve(resultSet)
+                return Promise.resolve(resultSet);
               },
 
               function (err) {
