@@ -59,4 +59,4 @@ self.addEventListener('message', function (event) {
   };
 
   xhr.send();
-};
+});
