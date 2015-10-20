@@ -276,8 +276,13 @@
 
   function dumpCurrentItem (documentId) {
     console.log('EP-SOURCES-STORAGE:Sources selection for:' + documentId);
-    for (var key in currentItem[documentId]) {
-      for (var src in currentItem[documentId][key].sources) {
+    var keys = Object.keys(currentItem[documentId]);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+
+      var srcs = Object.keys(currentItem[documentId][key].sources);
+      for (var j = 0; j < srcs.length; j++) {
+        var src = srcs[j];
         console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
         console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
       }
@@ -362,7 +367,11 @@
    * TODO: take changes made on other machines
    */
   chrome.storage.onChanged.addListener(function (changes, namespace) {
-    for (var key in changes) {
+    var keys = Object.keys(changes);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+
       var storageChange = changes[key];
       console.log('Storage key "%s" in namespace "%s" changed. ' +
                   'Old value was "%s", new value is "%s".',
