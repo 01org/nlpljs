@@ -124,7 +124,7 @@
        * The newly created observer is disabled by default.
        */
       var createMutationObserver = function (self) {
-        var observer = new MutationObserver(function (mutations, observerInstance) {
+        var observer = new MutationObserver(function (mutations) {
           if (!docsHomeFixed) {
             fixDocsHomeLink(self);
           }

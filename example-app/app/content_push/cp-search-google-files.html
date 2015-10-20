@@ -182,7 +182,7 @@
 
         ready: function () {
           var self = this;
-          this.ready_promise = new Promise(function (resolve, reject) {
+          this.ready_promise = new Promise(function (resolve) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
               if (e.detail.service === 'google') {
                 self.access_token = e.detail.token;

@@ -123,7 +123,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                                '&prop=images' +
                                '&format=json';
 
-          return new Promise(function (resolve, reject) {
+          return new Promise(function (resolve) {
             jsonp({
               url: imageSearchUrl,
 
@@ -216,7 +216,6 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         },
 
         parseArticleResult: function (result) {
-          var src = '';
           var thumbnailSrc = '';
           var snippet = '';
 

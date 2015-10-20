@@ -40,9 +40,7 @@
     (function () {
       'use strict';
 
-      var searches = [];
-
-      var logSearch = function (self, searchInfo) {
+      var logSearch = function (self) {
         self.pendingSearches--;
 
         /* if there are no pending searches, fire event */

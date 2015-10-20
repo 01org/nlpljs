@@ -70,7 +70,7 @@
         },
 
         // propertyChanged functions
-        toggleChanged: function (oldValue, newValue) {
+        toggleChanged: function () {
           this.$.panel.classList.toggle('off');
           this.open = !this.open;
           this.$.document.onAppToggled(this.open);

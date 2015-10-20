@@ -350,8 +350,6 @@ pushing new tiles into the wrapped layout
          * must match, e.g. ['file', 'image']
          */
         setFilter: function (criteria) {
-          var self = this;
-
           if (!criteria.currentKeywords) {
             return;
           }
@@ -410,7 +408,6 @@ pushing new tiles into the wrapped layout
             }
 
             /* type */
-            var typeMatches;
             if (criteria.types.length === 0) {
               /* no types criteria, so always matches */
               return true;
@@ -702,7 +699,7 @@ pushing new tiles into the wrapped layout
           this.$.waiting.classList.add('fadeout');
         },
 
-        sliderChanged: function (e) {
+        sliderChanged: function () {
           this.fire('slider-change');
         },
 

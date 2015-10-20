@@ -107,8 +107,6 @@
             return;
           }
 
-          var self = this;
-
           this.port = chrome.runtime.connect(
             this.$.globals.data.app_id,
             {name: 'sources'}

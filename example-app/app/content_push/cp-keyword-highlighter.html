@@ -150,7 +150,6 @@
             currentPosition = endOfTags;
             var keywordChars = 0;
             var nextTag = chars.indexOf('<', currentPosition);
-            var sanityCheck = 0;
             while (nextTag !== -1 && nextTag < currentPosition + position - keywordChars + 1) {
               // update current count of keyword characters
               keywordChars += nextTag - currentPosition;
@@ -426,7 +425,7 @@
           this.onStyle = 'background-color: #FFB2F0';
         },
 
-        targetElementChanged: function (oldValue, newValue) {
+        targetElementChanged: function () {
           var targetDocument = this.targetElement.ownerDocument ||
             this.targetElement.body.ownerDocument;
 
