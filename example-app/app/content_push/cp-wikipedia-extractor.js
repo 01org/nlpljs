@@ -44,8 +44,10 @@
     var matches;
     var chunks = [];
 
-    while (matches = regex.exec(html)) {
+    matches = regex.exec(html);
+    while (matches[1]) {
       chunks.push(matches[1]);
+      matches = regex.exec(html);
     }
 
     return chunks;
