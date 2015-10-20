@@ -37,7 +37,7 @@ onmessage = function (event) {
   xhr.open('GET', url, true);
 
   xhr.onreadystatechange = function () {
-    if (this.readyState == 4 /* DONE */) {
+    if (this.readyState === 4 /* DONE */) {
       if (!(('' + xhr.status).match(/2\d\d/))) {
         postMessage({
           id: requestId,
