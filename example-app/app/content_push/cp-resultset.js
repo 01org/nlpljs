@@ -100,7 +100,7 @@
   ResultSet.prototype.setExhausted = function () {
     this.isExhausted = true;
   };
-
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = ResultSet;
   }

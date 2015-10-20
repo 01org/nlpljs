@@ -81,7 +81,7 @@
     var inProgress = [];
 
     for (var index = startIndex; index < arr.length; index++) {
-      item = arr[index];
+      var item = arr[index];
 
       if (fn(item)) {
         // start a new sequence
@@ -268,6 +268,7 @@
   var LayoutGenerator = function () {};
   LayoutGenerator.prototype.generate = findLayout;
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = LayoutGenerator;
   }
@@ -275,6 +276,8 @@
     window.LayoutGenerator = LayoutGenerator;
   }
 })(
+  /* globals require:true */
+  /* globals ArrayUtils:true */
   typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _,
   typeof ArrayUtils === 'undefined' ? require('./cp-array-utils') : ArrayUtils
 );

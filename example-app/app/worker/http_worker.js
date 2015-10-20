@@ -25,7 +25,9 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-onmessage = function (event) {
+/* jshint worker:true */
+
+self.addEventListener('message', function (event) {
   'use strict';
 
   var request = event.data;

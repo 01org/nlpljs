@@ -41,7 +41,7 @@
            'resize_w=600&' + // set max image width to 600px
            'url=' + encodeURIComponent(imageURL);
   };
-
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = Thumbnailer;
   }

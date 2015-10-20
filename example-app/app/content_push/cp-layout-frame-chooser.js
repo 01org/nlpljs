@@ -124,6 +124,7 @@
     return chosenFrame;
   };
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = FrameChooser;
   }

@@ -100,6 +100,7 @@
     diff: diff
   };
 
+  /* globals module: true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = ArrayUtils;
   }
@@ -107,5 +108,6 @@
     window.ArrayUtils = ArrayUtils;
   }
 })(
+  /* globals require: true */
   typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _
 );

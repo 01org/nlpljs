@@ -168,12 +168,15 @@
     };
   };
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = WikipediaExtractor;
   } else {
     window.WikipediaExtractor = WikipediaExtractor;
   }
 })(
+  /* globals require:true */
+  /* globals HtmlCleaner:true */
   typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _,
   typeof HtmlCleaner === 'undefined' ? require('./cp-html-cleaner') : HtmlCleaner
 );

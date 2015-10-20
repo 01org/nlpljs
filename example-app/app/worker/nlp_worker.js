@@ -25,7 +25,7 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-
+/* jshint worker:true */
 
 /*
  * This file is a webworker (https://developer.mozilla.org/en/docs/Web/Guide/Performance/Using_web_workers).
@@ -40,6 +40,7 @@
  *
 */
 
+/* globals require:true */
 this.importScripts('../bower_components/requirejs/require.js');
 
 require.config({
@@ -222,6 +223,7 @@ var processMessage = function (message) {
           score: result.scores[i]
         });
 
+        var search;
         while ((search = regex.exec(currentContext.text))) {
           startChar = search.index;
           var endChar = startChar + keyword.length - 1;

@@ -104,11 +104,13 @@
     return html;
   };
 
+/* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = HtmlCleaner;
   } else {
     window.HtmlCleaner = HtmlCleaner;
   }
+/* globals require:true */
 })(
   typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _
 );

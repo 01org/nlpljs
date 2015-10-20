@@ -155,6 +155,7 @@
     return activeTilesChanged;
   };
 
+  /* globals module:true */
   /* export */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = TileCache;
@@ -162,4 +163,5 @@
   else {
     window.TileCache = TileCache;
   }
+  /* globals require:true */
 })(typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.js') : _);
