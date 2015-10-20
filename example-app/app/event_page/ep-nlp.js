@@ -47,13 +47,13 @@
           var nlp_port = active_nlp_ports[message.data.tabId];
 
           if (nlp_port) {
-            var message = {
+            var messageOut = {
               component: 'nlp',
               message: message
             };
 
-            console.log('EP-NLP:posting message: ', message);
-            nlp_port.postMessage(message);
+            console.log('EP-NLP:posting message: ', messageOut);
+            nlp_port.postMessage(messageOut);
           } else {
             console.log('EP-NLP:got keywords before port was initialized!');
           }

@@ -203,7 +203,7 @@ var processMessage = function (message) {
       var ranges = [];
       var result = libnlp.keyphrase_extractor.extractFrom(textForExtractor);
 
-      for (var i = 0; i < result.keywords.length; i++) {
+      for (i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
         var regex = new RegExp(escapeRegExp(keyword), 'gi');
 
@@ -222,7 +222,7 @@ var processMessage = function (message) {
         });
 
         while ((search = regex.exec(currentContext.text))) {
-          var startChar = search.index;
+          startChar = search.index;
           var endChar = startChar + keyword.length - 1;
           var startLine = currentContext.findLine(startChar);
           var endLine = currentContext.findLine(endChar);

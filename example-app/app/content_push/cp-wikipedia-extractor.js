@@ -108,7 +108,7 @@
       }
 
       if (height >= minImageSide && width >= minImageSide) {
-        var srcMatches = imageSourceRegex.exec(img) || [];
+        srcMatches = imageSourceRegex.exec(img) || [];
 
         if (srcMatches) {
           src = srcMatches[1];

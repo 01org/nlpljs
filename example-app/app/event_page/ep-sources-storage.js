@@ -340,11 +340,11 @@
                 loadSources(documentId, result, newPort);
               });
             } else {
-              var message = {
+              var messageOut = {
                 component: 'sources',
                 data: currentItem[documentId]
               };
-              newPort.postMessage(message);
+              newPort.postMessage(messageOut);
             }
 
           } else
