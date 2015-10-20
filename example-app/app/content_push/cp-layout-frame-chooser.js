@@ -111,8 +111,8 @@
 
       betterCandidate = !chosenFrame ||
                         (ratioDiff < nearestRatio && heightGreaterOrEqual) ||
-                        (ratioDiff === nearestRatio && sizeDiff < nearestSize
-                         && heightGreaterOrEqual);
+                        (ratioDiff === nearestRatio && sizeDiff < nearestSize &&
+                        heightGreaterOrEqual);
 
       if (betterCandidate) {
         chosenFrame = candidateFrame;
