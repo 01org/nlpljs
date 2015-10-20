@@ -85,9 +85,10 @@ var createContext = function (requestTabId) {
       var left = 0;
       var right = this.lines.length - 1;
       var found = false;
+      var line = '';
 
       while (!found) {
-        var line = this.lines[lineIndex];
+        line = this.lines[lineIndex];
 
         if (charIndex >= line.fromChar &&
             charIndex < line.toChar) {
