@@ -103,8 +103,8 @@
 
           var nodeStyle = document.defaultView.getComputedStyle(node, null);
 
-          if ('0' === nodeStyle['opacity'] || 'none' === nodeStyle['display'] ||
-              'hidden' === nodeStyle['visiblity']) {
+          if ('0' === nodeStyle.opacity || 'none' === nodeStyle.display ||
+              'hidden' === nodeStyle.visiblity) {
             return false;
           }
 

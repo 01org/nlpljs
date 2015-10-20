@@ -189,8 +189,8 @@ search using a Google custom search engine
               } else if (searchType === 'article') {
                 var thumbnailSrc;
                 var src = null;
-                if (data.pagemap && data.pagemap['cse_image']) {
-                  src = data.pagemap['cse_image'];
+                if (data.pagemap && data.pagemap.cse_image) {
+                  src = data.pagemap.cse_image;
                 }
 
                 if (src) {

@@ -292,7 +292,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
           if (response['query-continue'] && response['query-continue'].search) {
             // offset for the next search for this query (according to Wikipedia)
-            var offset = response['query-continue']['search'].gsroffset;
+            var offset = response['query-continue'].search.gsroffset;
 
             /* NB another search may have already reset the offset
                on the ResultSet, so use the biggest value */
