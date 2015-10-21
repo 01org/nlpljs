@@ -135,7 +135,14 @@
             var newNodes = mutation.addedNodes;
             var removedNodes = mutation.removedNodes;
 
+            var makeTimeoutHandler = function () {
+              return function () {
+                self.$.scrollwatcher.getVisibleNodes(getContext, self);
+              };
+            };
+
             if (removedNodes !== null) {
+
               for (j = 0; j < removedNodes.length; j++) {
                 thisNode = removedNodes[j];
                 if (thisNode) {
@@ -151,15 +158,14 @@
                       clearTimeout(self.editOverTimer);
                     }
 
-                    self.editOverTimer = setTimeout(function () {
-                      self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                    }, self.EDITOVERTIMEOUT);
+                    self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                   }
                 }
               }
             }
 
             if (newNodes !== null) {
+
               for (j = 0; j < newNodes.length; j++) {
                 thisNode = newNodes[j];
                 if (thisNode) {
@@ -176,9 +182,7 @@
                         clearTimeout(self.editOverTimer);
                       }
 
-                      self.editOverTimer = setTimeout(function () {
-                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.EDITOVERTIMEOUT);
+                      self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                     }
                   }
                   else if (typeof thisNode.classList !== 'undefined' &&
@@ -195,9 +199,7 @@
                         clearTimeout(self.editOverTimer);
                       }
 
-                      self.editOverTimer = setTimeout(function () {
-                        self.$.scrollwatcher.getVisibleNodes(getContext, self);
-                      }, self.EDITOVERTIMEOUT);
+                      self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                     }
                   }
                 }
