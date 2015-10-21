@@ -440,8 +440,9 @@
         },
 
         onMouseOutImage: function (e) {
-          for (var i = 0; i < e.detail.length; i++)
+          for (var i = 0; i < e.detail.length; i++) {
             this.$.highlighter.turn(e.detail[i].groupId, 'off');
+          }
         },
 
         onAppToggled: function (isOpen) {
