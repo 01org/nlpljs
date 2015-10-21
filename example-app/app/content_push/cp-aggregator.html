@@ -137,11 +137,12 @@
         aggregate: function (searchTerms, groupName, sourceName) {
           /* get the services we want to search against, depending on
              the groupName; or default to all services if no groupName */
+          var i;
           var services = this.services;
           if (groupName) {
             /* only use services for the specified group name */
             services = [];
-            for (var i = 0; i < this.services.length; i++) {
+            for (i = 0; i < this.services.length; i++) {
               if (this.services[i].groupName === groupName) {
                 services.push(this.services[i]);
               }
@@ -186,7 +187,10 @@
                   }
 
                   if (thisSources) {
-                    for (var sourceKey in thisSources.sources) {
+                    var keys = Object.keys(thisSources.sources);
+
+                    for (i=0; i<keys.length; i++) {
+                      var sourceKey = keys[i];
                       var thisSource = thisSources.sources[sourceKey];
 
                       if (thisSource.enabled) {
