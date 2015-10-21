@@ -275,9 +275,13 @@
   <script src="../bower_components/lodash/dist/lodash.js"></script>
 
   <!-- required by cp-keyword-selector -->
-  <script src="cp-array-utils.js"></script>
+  <script src="cp-array-utils.js">
+    /* globals ArrayUtils:true */
+  </script>
 
-  <script src="cp-keyword-selector.js"></script>
+  <script src="cp-keyword-selector.js">
+    /* globals KeywordSelector:true */
+  </script>
 
   <script>
     (function () {

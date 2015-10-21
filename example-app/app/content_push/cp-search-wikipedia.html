@@ -33,14 +33,20 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
 <polymer-element name="cp-search-wikipedia" extends="cp-search"
                  attributes="searchType">
-  <script src="jsonp.js"></script>
-  <script src="cp-thumbnailer.js"></script>
+  <script src="jsonp.js">
+    /* globals jsonp:true */
+  </script>
+  <script src="cp-thumbnailer.js">
+    /* globals Thumbnailer: true */
+  </script>
 
   <!-- REQUIRED by cp-wikipedia-extractor -->
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="cp-html-cleaner.js"></script>
 
-  <script src="cp-wikipedia-extractor.js"></script>
+  <script src="cp-wikipedia-extractor.js">
+    /* globals WikipediaExtractor: true */
+  </script>
 
   <script src="../bower_components/SparkMD5/spark-md5.js"></script>
 

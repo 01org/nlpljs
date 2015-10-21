@@ -102,6 +102,7 @@
           var nextPageToken = response.nextPageToken;
           if (nextPageToken) {
             // get the next page
+            var url = makeUrl(self, query);
             var nextId = self.$.multiplexer.url(url + '&pageToken=' + nextPageToken);
 
             // next page is a new id, so move the callback and query to new id
@@ -119,6 +120,15 @@
         }
       };
 
+      var makeUrl = function (self, q) {
+        return 'https://www.googleapis.com/drive/v2/files?' +
+          'access_token=' + self.access_token + '&' +
+          'fields=items(alternateLink,createdDate,description,fileSize,' +
+          'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
+          'thumbnailLink,title)&' +
+          'q=' + q;
+      };
+
       /**
        * Retrieve a list of File resources.
        *
@@ -133,13 +143,7 @@
         q = q.replace(spaces, '+');
         q = encodeURI(q);
 
-        var url =
-            'https://www.googleapis.com/drive/v2/files?' +
-            'access_token=' + self.access_token + '&' +
-            'fields=items(alternateLink,createdDate,description,fileSize,' +
-            'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' +
-            'thumbnailLink,title)&' +
-            'q=' + q;
+        var url = makeUrl(self, q);
 
         var id = self.$.multiplexer.url(url);
 

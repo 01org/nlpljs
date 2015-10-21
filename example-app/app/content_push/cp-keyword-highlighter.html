@@ -409,8 +409,8 @@
           '}',
         ].join('\n');
 
-        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
-        style = targetDocument.createElement('style');
+        var head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
+        var style = targetDocument.createElement('style');
         style.type = 'text/css';
         if (style.styleSheet) {
           style.styleSheet.cssText = css;

@@ -72,10 +72,17 @@ href="../bower_components/paper-spinner/paper-spinner.html">
   </template>
 
   <script src="../bower_components/lodash/dist/lodash.js"></script>
-  <script src="cp-layout-frame-chooser.js"></script>
-  <script src="cp-tile-cache.js"></script>
+  <script src="cp-layout-frame-chooser.js">
+    /* globals FrameChooser:true */
+  </script>
+  <script src="cp-tile-cache.js">
+    /* globals TileCache:true */
+  </script>
+  /* TODO: is ArrayUtils needed? */
   <script src="cp-array-utils.js"></script>
-  <script src="cp-layout-generator.js"></script>
+  <script src="cp-layout-generator.js">
+    /* globals LayoutGenerator:true */
+  </script>
 
   <script>
     (function () {
