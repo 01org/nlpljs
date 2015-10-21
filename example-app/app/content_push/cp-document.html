@@ -130,13 +130,14 @@
           }
 
           for (var i = 0; i < mutations.length; i++) {
+            var j, thisNode;
             var mutation = mutations[i];
             var newNodes = mutation.addedNodes;
             var removedNodes = mutation.removedNodes;
 
             if (removedNodes !== null) {
-              for (var j = 0; j < removedNodes.length; j++) {
-                var thisNode = removedNodes[j];
+              for (j = 0; j < removedNodes.length; j++) {
+                thisNode = removedNodes[j];
                 if (thisNode) {
                   if (typeof thisNode.classList !== 'undefined' &&
                       thisNode.classList.contains(LINE_CLASS) &&
