@@ -159,8 +159,8 @@
             }
 
             if (newNodes !== null) {
-              for (var j = 0; j < newNodes.length; j++) {
-                var thisNode = newNodes[j];
+              for (j = 0; j < newNodes.length; j++) {
+                thisNode = newNodes[j];
                 if (thisNode) {
                   if (thisNode.nodeName === 'SPAN') {
                     var line = findAncestor(thisNode, LINE_CLASS);

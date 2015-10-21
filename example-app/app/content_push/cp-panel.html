@@ -389,6 +389,8 @@
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
 
+          var selected;
+
           if (typeFilter) {
             /* switch title bar text based on menu item selection */
             if (typeFilter === 'no-filter') {
@@ -398,7 +400,7 @@
             }
 
             /* remove any highlight */
-            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
             if (selected && selected !== elt) {
               selected.setAttribute('data-selected-filter', 'false');
             }
@@ -410,7 +412,7 @@
           } else if (elt.id === 'itemEditSources') {
             /* open sources editor */
             this.$.swapper.slideIn('groups');
-            var selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
             var coreMenu = this.$.menu.querySelector('paper-dropdown > core-menu');
 
             this.async( function () {

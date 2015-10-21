@@ -121,12 +121,15 @@
 
         var currentPosition = 0;
 
+        var nextTag;
+        var keywordChars;
+
         // TODO: examine the two endian cases and combine
         if (endian === 'begin') {
           var endOfTag = skipTags(chars);
           currentPosition = endOfTag;
-          var keywordChars = 0;
-          var nextTag = chars.indexOf('<', currentPosition);
+          keywordChars = 0;
+          nextTag = chars.indexOf('<', currentPosition);
           while (nextTag !== -1 && nextTag <= currentPosition + position - keywordChars) {
             // update current count of keyword characters
             keywordChars += nextTag - currentPosition;
@@ -142,14 +145,14 @@
           currentPosition += position - keywordChars; // *before* position
         } else
         if (endian === 'end') {
-          var nextTag = chars.indexOf('<');
+          nextTag = chars.indexOf('<');
           if (nextTag === -1) {
             currentPosition = chars.length;
           } else {
             var endOfTags = skipTags(chars);
             currentPosition = endOfTags;
-            var keywordChars = 0;
-            var nextTag = chars.indexOf('<', currentPosition);
+            keywordChars = 0;
+            nextTag = chars.indexOf('<', currentPosition);
             while (nextTag !== -1 && nextTag < currentPosition + position - keywordChars + 1) {
               // update current count of keyword characters
               keywordChars += nextTag - currentPosition;
@@ -172,7 +175,7 @@
         }
 
         // replace char 160 with nbsp again
-        var re = new RegExp(fakeSpace, 'g');
+        re = new RegExp(fakeSpace, 'g');
         retVal.before = chars.substr(0, currentPosition).replace(re, NBSP);
         retVal.after = chars.substr(currentPosition).replace(re, NBSP);
 
@@ -434,11 +437,12 @@
 
         prepare: function (ranges) {
           var lines = this.targetElement.querySelectorAll('[cp_line_id]');
-          for (var i = 0; i < lines.length; i++) {
+          var i;
+          for (i = 0; i < lines.length; i++) {
             this.lineIds[i] = lines[i].getAttribute('cp_line_id');
           }
 
-          for (var i = 0; i < ranges.length; i++) {
+          for (i = 0; i < ranges.length; i++) {
             highlightRange(this, ranges[i]);
           }
 
@@ -447,19 +451,23 @@
         },
 
         turn: function (groupId, state) {
+        var elements, element, numElements, i;
+
           if (state === 'on') {
-            var elements = this.targetElement.querySelectorAll(
+            elements = this.targetElement.querySelectorAll(
               'keyword-highlight[group-id="' + groupId + '"]:not(.on)'
             );
+            numElements = elements.length;
 
             for (i = 0; i < numElements; i++) {
               element = elements[i];
               element.classList.add('on');
             }
           } else {
-            var elements = this.targetElement.querySelectorAll(
+            elements = this.targetElement.querySelectorAll(
               'keyword-highlight.on[group-id="' + groupId + '"]'
             );
+            numElements = elements.length;
 
             for (i = 0; i < numElements; i++) {
               element = elements[i];

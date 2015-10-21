@@ -45,8 +45,6 @@
       'use strict';
 
       var getResultsToReturn = function (self, query) {
-        var resultsToReturn = [];
-
         var numResults = self.results[query].length;
         var from = self.cursor[query];
         var to  = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);

@@ -43,14 +43,14 @@
   (function () {
     'use strict';
 
-    var handleNewToken = function (self, detail) {
-      if (detail.component === 'auth' && detail.type === 'accesstoken') {
-        var detail = {
-          token: detail.token,
-          service: detail.service
+    var handleNewToken = function (self, detailIn) {
+      if (detailIn.component === 'auth' && detailIn.type === 'accesstoken') {
+        var detailOut = {
+          token: detailIn.token,
+          service: detailIn.service
         };
-        self.fire('accesstoken', detail);
-        console.log('CP-AUTH:received token:', detail.token);
+        self.fire('accesstoken', detailOut);
+        console.log('CP-AUTH:received token:', detailOut.token);
       }
     };
 

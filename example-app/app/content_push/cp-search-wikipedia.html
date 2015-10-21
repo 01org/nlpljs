@@ -283,8 +283,10 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         /* returns the resultSet, populated with the images from
            response */
         handleResponse: function (resultSet, query, response) {
+          var err;
+
           if (response.error) {
-            var err = new Error('CP-SEARCH-WIKIPEDIA: ' +
+            err = new Error('CP-SEARCH-WIKIPEDIA: ' +
                                 'ERROR from Wikipedia API: ' +
                                 JSON.stringify(response));
             return Promise.reject(err);
@@ -304,7 +306,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
           // results for this search
           if (!(response.query && response.query.pages)) {
-            var err = new Error('CP-SEARCH-WIKIPEDIA: ERROR FOR QUERY ' +
+            err = new Error('CP-SEARCH-WIKIPEDIA: ERROR FOR QUERY ' +
                                 query + ' - ' +
                                 'no "query" property in response: ' +
                                 JSON.stringify(response));
