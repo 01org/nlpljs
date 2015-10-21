@@ -452,7 +452,8 @@
               'keyword-highlight[group-id="' + groupId + '"]:not(.on)'
             );
 
-            for (var i = 0, element; element = elements[i]; i++) {
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
               element.classList.add('on');
             }
           } else {
@@ -460,7 +461,8 @@
               'keyword-highlight.on[group-id="' + groupId + '"]'
             );
 
-            for (var i = 0, element; element = elements[i]; i++) {
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
               element.classList.remove('on');
             }
           }
