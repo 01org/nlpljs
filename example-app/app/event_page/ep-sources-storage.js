@@ -280,11 +280,13 @@
     for (var i = 0; i < keys.length; i++) {
       var key = keys[i];
 
-      var srcs = Object.keys(currentItem[documentId][key].sources);
-      for (var j = 0; j < srcs.length; j++) {
-        var src = srcs[j];
-        console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
-        console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
+      if (currentItem[documentId][key].sources) {
+        var srcs = Object.keys(currentItem[documentId][key].sources);
+        for (var j = 0; j < srcs.length; j++) {
+          var src = srcs[j];
+          console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
+          console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
+        }
       }
     }
     return currentItem[documentId];
