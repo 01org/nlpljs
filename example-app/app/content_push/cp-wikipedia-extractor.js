@@ -45,7 +45,7 @@
     var chunks = [];
 
     matches = regex.exec(html);
-    while (matches[1]) {
+    while (matches && matches[1]) {
       chunks.push(matches[1]);
       matches = regex.exec(html);
     }
@@ -71,7 +71,7 @@
       }
     }
 
-    return _.map(chunks, cleaner.clean);
+    return _.map(chunks, cleaner.clean, cleaner);
   };
 
   var getImages = function (html, minImageSide, numImages) {

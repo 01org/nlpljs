@@ -320,7 +320,9 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         ready: function () {
           var self = this;
           document.addEventListener('polymer-ready', function () {
-            self.$.add_dialog.parentNode = document.querySelector('html /deep/ cp-panel');
+            var cpPanel = document.querySelector('html /deep/ cp-panel');
+            var addDialog = self.$.add_dialog;
+            cpPanel.appendChild(addDialog);
           });
         },
 

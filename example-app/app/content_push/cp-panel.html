@@ -489,8 +489,8 @@
         onSearchFailed: function (e) {
           /* TODO notify user of search errors in UI */
           this.$.display.receiveResults([]);
-          console.error(e.detail.error);
-          console.error(e.detail.error.stack);
+          console.info(e.detail.error);
+          console.info(e.detail.error.stack);
           setFilter(this);
         },
 

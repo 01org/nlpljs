@@ -45,8 +45,7 @@ search using a Google custom search engine
   </script>
   <script>
     (function () {
-      'use strict';
-
+      /* jshint strict:false */
       /* maximum number of results Google will return per search */
       var MAX_RESULTS_PER_SEARCH = 10;
 
@@ -72,6 +71,7 @@ search using a Google custom search engine
         },
 
         ready: function () {
+          'use strict';
           var self = this;
           this.ready_promise = new Promise(function (resolve) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
@@ -86,12 +86,14 @@ search using a Google custom search engine
         },
 
         domReady: function () {
+          'use strict';
           this.appId = this.$.globals.data.app_id;
         },
 
         /* prepare results for query; returns a promise which resolves
            to a ResultSet for the query */
         searchImpl: function (resultSet, query, sourceURL) {
+          'use strict';
           var self = this;
 
           /* Google image results count from 1, whereas resultSet
@@ -150,6 +152,7 @@ search using a Google custom search engine
          * response
          */
         handleResponse: function (resultSet, query, searchType, response) {
+          'use strict';
           if (response.error) {
             var err = new Error('CP:error from Google: ' +
                                 JSON.stringify(response));

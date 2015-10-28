@@ -52,7 +52,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
   <script>
     (function () {
-      'use strict';
+      /* jshint strict:false */
 
       /* maximum number of pages for which Wikipedia will return
          extracts in response to a search */
@@ -89,6 +89,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
         /* get the URL to use for an image search */
         getImageSearchUrl: function (query, resultSet) {
+          'use strict';
+
           return 'https://commons.wikimedia.org/w/api.php?action=query' +
                  '&generator=search' +
                  '&gsrnamespace=6' +
@@ -103,6 +105,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 
         /* get the URL to use for an article search */
         getArticleSearchUrl: function (query, resultSet) {
+          'use strict';
+
           return 'https://en.wikipedia.org/w/api.php?action=query' +
                  '&generator=search' +
                  '&gsrwhat=text' +
@@ -123,6 +127,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
            request for each page, as Wikipedia won't return image
            data for multiple pages at once */
         getImageUrl: function (title) {
+          'use strict';
+
           var imageSearchUrl = 'https://en.wikipedia.org/w/api.php?' +
                                'action=query&titles=' +
                                encodeURIComponent(title) +
@@ -200,6 +206,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
            this is wrapped in a Promise as the article results have
            to be returned asynchronously */
         parseImageResult: function (result) {
+          'use strict';
+
           var data = result.imageinfo[0];
           var meta = data.extmetadata;
           var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
@@ -223,6 +231,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         },
 
         parseArticleResult: function (result) {
+          'use strict';
+
           var thumbnailSrc = '';
           var snippet = '';
 
@@ -255,6 +265,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         /* prepare results for query; returns a promise which resolves
            to a ResultSet for the query */
         searchImpl: function (resultSet, query) {
+          'use strict';
+
           var self = this;
 
           var url;
@@ -274,7 +286,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
                 self.handleResponse(resultSet, query, response)
                 .catch(
                   function (e) {
-                    console.error('CP-SEARCH-WIKIPEDIA ERROR: ' + e.message);
+                    console.info('CP-SEARCH-WIKIPEDIA ERROR: ' + e.message);
                     reject(e);
                   }
                 )
@@ -289,6 +301,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         /* returns the resultSet, populated with the images from
            response */
         handleResponse: function (resultSet, query, response) {
+          'use strict';
+
           var err;
 
           if (response.error) {
