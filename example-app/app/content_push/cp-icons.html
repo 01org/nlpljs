@@ -26,24 +26,45 @@
 --><!--
 Imports necessary icon sets and provides easy aliases for the icons we
 want to use.
---><html><head><link rel="import" href="../bower_components/core-icons/core-icons.html">
+--><html><head><link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="../bower_components/core-icons/image-icons.html">
 
-<polymer-element name="cp-icons">
+</head><body><dom-module id="cp-icons">
   <script>
     (function () {
       'use strict';
-
       Polymer({
-        'Images': 'image:camera-alt',
-        'Files': 'editor:insert-drive-file',
-        'Articles': 'editor:format-color-text',
-        'Quotes': 'editor:format-quote',
-        'Videos': 'av:videocam',
-        'editSources': 'editor:mode-edit'
+        is: 'cp-icons',
+        properties: {
+          Articles: {
+            type: String,
+            value: 'editor:format-color-text'
+          },
+          Files: {
+            type: String,
+            value: 'editor:insert-drive-file'
+          },
+          Images: {
+            type: String,
+            value: 'image:camera-alt'
+          },
+          Quotes: {
+            type: String,
+            value: 'editor:format-quote'
+          },
+          Videos: {
+            type: String,
+            value: 'av:videocam'
+          },
+          editSources: {
+            type: String,
+            value: 'editor:mode-edit'
+          }
+        }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

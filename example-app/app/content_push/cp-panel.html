@@ -23,11 +23,11 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><html><head><link rel="import" href="../bower_components/core-toolbar/core-toolbar.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-menu/core-menu.html">
+--><html><head><link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
-<link rel="import" href="../bower_components/paper-dropdown/paper-dropdown.html">
+<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
@@ -42,9 +42,9 @@
 <link rel="import" href="./cp-sources-groups.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-panel" on-newkeywordinfo="{{onNewKeywordInfo}}" on-nlpstart="{{onNlpStart}}" on-nlpstop="{{onNlpStop}}">
-  <template>
-    <style>
+</head><body><!-- required by cp-keyword-selector -->
+<dom-module id="cp-panel">
+  <style>
       :host {
         height: 100%;
       }
@@ -184,124 +184,112 @@
         fill: #fff !important;
       }
     </style>
+  <template>
 
     <cp-icons id="icons"></cp-icons>
 
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}" on-sourceenabled="{{onSourceEnabledOrCreated}}" on-sourcecreated="{{onSourceEnabledOrCreated}}">
+    <cp-sources-storage id="storage" on-newsources="onNewSources" on-sourceenabled="onSourceEnabledOrCreated" on-sourcecreated="onSourceEnabledOrCreated">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
       <div swapper-fix="">
         <!-- the panel is made up of a header toolbar and the display -->
-        <core-toolbar id="toolbar" class="toolbar-shadow">
+        <paper-toolbar id="toolbar" class="toolbar-shadow">
           <div id="toolbarmain">
-            <core-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></core-icon>
+            <iron-icon id="toolbaricon" icon="cp-icons-svg:cp-icon"></iron-icon>
 
             <!-- items in this menu set the "types" part of the display filter -->
             <paper-dropdown-menu label="All" id="menu">
-              <paper-dropdown class="dropdown">
-                <core-menu class="menu" valueattr="id" on-click="{{onMenuClick}}">
+              <iron-dropdown class="dropdown">
+                <paper-menu class="menu" valueattr="id" on-click="onMenuClick">
                   <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">
                     All
                   </paper-item>
 
-                  <template repeat="{{groupName in groupNames}}">
-                    <paper-item id="item{{groupName}}" data-type-filter="{{groupName|lowercaseSingular}}">
-                      {{groupName}}
+                  <template is="dom-repeat" items="{{groupNames}}" as="groupName">
+                    <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeData-type-filter(groupName, lowercaseSingular)}}">
+                      <span>{{groupName}}</span>
                     </paper-item>
                   </template>
 
-                  <template if="{{searchService === 'Google'}}">
+                  <template is="dom-if" if="{{_computeIf(searchService)}}">
                     <paper-item id="itemEditSources" icon="{{$.icons.editSources}}">
                       EDIT SOURCES
                     </paper-item>
                   </template>
-                </core-menu>
-              </paper-dropdown>
+                </paper-menu>
+              </iron-dropdown>
             </paper-dropdown-menu>
 
-            <paper-icon-button id="toolbaraction" icon="close" on-tap="{{closePanel}}">
+            <paper-icon-button id="toolbaraction" icon="close" on-tap="closePanel">
             </paper-icon-button>
           </div>
 
           <paper-progress id="progress" indeterminate="" class="bottom"></paper-progress>
-        </core-toolbar>
+        </paper-toolbar>
 
-        <cp-display id="display" on-moreresults="{{onDisplayMoreResults}}" on-mouse-over="{{onDisplayMouseover}}" on-mouse-out="{{onDisplayMouseout}}" on-mouse-down="{{showDetail}}" on-slider-change="{{sliderChange}}">
+        <cp-display id="display" on-moreresults="onDisplayMoreResults" on-mouse-over="onDisplayMouseover" on-mouse-out="onDisplayMouseout" on-mouse-down="showDetail" on-slider-change="sliderChange">
         </cp-display>
       </div>
 
-      <cp-detail-article id="detailArticle" on-back="{{closeDetail}}" swapper-slide="" swap-id="detailarticle">
+      <cp-detail-article id="detailArticle" on-back="closeDetail" swapper-slide="" swap-id="detailarticle">
       </cp-detail-article>
 
-      <cp-detail-image id="detailImage" on-back="{{closeDetail}}" swapper-slide="" swap-id="detailimage">
+      <cp-detail-image id="detailImage" on-back="closeDetail" swapper-slide="" swap-id="detailimage">
       </cp-detail-image>
 
-      <cp-detail-file id="detailFile" on-back="{{closeDetail}}" swapper-slide="" swap-id="detailfile">
+      <cp-detail-file id="detailFile" on-back="closeDetail" swapper-slide="" swap-id="detailfile">
       </cp-detail-file>
 
-      <cp-sources-groups id="groups" on-back="{{closeGroups}}" swapper-slide="" swap-id="groups">
+      <cp-sources-groups id="groups" on-back="closeGroups" swapper-slide="" swap-id="groups">
       </cp-sources-groups>
     </cp-swapper>
 
-    <cp-aggregator id="aggregator" on-receivedresults="{{onReceivedResults}}" on-searchfailed="{{onSearchFailed}}" on-nopendingsearches="{{onNoPendingSearches}}">
+    <cp-aggregator id="aggregator" on-receivedresults="onReceivedResults" on-searchfailed="onSearchFailed" on-nopendingsearches="onNoPendingSearches">
     </cp-aggregator>
   </template>
-
   <script src="../bower_components/lodash/dist/lodash.js"></script>
-
-  <!-- required by cp-keyword-selector -->
   <script src="cp-array-utils.js">
     /* globals ArrayUtils:true */
   </script>
-
   <script src="cp-keyword-selector.js">
     /* globals KeywordSelector:true */
   </script>
-
   <script>
     (function () {
       'use strict';
-
       // private *static* functions and constants
       var setFilter = function (self) {
         var sliderFraction = self.$.display.getNormalisedSliderValue();
         self.keywordSelector.setWidth(sliderFraction);
         var currentKeywords = self.keywordSelector.getCurrentKeywords();
-
         if (!currentKeywords.length) {
           console.log('CP-PANEL: cannot setFilter as no current keywords');
           return;
         }
-
         var sources = null;
         if (self.searchService === 'Google') {
           sources = self.$.storage.retrieveAllSources();
         }
-
         /* set filter on the display based on current keywordInfo,
-           selected result types and enabled sources */
+         selected result types and enabled sources */
         self.$.display.setFilter({
           currentKeywords: currentKeywords,
           types: self.typeFilter,
           sources: sources
         });
       };
-
       /* perform search for keywords and add to the display */
       var search = function (self, keywords, groupName, sourceName) {
         self.$.display.searchesPending = true;
         self.$.display.wait();
         self.$.aggregator.aggregate(keywords, groupName, sourceName);
       };
-
       /* return the keywords from tileKeywords which also occur
-         in the current keywords (according to the keywordSelector) */
+       in the current keywords (according to the keywordSelector) */
       var getKeywordsToHighlight = function (self, tileKeywords) {
         var results = [];
-
         var currentKeywords = self.keywordSelector.getCurrentKeywords();
-
         for (var i = 0; i < tileKeywords.length; i++) {
           for (var j = 0; j < currentKeywords.length; j++) {
             if (tileKeywords[i].text === currentKeywords[j].text) {
@@ -310,36 +298,26 @@
             }
           }
         }
-
         return results;
       };
-
       Polymer({
+        is: 'cp-panel',
         // functions and properties used in API and bindings
         created: function () {
           /* an array of types of result to show in the display,
-             or empty array to have no filter set */
+           or empty array to have no filter set */
           this.typeFilter = [];
-
           this.keywordSelector = new KeywordSelector(ArrayUtils);
         },
-
-        domReady: function () {
-          this.searchService = this.$.storage.getSearchService();
-          this.onNewSources();
-        },
-
         onNewSources: function () {
           this.searchService = this.$.storage.getSearchService();
           this.groupNames = this.$.storage.getGroupNames();
           setFilter(this);
         },
-
         // called from content-push.html:trackAction() when splitter moves
         layout: function () {
           this.$.display.layout();
         },
-
         showDetail: function (e) {
           var tile = e.detail;
           if (tile.type === 'image') {
@@ -353,24 +331,19 @@
             this.$.swapper.slideIn('detailarticle');
           }
         },
-
         closeDetail: function (e) {
           this.$.swapper.activeElt.close();
           this.$.swapper.slideOut();
           this.fire('mouseoutimage', e.target.highlights);
           e.target.highlights = null;
         },
-
         closeGroups: function () {
           this.$.swapper.slideOut('groups');
         },
-
         onMenuClick: function (e) {
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
-
           var selected;
-
           if (typeFilter) {
             /* switch title bar text based on menu item selection */
             if (typeFilter === 'no-filter') {
@@ -378,75 +351,62 @@
             } else {
               this.typeFilter = typeFilter.split(',');
             }
-
             /* remove any highlight */
-            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
+            selected = Polymer.dom(this.$.menu).querySelector('[data-selected-filter="true"]');
             if (selected && selected !== elt) {
-              selected.setAttribute('data-selected-filter', 'false');
+              Polymer.dom(selected).setAttribute('data-selected-filter', 'false');
             }
-
             /* highlight the selected filter */
-            elt.setAttribute('data-selected-filter', 'true');
-
+            Polymer.dom(elt).setAttribute('data-selected-filter', 'true');
             setFilter(this);
           } else if (elt.id === 'itemEditSources') {
             /* open sources editor */
             this.$.swapper.slideIn('groups');
-            selected = this.$.menu.querySelector('[data-selected-filter="true"]');
-            var coreMenu = this.$.menu.querySelector('paper-dropdown > core-menu');
-
-            this.async( function () {
+            selected = Polymer.dom(this.$.menu).querySelector('[data-selected-filter="true"]');
+            var coreMenu = Polymer.dom(this.$.menu).querySelector('paper-dropdown > core-menu');
+            this.async(function () {
               // reselect previously selected item
               coreMenu.selected = [selected.id];
             });
           }
         },
-
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
           console.log('CP-PANEL:onNewKeywordInfo', e.detail.keywordInfo);
-
           var candidateKeywords = e.detail.keywordInfo.keywords;
           var newKeywords = this.keywordSelector.setActiveKeywords(candidateKeywords);
-
           if (newKeywords.length > 0) {
             console.log('CP-PANEL:onNewKeywordInfo - newKeywords', newKeywords);
-
             /* we have new keywords, run a fresh search for them */
             this.$.display.reset();
             search(this, newKeywords);
           } else {
             /* just reset current keywords and filter (the new set
-               of keywords is either the same as or a subset of the
-               existing current keywords) */
+             of keywords is either the same as or a subset of the
+             existing current keywords) */
             setFilter(this);
           }
         },
-
         /* NLP started processing new context, so fade in indeterminate progress */
         onNlpStart: function () {
-          this.$.progress.classList.remove('fadeout');
-          this.$.progress.classList.add('fadein');
+          Polymer.dom(this.$.progress).classList.remove('fadeout');
+          Polymer.dom(this.$.progress).classList.add('fadein');
         },
-
         /* NLP finished processing context, so fade out indeterminate progress */
         onNlpStop: function () {
-          this.$.progress.classList.remove('fadein');
-          this.$.progress.classList.add('fadeout');
+          Polymer.dom(this.$.progress).classList.remove('fadein');
+          Polymer.dom(this.$.progress).classList.add('fadeout');
         },
-
         /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
           search(this, this.keywordSelector.getCurrentKeywords());
         },
-
         onDisplayMouseover: function (e) {
           var keywordsToHighlight = getKeywordsToHighlight(this, e.detail);
           this.fire('mouseoverimage', keywordsToHighlight);
         },
-
         onDisplayMouseout: function (e) {
-          var openDetail = this.shadowRoot.querySelectorAll('#swapper > [data-open="true"]');
+          var openDetail = Polymer.dom(this.shadowRoot).querySelectorAll('#swapper > [data-open="true"]');
           var keywordsToUnhighlight = getKeywordsToHighlight(this, e.detail);
           if (openDetail.length === 0) {
             this.fire('mouseoutimage', keywordsToUnhighlight);
@@ -454,14 +414,12 @@
             openDetail[0].highlights = keywordsToUnhighlight;
           }
         },
-
         /* the first result which loads successfully into a tile
-           will turn off the waiting indicator on cp-display */
+         will turn off the waiting indicator on cp-display */
         onReceivedResults: function (e) {
           this.$.display.receiveResults(e.detail.results);
           setFilter(this);
         },
-
         onSearchFailed: function (e) {
           /* TODO notify user of search errors in UI */
           this.$.display.receiveResults([]);
@@ -469,40 +427,53 @@
           console.info(e.detail.error.stack);
           setFilter(this);
         },
-
         /* if the aggregator has finished searching, ensure the
-           waiting indicator on cp-display is off, even if no results
-           were found */
+         waiting indicator on cp-display is off, even if no results
+         were found */
         onNoPendingSearches: function () {
           console.log('CP-PANEL: got nopendingsearches');
-          this.$.display.searchesPending = false;
+          this.set('$.display.searchesPending', false);
           this.$.display.stopWaiting();
         },
-
         /* if there are no results for a source and it is added or enabled,
-           run a search */
+         run a search */
         onSourceEnabledOrCreated: function (e) {
           var groupName = e.detail.groupName;
           var sourceName = e.detail.sourceName;
-
           if (!this.$.display.hasResultForSourceName(sourceName)) {
             var currentKeywords = this.keywordSelector.getCurrentKeywords();
             search(this, currentKeywords, groupName, sourceName);
           }
         },
-
         closePanel: function () {
           this.fire('close-panel');
         },
-
         sliderChange: function () {
           setFilter(this);
         },
-
         lowercaseSingular: function (value) {
           return value.toLowerCase().replace(/s$/, '');
+        },
+        listeners: {
+          newkeywordinfo: 'onNewKeywordInfo',
+          nlpstart: 'onNlpStart',
+          nlpstop: 'onNlpStop'
+        },
+        ready: function () {
+          this.searchService = this.$.storage.getSearchService();
+          this.onNewSources();
+        },
+        _computeIf: function (searchService) {
+          return searchService === 'Google';
+        },
+        _computeId: function (groupName) {
+          return 'item' + groupName;
+        },
+        _computeData-type-filter: function (groupName, lowercaseSingular) {
+          return groupName | lowercaseSingular;
         }
-      }); // Polymer()
-    })();
+      });  // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

@@ -26,12 +26,15 @@
 --><!--
 search using a Google custom search engine
 --><html><head><link rel="import" href="./cp-search.html">
-<polymer-element name="cp-search-google" extends="cp-search" attributes="searchType">
+</head><body><!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="cp-search-google">
   <template>
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
   </template>
-
   <script src="jsonp.js"></script>
   <script src="cp-formatter.js">
     /* globals Formatter:true */
@@ -44,28 +47,37 @@ search using a Google custom search engine
       /* jshint strict:false */
       /* maximum number of results Google will return per search */
       var MAX_RESULTS_PER_SEARCH = 10;
-
       /* language for results */
       var LANGUAGE = 'lang_en';
-
       Polymer({
-        /* these are associated with sig.exp.london@gmail.com */
-        cx: '010167764530769062315:196d4y__4ss',
-
-        /* search safe level */
-        safe: 'high',
-
-        /* search type: 'image' or 'article' */
-        searchType: 'image',
-
-        sourceURL: '',
-
+        is: 'cp-search-google',
+        properties: {
+          /* these are associated with sig.exp.london@gmail.com */
+          cx: {
+            type: String,
+            value: '010167764530769062315:196d4y__4ss'
+          },
+          /* search safe level */
+          safe: {
+            type: String,
+            value: 'high'
+          },
+          /* search type: 'image' or 'article' */
+          searchType: {
+            type: String,
+            value: 'image',
+            notify: true
+          },
+          sourceURL: {
+            type: String,
+            value: ''
+          }
+        },
         created: function () {
           this.super();
           this.access_token = null;
           this.ready_promise = null;
         },
-
         ready: function () {
           'use strict';
           var self = this;
@@ -76,72 +88,44 @@ search using a Google custom search engine
                 resolve();
               }
             });
-
             self.$.authorizer.getToken('google');
           });
-        },
-
-        domReady: function () {
           'use strict';
           this.appId = this.$.globals.data.app_id;
         },
-
         /* prepare results for query; returns a promise which resolves
-           to a ResultSet for the query */
+         to a ResultSet for the query */
         searchImpl: function (resultSet, query, sourceURL) {
           'use strict';
           var self = this;
-
           /* Google image results count from 1, whereas resultSet
-             offsets start from 0 */
+           offsets start from 0 */
           var start = resultSet.offset + 1;
-
-          var url = 'https://www.googleapis.com/customsearch/v1?' +
-                    (this.searchType === 'image' ? 'searchType=image&' : '') +
-                    'access_token=' + this.access_token + '&' +
-                    'cx=' + this.cx + '&' +
-                    'safe=' + this.safe + '&' +
-                    'num=' + MAX_RESULTS_PER_SEARCH + '&' +
-                    'start=' + start + '&' +
-                    'lr=' + LANGUAGE + '&' +
-                    'q=%22' + encodeURIComponent(query) + '%22';
-
+          var url = 'https://www.googleapis.com/customsearch/v1?' + (this.searchType === 'image' ? 'searchType=image&' : '') + 'access_token=' + this.access_token + '&' + 'cx=' + this.cx + '&' + 'safe=' + this.safe + '&' + 'num=' + MAX_RESULTS_PER_SEARCH + '&' + 'start=' + start + '&' + 'lr=' + LANGUAGE + '&' + 'q=%22' + encodeURIComponent(query) + '%22';
           if (sourceURL) {
             url += '&';
-
             // 'i' => include results from the specified site
-            url += 'siteSearchFilter=i&' +
-                   'siteSearch=' + encodeURIComponent(sourceURL);
+            url += 'siteSearchFilter=i&' + 'siteSearch=' + encodeURIComponent(sourceURL);
           }
-
           console.log('CP-SEARCH-GOOGLE: requesting URL ' + url);
-
-          return this.ready_promise.then(
-            function () {
-              return new Promise(function (resolve, reject) {
-                var message = {
-                  component: 'http',
-                  url: url
-                };
-
-                try {
-                  chrome.runtime.sendMessage(self.appId, message, function (response) {
-                    console.log('CP-SEARCH-GOOGLE: cb from ep-http:', response);
-                    console.log('CP-SEARCH-GOOGLE: numResults:', response.searchInformation.totalResults);
-                    self.handleResponse(resultSet, query, self.searchType, response)
-                    .then(
-                      resolve, reject
-                    )
-                    .catch(reject);
-                  });
-                } catch (err) {
-                  reject(err);
-                }
-              });
-            }
-          );
+          return this.ready_promise.then(function () {
+            return new Promise(function (resolve, reject) {
+              var message = {
+                component: 'http',
+                url: url
+              };
+              try {
+                chrome.runtime.sendMessage(self.appId, message, function (response) {
+                  console.log('CP-SEARCH-GOOGLE: cb from ep-http:', response);
+                  console.log('CP-SEARCH-GOOGLE: numResults:', response.searchInformation.totalResults);
+                  self.handleResponse(resultSet, query, self.searchType, response).then(resolve, reject).catch(reject);
+                });
+              } catch (err) {
+                reject(err);
+              }
+            });
+          });
         },
-
         /*
          * searchType: 'image' or 'article'
          * returns the resultSet, populated with the images from
@@ -150,30 +134,25 @@ search using a Google custom search engine
         handleResponse: function (resultSet, query, searchType, response) {
           'use strict';
           if (response.error) {
-            var err = new Error('CP:error from Google: ' +
-                                JSON.stringify(response));
+            var err = new Error('CP:error from Google: ' + JSON.stringify(response));
             return Promise.reject(err);
           } else if (response.items) {
             if (response.queries && response.queries.nextPage) {
               /* offset for the next search for this query */
               var offset = response.queries.nextPage[0].startIndex - 1;
-
               /* NB another search may have already reset the offset
-                 on the ResultSet, so use the biggest value */
+               on the ResultSet, so use the biggest value */
               resultSet.setOffset(Math.max(offset, resultSet.offset));
             } else {
               resultSet.setExhausted();
             }
-
             var data;
             for (var i = 0; i < response.items.length; i++) {
               data = response.items[i];
               var result;
-
               if (searchType === 'image') {
                 /* TODO doesn't seem to be any EXIF data on Google images */
                 var meta = {};
-
                 result = {
                   caption: data.title,
                   src: data.link,
@@ -183,11 +162,9 @@ search using a Google custom search engine
                   type: searchType,
                   source: data.image.contextLink || data.link,
                   meta: {
-                    ExifVersion: (meta.ExifVersion ?
-                                      meta.ExifVersion.value : null),
-                    DateTime: (meta.DateTime ?
-                                  Formatter.formatDate(meta.DateTime.value) : null),
-                    Camera: (meta.Model ? meta.Model.value.trim() : null)
+                    ExifVersion: meta.ExifVersion ? meta.ExifVersion.value : null,
+                    DateTime: meta.DateTime ? Formatter.formatDate(meta.DateTime.value) : null,
+                    Camera: meta.Model ? meta.Model.value.trim() : null
                   }
                 };
               } else if (searchType === 'article') {
@@ -196,7 +173,6 @@ search using a Google custom search engine
                 if (data.pagemap && data.pagemap.cse_image) {
                   src = data.pagemap.cse_image;
                 }
-
                 if (src) {
                   src = src[0].src;
                   thumbnailSrc = Thumbnailer.getGoogleURL(src);
@@ -204,7 +180,6 @@ search using a Google custom search engine
                   src = null;
                   thumbnailSrc = null;
                 }
-
                 result = {
                   caption: data.title,
                   src: src,
@@ -214,17 +189,17 @@ search using a Google custom search engine
                   snippet: data.snippet
                 };
               }
-
               resultSet.add(result);
             }
           } else {
             /* end of result set reached */
             resultSet.setExhausted();
           }
-
           return Promise.resolve(resultSet);
-        }
+        },
+        extends: 'cp-search'
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

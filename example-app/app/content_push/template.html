@@ -25,33 +25,25 @@
     Plamena Manolova <plamena.manolova@intel.com>
 --><!--
  - my-element
- --><!-- import links here --><html><head><polymer-element name="my-element">
+ --><!-- import links here --><html><head></head><body><dom-module id="my-element">
+  <style></style>
   <template>
-    <style></style>
     <div id="container"></div>
   </template>
   <script>
     (function () {
       'use strict';
-
       // private *static* functions and constants
-
       Polymer({
+        is: 'my-element',
         // functions and properties used in API and bindings
-
         // life cycle handlers
         created: function () {
         },
-
         ready: function () {
-        },
-
-        // property changed handlers
-
-        // event handlers
-
-      }); // Polymer()
-    })();
-
+        }
+      });  // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

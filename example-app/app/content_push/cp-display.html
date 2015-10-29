@@ -35,9 +35,30 @@ pushing new tiles into the wrapped layout
 <link rel="import" href="./cp-tile-image.html">
 <link rel="import" href="./cp-tile-article.html">
 
-<polymer-element name="cp-display">
-  <template>
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+</head><body><dom-module id="cp-display">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [layout][justified] {
+      @apply(--layout-justified);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+  </style>
+  <style>
       :host {
         display: block;
         position: relative;
@@ -215,6 +236,7 @@ pushing new tiles into the wrapped layout
         visibility: visible;
       }
     </style>
+  <template>
 
     <!--
     states for this component:
@@ -224,7 +246,7 @@ pushing new tiles into the wrapped layout
     -->
 
     <!-- never searched -->
-    <div id="preresults" class="fill vbox" data-show="{{state === 'preresults'}}">
+    <div id="preresults" class="fill vbox" data-show$="{{_computeData-show(state)}}">
       <div class="message-area">
         <div><img src="../images/CP_Icon_large.png"></div>
         <p id="preresults-welcome">Welcome to</p>
@@ -234,7 +256,7 @@ pushing new tiles into the wrapped layout
     </div>
 
     <!-- no results -->
-    <div id="noresults" class="fill vbox" data-show="{{!waiting &amp;&amp; state === 'noresults'}}">
+    <div id="noresults" class="fill vbox" data-show$="{{_computeData-show2(state, waiting)}}">
       <div class="message-area">
         <p>Sorry, we couldn't find good results</p>
         <p class="divider-top">You could try writing a little more</p>
@@ -242,10 +264,10 @@ pushing new tiles into the wrapped layout
     </div>
 
     <!-- full page loader; can overlay image display -->
-    <div id="waiting" class="fill vbox" data-show="{{waiting &amp;&amp; state !== 'preresults'}}">
+    <div id="waiting" class="fill vbox" data-show$="{{_computeIf(state, waiting)}}">
       <div class="message-area">
         <p>Your content is on the way...</p>
-        <template if="{{waiting &amp;&amp; state !== 'preresults'}}">
+        <template is="dom-if" if="{{_computeIf(state, waiting)}}">
           <paper-spinner active=""></paper-spinner>
         </template>
       </div>
@@ -254,72 +276,71 @@ pushing new tiles into the wrapped layout
     <!-- after results are found -->
     <div id="results" class="fill">
       <!-- image display (results) -->
-      <cp-scroll id="scroller" on-scrollend="{{onScrollerScrollend}}" data-visible="{{state === 'results'}}" class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
+      <cp-scroll id="scroller" on-scrollend="onScrollerScrollend" data-visible$="{{_computeData-visible(state)}}" class$="{{_computeData-visible(state)}}">
         <!-- results -->
-        <cp-layout id="layout" on-layout="{{checkResultState}}" on-tileprocessed="{{onLayoutTileProcessed}}" data-visible="{{state === 'results'}}"></cp-layout>
+        <cp-layout id="layout" on-layout="checkResultState" on-tileprocessed="onLayoutTileProcessed" data-visible$="{{_computeData-visible(state)}}"></cp-layout>
       </cp-scroll>
 
-      <div id="label_wrapper" horizontal="" justified="" layout="" class="{{ {'hide': !sliderVisible}|tokenList }}">
+      <div id="label_wrapper" horizontal="" justified="" layout="" class$="{{_computeClass2(sliderVisible, tokenList)}}">
         <div>FOCUS</div>
         <div>WANDER</div>
       </div>
 
-      <div id="slider_wrapper" vertical="" justified="" layout="" class="{{ {'hide': !sliderVisible}|tokenList }}" on-mouseover="{{onSliderMouseOver}}" on-mouseout="{{onSliderMouseOut}}">
+      <div id="slider_wrapper" vertical="" justified="" layout="" on-mouseover="onSliderMouseOver" on-mouseout="{{_computeClass2(sliderVisible, tokenList)}}" class$="{{_computeClass(sliderVisible, tokenList)}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="5" value="1" pin="" snaps="" step="1" on-change="{{sliderChanged}}">
+        <paper-slider id="slider" min="1" max="5" value="1" pin="" snaps="" step="1" on-change="sliderChanged">
         </paper-slider>
       </div>
     </div>
   </template>
-
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="./cp-constants.js"></script>
   <script src="./cp-filter-deduplicate.js"></script>
-
   <script>
     (function () {
       'use strict';
-
       Polymer({
-        /* state of the results; 'preresults', 'noresults' or 'results' */
-        state: 'preresults',
-
-        /* whether we are waiting for a tile to load or not */
-        waiting: false,
-
+        is: 'cp-display',
+        properties: {
+          searchesPending: { observer: 'searchesPendingChanged' },
+          slider: { observer: 'sliderChanged' },
+          /* state of the results; 'preresults', 'noresults' or 'results' */
+          state: {
+            type: String,
+            value: 'preresults'
+          },
+          tilesExpected: { observer: 'tilesExpectedChanged' },
+          /* whether we are waiting for a tile to load or not */
+          waiting: {
+            type: Boolean,
+            value: false
+          }
+        },
         created: function () {
           this.urlDeduplicator = new FilterDeduplicate();
-
           /* true if a set of searches is pending, false otherwise */
           this.searchesPending = false;
-
           /* tiles we're still waiting for */
           this.tilesExpected = 0;
-
           /* whether or not to show the slider */
           this.sliderVisible = false;
         },
-
         ready: function () {
           /* timeout to clear the waiting element if no tile is loaded
-             successfully */
+           successfully */
           this.waitTimeout = null;
         },
-
         /* when the layout processes a tile, remove it from the array
-           of tiles we're waiting for */
+         of tiles we're waiting for */
         onLayoutTileProcessed: function () {
           this.tilesExpected--;
         },
-
         tilesExpectedChanged: function () {
           this.checkResultState();
         },
-
         searchesPendingChanged: function () {
           this.checkResultState();
         },
-
         /**
          * Set criteria for filtering the content of the display.
          *
@@ -336,21 +357,16 @@ pushing new tiles into the wrapped layout
           if (!criteria.currentKeywords) {
             return;
           }
-
           /* only show the selected number of the current keywords */
           var currentKeywords = criteria.currentKeywords;
-
           var keywords = currentKeywords.map(function (keyword) {
             return keyword.text;
           });
-
           criteria.types = criteria.types || [];
-
           /* set the filter on the layout by the current criteria */
           this.$.layout.setFilter(function (tile) {
             /* keywords */
             var keywordMatches = false;
-
             for (var i = 0; i < tile.keywords.length; i++) {
               var index = keywords.indexOf(tile.keywords[i].text);
               if (index !== -1) {
@@ -358,11 +374,9 @@ pushing new tiles into the wrapped layout
                 tile.keywords[i] = currentKeywords[index];
               }
             }
-
             if (!keywordMatches) {
               return false;
             }
-
             /* sources (if any sources are enabled) */
             var sourcesForTileType = null;
             if (criteria.sources) {
@@ -372,16 +386,14 @@ pushing new tiles into the wrapped layout
                 sourcesForTileType = criteria.sources.Articles.sources;
               }
             }
-
             if (sourcesForTileType) {
               /* is there at least one enabled source? */
               var enabledSource = _.find(sourcesForTileType, function (source) {
                 return source.enabled;
               });
-
               /* if there are no enabled sources, we continue;
-                 otherwise we check whether the tile's source exists
-                 and is enabled */
+               otherwise we check whether the tile's source exists
+               and is enabled */
               if (enabledSource) {
                 var tileSource = sourcesForTileType[tile.sourceName];
                 if (!tileSource || !tileSource.enabled) {
@@ -389,7 +401,6 @@ pushing new tiles into the wrapped layout
                 }
               }
             }
-
             /* type */
             if (criteria.types.length === 0) {
               /* no types criteria, so always matches */
@@ -399,7 +410,6 @@ pushing new tiles into the wrapped layout
             }
           });
         },
-
         /**
          * Add results to the layout.
          *
@@ -428,11 +438,9 @@ pushing new tiles into the wrapped layout
             }
           }
         },
-
         onScrollerScrollend: function () {
           this.fire('moreresults');
         },
-
         /**
          * Register a cp-tile* element. If a tile already exists in
          * the layout with the same source as tile, just append
@@ -446,54 +454,39 @@ pushing new tiles into the wrapped layout
          */
         registerTile: function (tile, keyword) {
           var self = this;
-
           /* is a tile with this source already in the layout?
-             if it is, we just want to add a new keyword to it */
+           if it is, we just want to add a new keyword to it */
           var existingTile = this.$.layout.getTileBySource(tile.source);
-
           if (existingTile) {
-            console.log('CP-DISPLAY: existing tile with source ' +
-                        tile.source);
-
+            console.log('CP-DISPLAY: existing tile with source ' + tile.source);
             if (!_.include(existingTile.keywords, keyword)) {
               existingTile.keywords.push(keyword);
             }
           } else if (this.urlDeduplicator.test(tile.source)) {
-            console.log('CP-DISPLAY: tile source ' + tile.source +
-                        ' is not a duplicate');
+            console.log('CP-DISPLAY: tile source ' + tile.source + ' is not a duplicate');
             this.urlDeduplicator.addComparisonValue(tile.source);
-
             tile.keywords = [keyword];
-
             tile.addEventListener('mouseover', function () {
               self.fire('mouse-over', tile.keywords);
             });
-
             tile.addEventListener('mouseout', function () {
               self.fire('mouse-out', tile.keywords);
             });
-
             tile.addEventListener('click', function () {
               self.fire('mouse-down', tile);
             });
-
             /* add expectation that the tile will be processed */
             this.tilesExpected++;
-
             this.$.layout.addTile(tile);
           }
         },
-
         /* when a layout happens, check whether any tiles are visible
-           and stop waiting indicator if they are */
+         and stop waiting indicator if they are */
         checkResultState: function () {
           if (this.$.layout.getCountVisibleTiles() > 0) {
             this.state = 'results';
             this.stopWaiting();
-
-            if (!this.searchesPending &&
-                this.tilesExpected === 0 &&
-                this.$.layout.tilesLoading === 0) {
+            if (!this.searchesPending && this.tilesExpected === 0 && this.$.layout.tilesLoading === 0) {
               this.sliderVisible = true;
             }
           } else if (!this.searchesPending && this.tilesExpected === 0) {
@@ -501,19 +494,16 @@ pushing new tiles into the wrapped layout
             this.sliderVisible = false;
           }
         },
-
         onSliderMouseOver: function () {
-          this.$.scroller.classList.remove('with-slider-collapsed');
-          this.$.scroller.classList.add('with-slider-expanded');
-          this.$.label_wrapper.classList.add('out');
+          Polymer.dom(this.$.scroller).classList.remove('with-slider-collapsed');
+          Polymer.dom(this.$.scroller).classList.add('with-slider-expanded');
+          Polymer.dom(this.$.label_wrapper).classList.add('out');
         },
-
         onSliderMouseOut: function () {
-          this.$.scroller.classList.remove('with-slider-expanded');
-          this.$.scroller.classList.add('with-slider-collapsed');
-          this.$.label_wrapper.classList.remove('out');
+          Polymer.dom(this.$.scroller).classList.remove('with-slider-expanded');
+          Polymer.dom(this.$.scroller).classList.add('with-slider-collapsed');
+          Polymer.dom(this.$.label_wrapper).classList.remove('out');
         },
-
         /**
         * Convenience method to append an image tile to the
         * gallery; creates a cp-tile-image element for the image
@@ -538,17 +528,14 @@ pushing new tiles into the wrapped layout
         */
         appendImage: function (image) {
           var tile = document.createElement('cp-tile-image');
-
           tile.src = image.thumbnailSrc;
           tile.width = image.width;
           tile.height = image.height;
           tile.sourceName = image.sourceName;
           tile.source = image.source;
           tile.image = image;
-
           this.registerTile(tile, image.keyword);
         },
-
         /**
         * Convenience method to append a file tile to the
         * gallery; creates a cp-tile-file element for the file
@@ -573,16 +560,13 @@ pushing new tiles into the wrapped layout
         */
         appendFile: function (file) {
           var tile = document.createElement('cp-tile-file');
-
           tile.src = file.thumbnailSrc;
           tile.caption = file.caption;
           tile.iconLink = file.iconLink;
           tile.source = file.source;
           tile.file = file;
-
           this.registerTile(tile, file.keyword);
         },
-
         /**
         * Convenience method to append an article tile to the
         * gallery; creates a cp-tile-article element for the article
@@ -609,64 +593,52 @@ pushing new tiles into the wrapped layout
         */
         appendArticle: function (article) {
           var tile = document.createElement('cp-tile-article');
-
           tile.src = article.thumbnailSrc;
           tile.caption = article.caption;
           tile.snippet = article.snippet;
           tile.source = article.source;
           tile.sourceName = article.sourceName;
           tile.article = article;
-
           this.registerTile(tile, article.keyword);
         },
-
         getLayout: function () {
           return this.$.layout;
         },
-
         /* layout the wrapped cp-layout */
         layout: function () {
           this.$.layout.layout();
         },
-
         /* reset scroller to top, hide slider */
         reset: function () {
-          this.$.scroller.scrollTop = 0;
+          this.set('$.scroller.scrollTop', 0);
           this.sliderVisible = false;
         },
-
         /* start the waiting sequence (fade in overlay) */
         wait: function () {
           var self = this;
           if (this.waiting) {
             return;
           }
-
           this.waiting = true;
-          this.$.waiting.classList.remove('fadeout');
-          this.$.waiting.classList.add('fadein');
-
+          Polymer.dom(this.$.waiting).classList.remove('fadeout');
+          Polymer.dom(this.$.waiting).classList.add('fadein');
           /* ensure that the waiting indicator is removed even if
-             no new tiles are added */
+           no new tiles are added */
           this.waitTimeout = setTimeout(function () {
             self.stopWaiting();
           }, CP_CONSTANTS.TIMEOUT);
         },
-
         /* immediately fade out the waiting overlay; show noresults
-           if there are no results */
+         if there are no results */
         stopWaiting: function () {
           var self = this;
-
           if (!this.waiting) {
             return;
           }
-
           if (this.waitTimeout) {
             clearTimeout(this.waitTimeout);
             this.waitTimeout = null;
           }
-
           /* when the animation ends, set waiting=false */
           var animationEndCb = function () {
             self.waiting = false;
@@ -674,34 +646,60 @@ pushing new tiles into the wrapped layout
             self.$.waiting.removeEventListener('animationend', animationEndCb);
             self.$.waiting.removeEventListener('webkitAnimationEnd', animationEndCb);
           };
-
           this.$.waiting.addEventListener('animationend', animationEndCb);
           this.$.waiting.addEventListener('webkitAnimationEnd', animationEndCb);
-
-          this.$.waiting.classList.remove('fadein');
-          this.$.waiting.classList.add('fadeout');
+          Polymer.dom(this.$.waiting).classList.remove('fadein');
+          Polymer.dom(this.$.waiting).classList.add('fadeout');
         },
-
         sliderChanged: function () {
           this.fire('slider-change');
         },
-
         /* normalise the slider value to a value between 0 and 1
-           so it can set the width of the KeywordSelector */
+         so it can set the width of the KeywordSelector */
         getNormalisedSliderValue: function () {
           return (this.$.slider.immediateValue - 1) / (this.$.slider.max - 1);
         },
-
         /* returns true if the layout has a visible result for
-           the source with name sourceName, false otherwise */
+         the source with name sourceName, false otherwise */
         hasResultForSourceName: function (sourceName) {
           var visibleTiles = this.$.layout.getVisibleTiles();
           var tileForSourceName = _.find(visibleTiles, function (tile) {
             return tile.sourceName === sourceName;
           });
           return !!tileForSourceName;
+        },
+        _computeData-show: function (state) {
+          return state === 'preresults';
+        },
+        _computeData-show2: function (state, waiting) {
+          return !waiting && state === 'noresults';
+        },
+        _computeIf: function (state, waiting) {
+          return waiting && state !== 'preresults';
+        },
+        _computeData-visible: function (state) {
+          return state === 'results';
+        },
+        _computeClass: function (sliderVisible, tokenList) {
+          return {
+            'without-slider': !sliderVisible,
+            'with-slider-collapsed': sliderVisible
+          } | tokenList;
+        },
+        _computeClass2: function (sliderVisible, tokenList) {
+          return { 'hide': !sliderVisible } | tokenList;
+        },
+        tokenList: function (obj) {
+          var pieces = [];
+          for (var key in obj) {
+            if (obj[key]) {
+              pieces.push(key);
+            }
+          }
+          return pieces.join(' ');
         }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

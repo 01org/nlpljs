@@ -36,27 +36,26 @@
  -  console.log('app_id', this.globalData.app_id);
  --><html><head><link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-globals">
+</head><body><dom-module id="cp-globals">
   <script>
     (function () {
       'use strict';
-
       var data = {};
-
       Polymer({
-         ready: function () {
-           this.data = data;
-           // initialize values from attributes (note: strings only)
-           for (var i = 0; i < this.attributes.length; i++) {
-             var attr = this.attributes[i];
-             data[attr.nodeName] = attr.value;
-           }
-         },
-
-         get documentId () {
-           return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
-         }
+        is: 'cp-globals',
+        ready: function () {
+          this.data = data;
+          // initialize values from attributes (note: strings only)
+          for (var i = 0; i < this.attributes.length; i++) {
+            var attr = this.attributes[i];
+            data[attr.nodeName] = attr.value;
+          }
+        },
+        get documentId() {
+          return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
+        }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

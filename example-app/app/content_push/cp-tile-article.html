@@ -25,13 +25,34 @@
     Plamena Manolova <plamena.manolova@intel.com>
 --><!--
 tile for a general web page (article)
---><html><head><link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+--><html><head><link rel="import" href="../bower_components/paper-material/paper-material.html">
 
-<polymer-element name="cp-tile-article" attributes="src loaded done">
-  <template>
-    <link rel="stylesheet" href="styles/cp-tile.css">
-
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+</head><body><dom-module id="cp-tile-article">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [fit] {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+  <link rel="import" type="css" href="styles/cp-tile.css">
+  <style>
       #mainContainer {
         border-radius: 2px;
       }
@@ -98,70 +119,79 @@ tile for a general web page (article)
         margin-top: 2px;
       }
     </style>
+  <template>
 
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <div horizontal="" layout="" fit="" id="mainContainer">
-          <div class="left" data-show="{{src !== null &amp;&amp; imageLoaded}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+          <div class="left" data-show$="{{_computeData-show(imageLoaded, src)}}">
+            <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
           </div>
 
-          <div id="text" class="{{src === null || !imageLoaded ? '' : 'right'}}">
+          <div id="text" class$="{{_computeClass(imageLoaded, src)}}">
             <h2 id="caption" class="text-elide">
-              {{caption|cleanHTML}}
+              <span>{{_computeExpression1(caption, cleanHTML)}}</span>
             </h2>
 
             <p id="snippet" class="text-elide">
-              {{snippet|cleanHTML}}
+              <span>{{_computeExpression2(cleanHTML, snippet)}}</span>
             </p>
 
             <div id="meta">
               <p id="source" class="small">
-                {{sourceName || source|domainFromURL}}
+                <span>{{_computeExpression3(domainFromURL, source, sourceName)}}</span>
               </p>
             </div>
           </div>
         </div>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
-
   <script src="./cp-constants.js"></script>
   <script src="./cp-layout-frame-chooser.js"></script>
   <script src="./cp-formatter.js"></script>
-
   <script>
     (function () {
       'use strict';
-
       Polymer({
+        is: 'cp-tile-article',
+        properties: {
+          cleanHTML: {
+            value: function () {
+              return Formatter.cleanHTML;
+            }
+          },
+          domainFromURL: {
+            value: function () {
+              return Formatter.domainFromURL;
+            }
+          },
+          done: { notify: true },
+          loaded: { notify: true },
+          src: {
+            notify: true,
+            observer: 'srcChanged'
+          }
+        },
         created: function () {
           var self = this;
-
           /* THESE PROPERTIES SHOULD BE SET WHEN THE TILE IS CREATED */
-
           /* URL for the file thumbnail to be displayed */
           this.src = null;
-
           /* title to show at the bottom of the tile */
           this.caption = '';
-
           /* snippet of the article */
           this.snippet = null;
-
           /* source */
           this.source = null;
-
           /* source name; if not set, defaults to the domain of
-             the source attribute */
+           the source attribute */
           this.sourceName = null;
-
           /* the original data used to construct the tile, as
-             returned by a file search */
+           returned by a file search */
           this.article = {};
-
           /* keyword associated with the image with structure:
              {
                text: "<keyword text>",
@@ -169,73 +199,70 @@ tile for a general web page (article)
              }
           */
           this.keywords = [];
-
           /* PROPERTIES BELOW DON'T NEED TO BE SET */
-
           /* type of object used to create the tile */
           this.type = 'article';
-
           /* always use the landscape frame */
           /* globals FrameChooser: true */
           this.frame = FrameChooser.FRAMES.landscape1;
-
           /* set to true once the image loads, which enables the
-             image part of the tile to be shown */
+           image part of the tile to be shown */
           this.imageLoaded = false;
-
           /* set to true once the image has either loaded or not;
-             this must be true otherwise the tile won't display at all */
+           this must be true otherwise the tile won't display at all */
           this.loaded = false;
-
           /* article tiles are ready regardless of whether the image
-             loads; we just change how they look if it doesn't */
+           loads; we just change how they look if it doesn't */
           this.done = false;
-
           /* fire a "done" event, even if the image times out (or if
-             there is no image) */
+           there is no image) */
           setTimeout(function () {
             self.markDone();
           }, CP_CONSTANTS.TIMEOUT);
         },
-
         srcChanged: function () {
           this.loaded = false;
           this.done = false;
           this.imageLoaded = false;
         },
-
         markDone: function () {
           if (!this.done) {
             this.done = true;
             this.fire('done', this);
           }
         },
-
         onImageLoaded: function () {
           this.imageLoaded = true;
           this.loaded = true;
           this.markDone();
         },
-
         /* image failed to load for whatever reason */
         onImageError: function (e) {
           console.info('CP-TILE-ARTICLE: image load failed');
-
           this.imageLoaded = false;
-
           /* we still mark the tile as "loaded" so it will display */
           this.loaded = true;
-
           this.markDone();
-
           /* notify the error, in case anyone cares */
           this.fire('error', e);
         },
-
-        domainFromURL: Formatter.domainFromURL,
-
-        cleanHTML: Formatter.cleanHTML
+        _computeData-show: function (imageLoaded, src) {
+          return src !== null && imageLoaded;
+        },
+        _computeClass: function (imageLoaded, src) {
+          return src === null || !imageLoaded ? '' : 'right';
+        },
+        _computeExpression1: function (caption, cleanHTML) {
+          return caption | cleanHTML;
+        },
+        _computeExpression2: function (cleanHTML, snippet) {
+          return snippet | cleanHTML;
+        },
+        _computeExpression3: function (domainFromURL, source, sourceName) {
+          return sourceName || source | domainFromURL;
+        }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

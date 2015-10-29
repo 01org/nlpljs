@@ -126,7 +126,7 @@
       } else {
         activeAfterFiltering = false;
       }
-      tile.setAttribute('data-active', activeAfterFiltering);
+      Polymer.dom(tile).setAttribute('data-active', activeAfterFiltering);
       self.tilesActive[tile.source] = activeAfterFiltering;
       if (activeBeforeFiltering !== activeAfterFiltering) {
         activeTilesChanged = true;

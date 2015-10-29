@@ -28,9 +28,8 @@ wraps a single element in a scrollable area;
 if the wrapped element is the same height or taller than the scroller,
 a vertical scrollbar is added; when the scroll reaches nearly the
 end, a "scrollend" event is fired
---><html><head><polymer-element name="cp-scroll" attributes="scrollgap">
-  <template>
-    <style>
+--><html><head></head><body><dom-module id="cp-scroll">
+  <style>
       :host {
         display: block;
         position: relative;
@@ -38,51 +37,40 @@ end, a "scrollend" event is fired
         overflow-y: scroll;
       }
     </style>
+  <template>
 
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*"></content>
   </template>
-
   <script>
     (function () {
       'use strict';
-
       /*
       default number of pixels between the scroll position and the
       end of the container when the "scrollend" event triggers
       */
       var DEFAULT_SCROLL_GAP = 100;
-
       Polymer({
+        is: 'cp-scroll',
+        properties: { scrollgap: { notify: true } },
         created: function () {
           /* record the scroll position so we can determine whether
-             we are scrolling downwards */
+           we are scrolling downwards */
           this.lastScrollPosition = 0;
-
           /* record whether we are inside the scroll gap; this is
-             reset when we scroll back up out of the scroll gap;
-             the reason for this is to ensure we only fire one
-             scrollend each time we enter the scroll gap */
+           reset when we scroll back up out of the scroll gap;
+           the reason for this is to ensure we only fire one
+           scrollend each time we enter the scroll gap */
           this.inScrollGap = false;
         },
-
-        domReady: function () {
-          // event handler for scroll events on the container
-          this.addEventListener('scroll', this.onScroll.bind(this));
-        },
-
         onScroll: function () {
           var scrollPosition = this.scrollTop;
-
           // we're scrolling down
           if (scrollPosition > this.lastScrollPosition) {
             var gap = this.scrollgap || DEFAULT_SCROLL_GAP;
-
-            var scrolledEnough = (this.scrollTop + this.offsetHeight) >=
-                                     (this.scrollHeight - gap);
-
+            var scrolledEnough = this.scrollTop + this.offsetHeight >= this.scrollHeight - gap;
             /* we've scrolled far enough, and we haven't fired
-               a scrollend event since we entered the gap */
+             a scrollend event since we entered the gap */
             if (scrolledEnough) {
               if (!this.inScrollGap) {
                 this.inScrollGap = true;
@@ -92,10 +80,14 @@ end, a "scrollend" event is fired
               this.inScrollGap = false;
             }
           }
-
           this.lastScrollPosition = scrollPosition;
+        },
+        ready: function () {
+          // event handler for scroll events on the container
+          this.addEventListener('scroll', this.onScroll.bind(this));
         }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

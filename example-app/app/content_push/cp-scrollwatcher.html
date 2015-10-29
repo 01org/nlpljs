@@ -23,12 +23,12 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><html><head><polymer-element name="cp-scrollwatcher">
+--><html><head></head><body><dom-module id="cp-scrollwatcher">
   <script>
     (function () {
       'use strict';
-
       Polymer({
+        is: 'cp-scrollwatcher',
         created: function () {
           this.scrollableNode = null;
           this.targetNodes = [];
@@ -36,53 +36,42 @@
           this.scrollTimer = null;
           this.onScrollCallback = null;
         },
-
         setScrollableNode: function (node) {
           this.scrollableNode = node;
         },
-
         setOnScrollListener: function (listener, data) {
           var onScroll = function (self) {
             if (self.scrollTimer !== null) {
               clearTimeout(self.scrollTimer);
             }
-
             self.scrollTimer = setTimeout(function () {
               self.getVisibleNodes(listener, data);
             }, self.timeout);
           };
-
           var self = this;
-          var callback = function () { onScroll(self); };
-
+          var callback = function () {
+            onScroll(self);
+          };
           if (this.scrollableNode !== null) {
             this.scrollableNode.addEventListener('scroll', callback, false);
           }
-
           window.addEventListener('DOMContentLoaded', callback, false);
           window.addEventListener('load', callback, false);
           window.addEventListener('scroll', callback, false);
           window.addEventListener('resize', callback, false);
-
           this.onScrollCallback = callback;
         },
-
         removeOnScrollListener: function () {
           if (this.scrollableNode !== null) {
-            this.scrollableNode.removeEventListener('scroll',
-              this.onScrollCallback, false);
+            this.scrollableNode.removeEventListener('scroll', this.onScrollCallback, false);
           }
-
-          window.removeEventListener('DOMContentLoaded',
-            this.onScrollCallback, false);
+          window.removeEventListener('DOMContentLoaded', this.onScrollCallback, false);
           window.removeEventListener('load', this.onScrollCallback, false);
           window.removeEventListener('scroll', this.onScrollCallback, false);
           window.removeEventListener('resize', this.onScrollCallback, false);
         },
-
         getVisibleNodes: function (callback, data) {
           var visibleNodes = [];
-
           if (this.targetNodes !== null) {
             for (var i = 0; i < this.targetNodes.length; i++) {
               if (this.isNodeVisible(this.targetNodes[i])) {
@@ -90,48 +79,35 @@
               }
             }
           }
-
           callback(visibleNodes, data);
         },
-
         isNodeVisible: function (node) {
           var boundingRectangle = node.getBoundingClientRect();
           var parentBoundingRectangle;
-
           var nodeStyle = document.defaultView.getComputedStyle(node, null);
-
-          if ('0' === nodeStyle.opacity || 'none' === nodeStyle.display ||
-              'hidden' === nodeStyle.visiblity) {
+          if ('0' === nodeStyle.opacity || 'none' === nodeStyle.display || 'hidden' === nodeStyle.visiblity) {
             return false;
           }
-
           if (this.scrollableNode !== null) {
             parentBoundingRectangle = this.scrollableNode.getBoundingClientRect();
-
-            if (boundingRectangle.bottom > parentBoundingRectangle.bottom ||
-                boundingRectangle.top < parentBoundingRectangle.top) {
+            if (boundingRectangle.bottom > parentBoundingRectangle.bottom || boundingRectangle.top < parentBoundingRectangle.top) {
               return false;
             }
           }
-
-          if (boundingRectangle.bottom > window.innerHeight ||
-              boundingRectangle.top < 0) {
+          if (boundingRectangle.bottom > window.innerHeight || boundingRectangle.top < 0) {
             return false;
           }
-
           return true;
         },
-
         addTargetNode: function (targetNode) {
-          this.targetNodes[this.targetNodes.length] = targetNode;
+          this.set('targetNodes' + ('.' + this.targetNodes.length), targetNode);
         },
-
         removeTargetNode: function (targetNode) {
           var index = this.targetNodes.indexOf(targetNode);
           this.targetNodes.splice(index, 1);
-        },
-
+        }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>

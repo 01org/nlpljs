@@ -23,7 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><html><head><link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
+--><html><head><link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -32,9 +32,33 @@
 <link rel="import" href="./cp-sources-dialog.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-sources-selector">
-  <template>
-    <style>
+  <!--
+      TODO(polyup): unable to infer path to components
+      directory. This import path is probably incomplete.
+   -->
+  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+</head><body><dom-module id="cp-sources-selector">
+  <style>
+    /* TODO(polyup): For speed, consider reworking these styles with .classes
+                     and #ids rather than [attributes].
+    */
+    [layout] {
+      @apply(--layout);
+    }
+    [layout][vertical] {
+      @apply(--layout-vertical);
+    }
+    [layout][horizontal] {
+      @apply(--layout-horizontal);
+    }
+    [layout][center] {
+      @apply(--layout-center);
+    }
+    [layout][justified] {
+      @apply(--layout-justified);
+    }
+  </style>
+  <style>
       :host {
         display: block;
         position: relative;
@@ -218,47 +242,52 @@
         border-color: #B8578C;
       }
     </style>
+  <template>
 
-    <div id="panel_overlay" class="{{ {visible: ($.add_dialog.style.display !== 'none')} | tokenList }}"></div>
+    <div id="panel_overlay" class$="{{_computeClass($)}}"></div>
 
-    <cp-sources-storage id="storage" on-newsources="{{setSources}}">
+    <cp-sources-storage id="storage" on-newsources="setSources">
     </cp-sources-storage>
 
-    <core-header-panel id="panel">
-      <core-toolbar id="header">
+    <paper-header-panel id="panel">
+      <paper-toolbar id="header">
         <div vertical="" layout="">
           <div id="title-back" horizontal="" layout="" center="">
-            <paper-icon-button id="back" icon="arrow-back" on-tap="{{onBackButtonClick}}">
+            <paper-icon-button id="back" icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
             <div flex="">
               <div id="headertext">Sources</div>
             </div>
           </div>
-          <paper-fab id="add" icon="add" disabled?="{{currentGroupName==='Files'}}" on-click="{{onAddClick}}">
+          <paper-fab id="add" icon="add" on-click="{{_computeDisabled(currentGroupName)}}" disabled$="{{_computeDisabled(currentGroupName)}}">
           </paper-fab>
         </div>
-      </core-toolbar>
+      </paper-toolbar>
 
       <div id="select_all_container" horizontal="" layout="">
-        <paper-checkbox id="select_all" checked?="{{allEnabled}}" disabled?="{{currentGroupName==='Files'}}" on-change="{{toggleAllSourcesEnabled}}">
+        <paper-checkbox id="select_all" on-change="{{_computeDisabled(currentGroupName)}}" checked$="{{allEnabled}}" disabled$="{{_computeDisabled(currentGroupName)}}">
         </paper-checkbox>
         <div flex="">Select All</div>
       </div>
 
       <div id="sources" vertical="" layout="">
-        <template repeat="{{sources}}">
+        <!--
+            TODO(polyup): convert bindings inside this dom-repeat instance below
+            from {{foo}} to {{item.foo}}
+         -->
+        <template is="dom-repeat" items="{{sources}}">
           <div horizontal="" layout="">
-            <paper-checkbox disabled?="{{currentGroupName === 'Files'}}" on-change="{{toggleSourceEnabled}}" for-source-name="{{name}}" checked?="{{enabled}}">
+            <paper-checkbox on-change="toggleSourceEnabled" for-source-name="{{name}}" disabled$="{{_computeDisabled(currentGroupName)}}" checked$="{{enabled}}">
             </paper-checkbox>
             <div flex="">{{name}}</div>
-            <core-icon icon="delete" on-click="{{removeSource}}" for-source-name="{{name}}">
-            </core-icon>
+            <iron-icon icon="delete" on-click="removeSource" for-source-name="{{name}}">
+            </iron-icon>
           </div>
         </template>
       </div>
 
-      <cp-sources-dialog id="add_dialog" container="html /deep/ cp-panel" flex="" layered="false" transition="paper-dialog-transition-center" autoclosedisabled="{{true}}">
+      <cp-sources-dialog id="add_dialog" container="html /deep/ cp-panel" flex="" layered="false" transition="paper-dialog-transition-center" autoclosedisabled="{{_computeAutoclosedisabled()}}">
         <paper-input-decorator label="Source Name" floatinglabel="" error="input is required!">
           <input id="inputName" is="core-input" required="">
         </paper-input-decorator>
@@ -269,35 +298,31 @@
 
         <div id="add_dialog_button_wrapper" horizontal="" justified="" layout="">
           <paper-button id="cancel" dismissive="">Cancel</paper-button>
-          <paper-button id="done" affirmative="" on-click="{{onAddDoneClick}}">Done</paper-button>
+          <paper-button id="done" affirmative="" on-click="onAddDoneClick">Done</paper-button>
         </div>
       </cp-sources-dialog>
-    </core-header-panel>
+    </paper-header-panel>
   </template>
-
   <script>
     (function () {
       'use strict';
-
       Polymer({
+        is: 'cp-sources-selector',
+        properties: { sources: { observer: 'sourcesChanged' } },
         created: function () {
           /* an array of sources for the selected group */
           this.sources = [];
-
           this.allEnabled = false;
-
           this.currentGroupName = null;
         },
-
         ready: function () {
           var self = this;
           document.addEventListener('polymer-ready', function () {
-            var cpPanel = document.querySelector('html /deep/ cp-panel');
+            var cpPanel = Polymer.dom(document).querySelector('html /deep/ cp-panel');
             var addDialog = self.$.add_dialog;
-            cpPanel.appendChild(addDialog);
+            Polymer.dom(cpPanel).appendChild(addDialog);
           });
         },
-
         setSources: function () {
           if (this.currentGroupName) {
             var rawSources = this.$.storage.getSourcesForGroup(this.currentGroupName);
@@ -306,13 +331,11 @@
             this.sources = [];
           }
         },
-
         setGroup: function (groupName) {
-          this.$.headertext.innerText = groupName;
+          this.set('$.headertext.innerText', groupName);
           this.currentGroupName = groupName;
           this.setSources();
         },
-
         sourcesChanged: function () {
           /* set the state of the "select all" checkbox */
           if (this.sources.length) {
@@ -320,118 +343,75 @@
             var disabled = _.find(this.sources, function (source) {
               return source.enabled === false;
             });
-
             this.allEnabled = !disabled;
           } else {
             this.allEnabled = false;
           }
         },
-
         removeSource: function (e) {
           var sourceName = e.target.getAttribute('for-source-name');
-
           if (this.$.storage.retrieveSource(this.currentGroupName, sourceName)) {
             this.$.storage.removeSource(this.currentGroupName, sourceName);
           }
         },
-
         toggleSourceEnabled: function (e) {
           var checkbox = e.path[0];
           var sourceName = checkbox.getAttribute('for-source-name');
-          var source = this.$.storage.retrieveSource(
-            this.currentGroupName,
-            sourceName
-          );
-
+          var source = this.$.storage.retrieveSource(this.currentGroupName, sourceName);
           if (source) {
-            this.$.storage.setSourceEnabled(
-              this.currentGroupName,
-              sourceName,
-              !!checkbox.checked
-            );
+            this.$.storage.setSourceEnabled(this.currentGroupName, sourceName, !!checkbox.checked);
           }
         },
-
         toggleAllSourcesEnabled: function (e) {
           var self = this;
-          var enabled = !!(e.path[0].checked);
+          var enabled = !!e.path[0].checked;
           var sourcesGroup = this.$.storage.getSourcesForGroup(this.currentGroupName);
-
           _.each(_.keys(sourcesGroup.sources), function (sourceName) {
-            self.$.storage.setSourceEnabled(
-              self.currentGroupName,
-              sourceName,
-              enabled
-            );
+            self.$.storage.setSourceEnabled(self.currentGroupName, sourceName, enabled);
           });
         },
-
         onBackButtonClick: function () {
           this.fire('close');
           this.currentGroupName = null;
         },
-
         onAddClick: function () {
           this.$.add_dialog.open();
         },
-
         onAddDoneClick: function () {
           var name = this.$.inputName.committedValue;
           var url = this.$.inputUrl.committedValue;
-
-          var valid = this.$.inputName.validity.valid &&
-                      this.$.inputUrl.validity.valid;
-
+          var valid = this.$.inputName.validity.valid && this.$.inputUrl.validity.valid;
           /* matching name? */
-          var source = this.$.storage.retrieveSource(
-            this.currentGroupName,
-            name
-          );
-
+          var source = this.$.storage.retrieveSource(this.currentGroupName, name);
           if (source) {
             valid = false;
           }
-
           /* matching url? */
-          source = this.$.storage.retrieveSourceByUrl(
-            this.currentGroupName,
-            url
-          );
-
+          source = this.$.storage.retrieveSourceByUrl(this.currentGroupName, url);
           if (source) {
             valid = false;
           }
-
           /* everything OK */
           if (valid) {
             this.closeAddDialog();
-
             if (!this.$.storage.groupExists(this.currentGroupName)) {
               this.$.storage.createGroup(this.currentGroupname);
             }
-
-            this.$.storage.createSource(
-              this.currentGroupName,
-              name,
-              {
-                url: url,
-                enabled: true
-              }
-            );
+            this.$.storage.createSource(this.currentGroupName, name, {
+              url: url,
+              enabled: true
+            });
           }
         },
-
         closeAddDialog: function () {
-          var inputFields = this.$.add_dialog.querySelectorAll('paper-input-decorator');
-
+          var inputFields = Polymer.dom(this.$.add_dialog).querySelectorAll('paper-input-decorator');
           for (var i = 0; i < inputFields.length; i++) {
-            inputFields[i].querySelector('input').value = '';
-            inputFields[i].querySelector('input').commit();
+            Polymer.dom(inputFields[i]).querySelector('input').value = '';
+            Polymer.dom(inputFields[i]).querySelector('input').commit();
             inputFields[i].isInvalid = false;
             inputFields[i].focusedChanged();
           }
         },
-
         /**
          * Flatten sources object into an array in form
          * [{name: <source name>, enabled: <boolean>, url: <source url>]
@@ -445,8 +425,27 @@
           } else {
             return [];
           }
+        },
+        _computeClass: function ($) {
+          return this.tokenList({ visible: $.add_dialog.style.display !== 'none' });
+        },
+        _computeDisabled: function (currentGroupName) {
+          return currentGroupName === 'Files';
+        },
+        _computeAutoclosedisabled: function () {
+          return true;
+        },
+        tokenList: function (obj) {
+          var pieces = [];
+          for (var key in obj) {
+            if (obj[key]) {
+              pieces.push(key);
+            }
+          }
+          return pieces.join(' ');
         }
       });
-    })();
+    }());
   </script>
-</polymer-element>
+</dom-module>
+</body></html>
