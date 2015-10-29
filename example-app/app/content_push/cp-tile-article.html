@@ -23,13 +23,9 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-
-<!--
+--><!--
 tile for a general web page (article)
--->
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+--><html><head><link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
 
 <polymer-element name="cp-tile-article" attributes="src loaded done">
   <template>
@@ -107,14 +103,12 @@ tile for a general web page (article)
       <paper-shadow z="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <div horizontal layout fit id="mainContainer">
-          <div class="left" data-show="{{src !== null && imageLoaded}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
-                 on-error="{{onImageError}}">
+        <div horizontal="" layout="" fit="" id="mainContainer">
+          <div class="left" data-show="{{src !== null &amp;&amp; imageLoaded}}">
+            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
           </div>
 
-          <div id="text"
-               class="{{src === null || !imageLoaded ? '' : 'right'}}">
+          <div id="text" class="{{src === null || !imageLoaded ? '' : 'right'}}">
             <h2 id="caption" class="text-elide">
               {{caption|cleanHTML}}
             </h2>

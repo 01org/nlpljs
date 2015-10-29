@@ -23,14 +23,10 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
 search using a Google custom search engine
--->
-<link rel="import" href="./cp-search.html">
-<polymer-element name="cp-search-google" extends="cp-search"
-                 attributes="searchType">
+--><html><head><link rel="import" href="./cp-search.html">
+<polymer-element name="cp-search-google" extends="cp-search" attributes="searchType">
   <template>
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>

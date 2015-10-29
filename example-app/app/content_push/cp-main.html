@@ -23,9 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" href="../bower_components/polymer/polymer.html">
+--><html><head><link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-panel.html">
@@ -35,24 +33,12 @@
   <template>
     <link type="text/css" rel="stylesheet" href="./styles/cp-main.css">
 
-    <div id="container" horizontal layout>
-      <cp-document id="document"
-                   flex
-                   on-newkeywordinfo="{{onDocumentNewKeywordInfo}}"
-                   on-nlpstart="{{onNlpStart}}"
-                   on-nlpstop="{{onNlpStop}}">
+    <div id="container" horizontal="" layout="">
+      <cp-document id="document" flex="" on-newkeywordinfo="{{onDocumentNewKeywordInfo}}" on-nlpstart="{{onNlpStart}}" on-nlpstop="{{onNlpStop}}">
       </cp-document>
-      <core-splitter id="splitter"
-                     direction="right"
-                     minSize="320px"
-                     on-down="{{onSplitterDownAction}}"
-                     on-up="{{onSplitterUpAction}}"
-                     on-track="{{onSplitterTrackAction}}">
+      <core-splitter id="splitter" direction="right" minsize="320px" on-down="{{onSplitterDownAction}}" on-up="{{onSplitterUpAction}}" on-track="{{onSplitterTrackAction}}">
       </core-splitter>
-      <cp-panel id="panel"
-                on-close-panel="{{onPanelClosePanel}}"
-                on-mouseoverimage="{{onPanelMouseOverImage}}"
-                on-mouseoutimage="{{onPanelMouseOutImage}}">
+      <cp-panel id="panel" on-close-panel="{{onPanelClosePanel}}" on-mouseoverimage="{{onPanelMouseOverImage}}" on-mouseoutimage="{{onPanelMouseOutImage}}">
       </cp-panel>
     </div><!-- #container -->
   </template>

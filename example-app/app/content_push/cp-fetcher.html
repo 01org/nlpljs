@@ -23,36 +23,25 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" href="./cp-search-google.html">
+--><html><head><link rel="import" href="./cp-search-google.html">
 <link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-files.html">
 
 <polymer-element name="cp-fetcher" attributes="resultsPerFetch">
   <template>
-    <cp-search-google id="searchGoogleImages"
-                      resultsPerFetch="{{resultsPerFetch}}"
-                      searchType="image">
+    <cp-search-google id="searchGoogleImages" resultsperfetch="{{resultsPerFetch}}" searchtype="image">
     </cp-search-google>
 
-    <cp-search-google id="searchGoogleArticles"
-                      resultsPerFetch="{{resultsPerFetch}}"
-                      searchType="article">
+    <cp-search-google id="searchGoogleArticles" resultsperfetch="{{resultsPerFetch}}" searchtype="article">
     </cp-search-google>
 
-    <cp-search-wikipedia id="searchWikipediaImages"
-                         resultsPerFetch="{{resultsPerFetch}}"
-                         searchType="image">
+    <cp-search-wikipedia id="searchWikipediaImages" resultsperfetch="{{resultsPerFetch}}" searchtype="image">
     </cp-search-wikipedia>
 
-    <cp-search-wikipedia id="searchWikipediaArticles"
-                         resultsPerFetch="{{resultsPerFetch}}"
-                         searchType="article">
+    <cp-search-wikipedia id="searchWikipediaArticles" resultsperfetch="{{resultsPerFetch}}" searchtype="article">
     </cp-search-wikipedia>
 
-    <cp-search-google-files id="searchDrive"
-                            resultsPerFetch="{{resultsPerFetch}}">
+    <cp-search-google-files id="searchDrive" resultsperfetch="{{resultsPerFetch}}">
     </cp-search-google-files>
   </template>
 

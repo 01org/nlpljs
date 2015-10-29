@@ -23,10 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" 
-href="../bower_components/paper-spinner/paper-spinner.html">
+--><html><head><link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-icons/core-icons.html">
@@ -54,15 +51,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       }
     </style>
 
-    <div id="container" vertical layout>
+    <div id="container" vertical="" layout="">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal layout>
-          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                     on-click="{{onBackButtonClick}}">
+        <div id="back" horizontal="" layout="">
+          <paper-fab id="backbutton" mini="" icon="arrow-back" raisedbutton="true" on-click="{{onBackButtonClick}}">
           </paper-fab>
 
-          <span id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|cleanHTML}}</caption>
+          <span id="backcaption" data-show="{{!!caption}}" flex="">
+            {{caption|cleanHTML}}
           </span>
         </div>
       </div>
@@ -71,7 +67,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         <div id="aspectRatioFrame">
           <div id="spinner" data-show="{{!loaded}}">
             <template if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
+              <paper-spinner active=""></paper-spinner>
             </template>
           </div>
 
@@ -90,7 +86,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
             <div class="imageMetaValue">{{sourceName || source|domainFromURL}}</div>
           </div>
 
-          <div class="imageMeta" data-show="{{width > 0 && height > 0}}">
+          <div class="imageMeta" data-show="{{width > 0 &amp;&amp; height > 0}}">
             <div class="imageMetaKey">Size</div>
             <div class="imageMetaValue">{{width}}x{{height}}</div>
           </div>
@@ -99,8 +95,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         <div id="exif" data-show="{{hasEXIF}}">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
-            <core-icon id="exifToggle" on-click="{{exifToggle}}"
-                       icon="expand-more">
+            <core-icon id="exifToggle" on-click="{{exifToggle}}" icon="expand-more">
             </core-icon>
           </div>
 
@@ -123,8 +118,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       </div>
 
       <div id="visitSrc" data-show="{{!!source}}">
-        <paper-button class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{source}}">
+        <paper-button class="colored" on-click="{{visitWebpage}}" data-source-link="{{source}}">
           VIEW IMAGE
         </paper-button>
       </div>

@@ -23,9 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" href="./cp-fetcher.html">
+--><html><head><link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-sources-storage.html">
 
 <polymer-element name="cp-aggregator">
@@ -33,7 +31,7 @@
     <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
     </cp-sources-storage>
 
-    <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
+    <cp-fetcher id="fetcher" resultsperfetch="5"></cp-fetcher>
   </template>
 
   <script>

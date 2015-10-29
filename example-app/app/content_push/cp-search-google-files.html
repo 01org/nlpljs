@@ -23,12 +23,9 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
   search users files on Google Drive
--->
-<link rel="import" href="../bower_components/polymer/polymer.html">
+--><html><head><link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="./cp-ajax-multiplexer.html">
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
@@ -38,8 +35,8 @@
     <cp-auth id="authorizer"></cp-auth>
     <cp-globals id="globals"></cp-globals>
 
-    <cp-ajax-multiplexer id="multiplexer"></core-ajax-multiplexer>
-  </template>
+    <cp-ajax-multiplexer id="multiplexer">
+  </cp-ajax-multiplexer></template>
   <script>
     (function () {
       'use strict';

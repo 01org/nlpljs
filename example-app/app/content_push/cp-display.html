@@ -23,14 +23,11 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
 scrolling image search results component; responsible for tracking
 the state of any ongoing search, displaying waiting spinners, and
 pushing new tiles into the wrapped layout
--->
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+--><html><head><link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
 <link rel="import" href="./cp-scroll.html">
 <link rel="import" href="./cp-layout.html">
@@ -227,8 +224,7 @@ pushing new tiles into the wrapped layout
     -->
 
     <!-- never searched -->
-    <div id="preresults" class="fill vbox"
-         data-show="{{state === 'preresults'}}">
+    <div id="preresults" class="fill vbox" data-show="{{state === 'preresults'}}">
       <div class="message-area">
         <div><img src="../images/CP_Icon_large.png"></div>
         <p id="preresults-welcome">Welcome to</p>
@@ -238,8 +234,7 @@ pushing new tiles into the wrapped layout
     </div>
 
     <!-- no results -->
-    <div id="noresults" class="fill vbox"
-         data-show="{{!waiting && state === 'noresults'}}">
+    <div id="noresults" class="fill vbox" data-show="{{!waiting &amp;&amp; state === 'noresults'}}">
       <div class="message-area">
         <p>Sorry, we couldn't find good results</p>
         <p class="divider-top">You could try writing a little more</p>
@@ -247,12 +242,11 @@ pushing new tiles into the wrapped layout
     </div>
 
     <!-- full page loader; can overlay image display -->
-    <div id="waiting" class="fill vbox"
-         data-show="{{waiting && state !== 'preresults'}}">
+    <div id="waiting" class="fill vbox" data-show="{{waiting &amp;&amp; state !== 'preresults'}}">
       <div class="message-area">
         <p>Your content is on the way...</p>
-        <template if="{{waiting && state !== 'preresults'}}">
-          <paper-spinner active></paper-spinner>
+        <template if="{{waiting &amp;&amp; state !== 'preresults'}}">
+          <paper-spinner active=""></paper-spinner>
         </template>
       </div>
     </div>
@@ -260,30 +254,19 @@ pushing new tiles into the wrapped layout
     <!-- after results are found -->
     <div id="results" class="fill">
       <!-- image display (results) -->
-      <cp-scroll id="scroller"
-                 on-scrollend="{{onScrollerScrollend}}"
-                 data-visible="{{state === 'results'}}"
-                 class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
+      <cp-scroll id="scroller" on-scrollend="{{onScrollerScrollend}}" data-visible="{{state === 'results'}}" class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
         <!-- results -->
-        <cp-layout id="layout" on-layout="{{checkResultState}}"
-                   on-tileprocessed="{{onLayoutTileProcessed}}"
-                   data-visible="{{state === 'results'}}"></cp-layout>
+        <cp-layout id="layout" on-layout="{{checkResultState}}" on-tileprocessed="{{onLayoutTileProcessed}}" data-visible="{{state === 'results'}}"></cp-layout>
       </cp-scroll>
 
-      <div id="label_wrapper" horizontal justified layout
-           class="{{ {'hide': !sliderVisible}|tokenList }}">
+      <div id="label_wrapper" horizontal="" justified="" layout="" class="{{ {'hide': !sliderVisible}|tokenList }}">
         <div>FOCUS</div>
         <div>WANDER</div>
       </div>
 
-      <div id="slider_wrapper" vertical justified layout
-           class="{{ {'hide': !sliderVisible}|tokenList }}"
-           on-mouseover="{{onSliderMouseOver}}"
-           on-mouseout="{{onSliderMouseOut}}">
+      <div id="slider_wrapper" vertical="" justified="" layout="" class="{{ {'hide': !sliderVisible}|tokenList }}" on-mouseover="{{onSliderMouseOver}}" on-mouseout="{{onSliderMouseOut}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="5" value="1"
-                      pin snaps step="1"
-                      on-change="{{sliderChanged}}">
+        <paper-slider id="slider" min="1" max="5" value="1" pin="" snaps="" step="1" on-change="{{sliderChanged}}">
         </paper-slider>
       </div>
     </div>

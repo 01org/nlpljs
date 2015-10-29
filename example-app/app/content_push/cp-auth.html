@@ -23,17 +23,14 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
   cp-auth
 
   getToken(service) - initiate process for getting an auth token
   removeCachedToken(service) - removes any cached tokens, to next getToken() will get a new one
 
   event: accesstoken - there is a new access token, the detail provides the token and service it is for.
--->
-<link rel="import" href="./cp-globals.html">
+--><html><head><link rel="import" href="./cp-globals.html">
 
 <polymer-element name="cp-auth">
   <template>

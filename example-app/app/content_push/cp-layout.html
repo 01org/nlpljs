@@ -23,10 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" 
-href="../bower_components/paper-spinner/paper-spinner.html">
+--><html><head><link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
 
@@ -60,13 +57,12 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       }
     </style>
 
-    <div id="container" data-show="{{tilesVisible > 0}}"
-         data-loading-tiles="{{tilesLoading}}">
+    <div id="container" data-show="{{tilesVisible > 0}}" data-loading-tiles="{{tilesLoading}}">
     </div>
 
     <div id="loading" data-show="{{tilesLoading > 0}}">
       <template if="{{tilesLoading > 0}}">
-        <paper-spinner active></paper-spinner>
+        <paper-spinner active=""></paper-spinner>
       </template>
     </div>
   </template>

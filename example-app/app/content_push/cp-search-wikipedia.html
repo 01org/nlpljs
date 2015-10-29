@@ -23,16 +23,12 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
 element to return Wikipedia image search data via JSONP;
 uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
--->
-<link rel="import" href="./cp-search.html">
+--><html><head><link rel="import" href="./cp-search.html">
 
-<polymer-element name="cp-search-wikipedia" extends="cp-search"
-                 attributes="searchType">
+<polymer-element name="cp-search-wikipedia" extends="cp-search" attributes="searchType">
   <script src="jsonp.js">
     /* globals jsonp:true */
   </script>

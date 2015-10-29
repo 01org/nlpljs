@@ -23,21 +23,14 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<!--
+--><!--
  - cp-document
- -->
-
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel='import' href='./cp-scrollwatcher.html'>
-<link rel='import' href='./cp-keyword-highlighter.html'>
+ --><html><head><link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="./cp-scrollwatcher.html">
+<link rel="import" href="./cp-keyword-highlighter.html">
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element
-  name="cp-document"
-  on-mouseoverimage="{{onMouseOverImage}}"
-  on-mouseoutimage="{{onMouseOutImage}}">
+<polymer-element name="cp-document" on-mouseoverimage="{{onMouseOverImage}}" on-mouseoutimage="{{onMouseOutImage}}">
   <template>
     <style>
       :host {

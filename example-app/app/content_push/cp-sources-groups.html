@@ -23,10 +23,7 @@
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->
-
-<link rel="import" 
-href="../bower_components/paper-icon-button/paper-icon-button.html">
+--><html><head><link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/core-icon/core-icon.html">
 <link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
 <link rel="import" href="../bower_components/core-item/core-item.html">
@@ -123,14 +120,13 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
-      <div swapper-fix>
-        <core-header-panel id="panel" flex>
+      <div swapper-fix="">
+        <core-header-panel id="panel" flex="">
           <core-toolbar id="header">
-            <paper-icon-button id="back" icon="arrow-back"
-                              on-tap="{{onBackButtonClick}}">
+            <paper-icon-button id="back" icon="arrow-back" on-tap="{{onBackButtonClick}}">
             </paper-icon-button>
 
-            <div flex>
+            <div flex="">
               <div id="headertext">Sources</div>
               <span id="subheading">Select sources for your content</span>
             </div>
@@ -138,16 +134,13 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
 
           <div id="items">
             <template repeat="{{groupName in groupNames}}">
-              <core-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
-                         on-click="{{editSourcesFor}}"></core-item>
+              <core-item icon="{{$.icons[groupName]}}" label="{{groupName}}" on-click="{{editSourcesFor}}"></core-item>
             </template>
           </div>
         </core-header-panel>
       </div>
 
-      <cp-sources-selector id="selector"
-                  on-close="{{closeSelector}}"
-                  swapper-slide swap-id="selector">
+      <cp-sources-selector id="selector" on-close="{{closeSelector}}" swapper-slide="" swap-id="selector">
       </cp-sources-selector>
     </cp-swapper>
   </template>
