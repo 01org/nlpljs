@@ -30,9 +30,10 @@
   removeCachedToken(service) - removes any cached tokens, to next getToken() will get a new one
 
   event: accesstoken - there is a new access token, the detail provides the token and service it is for.
---><html><head><link rel="import" href="./cp-globals.html">
+-->
+<link rel="import" href="./cp-globals.html">
 
-</head><body><dom-module id="cp-auth">
+<dom-module id="cp-auth">
   <template>
     <cp-globals id="globals"></cp-globals>
   </template>
@@ -92,4 +93,4 @@
     }());
   </script>
 </dom-module>
-</body></html>
+
