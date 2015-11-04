@@ -130,7 +130,9 @@
     </div>
   </template>
   <script src="./cp-constants.js"></script>
-  <script src="./cp-layout-frame-chooser.js"></script>
+  <script src="./cp-layout-frame-chooser.js">
+    /* globals FrameChooser: true */
+  </script>
   <script src="./cp-formatter.js"></script>
   <script>
     (function () {
@@ -186,7 +188,6 @@
           /* type of object used to create the tile */
           this.type = 'article';
           /* always use the landscape frame */
-          /* globals FrameChooser: true */
           this.frame = FrameChooser.FRAMES.landscape1;
           /* set to true once the image loads, which enables the
            image part of the tile to be shown */

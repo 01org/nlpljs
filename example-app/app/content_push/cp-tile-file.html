@@ -92,7 +92,9 @@
     </div>
   </template>
 
-  <script src="./cp-layout-frame-chooser.js"></script>
+  <script src="./cp-layout-frame-chooser.js">
+    /* globals FrameChooser: true */
+  </script>
   <script>
     (function () {
       'use strict';
@@ -108,7 +110,6 @@
             notify: true
           },
           /* hard-code the frame for file tiles */
-          /* globals FrameChooser: true */
           frame: {
             value: function () {
               return FrameChooser.FRAMES.small_square;
