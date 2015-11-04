@@ -17,13 +17,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
+-->
+
+<!--
  - cp-sources
  -
  - <cp-sources-storage id="storage" on-new-sources="{{onNewSources}}"></cp-sources-storage>
@@ -34,6 +34,7 @@
  -   // do something with them - eg update UI
  - }
  -->
+
 <link rel="import" href="./cp-globals.html">
 
 <dom-module id="cp-sources-storage">
@@ -44,15 +45,18 @@
   <script>
     (function () {
       /* jshint strict:false */
+
       /* instances of this element; used to fire events across
-       all elements simultaneously */
+       * all elements simultaneously */
       var instances = [];
+
       var fireEvent = function (name, data) {
         'use strict';
         for (var i = 0; i < instances.length; i++) {
           instances[i].fire(name, data);
         }
       };
+
       /* set data across all instances */
       var setData = function (data) {
         'use strict';
@@ -61,32 +65,34 @@
         }
         fireEvent('newsources', data);
       };
+
       Polymer({
         is: 'cp-sources-storage',
+
         properties: {
           /* deliberately share state between all cp-sources-storage instances,
-                     so they all reference the same object; this has the structure:
-          
-                  {
-                    "Articles": {
-                      "enabled": true,
-                      "order": 2,
-                      "sources": {
-                        "Wikipedia": {
-                          "enabled": true,
-                          "url": "wikipedia.org"
-                        },
-                        "Yahoo! news": {
-                          "enabled": true,
-                          "url": "news.yahoo.com"
-                        }
-                      }
-                    },
-                    ...
-                  }
-          
-                  (see ep-sources-storage for details)
-                  */
+           * so they all reference the same object; this has the structure:
+           *
+           *      {
+           *        "Articles": {
+           *          "enabled": true,
+           *          "order": 2,
+           *          "sources": {
+           *            "Wikipedia": {
+           *              "enabled": true,
+           *              "url": "wikipedia.org"
+           *            },
+           *            "Yahoo! news": {
+           *              "enabled": true,
+           *              "url": "news.yahoo.com"
+           *            }
+           *          }
+           *        },
+           *        ...
+           *      }
+           *
+           * (see ep-sources-storage for details)
+           */
           data: {
             type: Object,
             value: function () {
@@ -94,10 +100,12 @@
             }
           }
         },
+
         created: function () {
           'use strict';
           instances.push(this);
         },
+
         ready: function () {
           'use strict';
           console.log('CP-SOURCES-STORAGE:ready');
@@ -121,6 +129,7 @@
           // get first set of sources
           this.port.postMessage(message);
         },
+
         /**
          * Persist the current groups of sources to storage.
          */
@@ -141,6 +150,7 @@
           this.port.postMessage(message);
           setData(this.data);
         },
+
         /**
          * Create a new group for sources, if it doesn't already exist.
          * If the group name exists already, this throws an error.
@@ -159,6 +169,7 @@
           this.persist();
           return this.data[groupName];
         },
+
         /**
          * Add a new source.
          *
@@ -183,6 +194,7 @@
           });
           this.persist();
         },
+
         /**
          * Remove a source; see createSource for params.
          *
@@ -199,6 +211,7 @@
             console.error('CP-SOURCES-STORAGE: cannot remove source ' + 'with name ' + sourceName + ' as group and/or ' + 'source doesn\'t exist');
           }
         },
+
         /**
          * Set the enabled property of a source to the boolean "enabled".
          *
@@ -224,6 +237,7 @@
             console.error('CP-SOURCES-STORAGE: cannot modify source ' + 'with name ' + sourceName + ' as group and/or ' + 'source doesn\'t exist');
           }
         },
+
         /**
          * Check whether a group exists and is in the correct format.
          */
@@ -231,6 +245,7 @@
           'use strict';
           return this.data[groupName] && this.data[groupName].sources;
         },
+
         /**
          * Get the names of all the enabled groups as an array, sorted
          * according to the "order" property of each group.
@@ -251,6 +266,7 @@
             return item.groupName;
           });
         },
+
         /**
          * Get the group of sources organised under the name groupName.
          * If the group with name groupName doesn't exist, this
@@ -275,6 +291,7 @@
           'use strict';
           return this.data[groupName] || null;
         },
+
         /**
          * Retrieve a source by name; returns null if it doesn't exist.
          */
@@ -286,6 +303,7 @@
             return null;
           }
         },
+
         /**
          * Retrieve a source by url; returns null if it doesn't exist.
          */
@@ -300,6 +318,7 @@
             return null;
           }
         },
+
         /**
          * Return all the sources.
          */
@@ -307,6 +326,7 @@
           'use strict';
           return this.data;
         },
+
         /**
          * Return the search service.
          */
@@ -314,8 +334,7 @@
           'use strict';
           return this.data.SearchService;
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

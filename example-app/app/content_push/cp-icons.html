@@ -17,16 +17,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-Imports necessary icon sets and provides easy aliases for the icons we
-want to use.
 -->
+
+<!--
+ - Imports necessary icon sets and provides easy aliases for the icons we
+ - want to use.
+ -->
+
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/core-icons/av-icons.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
@@ -38,34 +39,39 @@ want to use.
       'use strict';
       Polymer({
         is: 'cp-icons',
+
         properties: {
           Articles: {
             type: String,
             value: 'editor:format-color-text'
           },
+
           Files: {
             type: String,
             value: 'editor:insert-drive-file'
           },
+
           Images: {
             type: String,
             value: 'image:camera-alt'
           },
+
           Quotes: {
             type: String,
             value: 'editor:format-quote'
           },
+
           Videos: {
             type: String,
             value: 'av:videocam'
           },
+
           editSources: {
             type: String,
             value: 'editor:mode-edit'
           }
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

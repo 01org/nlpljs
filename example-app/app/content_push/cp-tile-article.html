@@ -17,117 +17,96 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-tile for a general web page (article)
 -->
-<link rel="import" href="../bower_components/paper-material/paper-material.html">
 
-  <!--
-      TODO(polyup): unable to infer path to components
-      directory. This import path is probably incomplete.
-   -->
-  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
+<!--
+ - tile for a general web page (article)
+ -->
+
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
 <dom-module id="cp-tile-article">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-    [fit] {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-  </style>
   <link rel="import" type="css" href="styles/cp-tile.css">
   <style>
-      #mainContainer {
-        border-radius: 2px;
-      }
+    #mainContainer {
+      border-radius: 2px;
+    }
 
-      #text {
-        height: 100%;
-        width: 100%;
-      }
+    #text {
+      height: 100%;
+      width: 100%;
+    }
 
-      #text > * {
-        margin: 12px 14px 0 14px;
-      }
+    #text > * {
+      margin: 12px 14px 0 14px;
+    }
 
-      img {
-        height: 100%;
-        width: 100%;
-        object-fit: cover;
-        object-position: 50% 50%;
-      }
+    img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+      object-position: 50% 50%;
+    }
 
-      .text-elide {
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .text-elide {
+      overflow: hidden;
+      text-overflow: ellipsis;
 
-        /* these provide the multi-line ellipsis over 2 lines, but
-           only work in WebKit; as we're dependent on Chrome, I decided it
-           was OK */
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-      }
+      /* these provide the multi-line ellipsis over 2 lines, but
+         only work in WebKit; as we're dependent on Chrome, I decided it
+         was OK */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
 
-      .left {
-        width: 36% !important;
-        height: 100%;
-        overflow: hidden;
-      }
+    .left {
+      width: 36% !important;
+      height: 100%;
+      overflow: hidden;
+    }
 
-      .right {
-        width: 64% !important;
-      }
+    .right {
+      width: 64% !important;
+    }
 
-      #meta {
-        position: absolute;
-        bottom: 0px;
-        margin-bottom: -6px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    #meta {
+      position: absolute;
+      bottom: 0px;
+      margin-bottom: -6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-      #image {
-        border-top-left-radius: 2px;
-        border-bottom-left-radius: 2px;
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-      }
+    #image {
+      border-top-left-radius: 2px;
+      border-bottom-left-radius: 2px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
 
-      #meta p {
-        margin: 0.4em 0 16px 0;
-        white-space: nowrap;
-      }
+    #meta p {
+      margin: 0.4em 0 16px 0;
+      white-space: nowrap;
+    }
 
-      #snippet {
-        margin-top: 2px;
-      }
-    </style>
+    #snippet {
+      margin-top: 2px;
+    }
+  </style>
+
   <template>
-
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <div horizontal="" layout="" fit="" id="mainContainer">
-          <div class="left" data-show$="{{_computeData-show(imageLoaded, src)}}">
+        <div id="mainContainer" class="horizontal layout fit">
+          <div data-show$="{{_computeDataShow(imageLoaded, src)}}" class="left">
             <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
           </div>
 
@@ -156,8 +135,10 @@ tile for a general web page (article)
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-tile-article',
+
         properties: {
           cleanHTML: {
             value: function () {
@@ -176,6 +157,7 @@ tile for a general web page (article)
             observer: 'srcChanged'
           }
         },
+
         created: function () {
           var self = this;
           /* THESE PROPERTIES SHOULD BE SET WHEN THE TILE IS CREATED */
@@ -221,22 +203,26 @@ tile for a general web page (article)
             self.markDone();
           }, CP_CONSTANTS.TIMEOUT);
         },
+
         srcChanged: function () {
           this.loaded = false;
           this.done = false;
           this.imageLoaded = false;
         },
+
         markDone: function () {
           if (!this.done) {
             this.done = true;
             this.fire('done', this);
           }
         },
+
         onImageLoaded: function () {
           this.imageLoaded = true;
           this.loaded = true;
           this.markDone();
         },
+
         /* image failed to load for whatever reason */
         onImageError: function (e) {
           console.info('CP-TILE-ARTICLE: image load failed');
@@ -247,23 +233,27 @@ tile for a general web page (article)
           /* notify the error, in case anyone cares */
           this.fire('error', e);
         },
-        _computeData-show: function (imageLoaded, src) {
+
+        _computeDataShow: function (imageLoaded, src) {
           return src !== null && imageLoaded;
         },
+
         _computeClass: function (imageLoaded, src) {
           return src === null || !imageLoaded ? '' : 'right';
         },
+
         _computeExpression1: function (caption, cleanHTML) {
           return caption | cleanHTML;
         },
+
         _computeExpression2: function (cleanHTML, snippet) {
           return snippet | cleanHTML;
         },
+
         _computeExpression3: function (domainFromURL, source, sourceName) {
           return sourceName || source | domainFromURL;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

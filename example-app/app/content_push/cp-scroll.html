@@ -17,42 +17,48 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-wraps a single element in a scrollable area;
-if the wrapped element is the same height or taller than the scroller,
-a vertical scrollbar is added; when the scroll reaches nearly the
-end, a "scrollend" event is fired
--->\n<dom-module id="cp-scroll">
-  <style>
-      :host {
-        display: block;
-        position: relative;
-        overflow-x: hidden;
-        overflow-y: scroll;
-      }
-    </style>
-  <template>
+-->
 
+<!--
+ - wraps a single element in a scrollable area;
+ - if the wrapped element is the same height or taller than the scroller,
+ - a vertical scrollbar is added; when the scroll reaches nearly the
+ - end, a "scrollend" event is fired
+ -->
+ 
+<dom-module id="cp-scroll">
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: scroll;
+    }
+  </style>
+
+  <template>
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*"></content>
   </template>
   <script>
     (function () {
       'use strict';
+
       /*
       default number of pixels between the scroll position and the
       end of the container when the "scrollend" event triggers
       */
       var DEFAULT_SCROLL_GAP = 100;
+
       Polymer({
         is: 'cp-scroll',
+
         properties: { scrollgap: { notify: true } },
+
         created: function () {
           /* record the scroll position so we can determine whether
            we are scrolling downwards */
@@ -63,6 +69,7 @@ end, a "scrollend" event is fired
            scrollend each time we enter the scroll gap */
           this.inScrollGap = false;
         },
+
         onScroll: function () {
           var scrollPosition = this.scrollTop;
           // we're scrolling down
@@ -82,12 +89,12 @@ end, a "scrollend" event is fired
           }
           this.lastScrollPosition = scrollPosition;
         },
+
         ready: function () {
           // event handler for scroll events on the container
           this.addEventListener('scroll', this.onScroll.bind(this));
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

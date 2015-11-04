@@ -17,51 +17,33 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/core-icons/editor-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
-  <!--
-      TODO(polyup): unable to infer path to components
-      directory. This import path is probably incomplete.
-   -->
-  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
 <dom-module id="cp-detail-file">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
   <link rel="import" type="css" href="./styles/cp-detail.css">
   <template>
 
-    <div id="container" vertical="" layout="">
+    <div id="container" class="vertical layout">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal="" layout="">
-          <paper-fab id="backbutton" mini="" icon="arrow-back" raisedbutton="true" on-click="onBackButtonClick">
+        <div id="back" class="horizontal layout">
+          <paper-fab id="backbutton" mini icon="arrow-back" raisedbutton="true"
+                     on-click="onBackButtonClick">
           </paper-fab>
 
-          <h2 id="backcaption" flex="" data-show$="{{!!caption}}">
-            <span>{{_computeExpression1(caption, cleanHTML)}}</span>
+          <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
+            <caption>{{_computeExpression1(caption, cleanHTML)}}</caption>
           </h2>
         </div>
       </div>
@@ -70,7 +52,7 @@
         <div id="aspectRatioFrame">
           <div id="spinner" data-show$="{{!loaded}}">
             <template is="dom-if" if="{{!loaded}}">
-              <paper-spinner active=""></paper-spinner>
+              <paper-spinner active></paper-spinner>
             </template>
           </div>
 
@@ -103,7 +85,7 @@
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{_computeData-show(size, undefined)}}">
+        <div class="imageMeta" data-show$="{{_computeDataShow(size, undefined)}}">
           <div class="imageMetaKey">Size</div>
           <div class="imageMetaValue">
             <span>{{_computeExpression4(bytesToKb, size)}}</span>Kb
@@ -141,101 +123,120 @@
       </div>
 
       <div id="visitSrc" data-show$="{{source}}">
-        <paper-button class="colored" on-click="visitWebpage" data-source-link$="{{source}}">
+        <paper-button class="colored" on-click="visitWebpage"
+                      data-source-link$="{{source}}">
           OPEN FILE
         </paper-button>
       </div>
     </div>
   </template>
+
   <script src="./cp-constants.js"></script>
   <script src="./cp-formatter.js"></script>
+
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-detail-file',
+
         properties: {
-          /* text describing the file */
-          caption: {
-            value: null,
-            notify: true
-          },
-          /* clean HTML tags out of the caption */
-          cleanHTML: {
-            value: function () {
-              return Formatter.cleanHTML;
-            }
-          },
-          /* created datetime */
-          createdDate: { value: null },
-          /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
-          fileType: { value: null },
-          /* folder which holds the file */
-          folder: { value: null },
-          formatDate: {
-            value: function () {
-              return Formatter.formatDate;
-            }
-          },
-          /* URL of the icon for this type of file */
-          iconLink: { value: null },
-          /* display name of last user to modify the file */
-          lastModifiedByUser: { value: null },
-          /* file mime type */
-          mimeType: {
-            value: null,
-            observer: 'mimeTypeChanged'
-          },
-          /* last modified datetime */
-          modifiedDate: { value: null },
-          /* file owner */
-          owner: { value: null },
-          /* service which returned the file */
-          service: {
-            value: null,
-            observer: 'serviceChanged'
-          },
-          /* icon for the service (SET AUTOMATICALLY VIA service) */
-          serviceIcon: { value: null },
-          /* file size in bytes */
-          size: { value: null },
-          /* where the file came from */
-          source: {
-            value: null,
-            notify: true
-          },
           /* source URL of the file thumbnail */
           src: {
             value: null,
             notify: true,
             observer: 'srcChanged'
-          }
+          },
+
+          /* text describing the file */
+          caption: {
+            value: null,
+            notify: true
+          },
+
+          /* where the file came from */
+          source: {
+            value: null,
+            notify: true
+          },
+
+          /* service which returned the file */
+          service: {
+            value: null,
+            observer: 'serviceChanged'
+          },
+
+          /* file size in bytes */
+          size: { value: null },
+
+          /* file mime type */
+          mimeType: {
+            value: null,
+            observer: 'mimeTypeChanged'
+          },
+
+          /* URL of the icon for this type of file */
+          iconLink: { value: null },
+
+          /* file owner */
+          owner: { value: null },
+
+          /* folder which holds the file */
+          folder: { value: null },
+
+          /* display name of last user to modify the file */
+          lastModifiedByUser: { value: null },
+
+          /* last modified datetime */
+          modifiedDate: { value: null },
+
+          /* created datetime */
+          createdDate: { value: null },
+
+          /* icon for the service (SET AUTOMATICALLY VIA service) */
+          serviceIcon: { value: null },
+
+          /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
+          fileType: { value: null }
         },
+
         created: function () {
           this.loaded = false;
         },
+
+        /* clean HTML tags out of the caption */
+        cleanHTML: Formatter.cleanHTML,
+
         srcChanged: function () {
           var self = this;
+
           this.loaded = false;
+
           /* if the image never loads, record the component as ready
            anyway, to ensure that it will display */
           setTimeout(function () {
             self.loaded = true;
           }, CP_CONSTANTS.TIMEOUT);
         },
+
         serviceChanged: function () {
           this.serviceIcon = CP_CONSTANTS.SERVICE_ICONS[this.service];
         },
+
         mimeTypeChanged: function () {
           this.fileType = CP_CONSTANTS.MIME_TYPES[this.mimeType] || 'File';
         },
+
         onImageLoad: function () {
           this.loaded = true;
           this.fire('done');
         },
+
         onBackButtonClick: function () {
           this.fire('back');
         },
+
         showTile: function (tile) {
           this.src = tile.file.src;
           this.caption = tile.file.caption;
@@ -249,37 +250,46 @@
           this.lastModifiedByUser = tile.file.lastModifiedByUser;
           this.modifiedDate = tile.file.modifiedDate;
           this.createdDate = tile.file.createdDate;
+
           /* reset scroll to top */
           this.set('$.detailbody.scrollTop', 0);
         },
+
         visitWebpage: function () {
           if (this.source) {
             window.open(this.source, '_blank');
           }
         },
+
+        formatDate: Formatter.formatDate,
+
         bytesToKb: function (val) {
           return Formatter.round(val / 1024, 2);
         },
+
         /* no clean-up necessary, but needed by the API */
-        close: function () {
-        },
-        _computeData-show: function (size, undefined) {
+        close: function () {},
+
+        _computeDataShow: function (size, undefined) {
           return size !== null && size !== undefined;
         },
+
         _computeExpression1: function (caption, cleanHTML) {
           return caption | cleanHTML;
         },
+
         _computeExpression4: function (bytesToKb, size) {
           return size | bytesToKb;
         },
+
         _computeExpression7: function (formatDate, modifiedDate) {
           return modifiedDate | formatDate;
         },
+
         _computeExpression9: function (createdDate, formatDate) {
           return createdDate | formatDate;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

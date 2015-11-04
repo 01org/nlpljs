@@ -17,37 +17,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="../bower_components/core-splitter/core-splitter.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-panel.html">
 <link rel="import" href="./cp-font.html">
 
-  <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <dom-module id="cp-main">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
   <link type="css" rel="import" href="./styles/cp-main.css">
-  <template>
 
-    <div id="container" horizontal="" layout="">
-      <cp-document id="document" flex="" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
+  <template>
+    <div id="container" horizontal layout>
+      <cp-document id="document" class="flex" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
       </cp-document>
       <core-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
       </core-splitter>
@@ -55,63 +43,76 @@
       </cp-panel>
     </div><!-- #container -->
   </template>
+
   <script>
     (function () {
       'use strict';
+
       // private properties
       Polymer({
         is: 'cp-main',
+
         properties: {
           toggle: {
             notify: true,
             observer: 'toggleChanged'
           }
         },
+
         // life cycle functions
         created: function () {
           this.open = true;
         },
+
         // propertyChanged functions
         toggleChanged: function () {
           Polymer.dom(this.$.panel).classList.toggle('off');
           this.open = !this.open;
           this.$.document.onAppToggled(this.open);
         },
+
         // event handlers
         // relay newkeywordinfo from document to panel
         onDocumentNewKeywordInfo: function (e) {
           this.$.panel.fire('newkeywordinfo', e.detail);
         },
+
         onNlpStart: function () {
           console.log('CP-MAIN: NLP processing start');
           this.$.panel.fire('nlpstart');
         },
+
         onNlpStop: function () {
           console.log('CP-MAIN: NLP processing stop');
           this.$.panel.fire('nlpstop');
         },
+
         onSplitterDownAction: function () {
           this.$.document.disablePointerEvents();
         },
+
         onSplitterUpAction: function () {
           this.$.document.enablePointerEvents();
         },
+
         onSplitterTrackAction: function () {
           this.$.panel.layout();
         },
+
         onPanelMouseOverImage: function (e) {
           this.$.document.fire(e.type, e.detail);
         },
+
         onPanelMouseOutImage: function (e) {
           this.$.document.fire(e.type, e.detail);
         },
+
         onPanelClosePanel: function () {
           Polymer.dom(this.$.panel).classList.add('off');
           this.open = false;
           this.$.document.onAppToggled(this.open);
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

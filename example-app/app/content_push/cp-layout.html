@@ -17,56 +17,56 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
 
 <dom-module id="cp-layout">
   <style>
-      :host {
-        display: block;
-        margin: 16px 0 16px 10px;
-      }
+    :host {
+      display: block;
+      margin: 16px 0 16px 10px;
+    }
 
-      #container {
-        position: relative;
-      }
+    #container {
+      position: relative;
+    }
 
-      [data-tile="true"] {
-        position: absolute;
-        transition-property: top, left, opacity;
-        transition-duration: 0.25s, 0.25s, 0.25s;
-        transition-timing-function: ease-out, ease-out, ease-out;
-      }
+    [data-tile="true"] {
+      position: absolute;
+      transition-property: top, left, opacity;
+      transition-duration: 0.25s, 0.25s, 0.25s;
+      transition-timing-function: ease-out, ease-out, ease-out;
+    }
 
-      #loading {
-        width: 100%;
-        text-align: center;
-        padding-top: 2em;
-      }
+    #loading {
+      width: 100%;
+      text-align: center;
+      padding-top: 2em;
+    }
 
-      [data-show="false"] {
-        display: none !important;
-      }
-    </style>
+    [data-show="false"] {
+      display: none !important;
+    }
+  </style>
+
   <template>
-
-    <div id="container" data-show$="{{_computeData-show(tilesVisible)}}" data-loading-tiles$="{{tilesLoading}}">
+    <div id="container" data-show$="{{_computeDataShow(tilesVisible)}}" data-loading-tiles$="{{tilesLoading}}">
     </div>
 
     <div id="loading" data-show$="{{_computeIf(tilesLoading)}}">
       <template is="dom-if" if="{{_computeIf(tilesLoading)}}">
-        <paper-spinner active=""></paper-spinner>
+        <paper-spinner active></paper-spinner>
       </template>
     </div>
   </template>
+
   <script src="../bower_components/lodash/dist/lodash.js"></script>
   <script src="cp-layout-frame-chooser.js">
     /* globals FrameChooser:true */
@@ -78,20 +78,27 @@
   <script src="cp-layout-generator.js">
     /* globals LayoutGenerator:true */
   </script>
+
   <script>
     (function () {
       'use strict';
+
       var NARROW_NUM_COLS = 4;
+
       var WIDE_NUM_COLS = 8;
+
       // when gallery >= this width, switch to WIDE_NUM_COLS
       var WIDE_BREAKPOINT = 576;
+
       /*
       length of the side of a row/column for the purpose of
       choosing a frame
       */
       var FRAME_CELL_SIDE = 74;
+
       Polymer({
         is: 'cp-layout',
+
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.tileCache = new TileCache();
@@ -107,6 +114,7 @@
            the value is true, false otherwise */
           this.tilesInLayout = {};
         },
+
         /* set number of columns based on the gallery width */
         setLayoutParams: function () {
           var width = this.offsetWidth;
@@ -116,30 +124,35 @@
             this.numColumns = NARROW_NUM_COLS;
           }
         },
+
         setFilter: function (filter) {
           var activeTilesChanged = this.tileCache.setFilter(filter);
           if (activeTilesChanged) {
             this.layout();
           }
         },
+
         /**
          * Return count of visible tiles.
          */
         getCountVisibleTiles: function () {
           return this.tileCache.getActiveTilesCount();
         },
+
         /**
          * Return all child cp-tile* elements, including the hidden ones.
          */
         getAllTiles: function () {
           return Polymer.dom(this.$.container).querySelectorAll('[data-tile="true"]');
         },
+
         /**
          * Get all cp-tile* elements which are visible.
          */
         getVisibleTiles: function () {
           return this.tileCache.getActiveTiles();
         },
+
         /**
          * Search for a tile with "source" attribute set to value;
          * returns the found tile; or if not found, returns null
@@ -147,6 +160,7 @@
         getTileBySource: function (source) {
           return this.tileCache.getTileBySource(source);
         },
+
         /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
           this.tilesLoading -= 1;
@@ -161,6 +175,7 @@
           }
           this.fire('tileprocessed', tile);
         },
+
         /**
         * Convenience method to add a tile to the layout.
         *
@@ -187,6 +202,7 @@
             });
           }
         },
+
         /**
          * Add the appropriate frame to the cp-tile*. If tile already
          * has a "frame" property referencing a frame object,
@@ -197,6 +213,7 @@
         frameTile: function (tile) {
           tile.frame = tile.frame || this.frameChooser.choose(tile);
         },
+
         /**
          * Apply layout to cp-tile*s which satisfy the current filter.
          */
@@ -205,6 +222,7 @@
           var activeTiles = this.tileCache.getActiveTiles();
           var shapes = [];
           var i;
+
           /* either add existing tiles to layout calculation if active
            or remove them if no longer active */
           for (i = 0; i < existingTiles.length; i++) {
@@ -224,6 +242,7 @@
               this.tileCache.store(removedTile);
             }
           }
+
           /* append any active tiles which aren't already in the layout */
           for (i = 0; i < activeTiles.length; i++) {
             var activeTile = activeTiles[i];
@@ -262,6 +281,7 @@
           this.tilesVisible = this.tileCache.getActiveTilesCount();
           this.fire('layout');
         },
+
         layout: function () {
           var self = this;
           this.layoutInProgress = this.layoutInProgress.then(function () {
@@ -276,17 +296,19 @@
           });
           return this.layoutInProgress;
         },
+
         ready: function () {
           this.setLayoutParams();
         },
-        _computeData-show: function (tilesVisible) {
+
+        _computeDataShow: function (tilesVisible) {
           return tilesVisible > 0;
         },
+
         _computeIf: function (tilesLoading) {
           return tilesLoading > 0;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

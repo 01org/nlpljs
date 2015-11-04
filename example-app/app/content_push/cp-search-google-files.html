@@ -17,15 +17,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-  search users files on Google Drive
 -->
+
+<!--
+ - search users files on Google Drive
+ -->
+
 <link rel="import" href="../bower_components/polymer/polymer.html">
 <link rel="import" href="./cp-ajax-multiplexer.html">
 <link rel="import" href="./cp-auth.html">
@@ -41,6 +42,7 @@
   <script>
     (function () {
       'use strict';
+
       var getResultsToReturn = function (self, query) {
         var numResults = self.results[query].length;
         var from = self.cursor[query];
@@ -49,6 +51,7 @@
         self.cursor[query] += to - from;
         return resultsToReturn;
       };
+
       var onCoreResponse = function (self, e) {
         var id = e.detail.id;
         var response = e.detail.detail.response;
@@ -104,9 +107,11 @@
           }
         }
       };
+
       var makeUrl = function (self, q) {
         return 'https://www.googleapis.com/drive/v2/files?' + 'access_token=' + self.access_token + '&' + 'fields=items(alternateLink,createdDate,description,fileSize,' + 'iconLink,id,lastModifyingUserName,mimeType,modifiedDate,owners,' + 'thumbnailLink,title)&' + 'q=' + q;
       };
+
       /**
        * Retrieve a list of File resources.
        *
@@ -124,6 +129,7 @@
         self.callbacks[id] = callback;
         self.queries[id] = query;
       };
+
       /**
        * searches user's files for files containing 'query', adds  them in resultSet.
        * returns a promise that is resolved when finished searching.
@@ -142,9 +148,12 @@
         });
         return promise;
       }
+
       Polymer({
         is: 'cp-search-google-files',
+
         properties: { resultsPerFetch: { notify: true } },
+
         created: function () {
           this.access_token = null;
           this.ready_promise = null;
@@ -156,6 +165,7 @@
           // this.callbacks[id] = function... id comes from cp-ajax-multiplexer.url()
           this.queries = {};
         },
+
         // this.queries[id] = querystring...
         ready: function () {
           var self = this;
@@ -172,6 +182,7 @@
             onCoreResponse(self, e);
           });
         },
+
         fetch: function (query) {
           console.log('CP-SEARCH-GOOGLE-FILES: fetch for query:', query);
           if (this.results[query]) {
@@ -186,8 +197,7 @@
             });
           }
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

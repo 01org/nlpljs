@@ -17,40 +17,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
 
-  <!--
-      TODO(polyup): unable to infer path to components
-      directory. This import path is probably incomplete.
-   -->
-  <link rel="import" href="iron-flex-layout/iron-flex-layout.html">
 <dom-module id="cp-detail-image">
-  <style>
-    /* TODO(polyup): For speed, consider reworking these styles with .classes
-                     and #ids rather than [attributes].
-    */
-    [layout] {
-      @apply(--layout);
-    }
-    [layout][vertical] {
-      @apply(--layout-vertical);
-    }
-    [layout][horizontal] {
-      @apply(--layout-horizontal);
-    }
-  </style>
   <link rel="import" type="css" href="./styles/cp-detail.css">
   <style>
       core-collapse {
@@ -71,13 +52,14 @@
     </style>
   <template>
 
-    <div id="container" vertical="" layout="">
+    <div id="container" class="vertical layout">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal="" layout="">
-          <paper-fab id="backbutton" mini="" icon="arrow-back" raisedbutton="true" on-click="onBackButtonClick">
+        <div id="back" class="horizontal layout">
+          <paper-fab id="backbutton" mini icon="arrow-back" raisedbutton="true"
+                     on-click="onBackButtonClick">
           </paper-fab>
 
-          <span id="backcaption" flex="" data-show$="{{!!caption}}">
+          <span id="backcaption" class="flex" data-show$="{{!!caption}}">
             <span>{{_computeExpression1(caption, cleanHTML)}}</span>
           </span>
         </div>
@@ -87,7 +69,7 @@
         <div id="aspectRatioFrame">
           <div id="spinner" data-show$="{{!loaded}}">
             <template is="dom-if" if="{{!loaded}}">
-              <paper-spinner active=""></paper-spinner>
+              <paper-spinner active></paper-spinner>
             </template>
           </div>
 
@@ -101,12 +83,12 @@
 
       <div id="detailbody">
         <div id="imageInfo">
-          <div class="imageMeta" data-show$="{{_computeData-show(source, sourceName)}}">
+          <div class="imageMeta" data-show$="{{_computeDataShow(source, sourceName)}}">
             <div class="imageMetaKey">Source</div>
             <div class="imageMetaValue">{{_computeExpression2(domainFromURL, source, sourceName)}}</div>
           </div>
 
-          <div class="imageMeta" data-show$="{{_computeData-show2(height, width)}}">
+          <div class="imageMeta" data-show$="{{_computeDataShow2(height, width)}}">
             <div class="imageMetaKey">Size</div>
             <div class="imageMetaValue"><span>{{width}}</span>x<span>{{height}}</span></div>
           </div>
@@ -115,7 +97,8 @@
         <div id="exif" data-show$="{{hasEXIF}}">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
-            <iron-icon id="exifToggle" on-click="exifToggle" icon="expand-more">
+            <iron-icon id="exifToggle" on-click="exifToggle"
+                       icon="expand-more">
             </iron-icon>
           </div>
 
@@ -138,57 +121,56 @@
       </div>
 
       <div id="visitSrc" data-show$="{{!!source}}">
-        <paper-button class="colored" on-click="visitWebpage" data-source-link$="{{source}}">
+        <paper-button class="colored" on-click="visitWebpage"
+                      data-source-link$="{{source}}">
           VIEW IMAGE
         </paper-button>
       </div>
     </div>
   </template>
+
   <script src="./cp-formatter.js"></script>
   <script src="./cp-constants.js"></script>
+
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-detail-image',
+
         properties: {
-          /* text describing the image */
-          caption: {
-            value: null,
-            notify: true
-          },
-          /* clean HTML tags out of the caption */
-          cleanHTML: {
-            value: function () {
-              return Formatter.cleanHTML;
-            }
-          },
-          /* get the domain from a URL */
-          domainFromURL: {
-            value: function () {
-              return Formatter.domainFromURL;
-            }
-          },
-          /* true if the loaded image has EXIF metadata */
-          hasEXIF: { value: null },
-          /* image metadata */
-          meta: {
-            value: null,
-            observer: 'metaChanged'
-          },
-          onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' },
-          /* where the image came from */
-          source: {
-            value: null,
-            notify: true
-          },
           /* source URL of the image itself */
           src: {
             value: null,
             notify: true,
             observer: 'srcChanged'
-          }
+          },
+
+          /* text describing the image */
+          caption: {
+            value: null,
+            notify: true
+          },
+
+          /* where the image came from */
+          source: {
+            value: null,
+            notify: true
+          },
+
+          /* image metadata */
+          meta: {
+            value: null,
+            observer: 'metaChanged'
+          },
+
+          /* true if the loaded image has EXIF metadata */
+          hasEXIF: { value: null },
+
+          onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' }
         },
+
         created: function () {
           this.width = null;
           this.height = null;
@@ -196,45 +178,70 @@
           this.meta = {};
           this.hasEXIF = false;
         },
+
+        ready: function () {
+          var self = this;
+
+          this.$.exifDropdown.addEventListener('core-collapse-open', function (e) {
+            self.onExifDropdownOpenedChanged(e);
+          });
+        },
+
+        /* clean HTML tags out of the caption */
+        cleanHTML: Formatter.cleanHTML,
+
+        /* get the domain from a URL */
+        domainFromURL: Formatter.domainFromURL,
+
         srcChanged: function () {
           var self = this;
+
           this.loaded = false;
+
           /* if the image never loads, record the component as ready
            anyway, to ensure that it will display */
           setTimeout(function () {
             self.loaded = true;
           }, CP_CONSTANTS.TIMEOUT);
         },
+
         onImageLoad: function () {
           this.loaded = true;
           this.fire('done');
           this.set('$.imgContainer.style.width', '100%');
         },
+
         onBackButtonClick: function () {
           this.fire('back');
         },
+
         onExifDropdownOpenedChanged: function (_, e) {
           var open = e.detail;
+
           if (open) {
             this.set('$.exifToggle.icon', 'expand-less');
           } else {
             this.set('$.exifToggle.icon', 'expand-more');
           }
         },
+
         /* close exif details when detail panel closes */
         close: function () {
           if (this.$.exifDropdown.opened) {
             this.$.exifDropdown.toggle();
           }
         },
+
         exifToggle: function () {
           this.$.exifDropdown.toggle();
         },
+
         visitWebpage: function () {
           if (this.source) {
             window.open(this.source, '_blank');
           }
         },
+
         showTile: function (tile) {
           this.src = tile.image.src;
           this.caption = tile.image.caption;
@@ -243,37 +250,37 @@
           this.meta = tile.image.meta;
           this.width = tile.image.width;
           this.height = tile.image.height;
+
           /* reset scroll to top */
           this.set('$.detailbody.scrollTop', 0);
         },
+
         /* set visibility of EXIF panel by checking metadata */
         metaChanged: function () {
           if (this.meta && this.meta) {
             this.hasEXIF = !!this.meta.ExifVersion;
-          } else {
+            }
+            else {
             this.hasEXIF = false;
           }
         },
-        ready: function () {
-          var self = this;
-          this.$.exifDropdown.addEventListener('core-collapse-open', function (e) {
-            self.onExifDropdownOpenedChanged(e);
-          });
-        },
-        _computeData-show: function (source, sourceName) {
+
+        _computeDataShow: function (source, sourceName) {
           return !!sourceName || !!source;
         },
-        _computeData-show2: function (height, width) {
+
+        _computeDataShow2: function (height, width) {
           return width > 0 && height > 0;
         },
+
         _computeExpression1: function (caption, cleanHTML) {
           return caption | cleanHTML;
         },
+
         _computeExpression2: function (domainFromURL, source, sourceName) {
           return sourceName || source | domainFromURL;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

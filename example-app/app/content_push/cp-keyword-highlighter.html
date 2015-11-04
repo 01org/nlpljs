@@ -17,51 +17,52 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-  implements keyword highlighting functionality
-
-  attributes:
-    onStyle: the style to set when the highlighting is 'on'
-    default:
-      background-color: lightpink;
-
-    offStyle: the style to set when the highlighting is 'off'
-    default: none
-
-  targetElement:
-    set to the element containing the google doc, eg :
-    this.$.highlighter.targetElement = this.$.iframe.contentDocument;
-
-  prepare(ranges):
-    insert the html for the given ranges (in 'off' mode)
-    ranges is (first line/char is '0'):
-    [
-      {
-        groupId: 1,
-        start: {
-          lineId: '2',
-          charNo: 5
-        },
-        end: {
-          lineId: '2',
-          charNo: 15
-        }
-      },
-      ...
-    ]
-
-  turn(groupId, 'on'|'off'):
-    turns the highlighing on or off for the specific groupId
-
-  clear([groupId]);
-    removes the html for the given groupId, or if no groupId given, all of them.
 -->
+
+<!--
+ - implements keyword highlighting functionality
+ -
+ - attributes:
+ -   onStyle: the style to set when the highlighting is 'on'
+ -   default:
+ -     background-color: lightpink;
+ -
+ -   offStyle: the style to set when the highlighting is 'off'
+ -   default: none
+ -
+ - targetElement:
+ -   set to the element containing the google doc, eg :
+ -   this.$.highlighter.targetElement = this.$.iframe.contentDocument;
+ -
+ - prepare(ranges):
+ -   insert the html for the given ranges (in 'off' mode)
+ -   ranges is (first line/char is '0'):
+ -   [
+ -     {
+ -       groupId: 1,
+ -       start: {
+ -         lineId: '2',
+ -         charNo: 5
+ -       },
+ -       end: {
+ -         lineId: '2',
+ -         charNo: 15
+ -       }
+ -     },
+ -     ...
+ -   ]
+ -
+ - turn(groupId, 'on'|'off'):
+ -   turns the highlighing on or off for the specific groupId
+ -
+ - clear([groupId]);
+ -   removes the html for the given groupId, or if no groupId given, all of them.
+ -->
+
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <dom-module id="cp-keyword-highlighter">
@@ -77,7 +78,9 @@
           return '</keyword-highlight>';
         }
       };
+
       var NBSP = '&nbsp;';
+
       /**
        * skip any number of tags next to each other
        * eg: <tag><tag>
@@ -93,6 +96,7 @@
         }
         return retVal;
       };
+
       /**
        *  splits a string at (non-html) character position
        *  ignoring html tags and counting '&nbsp;' as one character
@@ -164,9 +168,11 @@
         retVal.after = chars.substr(currentPosition).replace(re, NBSP);
         return retVal;
       };
+
       var getLine = function (self, lineId) {
         return Polymer.dom(self.targetElement).querySelector('[cp_line_id="' + lineId + '"] .kix-lineview-content');
       };
+
       // tries to behave like html parser does
       // wrt to white space
       var compressWhiteSpace = function (html) {
@@ -179,6 +185,7 @@
         retVal = retVal.replace(/\s+$/, '');
         return retVal;
       };
+
       var highlightRange = function (self, rangeToHighlight) {
         var start = rangeToHighlight.start;
         var end = rangeToHighlight.end;
@@ -288,8 +295,9 @@
           console.log('HL:Error: end.charNo-start.charNo+1=', end.charNo - start.charNo + 1);
         }
       };
+
       /*
-         Injects the css for the on and off style into the head.
+       * Injects the css for the on and off style into the head.
        */
       var injectCss = function (self, targetDocument) {
         var css = [
@@ -312,22 +320,27 @@
         }
         Polymer.dom(head).appendChild(style);
       };
+
       Polymer({
         is: 'cp-keyword-highlighter',
+
         properties: {
           offStyle: { notify: true },
           onStyle: { notify: true },
           targetElement: { observer: 'targetElementChanged' }
         },
+
         created: function () {
           this.lineIds = [];
           this.offStyle = '';
           this.onStyle = 'background-color: #FFB2F0';
         },
+
         targetElementChanged: function () {
           var targetDocument = this.targetElement.ownerDocument || this.targetElement.body.ownerDocument;
           injectCss(this, targetDocument);
         },
+
         prepare: function (ranges) {
           var lines = Polymer.dom(this.targetElement).querySelectorAll('[cp_line_id]');
           var i;
@@ -340,6 +353,7 @@
           // finished with lineIds, so remove array
           this.lineIds = [];
         },
+
         turn: function (groupId, state) {
           var elements, element, numElements, i;
           if (state === 'on') {
@@ -358,6 +372,7 @@
             }
           }
         },
+
         clear: function (groupId) {
           // get the elements with the given groupId,
           // or all if non given
@@ -375,12 +390,12 @@
             Polymer.dom(parent).removeChild(thisElement);
           }
         },
+
         // for testing only
         testSplitAtPosition: function (position, chars, endian) {
           return splitAtPosition(position, chars, endian);
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

@@ -17,74 +17,79 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-wrapper for a single image from a search result plus related elements for
-metadata; metadata elements are revealed by user interaction
-(mouse hover);
-the smallest image which will display OK is about 50x50px; any smaller
-than this and there's not enough room for the metadata about the image
-size
 -->
+
+<!--
+ - wrapper for a single image from a search result plus related elements for
+ - metadata; metadata elements are revealed by user interaction
+ - (mouse hover);
+ - the smallest image which will display OK is about 50x50px; any smaller
+ - than this and there's not enough room for the metadata about the image
+ - size
+ -->
+
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 
 <dom-module id="cp-tile-image">
   <link rel="import" type="css" href="styles/cp-tile.css">
   <style>
-      [data-revealed="true"] {
-        display: block;
-        position: absolute;
-        bottom: 0;
-        background-color: black;
-        color: white;
-        min-width: 3em;
-        text-align: center;
-        padding: 0.5em;
-      }
+    [data-revealed="true"] {
+      display: block;
+      position: absolute;
+      bottom: 0;
+      background-color: black;
+      color: white;
+      min-width: 3em;
+      text-align: center;
+      padding: 0.5em;
+    }
 
-      [data-revealed="false"] {
-        display: none;
-      }
+    [data-revealed="false"] {
+      display: none;
+    }
 
-      #image {
-        border-radius: 2px;
-      }
+    #image {
+      border-radius: 2px;
+    }
 
-      #meta {
-        max-width: 100%;
-        margin: 0;
-      }
-    </style>
+    #meta {
+      max-width: 100%;
+      margin: 0;
+    }
+  </style>
+
   <template>
-
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
 
-        <p id="meta" data-revealed$="{{_computeData-revealed(revealmeta)}}">
+        <p id="meta" data-revealed$="{{_computeDataRevealed(revealmeta)}}">
           <span>{{width}}</span>x<span>{{height}}</span>
         </p>
       </paper-material>
     </div>
   </template>
+
   <script src="./cp-constants.js"></script>
   <script>
     (function () {
       'use strict';
+
       var setRatio = function (self) {
         if (self.width > 0 && self.height > 0) {
           self.ratio = self.width / self.height;
         }
       };
+
       Polymer({
         is: 'cp-tile-image',
+
         properties: {
           done: { notify: true },
           height: { observer: 'heightChanged' },
@@ -96,6 +101,7 @@ size
           },
           width: { observer: 'widthChanged' }
         },
+
         created: function () {
           var self = this;
           /* URL for the image to be displayed */
@@ -138,15 +144,19 @@ size
             }
           }, CP_CONSTANTS.TIMEOUT);
         },
+
         srcChanged: function () {
           this.loaded = false;
         },
+
         widthChanged: function () {
           setRatio(this);
         },
+
         heightChanged: function () {
           setRatio(this);
         },
+
         // set metadata for the image once it's loaded
         onImageLoaded: function () {
           this.loaded = true;
@@ -155,6 +165,7 @@ size
             this.fire('done', this);
           }
         },
+
         // image failed to load for whatever reason
         onImageError: function (e) {
           this.loaded = false;
@@ -165,11 +176,11 @@ size
           // notify the error, in case anyone cares
           this.fire('error', e);
         },
-        _computeData-revealed: function (revealmeta) {
+
+        _computeDataRevealed: function (revealmeta) {
           return revealmeta === 'on' || revealmeta === 'always';
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

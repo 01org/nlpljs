@@ -17,64 +17,65 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-wrapper for a Google Drive file thumbnail
 -->
+
+<!--
+ - wrapper for a Google Drive file thumbnail
+ -->
+
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 
 <dom-module id="cp-tile-file">
   <link rel="import" type="css" href="styles/cp-tile.css">
   <style>
-      #imageContainer {
-        height: calc(100% - 46px);
-        width: 100%;
-        overflow: hidden;
-        border-radius: 2px;
-      }
+    #imageContainer {
+      height: calc(100% - 46px);
+      width: 100%;
+      overflow: hidden;
+      border-radius: 2px;
+    }
 
-      #image {
-        object-fit: contain;
-        object-position: 50% 50%;
-        background-color: #eee;
-      }
+    #image {
+      object-fit: contain;
+      object-position: 50% 50%;
+      background-color: #eee;
+    }
 
-      #meta {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        height: 46px;
-        text-align: left;
-        padding: 0.5em;
-        box-sizing: border-box;
-        width: 100%;
-        border-top: 1px solid #e6e6e6;
-      }
+    #meta {
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      align-items: center;
+      height: 46px;
+      text-align: left;
+      padding: 0.5em;
+      box-sizing: border-box;
+      width: 100%;
+      border-top: 1px solid #e6e6e6;
+    }
 
-      #caption {
-        margin-top: 0;
-        margin-bottom: 0;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        font-size: 12px;
-        line-height: 16px;
-        padding-left: 8px;
-      }
+    #caption {
+      margin-top: 0;
+      margin-bottom: 0;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 16px;
+      padding-left: 8px;
+    }
 
-      #icon {
-        min-width: 16px;
-        min-height: 16px;
-      }
-    </style>
+    #icon {
+      min-width: 16px;
+      min-height: 16px;
+    }
+  </style>
+
   <template>
-
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
@@ -90,12 +91,15 @@ wrapper for a Google Drive file thumbnail
       </paper-material>
     </div>
   </template>
+
   <script src="./cp-layout-frame-chooser.js"></script>
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-tile-file',
+
         properties: {
           /* file tiles are always ready */
           done: {
@@ -125,6 +129,7 @@ wrapper for a Google Drive file thumbnail
             value: 'file'
           }
         },
+
         created: function () {
           /* THESE PROPERTIES SHOULD BE SET */
           /* URL for the file thumbnail to be displayed */
@@ -144,8 +149,7 @@ wrapper for a Google Drive file thumbnail
           */
           this.keywords = [];
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

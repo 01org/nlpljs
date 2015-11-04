@@ -17,18 +17,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
--->\n<dom-module id="cp-scrollwatcher">
+-->
+
+<dom-module id="cp-scrollwatcher">
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-scrollwatcher',
+
         created: function () {
           this.scrollableNode = null;
           this.targetNodes = [];
@@ -36,9 +38,11 @@
           this.scrollTimer = null;
           this.onScrollCallback = null;
         },
+
         setScrollableNode: function (node) {
           this.scrollableNode = node;
         },
+
         setOnScrollListener: function (listener, data) {
           var onScroll = function (self) {
             if (self.scrollTimer !== null) {
@@ -61,6 +65,7 @@
           window.addEventListener('resize', callback, false);
           this.onScrollCallback = callback;
         },
+
         removeOnScrollListener: function () {
           if (this.scrollableNode !== null) {
             this.scrollableNode.removeEventListener('scroll', this.onScrollCallback, false);
@@ -70,6 +75,7 @@
           window.removeEventListener('scroll', this.onScrollCallback, false);
           window.removeEventListener('resize', this.onScrollCallback, false);
         },
+
         getVisibleNodes: function (callback, data) {
           var visibleNodes = [];
           if (this.targetNodes !== null) {
@@ -81,6 +87,7 @@
           }
           callback(visibleNodes, data);
         },
+
         isNodeVisible: function (node) {
           var boundingRectangle = node.getBoundingClientRect();
           var parentBoundingRectangle;
@@ -99,15 +106,16 @@
           }
           return true;
         },
+
         addTargetNode: function (targetNode) {
           this.set('targetNodes' + ('.' + this.targetNodes.length), targetNode);
         },
+
         removeTargetNode: function (targetNode) {
           var index = this.targetNodes.indexOf(targetNode);
           this.targetNodes.splice(index, 1);
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

@@ -17,13 +17,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
+-->
+
+<!--
  - cp-globals
  -
  - initialise by setting attributes (strings) on the element
@@ -35,15 +35,19 @@
  - ...
  -  console.log('app_id', this.globalData.app_id);
  -->
+
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <dom-module id="cp-globals">
   <script>
     (function () {
       'use strict';
+
       var data = {};
+
       Polymer({
         is: 'cp-globals',
+
         ready: function () {
           this.data = data;
           // initialize values from attributes (note: strings only)
@@ -52,11 +56,11 @@
             data[attr.nodeName] = attr.value;
           }
         },
+
         get documentId() {
           return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

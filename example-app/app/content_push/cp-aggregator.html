@@ -17,13 +17,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-sources-storage.html">
 
@@ -34,52 +33,74 @@
 
     <cp-fetcher id="fetcher" resultsperfetch="5"></cp-fetcher>
   </template>
+
   <script>
     (function () {
       'use strict';
+
       var logSearch = function (self) {
         self.pendingSearches--;
+
         /* if there are no pending searches, fire event */
         if (self.pendingSearches === 0) {
           console.log('CP-AGGREGATOR: no pending searches');
           self.fire('nopendingsearches');
         }
       };
+
       var getResultsFromSource = function (self, searchTerm, service, sourceURL, sourceName) {
         if (!service) {
           throw new Error('no service specified for search');
         }
-        self.$.fetcher.fetch(searchTerm, service, sourceURL).then(function (results) {
-          logSearch(self);
-          /* add source name to each result */
-          if (sourceName) {
-            for (var i = 0; i < results.length; i++) {
-              results[i].sourceName = sourceName;
+
+        self.$.fetcher.fetch(searchTerm, service, sourceURL).then(
+          function (results) {
+            logSearch(self);
+
+            /* add source name to each result */
+            if (sourceName) {
+              for (var i = 0; i < results.length; i++) {
+                results[i].sourceName = sourceName;
+              }
             }
+
+            self.fire('receivedresults', {
+              searchTerm: searchTerm,
+              results: results
+            });
+          },
+            
+          function (err) {
+            logSearch(self);
+
+            self.fire('searchfailed', {
+              searchTerm: searchTerm,
+              error: err
+            });
           }
-          self.fire('receivedresults', {
-            searchTerm: searchTerm,
-            results: results
-          });
-        }, function (err) {
-          logSearch(self);
-          self.fire('searchfailed', {
-            searchTerm: searchTerm,
-            error: err
-          });
-        }).catch(function (e) {
+        )
+        .catch(function (e) {
           console.error('CP-AGGREGATOR: ERROR during fetch');
           console.error('CP-AGGREGATOR', e);
           logSearch(self);
         });
       };
+
       Polymer({
         is: 'cp-aggregator',
+
+        ready: function () {
+          this.pendingSearches = 0;
+          this.onNewSources();
+        },
+
         onNewSources: function () {
           var searchService = this.$.storage.getSearchService();
+
           // if this is the first run, then searchService can be undefined
           if (searchService) {
             this.sources = this.$.storage.retrieveAllSources();
+
             this.services = [
               {
                 service: searchService + ' Image Search',
@@ -95,7 +116,9 @@
               }
             ];
           }
+
         },
+
         /**
          * Search for multiple search terms against groups of sources;
          * optionally constrain which group and/or source within the
@@ -125,38 +148,54 @@
               }
             }
           }
+
           var searches = [];
+
           for (var termIndex = 0; termIndex < searchTerms.length; termIndex++) {
             var thisSearchTerm = searchTerms[termIndex];
+
             for (var serviceIndex = 0; serviceIndex < services.length; serviceIndex++) {
               var thisService = services[serviceIndex].service;
+
               switch (thisService) {
               case 'Google Image Search':
               case 'Google Article Search':
                 /* set this to false if at least one search source
                  is enabled and does a search */
                 var noSourcesUsed = true;
+
                 groupName = services[serviceIndex].groupName;
+
                 /* if sourceName isn't set, we'll just search all sources for
                  this sources group */
                 var thisSources;
                 if (sourceName) {
-                  var source = this.$.storage.retrieveSource(groupName, sourceName);
+                  var source = this.$.storage.retrieveSource(
+                    groupName,
+                    sourceName
+                  );
+
                   if (source) {
                     var sources = {};
                     sources[sourceName] = source;
-                    thisSources = { sources: sources };
+                    thisSources = {
+                      sources: sources
+                    };
                   }
                 } else {
                   thisSources = this.$.storage.getSourcesForGroup(groupName);
                 }
+
                 if (thisSources) {
                   var keys = Object.keys(thisSources.sources);
+
                   for (i = 0; i < keys.length; i++) {
                     var sourceKey = keys[i];
                     var thisSource = thisSources.sources[sourceKey];
+
                     if (thisSource.enabled) {
                       noSourcesUsed = false;
+
                       searches.push([
                         this,
                         thisSearchTerm,
@@ -167,42 +206,34 @@
                     }
                   }
                 }
+
                 /* none of the sources were enabled/available, so do an
                  unfiltered search */
                 if (noSourcesUsed) {
-                  searches.push([
-                    this,
-                    thisSearchTerm,
-                    thisService
-                  ]);
+                  searches.push([this, thisSearchTerm, thisService]);
                 }
+
                 break;
               case 'Wikipedia Image Search':
               case 'Wikipedia Article Search':
               case 'Google Drive Search':
-                searches.push([
-                  this,
-                  thisSearchTerm,
-                  thisService
-                ]);
+                searches.push([this, thisSearchTerm, thisService]);
                 break;
+
               default:
                 console.warn('Unknown service:', thisService);
                 break;
               }
             }
           }
+
           this.pendingSearches += searches.length;
+
           for (var searchesIndex = 0; searchesIndex < searches.length; searchesIndex++) {
             getResultsFromSource.apply(this, searches[searchesIndex]);
           }
-        },
-        ready: function () {
-          this.pendingSearches = 0;
-          this.onNewSources();
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

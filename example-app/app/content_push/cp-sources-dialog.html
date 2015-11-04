@@ -17,8 +17,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
@@ -32,29 +30,32 @@
  -->
 <dom-module id="cp-sources-dialog">
   <template>
-  <shadow>
-  </shadow>
-</template>
+    <shadow></shadow>
+  </template>
   <script>
     (function () {
       'use strict';
+
       Polymer({
         is: 'cp-sources-dialog',
+
         properties: {
           container: {
             value: null,
             notify: true
           }
         },
+
         /*
-            onAddCancelClick: function (e) {
-              this.fire('addCancelClick',e);
-            },
-        
-            onAddDoneClick: function (e) {
-              this.fire('addDoneClick',e);
-            },
-            */
+         * onAddCancelClick: function (e) {
+         *   this.fire('addCancelClick',e);
+         * },
+         *
+         * onAddDoneClick: function (e) {
+         *   this.fire('addDoneClick',e);
+         * },
+         **/
+
         // vertically and horizontally center if not positioned
         repositionTarget: function () {
           // only center if position fixed.      
@@ -74,10 +75,8 @@
             l -= this.dimensions.margin.left;
             this.set('target.style.left', l + 'px');
           }
-        },
-        extends: 'paper-action-dialog'
-      });
+        }
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

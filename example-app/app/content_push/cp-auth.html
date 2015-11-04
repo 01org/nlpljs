@@ -17,20 +17,21 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-  cp-auth
-
-  getToken(service) - initiate process for getting an auth token
-  removeCachedToken(service) - removes any cached tokens, to next getToken() will get a new one
-
-  event: accesstoken - there is a new access token, the detail provides the token and service it is for.
 -->
+
+<!--
+ - cp-auth
+ -
+ - getToken(service) - initiate process for getting an auth token
+ - removeCachedToken(service) - removes any cached tokens, to next getToken() will get a new one
+ -
+ - event: accesstoken - there is a new access token, the detail provides the token and service it is for.
+ -->
+
 <link rel="import" href="./cp-globals.html">
 
 <dom-module id="cp-auth">
@@ -40,6 +41,7 @@
   <script>
     (function () {
       'use strict';
+
       var handleNewToken = function (self, detailIn) {
         if (detailIn.component === 'auth' && detailIn.type === 'accesstoken') {
           var detailOut = {
@@ -50,13 +52,16 @@
           console.log('CP-AUTH:received token:', detailOut.token);
         }
       };
+
       Polymer({
         is: 'cp-auth',
+
         getToken: function (service) {
           if (!this.$.globals.data.app_id) {
             console.log('CP-AUTH:getToken() called but app_id not set yet');
             return;
           }
+
           service = service || 'google';
           console.log('CP-AUTH:getting token');
           var message = {
@@ -64,6 +69,7 @@
             service: service,
             type: 'gettoken'
           };
+
           var self = this;
           chrome.runtime.sendMessage(this.$.globals.data.app_id, message, function (detail) {
             if (chrome.runtime.lastError) {
@@ -75,11 +81,13 @@
             }
           });
         },
+
         removeCachedToken: function (token, service) {
           if (!this.$.globals.data.app_id) {
             console.log('CP-AUTH:removeCachedToken() called but app_id not set yet');
             return;
           }
+
           // need 'service' property or search the hash
           var message = {
             component: 'auth',
@@ -89,8 +97,7 @@
           };
           chrome.runtime.sendMessage(this.$.globals.data.app_id, message);
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

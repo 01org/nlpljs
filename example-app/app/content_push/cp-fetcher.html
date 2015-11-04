@@ -17,13 +17,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="./cp-search-google.html">
 <link rel="import" href="./cp-search-wikipedia.html">
 <link rel="import" href="./cp-search-google-files.html">
@@ -45,13 +44,17 @@
     <cp-search-google-files id="searchDrive" resultsperfetch="{{resultsPerFetch}}">
     </cp-search-google-files>
   </template>
+
   <script>
     (function () {
       'use strict';
+
       // for testing for PDF or SVG files returned as image results
       var BAD_EXTENSIONS_REGEX = /\.(pdf|svg)$/i;
+
       Polymer({
         is: 'cp-fetcher',
+
         properties: {
           // number of results to fetch per call to the fetch() method
           resultsPerFetch: {
@@ -60,6 +63,7 @@
             notify: true
           }
         },
+
         /* returns a promise which resolves to an array of results or
          rejects with an error */
         fetch: function (keyword, preferredService, sourceURL) {
@@ -106,8 +110,7 @@
           });
           return promise;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

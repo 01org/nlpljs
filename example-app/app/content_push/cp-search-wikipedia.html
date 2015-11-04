@@ -17,16 +17,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-element to return Wikipedia image search data via JSONP;
-uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
 -->
+
+<!--
+ - element to return Wikipedia image search data via JSONP;
+ - uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
+ -->
+
 <link rel="import" href="./cp-search.html">
 
 <!-- REQUIRED by cp-wikipedia-extractor -->
@@ -47,17 +48,22 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
     /* globals WikipediaExtractor: true */
   </script>
   <script src="../bower_components/SparkMD5/spark-md5.js"></script>
+
   <script>
     (function () {
       /* jshint strict:false */
+
       /* maximum number of pages for which Wikipedia will return
        extracts in response to a search */
       var MAX_RESULTS_PER_SEARCH = 20;
+
       /* only allow png or jpg images to be used */
       var ALLOWED_IMAGE_REGEX = /File:(.+?\.(?:jpg|png))$/i;
+
       /* format Wikipedia date in format "YYYY:MM:DD"
        to "YYYY-MM-DD" */
       var DATE_REGEX = /^(\d{4}:\d{2}:\d{2})(.*)$/;
+
       var formatDate = function (datetime) {
         var dateMatch = datetime.match(DATE_REGEX);
         if (dateMatch) {
@@ -65,9 +71,11 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
         }
         return datetime;
       };
+
       /* declare the element */
       Polymer({
         is: 'cp-search-wikipedia',
+
         properties: {
           /* type of search: 'image' or 'article' */
           searchType: {
@@ -76,6 +84,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             notify: true
           }
         },
+
         created: function () {
           this.extractor = new WikipediaExtractor({
             minImageSide: 100,
@@ -83,11 +92,13 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
           });
           this.super();
         },
+
         /* get the URL to use for an image search */
         getImageSearchUrl: function (query, resultSet) {
           'use strict';
           return 'https://commons.wikimedia.org/w/api.php?action=query' + '&generator=search' + '&gsrnamespace=6' + '&prop=imageinfo' + '&iiprop=extmetadata|url|size' + '&gsrsearch=%22' + encodeURIComponent(query) + '%22' + '&gsrlimit=' + MAX_RESULTS_PER_SEARCH + '&gsroffset=' + resultSet.offset + '&format=json' + '&rawcontinue';
         },
+
         /* get the URL to use for an article search */
         getArticleSearchUrl: function (query, resultSet) {
           'use strict';
@@ -95,6 +106,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
           '&exsentences=3' + /* # sentences per extract */
           '&format=json' + '&rawcontinue' + '&redirects';
         },
+
         /* get the URL of the first png or jpg for the Wikipedia
          page called "<title>"; unfortunately, this requires a
          request for each page, as Wikipedia won't return image
@@ -154,6 +166,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             });
           });
         },
+
         /* returns a single image object to be added to a result set;
          this is wrapped in a Promise as the article results have
          to be returned asynchronously */
@@ -177,6 +190,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             }
           });
         },
+
         parseArticleResult: function (result) {
           'use strict';
           var thumbnailSrc = '';
@@ -201,6 +215,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             return Promise.resolve(parsedResult);
           });
         },
+
         /* prepare results for query; returns a promise which resolves
          to a ResultSet for the query */
         searchImpl: function (resultSet, query) {
@@ -225,6 +240,7 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             });
           });
         },
+
         /* returns the resultSet, populated with the images from
          response */
         handleResponse: function (resultSet, query, response) {
@@ -266,10 +282,8 @@ uses the wikimedia search API: http://www.mediawiki.org/wiki/API:Search
             }
             return Promise.resolve(resultSet);
           });
-        },
-        extends: 'cp-search'
-      });
+        }
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

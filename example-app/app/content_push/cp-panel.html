@@ -17,13 +17,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
+
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
@@ -46,154 +45,154 @@
 <!-- required by cp-keyword-selector -->
 <dom-module id="cp-panel">
   <style>
-      :host {
-        height: 100%;
-      }
+    :host {
+      height: 100%;
+    }
 
-      #toolbar {
-        display: flex;
-        flex-direction: column;
-        height: 64px;
-        width: 100%;
-        background-color: #B8578C;
-        margin: 0;
-        padding: 0;
-      }
+    #toolbar {
+      display: flex;
+      flex-direction: column;
+      height: 64px;
+      width: 100%;
+      background-color: #B8578C;
+      margin: 0;
+      padding: 0;
+    }
 
-      #toolbar::shadow #bottomBar {
-        width: 100%;
-      }
+    #toolbar::shadow #bottomBar {
+      width: 100%;
+    }
 
-      #toolbarmain {
-        display: flex;
-        flex-direction: row;
-        width: 100%;
-        height: 100%;
-        align-items: center;
-      }
+    #toolbarmain {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
 
-      #toolbaricon {
-        margin-left: 12px;
-        margin-right: 16px;
-      }
+    #toolbaricon {
+      margin-left: 12px;
+      margin-right: 16px;
+    }
 
-      #toolbaraction {
-        color: #fff;
-        -webkit-user-select: none;
-        line-height: 24px;
-        position: absolute;
-        top: 10px;
-        right: 12px;
-      }
+    #toolbaraction {
+      color: #fff;
+      -webkit-user-select: none;
+      line-height: 24px;
+      position: absolute;
+      top: 10px;
+      right: 12px;
+    }
 
-      #progress {
-        width: 100%;
-        margin: 60px 0 0 -8px;
-        opacity: 0;
-        transition: opacity 0.25 ease-out;
-      }
+    #progress {
+      width: 100%;
+      margin: 60px 0 0 -8px;
+      opacity: 0;
+      transition: opacity 0.25 ease-out;
+    }
 
-      #progress.fadein {
-        opacity: 1;
-      }
+    #progress.fadein {
+      opacity: 1;
+    }
 
-      #progress.fadeout {
-        opacity: 0;
-      }
+    #progress.fadeout {
+      opacity: 0;
+    }
 
-      #progress::shadow #activeProgress {
-        background-color: rgba(255, 243, 115, 1);
-      }
+    #progress::shadow #activeProgress {
+      background-color: rgba(255, 243, 115, 1);
+    }
 
-      #progress::shadow #progressContainer {
-        background-color: rgba(255, 243, 115, 0.5);
-      }
+    #progress::shadow #progressContainer {
+      background-color: rgba(255, 243, 115, 0.5);
+    }
 
-      #display {
-        padding: 0;
-        height: calc(100% - 64px);
-        width: 100%;
-        overflow: hidden;
-        box-sizing: border-box;
-      }
+    #display {
+      padding: 0;
+      height: calc(100% - 64px);
+      width: 100%;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
 
-      cp-swapper {
-        width: 100%;
-        height: 100%;
-      }
+    cp-swapper {
+      width: 100%;
+      height: 100%;
+    }
 
-      [swapper-slide], [swapper-fix] {
-        background-color: #fafafa;
-      }
+    [swapper-slide], [swapper-fix] {
+      background-color: #fafafa;
+    }
 
-      #menu {
-        padding: 0;
-        margin-left: 8px;
-        margin-right: 16px;
-        border-bottom: none;
-      }
+    #menu {
+      padding: 0;
+      margin-left: 8px;
+      margin-right: 16px;
+      border-bottom: none;
+    }
 
-      #menu paper-dropdown, #menu core-dropdown {
-        border-radius: 2px;
-      }
+    #menu paper-dropdown, #menu core-dropdown {
+      border-radius: 2px;
+    }
 
-      #menu core-menu {
-        margin: 8px 16px;
-      }
+    #menu core-menu {
+      margin: 8px 16px;
+    }
 
-      #menu /deep/ .button-content {
-        padding: 0 !important;
-        height: 100%;
-      }
+    #menu /deep/ .button-content {
+      padding: 0 !important;
+      height: 100%;
+    }
 
-      #menu::shadow #label, #menu::shadow #arrow {
-        color: #fff !important;
-      }
+    #menu::shadow #label, #menu::shadow #arrow {
+      color: #fff !important;
+    }
 
-      #menu::shadow #label {
-        margin-top: -2px;
-      }
+    #menu::shadow #label {
+      margin-top: -2px;
+    }
 
-      #menu paper-item {
-        font-size: 16px;
-        height: 48px;
-        color: rgba(0, 0, 0, 0.8);
-        overflow: hidden;
-      }
+    #menu paper-item {
+      font-size: 16px;
+      height: 48px;
+      color: rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
 
-      #menu paper-item.core-selected {
-        background-color: rgba(255, 255, 255, 0) !important;
-      }
+    #menu paper-item.core-selected {
+      background-color: rgba(255, 255, 255, 0) !important;
+    }
 
-      [data-show="false"] {
-        display: none;
-      }
+    [data-show="false"] {
+      display: none;
+    }
 
-      /* highlight for filter selected in the menu */
-      [data-selected-filter="true"]::shadow * {
-        color: #b8578c !important;
-      }
+    /* highlight for filter selected in the menu */
+    [data-selected-filter="true"]::shadow * {
+      color: #b8578c !important;
+    }
 
-      /* this is a bit hacky because we have to set the fill and
-         stroke properties of the SVG for the CP icon, rather than
-         just set its colour */
-      #toolbaricon .triangle {
-        stroke: #fff !important;
-      }
+    /* this is a bit hacky because we have to set the fill and
+       stroke properties of the SVG for the CP icon, rather than
+       just set its colour */
+    #toolbaricon .triangle {
+      stroke: #fff !important;
+    }
 
-      #toolbaricon .fill {
-        fill: #fff !important;
-      }
-    </style>
+    #toolbaricon .fill {
+      fill: #fff !important;
+    }
+  </style>
+
   <template>
-
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage" on-newsources="onNewSources" on-sourceenabled="onSourceEnabledOrCreated" on-sourcecreated="onSourceEnabledOrCreated">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
-      <div swapper-fix="">
+      <div swapper-fix>
         <!-- the panel is made up of a header toolbar and the display -->
         <paper-toolbar id="toolbar" class="toolbar-shadow">
           <div id="toolbarmain">
@@ -208,7 +207,7 @@
                   </paper-item>
 
                   <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-                    <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeData-type-filter(groupName, lowercaseSingular)}}">
+                    <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeDataTypeFilter(groupName, lowercaseSingular)}}">
                       <span>{{groupName}}</span>
                     </paper-item>
                   </template>
@@ -226,23 +225,23 @@
             </paper-icon-button>
           </div>
 
-          <paper-progress id="progress" indeterminate="" class="bottom"></paper-progress>
+          <paper-progress id="progress" indeterminate class="bottom"></paper-progress>
         </paper-toolbar>
 
         <cp-display id="display" on-moreresults="onDisplayMoreResults" on-mouse-over="onDisplayMouseover" on-mouse-out="onDisplayMouseout" on-mouse-down="showDetail" on-slider-change="sliderChange">
         </cp-display>
       </div>
 
-      <cp-detail-article id="detailArticle" on-back="closeDetail" swapper-slide="" swap-id="detailarticle">
+      <cp-detail-article id="detailArticle" on-back="closeDetail" swapper-slide swap-id="detailarticle">
       </cp-detail-article>
 
-      <cp-detail-image id="detailImage" on-back="closeDetail" swapper-slide="" swap-id="detailimage">
+      <cp-detail-image id="detailImage" on-back="closeDetail" swapper-slide swap-id="detailimage">
       </cp-detail-image>
 
-      <cp-detail-file id="detailFile" on-back="closeDetail" swapper-slide="" swap-id="detailfile">
+      <cp-detail-file id="detailFile" on-back="closeDetail" swapper-slide swap-id="detailfile">
       </cp-detail-file>
 
-      <cp-sources-groups id="groups" on-back="closeGroups" swapper-slide="" swap-id="groups">
+      <cp-sources-groups id="groups" on-back="closeGroups" swapper-slide swap-id="groups">
       </cp-sources-groups>
     </cp-swapper>
 
@@ -259,6 +258,7 @@
   <script>
     (function () {
       'use strict';
+
       // private *static* functions and constants
       var setFilter = function (self) {
         var sliderFraction = self.$.display.getNormalisedSliderValue();
@@ -280,12 +280,14 @@
           sources: sources
         });
       };
+
       /* perform search for keywords and add to the display */
       var search = function (self, keywords, groupName, sourceName) {
         self.$.display.searchesPending = true;
         self.$.display.wait();
         self.$.aggregator.aggregate(keywords, groupName, sourceName);
       };
+
       /* return the keywords from tileKeywords which also occur
        in the current keywords (according to the keywordSelector) */
       var getKeywordsToHighlight = function (self, tileKeywords) {
@@ -301,8 +303,10 @@
         }
         return results;
       };
+
       Polymer({
         is: 'cp-panel',
+
         // functions and properties used in API and bindings
         created: function () {
           /* an array of types of result to show in the display,
@@ -310,15 +314,18 @@
           this.typeFilter = [];
           this.keywordSelector = new KeywordSelector(ArrayUtils);
         },
+
         onNewSources: function () {
           this.searchService = this.$.storage.getSearchService();
           this.groupNames = this.$.storage.getGroupNames();
           setFilter(this);
         },
+
         // called from content-push.html:trackAction() when splitter moves
         layout: function () {
           this.$.display.layout();
         },
+
         showDetail: function (e) {
           var tile = e.detail;
           if (tile.type === 'image') {
@@ -332,15 +339,18 @@
             this.$.swapper.slideIn('detailarticle');
           }
         },
+
         closeDetail: function (e) {
           this.$.swapper.activeElt.close();
           this.$.swapper.slideOut();
           this.fire('mouseoutimage', e.target.highlights);
           e.target.highlights = null;
         },
+
         closeGroups: function () {
           this.$.swapper.slideOut('groups');
         },
+
         onMenuClick: function (e) {
           var elt = e.toElement;
           var typeFilter = elt.getAttribute('data-type-filter');
@@ -371,6 +381,7 @@
             });
           }
         },
+
         /* keywordInfo event occurred on the document */
         onNewKeywordInfo: function (e) {
           console.log('CP-PANEL:onNewKeywordInfo', e.detail.keywordInfo);
@@ -388,24 +399,29 @@
             setFilter(this);
           }
         },
+
         /* NLP started processing new context, so fade in indeterminate progress */
         onNlpStart: function () {
           Polymer.dom(this.$.progress).classList.remove('fadeout');
           Polymer.dom(this.$.progress).classList.add('fadein');
         },
+
         /* NLP finished processing context, so fade out indeterminate progress */
         onNlpStop: function () {
           Polymer.dom(this.$.progress).classList.remove('fadein');
           Polymer.dom(this.$.progress).classList.add('fadeout');
         },
+
         /* search more using current keywordInfo */
         onDisplayMoreResults: function () {
           search(this, this.keywordSelector.getCurrentKeywords());
         },
+
         onDisplayMouseover: function (e) {
           var keywordsToHighlight = getKeywordsToHighlight(this, e.detail);
           this.fire('mouseoverimage', keywordsToHighlight);
         },
+
         onDisplayMouseout: function (e) {
           var openDetail = Polymer.dom(this.shadowRoot).querySelectorAll('#swapper > [data-open="true"]');
           var keywordsToUnhighlight = getKeywordsToHighlight(this, e.detail);
@@ -415,12 +431,14 @@
             openDetail[0].highlights = keywordsToUnhighlight;
           }
         },
+
         /* the first result which loads successfully into a tile
          will turn off the waiting indicator on cp-display */
         onReceivedResults: function (e) {
           this.$.display.receiveResults(e.detail.results);
           setFilter(this);
         },
+
         onSearchFailed: function (e) {
           /* TODO notify user of search errors in UI */
           this.$.display.receiveResults([]);
@@ -428,6 +446,7 @@
           console.info(e.detail.error.stack);
           setFilter(this);
         },
+
         /* if the aggregator has finished searching, ensure the
          waiting indicator on cp-display is off, even if no results
          were found */
@@ -436,6 +455,7 @@
           this.set('$.display.searchesPending', false);
           this.$.display.stopWaiting();
         },
+
         /* if there are no results for a source and it is added or enabled,
          run a search */
         onSourceEnabledOrCreated: function (e) {
@@ -446,35 +466,42 @@
             search(this, currentKeywords, groupName, sourceName);
           }
         },
+
         closePanel: function () {
           this.fire('close-panel');
         },
+
         sliderChange: function () {
           setFilter(this);
         },
+
         lowercaseSingular: function (value) {
           return value.toLowerCase().replace(/s$/, '');
         },
+
         listeners: {
           newkeywordinfo: 'onNewKeywordInfo',
           nlpstart: 'onNlpStart',
           nlpstop: 'onNlpStop'
         },
+
         ready: function () {
           this.searchService = this.$.storage.getSearchService();
           this.onNewSources();
         },
+
         _computeIf: function (searchService) {
           return searchService === 'Google';
         },
+
         _computeId: function (groupName) {
           return 'item' + groupName;
         },
-        _computeData-type-filter: function (groupName, lowercaseSingular) {
+
+        _computeDataTypeFilter: function (groupName, lowercaseSingular) {
           return groupName | lowercaseSingular;
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

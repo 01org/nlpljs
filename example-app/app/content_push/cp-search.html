@@ -17,25 +17,29 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-superclass for elements which perform searches; subclasses of this component
-should implement a searchImpl() method (see cp-search-wikipedia.html
-for an example)
--->\n<dom-module id="cp-search">
+-->
+
+<!--
+ - superclass for elements which perform searches; subclasses of this component
+ - should implement a searchImpl() method (see cp-search-wikipedia.html
+ - for an example)
+ -->
+ 
+<dom-module id="cp-search">
   <script src="cp-resultset.js"></script>
   <script>
     /* globals ResultSet: true */
     (function () {
       'use strict';
+
       // declare the element
       Polymer({
         is: 'cp-search',
+
         properties: {
           // number of results to return when fetch() is invoked
           resultsPerFetch: {
@@ -44,10 +48,12 @@ for an example)
             notify: true
           }
         },
+
         created: function () {
           // map from key phrases to ResultSets
           this.queries = {};
         },
+
         /* does the book-keeping for tracking result sets per query;
          searchImpl() is called inside here, and should set the
          offset on the ResultSet so that searches can be paged */
@@ -68,6 +74,7 @@ for an example)
             return Promise.reject(err);
           }
         },
+
         /*
           returns a promise which resolves to the next numResults
           images from the ResultSet associated with the key phrase query;
@@ -101,8 +108,7 @@ for an example)
           }
           return promise;
         }
-      });
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

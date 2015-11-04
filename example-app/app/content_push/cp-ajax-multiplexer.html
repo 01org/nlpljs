@@ -17,13 +17,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
+-->
+
+<!--
  - cp-ajax-multiplexer
  -
  - This element provides the functionality of calling core-ajax multiple
@@ -40,49 +40,59 @@
  - ...
  - id = this.$.multiplexer.url(myUrl); // automatically does 'go()'
  -->
+
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="cp-ajax-multiplexer">
   <script>
     (function () {
       'use strict';
-      var coreAjaxes = [];
-      // array of core-ajax elements
-      var idleAjaxes = [];
-      // array of indexes into coreAjaxes, those that are idle
-      function makeCallback(self, id) {
+
+      var coreAjaxes = []; // array of core-ajax elements
+      var idleAjaxes = []; // array of indexes into coreAjaxes, those that are idle
+
+      function makeCallback (self, id) {
         var callback = function (e) {
           console.log('CP-AJAX-MULTIPLEXER: response for id:', id);
           self.fire('multi-response', {
             id: id,
             detail: e.detail
           });
+
           idleAjaxes.push(id);
         };
+
         return callback;
       }
-      function findFreeCoreAjaxIndex(self) {
+
+      function findFreeCoreAjaxIndex (self) {
         var i = idleAjaxes.pop();
+
         if (i === undefined) {
           // make a new ajax and push it onto the coreAjaxes stack
           // not idle since we'll use it right away
-          i = coreAjaxes.length;
-          // it's going on the end
+
+          i = coreAjaxes.length; // it's going on the end
           var coreAjax = makeNewCoreAjax(self, i);
           coreAjaxes.push(coreAjax);
           console.log('CP-AJAX-MULTIPLEXER: coreAjaxes.length', coreAjaxes.length);
         }
+
         return i;
       }
-      function makeNewCoreAjax(self, id) {
+
+      function makeNewCoreAjax (self, id) {
         var coreAjax = document.createElement('core-ajax');
         Polymer.dom(coreAjax).setAttribute('auto', '');
         Polymer.dom(coreAjax).setAttribute('handleAs', 'json');
         coreAjax.addEventListener('core-response', makeCallback(self, id));
+
         return coreAjax;
       }
+
       Polymer({
         is: 'cp-ajax-multiplexer',
+
         ready: function () {
           // make one ajax and make it idle
           var newCoreAjax = makeNewCoreAjax(this, 0);
@@ -91,16 +101,17 @@
           console.log('CP-AJAX-MULTIPLEXER: coreAjaxes.length', coreAjaxes.length);
           console.log('CP-AJAX-MULTIPLEXER: idleAjaxes.length', idleAjaxes.length);
         },
+
         url: function (newUrl) {
           console.log('CP-AJAX-MULTIPLEXER: new url:', newUrl);
           var thisId = findFreeCoreAjaxIndex(this);
           var coreAjax = coreAjaxes[thisId];
           coreAjax.url = newUrl;
+
           console.log('CP-AJAX-MULTIPLEXER: returning id:', thisId);
           return thisId;
         }
-      });  // Polymer()
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-

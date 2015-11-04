@@ -17,15 +17,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
---><!--
-search using a Google custom search engine
 -->
+
+<!--
+ - search using a Google custom search engine
+-->
+
 <link rel="import" href="./cp-search.html">
 <!--
     TODO(polyup): Inheriting from other custom elements is not yet supported.
@@ -48,10 +49,13 @@ search using a Google custom search engine
       /* jshint strict:false */
       /* maximum number of results Google will return per search */
       var MAX_RESULTS_PER_SEARCH = 10;
+
       /* language for results */
       var LANGUAGE = 'lang_en';
+
       Polymer({
         is: 'cp-search-google',
+
         properties: {
           /* these are associated with sig.exp.london@gmail.com */
           cx: {
@@ -74,11 +78,13 @@ search using a Google custom search engine
             value: ''
           }
         },
+
         created: function () {
           this.super();
           this.access_token = null;
           this.ready_promise = null;
         },
+
         ready: function () {
           'use strict';
           var self = this;
@@ -91,9 +97,10 @@ search using a Google custom search engine
             });
             self.$.authorizer.getToken('google');
           });
-          'use strict';
+
           this.appId = this.$.globals.data.app_id;
         },
+
         /* prepare results for query; returns a promise which resolves
          to a ResultSet for the query */
         searchImpl: function (resultSet, query, sourceURL) {
@@ -127,6 +134,7 @@ search using a Google custom search engine
             });
           });
         },
+
         /*
          * searchType: 'image' or 'article'
          * returns the resultSet, populated with the images from
@@ -197,10 +205,8 @@ search using a Google custom search engine
             resultSet.setExhausted();
           }
           return Promise.resolve(resultSet);
-        },
-        extends: 'cp-search'
-      });
+        }
+      }); // Polymer()
     }());
   </script>
 </dom-module>
-
