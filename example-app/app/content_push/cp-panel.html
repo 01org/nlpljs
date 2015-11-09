@@ -23,14 +23,14 @@
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
-<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
-<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="./cp-icons-svg.html">
 <link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-aggregator.html">
@@ -306,6 +306,11 @@
 
       Polymer({
         is: 'cp-panel',
+
+        properties: {
+          groupNames: { value: [] },
+          searchService: { value: '' },
+        },
 
         // functions and properties used in API and bindings
         created: function () {

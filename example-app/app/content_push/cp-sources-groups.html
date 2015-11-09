@@ -28,6 +28,7 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 <link rel="import" href="./cp-icons.html">
 <link rel="import" href="./cp-swapper.html">
 <link rel="import" href="./cp-sources-storage.html">
@@ -151,6 +152,10 @@
 
       Polymer({
         is: 'cp-sources-groups',
+
+        properties: {
+          groupNames: { value: [] }
+        },
 
         onNewSources: function () {
           this.groupNames = this.$.storage.getGroupNames();
