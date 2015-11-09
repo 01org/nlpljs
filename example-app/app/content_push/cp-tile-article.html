@@ -157,7 +157,12 @@
           src: {
             notify: true,
             observer: 'srcChanged'
-          }
+          },
+          imageLoaded: { value: false },
+          caption: { value: '' },
+          snippet: { value: null },
+          source: { value: null },
+          sourceName: { value: null }
         },
 
         created: function () {

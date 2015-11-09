@@ -25,8 +25,10 @@
 
 <!--
  - search using a Google custom search engine
--->
+ -->
 
+<link rel="import" href="./cp-auth.html">
+<link rel="import" href="./cp-globals.html">
 <link rel="import" href="./cp-search.html">
 <!--
     TODO(polyup): Inheriting from other custom elements is not yet supported.
@@ -55,6 +57,8 @@
 
       Polymer({
         is: 'cp-search-google',
+
+        behaviour: [contentPush.cpSearch],
 
         properties: {
           /* these are associated with sig.exp.london@gmail.com */

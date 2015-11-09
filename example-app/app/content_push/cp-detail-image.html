@@ -168,7 +168,15 @@
           /* true if the loaded image has EXIF metadata */
           hasEXIF: { value: null },
 
-          onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' }
+          onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' },
+
+          loaded: { value: false },
+
+          sourceName: { value: null },
+
+          height: { value: null },
+
+          width: { value: null }
         },
 
         created: function () {

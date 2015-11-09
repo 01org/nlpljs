@@ -32,7 +32,7 @@
  * Images, Quotations, Text+Images, Files, Videos and All.
  * Each group has more than 1 sources. The groups have the following
  * properties:
- * icon - the icon name for the group (from core-iconset)
+ * icon - the icon name for the group (from iron-iconset)
  * enabled - if the group is enabled
  * sources - the sources in this group
  *

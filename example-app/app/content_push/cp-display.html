@@ -290,7 +290,7 @@
     </div>
   </template>
 
-  <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="../bower_components/lodash/lodash.min.js"></script>
   <script src="./cp-constants.js"></script>
   <script src="./cp-filter-deduplicate.js"></script>
 
@@ -318,8 +318,9 @@
 
           slider: { observer: 'sliderChanged' },
 
-          tilesExpected: { observer: 'tilesExpectedChanged' }
+          tilesExpected: { observer: 'tilesExpectedChanged' },
 
+          sliderVisible: { value: false }
         },
 
         created: function () {

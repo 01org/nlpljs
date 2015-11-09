@@ -67,7 +67,7 @@
     </div>
   </template>
 
-  <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="../bower_components/lodash/lodash.min.js"></script>
   <script src="cp-layout-frame-chooser.js">
     /* globals FrameChooser:true */
   </script>
@@ -98,6 +98,11 @@
 
       Polymer({
         is: 'cp-layout',
+
+        properties: {
+          tilesVisible: { value: 0 },
+          tilesLoading: { value: 0 }
+        },
 
         created: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
