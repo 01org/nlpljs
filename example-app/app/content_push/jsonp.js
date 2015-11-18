@@ -51,7 +51,7 @@
     (/\?/.test(opts.url) ? '' : '?') + /* if at least one character in querystring, add '&' */
     (/\?.+/.test(opts.url) ? '&' : '') + (opts.cbParam || 'callback') + '=' + cbKey + thisCbId;
     var script = document.createElement('script');
-    Polymer.dom(Polymer.dom(script)).setAttribute('data-cb' + cbKey + '-id', thisCbId);
+    script.setAttribute('data-cb' + cbKey + '-id', thisCbId);
     script.src = url;
     /* we make a uniquely-named callback function, globally visible,
      which will be invoked with the object parsed from the response */
@@ -62,7 +62,7 @@
       window[cbKey + thisCbId] = null;
     };
     /* make the magic happen */
-    Polymer.dom(Polymer.dom(document.body)).appendChild(script);
+    document.body.appendChild(script);
     /* increment the counter ready to create the next callback */
     cbId++;
     return thisCbId;

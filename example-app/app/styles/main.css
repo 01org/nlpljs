@@ -38,6 +38,6 @@ body > * {
   display: none !important;
 }
 
-cp-main, cp-globals {
+cp-main {
   display: block !important;
 }

@@ -35,10 +35,6 @@
 
 <dom-module id="cp-document">
   <style>
-    :host {
-      position: relative;
-    }
-
     #iframe {
       position: absolute;
       display: block;
@@ -90,10 +86,10 @@
         var thisNode = node;
         var cssSelectorNotFound = true;
         while (cssSelectorNotFound && thisNode && thisNode.nodeName !== 'BODY') {
-          cssSelectorNotFound = !Polymer.dom(thisNode).classList.contains(className);
+          cssSelectorNotFound = !thisNode.classList.contains(className);
           if (cssSelectorNotFound) {
             // move into parent node
-            thisNode = Polymer.dom(thisNode).parentNode;
+            thisNode = thisNode.parentNode;
           } else {
             // finished
             retVal = thisNode;
@@ -110,7 +106,7 @@
         var docsHome = Polymer.dom(self.$.iframe.contentDocument).querySelectorAll('a[data-tooltip="Docs home"]');
         if (docsHome.length > 0) {
           var href = docsHome[0].getAttribute('href');
-          Polymer.dom(docsHome[0]).setAttribute('href', '#');
+          docsHome[0].setAttribute('href', '#');
           docsHome[0].addEventListener('click', function () {
             window.location.replace(href);
           });
@@ -141,7 +137,7 @@
               for (j = 0; j < removedNodes.length; j++) {
                 thisNode = removedNodes[j];
                 if (thisNode) {
-                  if (typeof Polymer.dom(thisNode).classList !== 'undefined' && Polymer.dom(thisNode).classList.contains(LINE_CLASS) && thisNode.getAttribute('cp_line_id') !== null && self.$.scrollwatcher.isNodeVisible(thisNode)) {
+                  if (typeof thisNode.classList !== 'undefined' && thisNode.classList.contains(LINE_CLASS) && thisNode.getAttribute('cp_line_id') !== null && self.$.scrollwatcher.isNodeVisible(thisNode)) {
                     console.log('MO:removed line');
                     self.$.scrollwatcher.removeTargetNode(thisNode);
                     if (self.editOverTimer !== null) {
@@ -158,14 +154,14 @@
                 if (thisNode) {
                   if (thisNode.nodeName === 'SPAN') {
                     var line = findAncestor(thisNode, LINE_CLASS);
-                    if (line !== null && line.getAttribute('cp_line_id') !== null && self.$.scrollwatcher.isNodeVisible(line) && Polymer.dom(line).innerHTML.indexOf('keyword-highlight') === -1) {
+                    if (line !== null && line.getAttribute('cp_line_id') !== null && self.$.scrollwatcher.isNodeVisible(line) && line.innerHTML.indexOf('keyword-highlight') === -1) {
                       console.log('MO:editing line');
                       if (self.editOverTimer !== null) {
                         clearTimeout(self.editOverTimer);
                       }
                       self.editOverTimer = setTimeout(makeTimeoutHandler(), self.EDITOVERTIMEOUT);
                     }
-                  } else if (typeof Polymer.dom(thisNode).classList !== 'undefined' && Polymer.dom(thisNode).classList.contains(LINE_CLASS) && thisNode.getAttribute('cp_line_id') === null) {
+                  } else if (typeof thisNode.classList !== 'undefined' && thisNode.classList.contains(LINE_CLASS) && thisNode.getAttribute('cp_line_id') === null) {
                     console.log('MO:new line');
                     addIdToLine(thisNode, self.lineIdAccumulator);
                     self.lineIdAccumulator++;

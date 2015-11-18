@@ -55,7 +55,7 @@
     var head = document.createElement('head');
     var body = document.createElement('body');
     body.setAttribute('unresolved', '');
-    body.setAttribute('fit', '');
+    body.setAttribute('class', 'fit');
 
     var base = document.createElement('base');
     base.setAttribute('href', extensionUrl);
@@ -87,7 +87,7 @@
     body.appendChild(cpGlobals);
 
     var cpMain = document.createElement('cp-main');
-    cpMain.setAttribute('fit', '');
+    cpMain.setAttribute('class', 'fit');
 
     body.appendChild(cpMain);
 

@@ -44,10 +44,10 @@
 }
 
 #document {
+  position: relative;
   display: block;
   background-color: #fafafa;
   height: 100%;
-  float: left;
   border: none;
 }
 
@@ -67,7 +67,6 @@
   width: 320px;
   min-width: 320px;
   max-width: 40%;
-  float: right;
 }
 
 #panel.off {
