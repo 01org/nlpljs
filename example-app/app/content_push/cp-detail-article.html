@@ -121,23 +121,35 @@
           },
 
           /* name of the source */
-          sourceName: { value: null },
+          sourceName: {
+            type: String,
+            value: null
+          },
 
           /* extract from the article */
-          snippet: { value: null },
+          snippet: {
+            type: String,
+            value: null
+          },
 
           /*
            * does this article have an image available (i.e. it
            * has already been loaded in the tile)
            */
-          imageAvailable: { value: null },
+          imageAvailable: {
+            type: Boolean,
+            value: null
+          },
 
-          loaded: { value: false }
-        },
+          loaded: {
+            type: Boolean,
+            value: false
+          },
 
-        created: function () {
-          this.loaded = false;
-          this.imageHasLoaded = false;
+          imageHasLoaded: {
+            type: Boolean,
+            value: false
+          }
         },
 
         cleanHTML: Formatter.cleanHTML,
@@ -182,7 +194,7 @@
           this.imageAvailable = tile.imageLoaded;
 
           /* reset scroll to top */
-          this.set('$.detailbody.scrollTop', 0);
+          this.$.detailbody.scrollTop = 0;
         },
 
         visitWebpage: function () {

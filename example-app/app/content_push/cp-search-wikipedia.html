@@ -30,7 +30,7 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="./cp-search.html">
+<link rel="import" href="./cp-search-behaviour.html">
 
 <!-- REQUIRED by cp-wikipedia-extractor -->
 <!--
@@ -78,6 +78,8 @@
       Polymer({
         is: 'cp-search-wikipedia',
 
+        behaviors: [window.contentPush.cpSearchBehaviour],
+
         properties: {
           /* type of search: 'image' or 'article' */
           searchType: {
@@ -87,12 +89,11 @@
           }
         },
 
-        created: function () {
+        ready: function () {
           this.extractor = new WikipediaExtractor({
             minImageSide: 100,
             numImages: 1
           });
-          this.super();
         },
 
         /* get the URL to use for an image search */

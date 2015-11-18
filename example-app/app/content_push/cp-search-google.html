@@ -32,9 +32,6 @@
 <link rel="import" href="./cp-auth.html">
 <link rel="import" href="./cp-globals.html">
 <link rel="import" href="./cp-search-behaviour.html">
-<script>
-  /* globals contentPush:true */
-</script>
 
 <!--
     TODO(polyup): Inheriting from other custom elements is not yet supported.
@@ -52,9 +49,11 @@
   <script src="cp-thumbnailer.js">
     /* globals Thumbnailer:true */
   </script>
+
   <script>
     (function () {
-      /* jshint strict:false */
+      'use strict';
+
       /* maximum number of results Google will return per search */
       var MAX_RESULTS_PER_SEARCH = 10;
 
@@ -64,7 +63,7 @@
       Polymer({
         is: 'cp-search-google',
 
-        behaviour: [contentPush.cpSearch],
+        behaviors: [window.contentPush.cpSearchBehaviour],
 
         properties: {
           /* these are associated with sig.exp.london@gmail.com */
@@ -89,15 +88,16 @@
           }
         },
 
-        created: function () {
-          this.super();
+        init: function () {
           this.access_token = null;
           this.ready_promise = null;
         },
 
         ready: function () {
-          'use strict';
           var self = this;
+
+          this.init();
+
           this.ready_promise = new Promise(function (resolve) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
               if (e.detail.service === 'google') {
@@ -114,7 +114,6 @@
         /* prepare results for query; returns a promise which resolves
          to a ResultSet for the query */
         searchImpl: function (resultSet, query, sourceURL) {
-          'use strict';
           var self = this;
           /* Google image results count from 1, whereas resultSet
            offsets start from 0 */
@@ -151,7 +150,6 @@
          * response
          */
         handleResponse: function (resultSet, query, searchType, response) {
-          'use strict';
           if (response.error) {
             var err = new Error('CP:error from Google: ' + JSON.stringify(response));
             return Promise.reject(err);

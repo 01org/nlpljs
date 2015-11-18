@@ -70,13 +70,13 @@
             var containerHeight = containerElement ? containerElement.offsetHeight : window.innerHeight;
             var t = (containerHeight - this.target.offsetHeight) / 2;
             t -= this.dimensions.margin.top;
-            this.set('target.style.top', t + 'px');
+            this.target.style.top = t + 'px';
           }
           if (!this.dimensions.position.h) {
             var containerWidth = containerElement ? containerElement.offsetWidth : window.innerWidth;
             var l = (containerWidth - this.target.offsetWidth) / 2;
             l -= this.dimensions.margin.left;
-            this.set('target.style.left', l + 'px');
+            this.target.style.left = l + 'px';
           }
         }
       }); // Polymer()

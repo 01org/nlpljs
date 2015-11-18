@@ -318,26 +318,32 @@
             value: false
           },
 
-          searchesPending: { observer: 'searchesPendingChanged' },
+          /* true if a set of searches is pending, false otherwise */
+          searchesPending: {
+            type: Boolean,
+            value: false,
+            observer: 'searchesPendingChanged'
+          },
 
           slider: { observer: 'sliderChanged' },
 
-          tilesExpected: { observer: 'tilesExpectedChanged' },
-
-          sliderVisible: { value: false }
-        },
-
-        created: function () {
-          this.urlDeduplicator = new FilterDeduplicate();
-
-          /* true if a set of searches is pending, false otherwise */
-          this.searchesPending = false;
-
           /* tiles we're still waiting for */
-          this.tilesExpected = 0;
+          tilesExpected: {
+            type: Number,
+            value: 0,
+            observer: 'tilesExpectedChanged'
+          },
 
           /* whether or not to show the slider */
-          this.sliderVisible = false;
+          sliderVisible: {
+            type: Boolean,
+            value: false
+          },
+
+          urlDeduplicator: {
+            type: Object,
+            value: new FilterDeduplicate()
+          }
         },
 
         ready: function () {
@@ -671,7 +677,7 @@
 
         /* reset scroller to top, hide slider */
         reset: function () {
-          this.set('$.scroller.scrollTop', 0);
+          this.$.scroller.scrollTop = 0;
           this.sliderVisible = false;
         },
 

@@ -33,7 +33,7 @@
       Polymer({
         is: 'cp-scrollwatcher',
 
-        created: function () {
+        ready: function () {
           this.scrollableNode = null;
           this.targetNodes = [];
           this.timeout = 500;
@@ -110,7 +110,7 @@
         },
 
         addTargetNode: function (targetNode) {
-          this.set('targetNodes' + ('.' + this.targetNodes.length), targetNode);
+          this.targetNodes[this.targetNodes.length] = targetNode;
         },
 
         removeTargetNode: function (targetNode) {

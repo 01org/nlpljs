@@ -28,9 +28,6 @@
 (function keywordHighlighterTest() {
 
   Polymer({
-    created: function() {
-    },
-
     ready: function() {
       var self=this;
       this.$.button.addEventListener('click',function() {

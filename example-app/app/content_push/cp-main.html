@@ -25,13 +25,12 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/core-splitter/core-splitter.html">
-
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-font.html">
 <link rel="import" href="./cp-panel.html">
+<!--link rel="import" href="./cp-splitter.html"-->
 
 <dom-module id="cp-main">
   <link type="css" rel="import" href="./styles/cp-main.css">
@@ -40,8 +39,8 @@
     <div id="container" horizontal layout>
       <cp-document id="document" class="flex" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
       </cp-document>
-      <core-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
-      </core-splitter>
+      <!--cp-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
+      </cp-splitter-->
       <cp-panel id="panel" on-close-panel="onPanelClosePanel" on-mouseoverimage="onPanelMouseOverImage" on-mouseoutimage="onPanelMouseOutImage">
       </cp-panel>
     </div><!-- #container -->
@@ -63,7 +62,7 @@
         },
 
         // life cycle functions
-        created: function () {
+        ready: function () {
           this.open = true;
         },
 

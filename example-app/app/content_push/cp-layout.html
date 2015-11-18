@@ -103,19 +103,24 @@
         is: 'cp-layout',
 
         properties: {
-          tilesVisible: { value: 0 },
-          tilesLoading: { value: 0 }
+          /* count of the visible tiles in the layout */
+          tilesVisible: {
+            type: Number,
+            value: 0
+          },
+
+          /* count of the number of tiles currently loading */
+          tilesLoading: {
+            type: Number,
+            value: 0
+          }
         },
 
-        created: function () {
+        init: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.tileCache = new TileCache();
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
-          /* count of the visible tiles in the layout */
-          this.tilesVisible = 0;
-          /* count of the number of tiles currently loading */
-          this.tilesLoading = 0;
           /* layout promise */
           this.layoutInProgress = Promise.resolve();
           /* map from tile source to true/false; if a tile is in the layout
@@ -246,7 +251,7 @@
               /* tile is inactive and in the layout, so remove it
                and return it to the cache */
               var removedTile = Polymer.dom(this.$.container).removeChild(tile);
-              this.set('tilesInLayout' + ('.' + tile.source), false);
+              this.tilesInLayout[tile.source] = false;
               this.tileCache.store(removedTile);
             }
           }
@@ -261,7 +266,7 @@
                 width: activeTile.frame.columns,
                 height: activeTile.frame.rows
               });
-              this.set('tilesInLayout' + ('.' + activeTile.source), true);
+              this.tilesInLayout[activeTile.source] = true;
               Polymer.dom(this.$.container).appendChild(activeTile);
             }
           }
@@ -285,7 +290,7 @@
           });
           /* set the container height */
           height = layout.grid.length * cellSide;
-          this.set('$.container.style.height', height + 'px');
+          this.$.container.style.height = height + 'px';
           this.tilesVisible = this.tileCache.getActiveTilesCount();
           this.fire('layout');
         },
@@ -306,6 +311,7 @@
         },
 
         ready: function () {
+          this.init();
           this.setLayoutParams();
         },
 

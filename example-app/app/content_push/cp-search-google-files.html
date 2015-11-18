@@ -155,7 +155,7 @@
 
         properties: { resultsPerFetch: { notify: true } },
 
-        created: function () {
+        init: function () {
           this.access_token = null;
           this.ready_promise = null;
           this.results = {};
@@ -170,6 +170,9 @@
         // this.queries[id] = querystring...
         ready: function () {
           var self = this;
+
+          this.init();
+
           this.ready_promise = new Promise(function (resolve) {
             self.$.authorizer.addEventListener('accesstoken', function (e) {
               if (e.detail.service === 'google') {

@@ -39,7 +39,8 @@
     // declare the behaviour
     window.contentPush = window.contentPush || {};
 
-    window.contentPush.cpSearch = {
+    /** @polymerBehavior */
+    window.contentPush.cpSearchBehaviour = {
       properties: {
         // number of results to return when fetch() is invoked
         resultsPerFetch: {
@@ -49,7 +50,7 @@
         }
       },
 
-      created: function () {
+      ready: function () {
         // map from key phrases to ResultSets
         this.queries = {};
       },

@@ -217,7 +217,7 @@
                   </template>
 
                   <template is="dom-if" if="{{_computeIf(searchService)}}">
-                    <paper-item id="itemEditSources" icon="{{$.icons.editSources}}">
+                    <paper-item id="itemEditSources" icon="{{editSources}}">
                       EDIT SOURCES
                     </paper-item>
                   </template>
@@ -314,14 +314,16 @@
         properties: {
           groupNames: { value: [] },
           searchService: { value: '' },
+          editSourcesIcon: { value: null }
         },
 
         // functions and properties used in API and bindings
-        created: function () {
+        init: function () {
           /* an array of types of result to show in the display,
            or empty array to have no filter set */
           this.typeFilter = [];
           this.keywordSelector = new KeywordSelector(ArrayUtils);
+          this.editSourcesIcon = this.$.icons.editSources;
         },
 
         onNewSources: function () {
@@ -461,7 +463,7 @@
          were found */
         onNoPendingSearches: function () {
           console.log('CP-PANEL: got nopendingsearches');
-          this.set('$.display.searchesPending', false);
+          this.$.display.searchesPending = false;
           this.$.display.stopWaiting();
         },
 
@@ -495,6 +497,7 @@
         },
 
         ready: function () {
+          this.init();
           this.searchService = this.$.storage.getSearchService();
           this.onNewSources();
         },

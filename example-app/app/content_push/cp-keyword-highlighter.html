@@ -325,15 +325,19 @@
         is: 'cp-keyword-highlighter',
 
         properties: {
-          offStyle: { notify: true },
-          onStyle: { notify: true },
+          offStyle: { 
+            type: String,
+            value: ''
+          },
+          onStyle: {
+            type: String,
+            value: 'background-color: #FFB2F0'
+          },
+          lineIds: {
+            type: Array,
+            value: []
+          },
           targetElement: { observer: 'targetElementChanged' }
-        },
-
-        created: function () {
-          this.lineIds = [];
-          this.offStyle = '';
-          this.onStyle = 'background-color: #FFB2F0';
         },
 
         targetElementChanged: function () {
@@ -345,7 +349,7 @@
           var lines = Polymer.dom(this.targetElement).querySelectorAll('[cp_line_id]');
           var i;
           for (i = 0; i < lines.length; i++) {
-            this.set('lineIds' + ('.' + i), lines[i].getAttribute('cp_line_id'));
+            this.lineIds[i] = lines[i].getAttribute('cp_line_id');
           }
           for (i = 0; i < ranges.length; i++) {
             highlightRange(this, ranges[i]);

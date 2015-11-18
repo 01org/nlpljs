@@ -337,7 +337,19 @@
           mutationObserver: { value: null }
         },
 
-        created: function () {
+        ready: function () {
+          var self = this;
+
+          this.init();
+
+          this.$.iframe.src = this.$.globals.data.iframeurl;
+          this.$.iframe.onload = function () {
+            handleIframeLoad(self);
+          };
+          createNlpWorker(self);
+        },
+
+        init: function () {
           this.nlpPort = null;
           this.lineIdAccumulator = 0;
           // currently active keywords
@@ -345,15 +357,6 @@
             keywords: [],
             ranges: []
           };
-        },
-
-        ready: function () {
-          var self = this;
-          this.set('$.iframe.src', this.$.globals.data.iframeurl);
-          this.set('$.iframe.onload', function () {
-            handleIframeLoad(self);
-          });
-          createNlpWorker(self);
         },
 
         // API functions
@@ -367,7 +370,7 @@
 
         // propertyChanged handlers
         iframeurlChanged: function (newValue) {
-          this.set('$.iframe.src', newValue);
+          this.$.iframe.src = newValue;
         },
 
         // event handlers

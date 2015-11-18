@@ -291,15 +291,20 @@
         is: 'cp-sources-selector',
 
         properties: {
-          sources: { observer: 'sourcesChanged' },
-          allEnabled: { value: false }
-        },
-
-        created: function () {
           /* an array of sources for the selected group */
-          this.sources = [];
-          this.allEnabled = false;
-          this.currentGroupName = null;
+          sources: {
+            type: Array,
+            value: [],
+            observer: 'sourcesChanged'
+          },
+          allEnabled: {
+            type: Boolean,
+            value: false
+          },
+          currentGroupName: {
+            type: String,
+            value: null
+          }
         },
 
         ready: function () {
@@ -321,7 +326,7 @@
         },
 
         setGroup: function (groupName) {
-          this.set('$.headertext.innerText', groupName);
+          this.$.headertext.innerText = groupName;
           this.currentGroupName = groupName;
           this.setSources();
         },

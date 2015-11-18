@@ -203,11 +203,10 @@
           /* file type, e.g. "Google Docs" (SET AUTOMATICALLY VIA mimeType) */
           fileType: { value: null },
 
-          loaded: { value: false }
-        },
-
-        created: function () {
-          this.loaded = false;
+          loaded: {
+            type: Boolean,
+            value: false
+          }
         },
 
         /* clean HTML tags out of the caption */
@@ -257,7 +256,7 @@
           this.createdDate = tile.file.createdDate;
 
           /* reset scroll to top */
-          this.set('$.detailbody.scrollTop', 0);
+          this.$.detailbody.scrollTop = 0;
         },
 
         visitWebpage: function () {

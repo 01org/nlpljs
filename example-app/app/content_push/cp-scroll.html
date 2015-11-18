@@ -61,7 +61,7 @@
 
         properties: { scrollgap: { notify: true } },
 
-        created: function () {
+        init: function () {
           /* record the scroll position so we can determine whether
            we are scrolling downwards */
           this.lastScrollPosition = 0;
@@ -93,6 +93,7 @@
         },
 
         ready: function () {
+          this.init();
           // event handler for scroll events on the container
           this.addEventListener('scroll', this.onScroll.bind(this));
         }

@@ -46,14 +46,13 @@
   <script src="../bower_components/lodash/lodash.min.js"></script>
   <script>
     (function () {
-      /* jshint strict:false */
+      'use strict';
 
       /* instances of this element; used to fire events across
        * all elements simultaneously */
       var instances = [];
 
       var fireEvent = function (name, data) {
-        'use strict';
         for (var i = 0; i < instances.length; i++) {
           instances[i].fire(name, data);
         }
@@ -61,7 +60,6 @@
 
       /* set data across all instances */
       var setData = function (data) {
-        'use strict';
         for (var i = 0; i < instances.length; i++) {
           instances[i].data = data;
         }
@@ -103,14 +101,15 @@
           }
         },
 
-        created: function () {
-          'use strict';
+        init: function () {
           instances.push(this);
         },
 
         ready: function () {
-          'use strict';
           console.log('CP-SOURCES-STORAGE:ready');
+
+          this.init();
+
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:ready() called but app_id not set yet');
             return;
@@ -136,7 +135,6 @@
          * Persist the current groups of sources to storage.
          */
         persist: function () {
-          'use strict';
           console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage()');
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage() called but app_id not set yet');
@@ -160,14 +158,13 @@
          * @returns the created group
          */
         createGroup: function (groupName) {
-          'use strict';
           if (this.data[groupName]) {
             console.error('CP-SOURCES-STORAGE: group with name ' + groupName + ' cannot be created as it ' + 'already exists');
           }
-          this.set('data' + ('.' + groupName), {
+          this.data[groupName] = {
             enabled: true,
             sources: {}
-          });
+          };
           this.persist();
           return this.data[groupName];
         },
@@ -184,11 +181,10 @@
          * see the data static object for details of its structure
          */
         createSource: function (groupName, sourceName, sourceConfig) {
-          'use strict';
           if (!this.data[groupName] && this.data[groupName].sources) {
             console.error('CP-SOURCES-STORAGE: cannot create source ' + 'in group ' + groupName + ' as group does ' + 'not exist');
           }
-          this.set('data' + ('.' + groupName) + '.sources' + ('.' + sourceName), sourceConfig);
+          this.data[groupName].sources[sourceName] = sourceConfig;
           fireEvent('sourcecreated', {
             groupName: groupName,
             sourceName: sourceName,
@@ -203,7 +199,6 @@
          * If the source doesn't exist, this throws an error.
          */
         removeSource: function (groupName, sourceName) {
-          'use strict';
           var source = this.retrieveSource(groupName, sourceName);
           if (source) {
             delete this.data[groupName].sources[sourceName];
@@ -220,7 +215,6 @@
          * If the source does not exist, throws an error.
          */
         setSourceEnabled: function (groupName, sourceName, enabled) {
-          'use strict';
           var source = this.retrieveSource(groupName, sourceName);
           if (source) {
             source.enabled = enabled;
@@ -244,7 +238,6 @@
          * Check whether a group exists and is in the correct format.
          */
         groupExists: function (groupName) {
-          'use strict';
           return this.data[groupName] && this.data[groupName].sources;
         },
 
@@ -253,7 +246,6 @@
          * according to the "order" property of each group.
          */
         getGroupNames: function () {
-          'use strict';
           var flattened = _.reduce(this.data, function (memo, config, groupName) {
             if (config.enabled) {
               memo.push({
@@ -290,7 +282,6 @@
          * }
          */
         getSourcesForGroup: function (groupName) {
-          'use strict';
           return this.data[groupName] || null;
         },
 
@@ -298,7 +289,6 @@
          * Retrieve a source by name; returns null if it doesn't exist.
          */
         retrieveSource: function (groupName, sourceName) {
-          'use strict';
           if (this.data[groupName] && this.data[groupName].sources) {
             return this.data[groupName].sources[sourceName] || null;
           } else {
@@ -310,7 +300,6 @@
          * Retrieve a source by url; returns null if it doesn't exist.
          */
         retrieveSourceByUrl: function (groupName, sourceUrl) {
-          'use strict';
           var group = this.data[groupName];
           if (group) {
             return _.find(group, function (source) {
@@ -325,7 +314,6 @@
          * Return all the sources.
          */
         retrieveAllSources: function () {
-          'use strict';
           return this.data;
         },
 
@@ -333,7 +321,6 @@
          * Return the search service.
          */
         getSearchService: function () {
-          'use strict';
           return this.data.SearchService;
         }
       }); // Polymer()
