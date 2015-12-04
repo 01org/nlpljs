@@ -352,10 +352,12 @@
         },
 
         closeDetail: function (e) {
-          this.$.swapper.activeElt.close();
-          this.$.swapper.slideOut();
-          this.fire('mouseoutimage', e.target.highlights);
-          e.target.highlights = null;
+          if (this.$.swapper.activeElt) {
+            this.$.swapper.activeElt.close();
+            this.$.swapper.slideOut();
+            this.fire('mouseoutimage', e.target.highlights);
+            e.target.highlights = null;
+          }
         },
 
         closeGroups: function () {
