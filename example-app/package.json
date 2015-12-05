@@ -8,6 +8,7 @@
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-copy": "~0.5.0",
     "grunt-contrib-jshint": "^0.11.0",
+    "grunt-eslint": "^17.3.1",
     "grunt-lint-inline": "^0.4.4",
     "grunt-mochaccino": "^0.1.7",
     "load-grunt-tasks": "~0.2.0",

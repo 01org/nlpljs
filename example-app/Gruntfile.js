@@ -96,6 +96,12 @@ module.exports = function (grunt) {
       options: lintOptions
     },
 
+    eslint: {
+      target: [
+        'app/**/*.js'
+      ],
+    },
+
     // pure js linting
     jshint: {
       all: [
