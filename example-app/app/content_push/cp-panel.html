@@ -25,7 +25,6 @@
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<link rel="import" href="../bower_components/iron-dropdown/iron-dropdown.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
@@ -204,8 +203,7 @@
 
             <!-- items in this menu set the "types" part of the display filter -->
             <paper-dropdown-menu label="All" id="menu">
-              <iron-dropdown class="dropdown">
-                <paper-menu class="menu" valueattr="id" on-click="onMenuClick">
+                <paper-menu class="menu dropdown-content" valueattr="id" on-click="onMenuClick">
                   <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">
                     All
                   </paper-item>
@@ -222,7 +220,6 @@
                     </paper-item>
                   </template>
                 </paper-menu>
-              </iron-dropdown>
             </paper-dropdown-menu>
 
             <paper-icon-button id="toolbaraction" icon="close" on-tap="closePanel">
