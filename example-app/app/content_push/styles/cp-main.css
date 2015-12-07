@@ -47,7 +47,6 @@
   position: relative;
   display: block;
   background-color: #fafafa;
-  float: left;
   height: 100%;
   border: none;
 }
@@ -55,7 +54,6 @@
 #panel {
   display: block;
   background-color: #fafafa;
-  float: right;
   height: 100%;
   width: 320px;
   min-width: 320px;
