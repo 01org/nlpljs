@@ -30,20 +30,18 @@
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-font.html">
 <link rel="import" href="./cp-panel.html">
-<!--link rel="import" href="./cp-splitter.html"-->
+<link rel="import" href="./cp-splitter.html">
 
 <dom-module id="cp-main">
   <link type="css" rel="import" href="./styles/cp-main.css">
 
   <template>
-    <div id="container" class="horizontal layout">
-      <cp-document id="document" class="flex" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
+    <cp-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
+      <cp-document id="document" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
       </cp-document>
-      <!--cp-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
-      </cp-splitter-->
       <cp-panel id="panel" on-close-panel="onPanelClosePanel" on-mouseoverimage="onPanelMouseOverImage" on-mouseoutimage="onPanelMouseOutImage">
       </cp-panel>
-    </div><!-- #container -->
+    </cp-splitter>
   </template>
 
   <script>

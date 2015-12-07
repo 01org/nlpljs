@@ -47,22 +47,15 @@
   position: relative;
   display: block;
   background-color: #fafafa;
+  float: left;
   height: 100%;
   border: none;
-}
-
-#splitter {
-  background-color: #e6e6e6;
-  box-shadow: none;
-  width: 2px;
-
-  /* hide handle on splitter */
-  background: #e6e6e6;
 }
 
 #panel {
   display: block;
   background-color: #fafafa;
+  float: right;
   height: 100%;
   width: 320px;
   min-width: 320px;
