@@ -30,25 +30,105 @@
 <link rel="import" href="./cp-document.html">
 <link rel="import" href="./cp-font.html">
 <link rel="import" href="./cp-panel.html">
-<!--link rel="import" href="./cp-splitter.html"-->
+<link rel="import" href="./cp-splitter.html">
 
 <dom-module id="cp-main">
-  <link type="css" rel="import" href="./styles/cp-main.css">
+  <style>
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: #fafafa;
+      box-sizing: border-box;
+    }
+
+    *,
+    *:before,
+    *:after {
+      box-sizing: inherit;
+    }
+
+    #container {
+      height: 100%;
+
+      @apply(--layout-fit);
+      @apply(--layout-horizontal);
+    }
+
+    #document {
+      position: relative;
+      display: block;
+      background-color: #fafafa;
+      height: 100%;
+      border: none;
+
+      @apply(--layout-flex);
+    }
+
+    #panel {
+      display: block;
+      background-color: #fafafa;
+      height: 100%;
+      width: 320px;
+      min-width: 320px;
+      max-width: 40%;
+    }
+
+    #panel.off {
+      display: none;
+    }
+
+    /* fix icon alignment inside core-icon elements; work-around
+       for https://github.com/Polymer/paper-button/issues/7 */
+    :host /deep/ paper-fab::shadow core-icon {
+      vertical-align: baseline;
+    }
+
+    :host /deep/ core-icon[aria-label="add"] {
+      position: absolute !important;
+    }
+
+    :host /deep/ p,
+    :host /deep/ h2,
+    :host /deep/ h3,
+    :host /deep/ h4 {
+      color: rgba(0, 0, 0, 0.8);
+    }
+
+    :host /deep/ p {
+      font-size: 14px;
+      line-height: 18px;
+    }
+
+    :host /deep/ p.small {
+      font-size: 10px;
+    }
+
+    /* NB if line-height is 24px, some leftovers of the elided text
+       are visible; adding 2px cleans this up */
+    :host /deep/ h2 {
+      font-size: 24px;
+      line-height: 28px;
+    }
+
+    :host /deep/ h2,
+    :host /deep/ h3,
+    :host /deep/ h4 {
+      font-weight: normal;
+    }
+
+    :host /deep/ .toolbar-shadow {
+      box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+    }
+  </style>
 
   <template>
-    <div id="container" class="horizontal layout">
-      <cp-document id="document" class="flex" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop">
-      </cp-document>
-      <!--cp-splitter id="splitter" direction="right" minsize="320px" on-down="onSplitterDownAction" on-up="onSplitterUpAction" on-track="onSplitterTrackAction">
-      </cp-splitter-->
-      <cp-panel id="panel" on-close-panel="onPanelClosePanel" on-mouseoverimage="onPanelMouseOverImage" on-mouseoutimage="onPanelMouseOutImage">
-      </cp-panel>
-    </div><!-- #container -->
+    <cp-splitter id="container">
+      <cp-document id="document" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop"></cp-document>
+      <cp-panel id="panel" on-close-panel="onPanelClosePanel" on-mouseoverimage="onPanelMouseOverImage" on-mouseoutimage="onPanelMouseOutImage"></cp-panel>
+    </cp-splitter><!-- #container -->
   </template>
-
-  <script src="../bower_components/Split.js/split.js">
-    /* globals Split */
-  </script>
 
   <script>
     (function () {
@@ -68,8 +148,6 @@
         // life cycle functions
         ready: function () {
           this.open = true;
-
-          Split([this.$.document, this.$.panel]);
         },
 
         // propertyChanged functions

@@ -55,7 +55,7 @@
     var head = document.createElement('head');
     var body = document.createElement('body');
     body.setAttribute('unresolved', '');
-    body.setAttribute('class', 'fit');
+    body.setAttribute('class', 'fit fullbleed');
 
     var base = document.createElement('base');
     base.setAttribute('href', extensionUrl);
@@ -66,8 +66,8 @@
     link.href = cssUrl;
     head.appendChild(link);
 
-    // work around for a google-apis bug
     var script = document.createElement('script');
+    script.src = 'content_push/shadow-dom.js';
     head.appendChild(script);
 
     link = document.createElement('link');

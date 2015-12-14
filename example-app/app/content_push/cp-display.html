@@ -268,7 +268,7 @@
       <cp-scroll id="scroller"
                  on-scrollend="onScrollerScrollend"
                  data-visible$="{{_computeDataVisible(state)}}"
-                 class$="{{_computeDataVisible(state)}}">
+                 class$="{{_computeClass(sliderVisible)}}">
         <!-- results -->
         <cp-layout id="layout" on-layout="checkResultState"
                    on-tileprocessed="onLayoutTileProcessed"
@@ -276,15 +276,15 @@
       </cp-scroll>
 
       <div id="label_wrapper" class="horizontal justified layout"
-           class$="{{_computeClass2(sliderVisible, tokenList)}}">
+           class$="{{_computeClass2(sliderVisible)}}">
         <div>FOCUS</div>
         <div>WANDER</div>
       </div>
 
       <div id="slider_wrapper" class="vertical justified layout"
            on-mouseover="onSliderMouseOver"
-           on-mouseout="{{_computeClass2(sliderVisible, tokenList)}}"
-           class$="{{_computeClass(sliderVisible, tokenList)}}">
+           on-mouseout="{{_computeClass2(sliderVisible)}}"
+           class$="{{_computeClass(sliderVisible)}}">
         <!-- "widen the search" slider -->
         <paper-slider id="slider" min="1" max="5" value="1"
                       pin snaps step="1"
@@ -764,18 +764,18 @@
           return state === 'results';
         },
 
-        _computeClass: function (sliderVisible, tokenList) {
-          return {
+        _computeClass: function (sliderVisible) {
+          return this._tokenList({
             'without-slider': !sliderVisible,
             'with-slider-collapsed': sliderVisible
-          } | tokenList;
+          });
         },
 
-        _computeClass2: function (sliderVisible, tokenList) {
-          return { 'hide': !sliderVisible } | tokenList;
+        _computeClass2: function (sliderVisible) {
+          return this._tokenList({ 'hide': !sliderVisible });
         },
 
-        tokenList: function (obj) {
+        _tokenList: function (obj) {
           var pieces = [];
           for (var key in obj) {
             if (obj[key]) {

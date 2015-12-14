@@ -27,6 +27,15 @@
 
 <dom-module id="cp-splitter">
   <style>
+    :host {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 0;
+      margin: 0;
+    }
+
     ::content .gutter {
       float: left;
       height: 100%;
@@ -70,13 +79,10 @@
         is: 'cp-splitter',
 
         ready: function() {
-          this._observer = Polymer.dom(this.$.contentNode).observeNodes(function(info) {
-            console.log('MAXMAXMAX:', info);
-            this.processNewNodes(info.addedNodes);
-            this.processRemovedNodes(info.removedNodes);
-          });
-
-          Split(this.getContentChildren(), { sizes: ['60%', '40%'] });
+          var self = this;
+          setTimeout(function () {
+            Split(self.getContentChildren(), { sizes: [80, 20] });
+          }, 0);
         }
 
       }); // Polymer()
