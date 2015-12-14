@@ -124,7 +124,11 @@
   </style>
 
   <template>
-    <cp-splitter id="container">
+    <cp-splitter
+      id="container"
+      on-down="onSplitterDownAction"
+      on-up="onSplitterUpAction"
+      on-track="onSplitterTrackAction">
       <cp-document id="document" on-newkeywordinfo="onDocumentNewKeywordInfo" on-nlpstart="onNlpStart" on-nlpstop="onNlpStop"></cp-document>
       <cp-panel id="panel" on-close-panel="onPanelClosePanel" on-mouseoverimage="onPanelMouseOverImage" on-mouseoutimage="onPanelMouseOutImage"></cp-panel>
     </cp-splitter><!-- #container -->

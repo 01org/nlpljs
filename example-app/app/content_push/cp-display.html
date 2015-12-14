@@ -85,6 +85,8 @@
 
     #results {
       display: flex;
+      position: absolute;
+      top: 0;
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
@@ -99,6 +101,8 @@
       animation-duration: 0.25s;
       -webkit-animation-timing-function: ease-out;
       animation-timing-function: ease-out;
+      -webkit-animation-fill-mode: both;
+      animation-fill-mode: both;
     }
 
     #waiting.fadein {
@@ -145,13 +149,25 @@
     }
 
     @-webkit-keyframes fadein {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+      from { 
+        opacity: 0;
+        z-index: 400;
+      }
+      to   {
+        opacity: 1;
+        z-index: 750;
+      }
     }
 
     @-webkit-keyframes fadeout {
-      from { opacity: 1; }
-      to   { opacity: 0; }
+      from {
+        opacity: 1;
+        z-index: 750;
+      }
+      to   {
+        opacity: 0;
+        z-index: 400;
+      }
     }
 
     [data-show="false"] {
@@ -202,8 +218,10 @@
     }
 
     .fill {
-      width: 100%;
-      height: 100%;
+      top:0;
+      left:0;
+      bottom:0;
+      right:0;
       background-color: #fafafa;
     }
 
@@ -283,7 +301,7 @@
 
       <div id="slider_wrapper" class="vertical justified layout"
            on-mouseover="onSliderMouseOver"
-           on-mouseout="{{_computeClass2(sliderVisible)}}"
+           on-mouseout="onSliderMouseOut"
            class$="{{_computeClass(sliderVisible)}}">
         <!-- "widen the search" slider -->
         <paper-slider id="slider" min="1" max="5" value="1"

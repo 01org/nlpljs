@@ -54,11 +54,11 @@
     }
 
     ::content .gutter.gutter-horizontal {
-      background-image: url('grips/vertical.png');
+      background-image: url('../bower_components/Split.js/grips/vertical.png');
     }
 
     ::content .gutter.gutter-vertical {
-      background-image: url('grips/horizontal.png');
+      background-image: url('../bower_components/Split.js/grips/horizontal.png');
     }
   </style>
 
@@ -81,7 +81,18 @@
         ready: function() {
           var self = this;
           setTimeout(function () {
-            Split(self.getContentChildren(), { sizes: [80, 20] });
+            Split(self.getContentChildren(), {
+              onDragStart: function() {
+                self.fire('up');
+              },
+              onDragEnd: function() {
+                self.fire('down');
+              },
+              onDrag: function() {
+                self.fire('track');
+              },
+              sizes: [80, 20]
+            });
           }, 0);
         }
 
