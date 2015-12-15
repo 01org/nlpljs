@@ -30,7 +30,7 @@
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
-<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
 
@@ -170,7 +170,7 @@
 
           <!-- items in this menu set the "types" part of the display filter -->
           <paper-dropdown-menu id="menu" label="All" horizontal-align="left" no-label-float="true">
-              <paper-listbox class="dropdown-content" valueattr="id" on-click="onMenuClick">
+              <paper-menu class="dropdown-content" valueattr="id" on-click="onMenuClick">
                 <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">All</paper-item>
                 <template is="dom-repeat" items="{{groupNames}}" as="groupName">
                   <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeDataTypeFilter(groupName, lowercaseSingular)}}">{{groupName}}</paper-item>
@@ -179,7 +179,7 @@
                 <template is="dom-if" if="{{_computeIf(searchService)}}">
                   <paper-item id="itemEditSources" icon="{{editSources}}">EDIT SOURCES</paper-item>
                 </template>
-              </paper-listbox>
+              </paper-menu>
           </paper-dropdown-menu>
           <paper-icon-button id="toolbaraction" icon="close" on-tap="closePanel"></paper-icon-button>
           <paper-progress id="progress" indeterminate class="bottom"></paper-progress>
@@ -267,15 +267,6 @@
           groupNames: { value: [] },
           searchService: { value: '' },
           editSourcesIcon: { value: null }
-        },
-
-        // functions and properties used in API and bindings
-        init: function () {
-          /* an array of types of result to show in the display,
-           or empty array to have no filter set */
-          this.typeFilter = [];
-          this.keywordSelector = new KeywordSelector(ArrayUtils);
-          this.editSourcesIcon = this.$.icons.editSources;
         },
 
         onNewSources: function () {
@@ -450,8 +441,15 @@
           nlpstop: 'onNlpStop'
         },
 
+        created: function () {
+          /* an array of types of result to show in the display,
+           or empty array to have no filter set */
+          this.typeFilter = [];
+          this.keywordSelector = new KeywordSelector(ArrayUtils);
+        },
+
         ready: function () {
-          this.init();
+          this.editSourcesIcon = this.$.icons.editSources;
           this.searchService = this.$.storage.getSearchService();
           this.onNewSources();
         },
