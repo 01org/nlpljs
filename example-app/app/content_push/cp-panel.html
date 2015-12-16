@@ -170,10 +170,10 @@
 
           <!-- items in this menu set the "types" part of the display filter -->
           <paper-dropdown-menu id="menu" label="All" horizontal-align="left" no-label-float="true">
-              <paper-menu class="dropdown-content" valueattr="id" on-click="onMenuClick">
+              <paper-menu class="dropdown-content" valueattr="id" on-iron-select="onMenuClick">
                 <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">All</paper-item>
                 <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-                  <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeDataTypeFilter(groupName, lowercaseSingular)}}">{{groupName}}</paper-item>
+                  <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeDataTypeFilter(groupName)}}">{{groupName}}</paper-item>
                 </template>
 
                 <template is="dom-if" if="{{_computeIf(searchService)}}">
@@ -308,7 +308,7 @@
         },
 
         onMenuClick: function (e) {
-          var elt = e.toElement;
+          var elt = e.target.selectedItem;
           var typeFilter = elt.getAttribute('data-type-filter');
           var selected;
           if (typeFilter) {
@@ -462,8 +462,8 @@
           return 'item' + groupName;
         },
 
-        _computeDataTypeFilter: function (groupName, lowercaseSingular) {
-          return groupName | lowercaseSingular;
+        _computeDataTypeFilter: function (groupName) {
+          return this.lowercaseSingular(groupName);
         }
       }); // Polymer()
     }());
