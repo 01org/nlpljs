@@ -45,7 +45,7 @@
           </paper-fab>
 
           <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
-            <span>{{_computeExpression2(caption, cleanHTML)}}</span>
+            <span>{{cleanHTML(caption)}}</span>
           </h2>
         </div>
       </div>
@@ -69,15 +69,15 @@
 
       <div id="detailbody">
         <h2 id="caption" data-show$="{{!!caption}}">
-          <caption>{{_computeExpression2(caption, cleanHTML)}}</caption>
+          <caption>{{cleanHTML(caption)}}</caption>
         </h2>
 
         <p id="articleSource" data-show$="{{!!source}}">
-          <span>{{_computeExpression3(domainFromURL, source, sourceName)}}</span>
+          <span>{{domainFromURL(source, sourceName)}}</span>
         </p>
 
         <div id="snippet" data-show$="{{!!snippet}}">
-          <span>{{_computeExpression4(cleanHTML, snippet)}}</span>
+          <span>{{cleanHTML(snippet)}}</span>
         </div>
       </div>
     </div>
@@ -204,19 +204,7 @@
         },
 
         /* no clean-up necessary, but needed by the API */
-        close: function () {},
-
-        _computeExpression2: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-
-        _computeExpression3: function (domainFromURL, source, sourceName) {
-          return sourceName || source | domainFromURL;
-        },
-
-        _computeExpression4: function (cleanHTML, snippet) {
-          return snippet | cleanHTML;
-        }
+        close: function () {}
       }); // Polymer()
     }());
   </script>

@@ -115,16 +115,16 @@
 
           <div id="text" class$="{{_computeClass(imageLoaded, src)}}">
             <h2 id="caption" class="text-elide">
-              <span>{{_computeExpression1(caption, cleanHTML)}}</span>
+              <span>{{cleanHTML(caption)}}</span>
             </h2>
 
             <p id="snippet" class="text-elide">
-              <span>{{_computeExpression2(cleanHTML, snippet)}}</span>
+              <span>{{cleanHTML(snippet)}}</span>
             </p>
 
             <div id="meta">
               <p id="source" class="small">
-                <span>{{_computeExpression3(domainFromURL, source, sourceName)}}</span>
+                <span>{{domainFromURL(source, sourceName)}}</span>
               </p>
             </div>
           </div>
@@ -249,18 +249,6 @@
 
         _computeClass: function (imageLoaded, src) {
           return src === null || !imageLoaded ? '' : 'right';
-        },
-
-        _computeExpression1: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-
-        _computeExpression2: function (cleanHTML, snippet) {
-          return snippet | cleanHTML;
-        },
-
-        _computeExpression3: function (domainFromURL, source, sourceName) {
-          return sourceName || source | domainFromURL;
         }
       }); // Polymer()
     }());

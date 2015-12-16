@@ -252,7 +252,7 @@
           </paper-fab>
 
           <span id="backcaption" class="flex" data-show$="{{!!caption}}">
-            <span>{{_computeExpression1(caption)}}</span>
+            <span>{{cleanHTML((caption)}}</span>
           </span>
         </div>
       </div>
@@ -277,7 +277,7 @@
         <div id="imageInfo">
           <div class="imageMeta" data-show$="{{_computeDataShow(source, sourceName)}}">
             <div class="imageMetaKey">Source</div>
-            <div class="imageMetaValue">{{_computeExpression2(source, sourceName)}}</div>
+            <div class="imageMetaValue">{{domainFromURL(source, sourceName)}}</div>
           </div>
 
           <div class="imageMeta" data-show$="{{_computeDataShow2(height, width)}}">
@@ -476,14 +476,6 @@
 
         _computeDataShow2: function (height, width) {
           return width > 0 && height > 0;
-        },
-
-        _computeExpression1: function (caption) {
-          return this.cleanHTML(caption);
-        },
-
-        _computeExpression2: function (source, sourceName) {
-          return this.domainFromURL(sourceName || source);
         }
       }); // Polymer()
     }());

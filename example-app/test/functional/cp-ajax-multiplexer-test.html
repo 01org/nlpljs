@@ -42,8 +42,8 @@ Test for cp-ajax-multiplexter;
       <template repeat="{{response, i in responses}}">
         <div layout horizontal>
           <span flex>i:{{i}}</span>
-          <span flex ten>Sent:{{response.sent | toJSON}}</span>
-          <span flex ten>Received:{{response.received | toJSON}}</span>
+          <span flex ten>Sent:{{toJSON(response.sent)}}</span>
+          <span flex ten>Received:{{toJSON(response.received)}}</span>
         </div>
       </template>
     </div>

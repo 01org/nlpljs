@@ -46,7 +46,7 @@
           </paper-fab>
 
           <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
-            <caption>{{_computeExpression1(caption, cleanHTML)}}</caption>
+            <caption>{{cleanHTML(caption)}}</caption>
           </h2>
         </div>
       </div>
@@ -91,7 +91,7 @@
         <div class="imageMeta" data-show$="{{_computeDataShow(size)}}">
           <div class="imageMetaKey">Size</div>
           <div class="imageMetaValue">
-            <span>{{_computeExpression4(bytesToKb, size)}}</span>Kb
+            <span>{{bytesToKb(size)}}</span>Kb
           </div>
         </div>
 
@@ -113,14 +113,14 @@
         <div class="imageMeta" data-show$="{{!!modifiedDate}}">
           <div class="imageMetaKey">Modified</div>
           <div class="imageMetaValue">
-            <span>{{_computeExpression7(formatDate, modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span>
+            <span>{{formatDate(modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span>
           </div>
         </div>
 
         <div class="imageMeta">
           <div class="imageMetaKey">Created</div>
           <div class="imageMetaValue">
-            <span>{{_computeExpression9(createdDate, formatDate)}}</span>
+            <span>{{formatDate(createdDate)}}</span>
           </div>
         </div>
       </div>
@@ -276,22 +276,6 @@
 
         _computeDataShow: function (size) {
           return size !== null && size !== undefined;
-        },
-
-        _computeExpression1: function (caption, cleanHTML) {
-          return caption | cleanHTML;
-        },
-
-        _computeExpression4: function (bytesToKb, size) {
-          return size | bytesToKb;
-        },
-
-        _computeExpression7: function (formatDate, modifiedDate) {
-          return modifiedDate | formatDate;
-        },
-
-        _computeExpression9: function (createdDate, formatDate) {
-          return createdDate | formatDate;
         }
       }); // Polymer()
     }());

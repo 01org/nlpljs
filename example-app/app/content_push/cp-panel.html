@@ -173,7 +173,7 @@
               <paper-menu class="dropdown-content" valueattr="id" on-iron-select="onMenuClick">
                 <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">All</paper-item>
                 <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-                  <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{_computeDataTypeFilter(groupName)}}">{{groupName}}</paper-item>
+                  <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{lowercaseSingular(groupName)}}">{{groupName}}</paper-item>
                 </template>
 
                 <template is="dom-if" if="{{_computeIf(searchService)}}">
@@ -460,10 +460,6 @@
 
         _computeId: function (groupName) {
           return 'item' + groupName;
-        },
-
-        _computeDataTypeFilter: function (groupName) {
-          return this.lowercaseSingular(groupName);
         }
       }); // Polymer()
     }());
