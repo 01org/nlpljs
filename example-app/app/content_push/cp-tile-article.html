@@ -145,16 +145,7 @@
         is: 'cp-tile-article',
 
         properties: {
-          cleanHTML: {
-            value: function () {
-              return Formatter.cleanHTML;
-            }
-          },
-          domainFromURL: {
-            value: function () {
-              return Formatter.domainFromURL;
-            }
-          },
+
           done: { notify: true },
           loaded: { notify: true },
           src: {
@@ -241,6 +232,14 @@
           this.markDone();
           /* notify the error, in case anyone cares */
           this.fire('error', e);
+        },
+
+        domainFromURL: function() {
+          return Formatter.domainFromURL.apply(Formatter, arguments);
+        },
+
+        cleanHTML: function() {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
         },
 
         _computeDataShow: function (imageLoaded, src) {

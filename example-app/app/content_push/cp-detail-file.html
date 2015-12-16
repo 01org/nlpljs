@@ -34,16 +34,18 @@
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
+<link rel="import" href="./cp-detail-style.html">
+
 <dom-module id="cp-detail-file">
-  <link rel="import" type="css" href="./styles/cp-detail.css">
+  <style include="cp-detail-style"></style>
+
   <template>
 
     <div id="container" class="vertical layout">
       <div class="top-bar toolbar-shadow">
         <div id="back" class="horizontal layout">
           <paper-fab id="backbutton" mini icon="arrow-back" raisedbutton="true"
-                     on-click="onBackButtonClick">
-          </paper-fab>
+                     on-click="onBackButtonClick"></paper-fab>
 
           <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
             <caption>{{cleanHTML(caption)}}</caption>
@@ -209,9 +211,6 @@
           }
         },
 
-        /* clean HTML tags out of the caption */
-        cleanHTML: Formatter.cleanHTML,
-
         srcChanged: function () {
           var self = this;
 
@@ -265,7 +264,14 @@
           }
         },
 
-        formatDate: Formatter.formatDate,
+        /* clean HTML tags out of the caption */
+        cleanHTML: function () {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
+        },
+
+        formatDate: function () {
+          return Formatter.formatDate.apply(Formatter, arguments);
+        },
 
         bytesToKb: function (val) {
           return Formatter.round(val / 1024, 2);

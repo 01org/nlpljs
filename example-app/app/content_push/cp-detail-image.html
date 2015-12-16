@@ -34,214 +34,36 @@
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
+<link rel="import" href="./cp-detail-style.html">
+
 <dom-module id="cp-detail-image">
-  <style>
-    :host {
+  <style include="cp-detail-style">
+    core-collapse {
       display: block;
     }
 
+    #exifTitle {
+      display: inline;
+    }
+
+    #exifToggle {
+      float: right;
+    }
+
+    #exifDropdown {
+      margin-top: 20px;
+    }
+
     #container {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
-      margin-top: 0px;
-    }
-
-    #detailbody {
-      overflow-y: auto;
-      margin: 16px 0 50px 0;
-      width: 100%;
-    }
-
-    #detailbody > * {
-      position: relative;
-      overflow: hidden;
-      width: calc(100% - 32px);
-      margin-left: 16px;
-      margin-right: 16px;
-      color: rgba(0, 0, 0, 0.87);
-      text-align: left;
-    }
-
-    #container > table {
-      margin-left: 13px !important;
+      @apply(--layout-vertical);
     }
 
     #back {
-      width: calc(100% - 10px);
-      margin-left: 5px;
-      margin-right: 5px;
-      margin-top: 0;
-      margin-bottom: 0;
+      @apply(--layout-horizontal);
     }
 
-    #imgContainer {
-      width: 100% !important;
-      margin: 0;
-      overflow-y: hidden;
-    }
+  </style>
 
-    #aspectRatioFrame {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-    }
-
-    #aspectRatioSpacer {
-      padding-top: 100%;
-    }
-
-    #imgPlacer {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      background-color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 1px #e6e6e6 solid;
-    }
-
-    #spinner {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      background-color: #eee;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #image {
-      width: 100%;
-      height: auto;
-      object-fit: contain;
-    }
-
-    #backbutton {
-      min-width: 40px;
-      background-color: #B8578C;
-      margin-left: 5px;
-      margin-right: 5px;
-      margin-top: 12px;
-      margin-bottom: auto;
-    }
-
-    #backbutton::shadow core-icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    #backbutton::shadow paper-ripple {
-      display: none;
-    }
-
-    #backbutton /deep/ .paper-shadow-bottom-z-1 {
-      box-shadow: none !important;
-    }
-
-    #visitSrc {
-      position: absolute;
-      bottom: 0;
-      padding-bottom: 5px;
-      text-align: right !important;
-      color: #C42B7F;
-      width: 100%;
-      border-top: 1px #e6e6e6 solid;
-    }
-
-    .imageMeta {
-      height: 40px;
-      display: flex;
-      flex-direction: row;
-    }
-
-    .imageMeta, #snippet {
-      font-size: 14px;
-    }
-
-    .imageMetaKey {
-      width: 40%;
-    }
-
-    .imageMetaValue {
-      width: 60%;
-      overflow-x: hidden;
-      text-overflow: ellipsis;
-    }
-
-    paper-button[raised].colored {
-      background: #4285f4;
-      color: #fff;
-    }
-
-    [data-show="false"] {
-      display: none !important;
-    }
-
-    #caption {
-      line-height: 28px;
-      margin-top: 0;
-      margin-bottom: 12px;
-      padding-bottom: 0 !important;
-    }
-
-    #backcaption {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: white;
-      font-size: 20px;
-      line-height: 25px;
-      /* 64px is the height of cp-panel#toolbar */
-      /* 25px is the line-height */
-      margin-top: calc((64px - 25px) / 2);
-      margin-bottom: calc((64px - 25px) / 2);
-      margin-left: 5px;
-    }
-
-    .top-bar {
-      background-color: #B8578C;
-      margin: 0 !important;
-      width: 100% !important;
-      min-height: 64px;
-    }
-
-    #articleSource {
-      line-height: 12px;
-      font-size: 10px;
-    }
-      core-collapse {
-        display: block;
-      }
-
-      #exifTitle {
-        display: inline;
-      }
-
-      #exifToggle {
-        float: right;
-      }
-
-      #exifDropdown {
-        margin-top: 20px;
-      }
-
-      #container {
-        @apply(--layout-vertical);
-      }
-
-      #back {
-        @apply(--layout-horizontal);
-      }
-    </style>
   <template>
 
     <div id="container">
@@ -251,24 +73,24 @@
                      on-click="onBackButtonClick">
           </paper-fab>
 
-          <span id="backcaption" class="flex" data-show$="{{!!caption}}">
-            <span>{{cleanHTML((caption)}}</span>
+          <span id="backcaption" class="flex" data-show$="{{boolToString(!!caption)}}">
+            <span>{{cleanHTML(caption)}}</span>
           </span>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show$="{{!loaded}}">
-            <template is="dom-if" if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
+          <div id="spinner" data-show$="{{boolToString(!!loaded)}}">
+            <paper-spinner active$="{{!!loaded}}"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show$="{{loaded}}">
-            <img id="image" src="{{src}}" on-load="onImageLoad">
+          <div id="imgPlacer" data-show$="{{boolToString(loaded)}}">
+            <template is="dom-if" if="{{loaded}}">
+              <img id="image" src="{{src}}" on-load="onImageLoad">
+            </template>
           </div>
         </div>
       </div>
@@ -286,7 +108,7 @@
           </div>
         </div>
 
-        <div id="exif" data-show$="{{hasEXIF}}">
+        <div id="exif" data-show$="{{boolToString(hasEXIF)}}">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
             <iron-icon id="exifToggle" on-click="exifToggle"
@@ -312,7 +134,7 @@
         </div>
       </div>
 
-      <div id="visitSrc" data-show$="{{!!source}}">
+      <div id="visitSrc" data-show$="{{boolToString(!!source)}}">
         <paper-button class="colored" on-click="visitWebpage"
                       data-source-link$="{{source}}">
           VIEW IMAGE
@@ -393,21 +215,27 @@
         },
 
         /* clean HTML tags out of the caption */
-        cleanHTML: Formatter.cleanHTML,
+        cleanHTML: function () {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
+        },
 
         /* get the domain from a URL */
-        domainFromURL: Formatter.domainFromURL,
+        domainFromURL: function () {
+          return Formatter.domainFromURL.apply(Formatter, arguments);
+        },
 
         srcChanged: function () {
-          var self = this;
+          if (this.src && this.src != null) {
+            var self = this;
 
-          this.loaded = false;
+            this.loaded = false;
 
-          /* if the image never loads, record the component as ready
+            /* if the image never loads, record the component as ready
            anyway, to ensure that it will display */
-          setTimeout(function () {
-            self.loaded = true;
-          }, CP_CONSTANTS.TIMEOUT);
+            setTimeout(function () {
+              self.loaded = true;
+            }, CP_CONSTANTS.TIMEOUT);
+          }
         },
 
         onImageLoad: function () {
@@ -467,6 +295,16 @@
             }
             else {
             this.hasEXIF = false;
+          }
+        },
+
+        boolToString: function (truth) {
+          if (typeof truth === 'boolean') {
+            var retVal = (truth)?'true':'false';
+
+            return retVal;
+          } else {
+            console.error('truth param isn\'t boolean');
           }
         },
 

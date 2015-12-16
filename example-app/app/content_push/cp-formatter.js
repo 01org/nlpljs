@@ -37,7 +37,7 @@
   var CpFormatter = {
     /* clean HTML tags out of text */
     cleanHTML: function (text) {
-      if (text) {
+      if (text && typeof(text) === 'string') {
         text = text.replace(HTML_TAG_REGEX, '');
 
         /* replace nbsp */
