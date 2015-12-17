@@ -43,204 +43,206 @@
 <link rel="import" href="./cp-tile-image.html">
 
 <dom-module id="cp-display">
-  <style>
-    :host {
-      display: block;
-      position: relative;
-      background-color: #fafafa;
-    }
-
-    #preresults p {
-      margin-bottom: 0;
-    }
-
-    #preresults-heading {
-      margin-top: 2px;
-      margin-bottom: 18px;
-    }
-
-    #preresults-welcome {
-      margin-top: 26px;
-    }
-
-    #scroller {
-      margin: 0 3px 0 3px;
-      width: calc(100% - 6px);
-      transition: height 0.2s linear 0.2s;
-    }
-
-    #scroller.without-slider {
-      height: 100%;
-    }
-
-    #scroller.with-slider-collapsed {
-      /* -height of slider_wrapper */
-      height: calc(100% - 32px);
-    }
-
-    #scroller.with-slider-expanded {
-      /* -(height of slider_wrapper + label_wrapper.out) */
-      height: calc(100% - 54px);
-    }
-
-    #results {
-      display: flex;
-      position: absolute;
-      top: 0;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      z-index: 500;
-    }
-
-    #waiting {
-      position: absolute;
-      left: 0;
-      z-index: 750;
-      -webkit-animation-duration: 0.25s;
-      animation-duration: 0.25s;
-      -webkit-animation-timing-function: ease-out;
-      animation-timing-function: ease-out;
-      -webkit-animation-fill-mode: both;
-      animation-fill-mode: both;
-    }
-
-    #waiting.fadein {
-      -webkit-animation-name: fadein;
-      animation-name: fadein;
-    }
-
-    #waiting.fadeout {
-      -webkit-animation-name: fadeout;
-      animation-name: fadeout;
-    }
-
-    #slider_wrapper {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      align-items: center;
-      height: 32px;
-      background-color: #e6e6e6;
-      transition: height 0.2s ease-out 0.2s;
-      z-index: 10;
-    }
-
-    #label_wrapper {
-      position: absolute;
-      bottom: -22px;
-      width: 100%;
-      height: 22px;
-      line-height: 22px;
-      background-color: #e6e6e6;
-      transition: bottom 0.2s ease-out 0.2s;
-    }
-
-    #label_wrapper.out {
-      /* slider_wrapper.height) */
-      bottom: 32px;
-    }
-
-    #label_wrapper * {
-      color: rgba(0, 0, 0, 0.46);
-      font-size: 12px;
-      background-color: #e6e6e6;
-      padding: 0 14px;
-    }
-
-    @-webkit-keyframes fadein {
-      from { 
-        opacity: 0;
-        z-index: 400;
-      }
-      to   {
-        opacity: 1;
-        z-index: 750;
-      }
-    }
-
-    @-webkit-keyframes fadeout {
-      from {
-        opacity: 1;
-        z-index: 750;
-      }
-      to   {
-        opacity: 0;
-        z-index: 400;
-      }
-    }
-
-    [data-show="false"] {
-      display: none !important;
-    }
-
-    paper-slider {
-      width: 100%;
-      max-height: 24px;
-      min-height: 24px;
-      box-sizing: border-box;
-      margin-bottom: 8px;
-    }
-
-    /* slider colors (oh dear...) */
-    /* bar */
-    paper-slider::shadow #sliderBar::shadow #activeProgress {
-      background-color: #B8578C !important;
-    }
-
-    /* knob */
-    paper-slider::shadow #sliderKnobInner {
-      background-color: #B8578C !important;
-      border: none !important;
-    }
-
-    /* pin */
-    paper-slider::shadow #sliderKnobInner::before {
-      background-color: #B8578C !important;
-    }
-
-    .hide {
-      height: 0 !important;
-    }
-
-    .divider-top {
-      border-top: thin solid black;
-      padding-top: 16px;
-      margin-top: 10px;
-    }
-
-    .vbox {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .fill {
-      top:0;
-      left:0;
-      bottom:0;
-      right:0;
-      background-color: #fafafa;
-    }
-
-    .message-area {
-      text-align: center;
-      width: 60%;
-      box-sizing: border-box;
-    }
-
-    [data-visible="false"] {
-      visibility: none;
-    }
-
-    [data-visible="true"] {
-      visibility: visible;
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+        position: relative;
+        background-color: #fafafa;
+      }
+
+      #preresults p {
+        margin-bottom: 0;
+      }
+
+      #preresults-heading {
+        margin-top: 2px;
+        margin-bottom: 18px;
+      }
+
+      #preresults-welcome {
+        margin-top: 26px;
+      }
+
+      #scroller {
+        margin: 0 3px 0 3px;
+        width: calc(100% - 6px);
+        transition: height 0.2s linear 0.2s;
+      }
+
+      #scroller.without-slider {
+        height: 100%;
+      }
+
+      #scroller.with-slider-collapsed {
+        /* -height of slider_wrapper */
+        height: calc(100% - 32px);
+      }
+
+      #scroller.with-slider-expanded {
+        /* -(height of slider_wrapper + label_wrapper.out) */
+        height: calc(100% - 54px);
+      }
+
+      #results {
+        display: flex;
+        position: absolute;
+        top: 0;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        z-index: 500;
+      }
+
+      #waiting {
+        position: absolute;
+        left: 0;
+        z-index: 750;
+        -webkit-animation-duration: 0.25s;
+        animation-duration: 0.25s;
+        -webkit-animation-timing-function: ease-out;
+        animation-timing-function: ease-out;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
+      }
+
+      #waiting.fadein {
+        -webkit-animation-name: fadein;
+        animation-name: fadein;
+      }
+
+      #waiting.fadeout {
+        -webkit-animation-name: fadeout;
+        animation-name: fadeout;
+      }
+
+      #slider_wrapper {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        align-items: center;
+        height: 32px;
+        background-color: #e6e6e6;
+        transition: height 0.2s ease-out 0.2s;
+        z-index: 10;
+      }
+
+      #label_wrapper {
+        position: absolute;
+        bottom: -22px;
+        width: 100%;
+        height: 22px;
+        line-height: 22px;
+        background-color: #e6e6e6;
+        transition: bottom 0.2s ease-out 0.2s;
+      }
+
+      #label_wrapper.out {
+        /* slider_wrapper.height) */
+        bottom: 32px;
+      }
+
+      #label_wrapper * {
+        color: rgba(0, 0, 0, 0.46);
+        font-size: 12px;
+        background-color: #e6e6e6;
+        padding: 0 14px;
+      }
+
+      @-webkit-keyframes fadein {
+        from { 
+          opacity: 0;
+          z-index: 400;
+        }
+        to   {
+          opacity: 1;
+          z-index: 750;
+        }
+      }
+
+      @-webkit-keyframes fadeout {
+        from {
+          opacity: 1;
+          z-index: 750;
+        }
+        to   {
+          opacity: 0;
+          z-index: 400;
+        }
+      }
+
+      [data-show="false"] {
+        display: none !important;
+      }
+
+      paper-slider {
+        width: 100%;
+        max-height: 24px;
+        min-height: 24px;
+        box-sizing: border-box;
+        margin-bottom: 8px;
+      }
+
+      /* slider colors (oh dear...) */
+      /* bar */
+      paper-slider::shadow #sliderBar::shadow #activeProgress {
+        background-color: #B8578C !important;
+      }
+
+      /* knob */
+      paper-slider::shadow #sliderKnobInner {
+        background-color: #B8578C !important;
+        border: none !important;
+      }
+
+      /* pin */
+      paper-slider::shadow #sliderKnobInner::before {
+        background-color: #B8578C !important;
+      }
+
+      .hide {
+        height: 0 !important;
+      }
+
+      .divider-top {
+        border-top: thin solid black;
+        padding-top: 16px;
+        margin-top: 10px;
+      }
+
+      .vbox {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .fill {
+        top:0;
+        left:0;
+        bottom:0;
+        right:0;
+        background-color: #fafafa;
+      }
+
+      .message-area {
+        text-align: center;
+        width: 60%;
+        box-sizing: border-box;
+      }
+
+      [data-visible="false"] {
+        visibility: none;
+      }
+
+      [data-visible="true"] {
+        visibility: visible;
+      }
+    </style>
 
     <!--
      - states for this component:

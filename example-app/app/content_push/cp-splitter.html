@@ -26,45 +26,48 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <dom-module id="cp-splitter">
-  <style>
-    :host {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: 0;
-      margin: 0;
-    }
-
-    ::content .gutter {
-      float: left;
-      height: 100%;
-
-      background-color: #e6e6e6;
-
-      background-repeat: no-repeat;
-      background-position: 50%;
-
-      box-shadow: none;
-
-      cursor: move;
-      cursor: grab;
-      cursor: -moz-grab;
-      cursor: -webkit-grab;
-    }
-
-    ::content .gutter.gutter-horizontal {
-      background-image: url('../bower_components/Split.js/grips/vertical.png');
-    }
-
-    ::content .gutter.gutter-vertical {
-      background-image: url('../bower_components/Split.js/grips/horizontal.png');
-    }
-  </style>
 
   <template>
-    <content id="contentNode">
-    </content>
+
+    <style>
+
+      :host {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        margin: 0;
+      }
+
+      ::content .gutter {
+        float: left;
+        height: 100%;
+
+        background-color: #e6e6e6;
+
+        background-repeat: no-repeat;
+        background-position: 50%;
+
+        box-shadow: none;
+
+        cursor: move;
+        cursor: grab;
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+      }
+
+      ::content .gutter.gutter-horizontal {
+        background-image: url('../bower_components/Split.js/grips/vertical.png');
+      }
+
+      ::content .gutter.gutter-vertical {
+        background-image: url('../bower_components/Split.js/grips/horizontal.png');
+      }
+
+    </style>
+
+    <content id="contentNode"></content>
   </template>
 
   <script src="../bower_components/Split.js/split.js">

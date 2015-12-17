@@ -36,35 +36,39 @@
 
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 
+<link rel="import" href="./cp-tile-style.html">
+
 <dom-module id="cp-tile-image">
-  <link rel="import" type="css" href="styles/cp-tile.css">
-  <style>
-    [data-revealed="true"] {
-      display: block;
-      position: absolute;
-      bottom: 0;
-      background-color: black;
-      color: white;
-      min-width: 3em;
-      text-align: center;
-      padding: 0.5em;
-    }
-
-    [data-revealed="false"] {
-      display: none;
-    }
-
-    #image {
-      border-radius: 2px;
-    }
-
-    #meta {
-      max-width: 100%;
-      margin: 0;
-    }
-  </style>
 
   <template>
+
+    <style include="cp-tile-style">
+      [data-revealed="true"] {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        background-color: black;
+        color: white;
+        min-width: 3em;
+        text-align: center;
+        padding: 0.5em;
+      }
+
+      [data-revealed="false"] {
+        display: none;
+      }
+
+      #image {
+        border-radius: 2px;
+      }
+
+      #meta {
+        max-width: 100%;
+        margin: 0;
+      }
+
+    </style>
+
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>

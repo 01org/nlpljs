@@ -34,26 +34,29 @@
 <link rel="import" href="./cp-scrollwatcher.html">
 
 <dom-module id="cp-document">
-  <style>
-    #iframe {
-      position: absolute;
-      display: block;
-      background-color: #f0f0f0;
-      height: 100%;
-      width: 100%;
-      border: none;
-    }
-
-    #iframe.nopointerevents {
-      pointer-events: none;
-    };
-  </style>
 
   <template>
+
+    <style>
+      #iframe {
+        position: absolute;
+        display: block;
+        background-color: #f0f0f0;
+        height: 100%;
+        width: 100%;
+        border: none;
+      }
+
+      #iframe.nopointerevents {
+        pointer-events: none;
+      };
+    </style>
+
     <iframe id="iframe"></iframe>
     <cp-keyword-highlighter id="highlighter"></cp-keyword-highlighter>
     <cp-scrollwatcher id="scrollwatcher"></cp-scrollwatcher>
     <cp-globals id="globals"></cp-globals>
+
   </template>
 
   <script>

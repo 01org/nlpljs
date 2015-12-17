@@ -31,53 +31,57 @@
 
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 
+<link rel="import" href="./cp-tile-style.html">
+
 <dom-module id="cp-tile-file">
-  <link rel="import" type="css" href="styles/cp-tile.css">
-  <style>
-    #imageContainer {
-      height: calc(100% - 46px);
-      width: 100%;
-      overflow: hidden;
-      border-radius: 2px;
-    }
-
-    #image {
-      object-fit: contain;
-      object-position: 50% 50%;
-      background-color: #eee;
-    }
-
-    #meta {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-start;
-      align-items: center;
-      height: 46px;
-      text-align: left;
-      padding: 0.5em;
-      box-sizing: border-box;
-      width: 100%;
-      border-top: 1px solid #e6e6e6;
-    }
-
-    #caption {
-      margin-top: 0;
-      margin-bottom: 0;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      font-size: 12px;
-      line-height: 16px;
-      padding-left: 8px;
-    }
-
-    #icon {
-      min-width: 16px;
-      min-height: 16px;
-    }
-  </style>
 
   <template>
+
+    <style include="cp-tile-style">
+      #imageContainer {
+        height: calc(100% - 46px);
+        width: 100%;
+        overflow: hidden;
+        border-radius: 2px;
+      }
+
+      #image {
+        object-fit: contain;
+        object-position: 50% 50%;
+        background-color: #eee;
+      }
+
+      #meta {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        height: 46px;
+        text-align: left;
+        padding: 0.5em;
+        box-sizing: border-box;
+        width: 100%;
+        border-top: 1px solid #e6e6e6;
+      }
+
+      #caption {
+        margin-top: 0;
+        margin-bottom: 0;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        font-size: 12px;
+        line-height: 16px;
+        padding-left: 8px;
+      }
+
+      #icon {
+        min-width: 16px;
+        min-height: 16px;
+      }
+
+    </style>
+
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>

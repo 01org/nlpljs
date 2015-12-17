@@ -37,34 +37,36 @@
 <link rel="import" href="./cp-detail-style.html">
 
 <dom-module id="cp-detail-image">
-  <style include="cp-detail-style">
-    core-collapse {
-      display: block;
-    }
-
-    #exifTitle {
-      display: inline;
-    }
-
-    #exifToggle {
-      float: right;
-    }
-
-    #exifDropdown {
-      margin-top: 20px;
-    }
-
-    #container {
-      @apply(--layout-vertical);
-    }
-
-    #back {
-      @apply(--layout-horizontal);
-    }
-
-  </style>
 
   <template>
+
+    <style include="cp-detail-style">
+
+      core-collapse {
+        display: block;
+      }
+
+      #exifTitle {
+        display: inline;
+      }
+
+      #exifToggle {
+        float: right;
+      }
+
+      #exifDropdown {
+        margin-top: 20px;
+      }
+
+      #container {
+        @apply(--layout-vertical);
+      }
+
+      #back {
+        @apply(--layout-horizontal);
+      }
+
+    </style>
 
     <div id="container">
       <div class="top-bar toolbar-shadow">

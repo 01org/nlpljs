@@ -40,192 +40,195 @@
 <link rel="import" href="./cp-sources-storage.html">
 
 <dom-module id="cp-sources-selector">
-  <style>
-    :host {
-      display: block;
-      position: relative;
-      display: inline-block;
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
-    }
-
-    #title-back {
-      margin-top: 26px;
-    }
-
-    #back::shadow core-icon {
-      height: 20px;
-      width: 20px;
-    }
-
-    #back::shadow paper-ripple {
-      display: none;
-    }
-
-    #panel_overlay {
-      position:absolute;
-      top:0px;
-      left:0px;
-      bottom:0px;
-      right:0px;
-      background-color:rgba(0, 0, 0, 0.5);
-      z-index: 5;
-      visibility: hidden;
-    }
-
-    #panel_overlay.visible {
-      visibility: visible;
-    }
-
-    #panel {
-      height: 100%;
-      width: 100%;
-    }
-
-    #panel::shadow #dropShadow {
-      box-shadow: none !important;
-    }
-
-    #header {
-      background-color: #B8578C;
-      text-align: left;
-      color: white;
-      padding-top: 6px;
-      height: 96px;
-    }
-
-    #headertext {
-      margin-left: 15px;
-      font-size: 20px;
-    }
-
-    #back {
-      padding-left: 0 !important;
-    }
-
-    #add {
-      background-color: #FFF373;
-      bottom: -20px;
-      z-index: 1;
-      width: 40px;
-      height: 40px;
-      box-shadow: #888 0px 3px 5px;
-    }
-
-    #add[disabled] {
-      background-color: #c9c9c9;
-    }
-
-    #add::shadow core-icon {
-      color: black;
-      width: 20px;
-      height: 20px;
-      top: 10px;
-      left: 10px;
-    }
-
-    #select_all_container {
-      padding-top: 45px;
-      padding-bottom: 20px;
-      width: calc(100% - 48px);
-      margin-left: 24px;
-      border-bottom: 1px solid #afafaf;
-      font-size: 14px;
-    }
-
-    #sources {
-      width: calc(100% - 48px);
-      margin-left: 24px;
-    }
-
-    #sources div {
-      padding-top: 8px;
-      padding-bottom: 8px;
-      align-items: center;
-      font-size: 14px;
-    }
-
-    #sources div:first-child {
-      padding-top: 14px;
-    }
-
-    #sources core-icon {
-      color: gray;
-      width: 16px;
-      height: 16px;
-    }
-
-    cp-sources-dialog {
-      left: auto;
-      right: auto;
-      width: 200px;
-      height: 150px;
-      margin: auto;
-      display: flex;
-    }
-
-    #add_dialog::shadow #container {
-      padding: 0;
-      max-height: 100%;
-      max-width: 100%;
-      width: 100%;
-      height: 100%;
-    }
-
-    #add_dialog::shadow #main {
-      padding: 0;
-      max-height: 100%;
-      max-width: 100%;
-      width: 100%;
-      height: 100%;
-    }
-
-    #add_dialog::shadow #actions {
-      padding: 0;
-    }
-
-    #add_dialog paper-input {
-      padding: 0;
-      width: 70%;
-      height: 35%;
-      margin: auto;
-      font-size: 70%;
-    }
-
-    #add_dialog::shadow #scroller {
-      overflow: hidden;
-    }
-
-    #add_dialog_button_wrapper {
-      width:70%;
-      height:30%;
-      margin: auto;
-    }
-
-    #add_dialog_button_wrapper paper-button {
-      font-size: 70%;
-      text-align: center;
-      width: 30%;
-      height: 70%;
-      margin: auto;
-    }
-
-    paper-checkbox {
-      margin-right: 32px;
-    }
-
-    paper-checkbox::shadow #checkboxContainer {
-      width: 18px;
-      height: 18px;
-    }
-
-    paper-checkbox::shadow #checkbox.checked {
-      border-color: #B8578C;
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+        position: relative;
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      #title-back {
+        margin-top: 26px;
+      }
+
+      #back::shadow core-icon {
+        height: 20px;
+        width: 20px;
+      }
+
+      #back::shadow paper-ripple {
+        display: none;
+      }
+
+      #panel_overlay {
+        position:absolute;
+        top:0px;
+        left:0px;
+        bottom:0px;
+        right:0px;
+        background-color:rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        visibility: hidden;
+      }
+
+      #panel_overlay.visible {
+        visibility: visible;
+      }
+
+      #panel {
+        height: 100%;
+        width: 100%;
+      }
+
+      #panel::shadow #dropShadow {
+        box-shadow: none !important;
+      }
+
+      #header {
+        background-color: #B8578C;
+        text-align: left;
+        color: white;
+        padding-top: 6px;
+        height: 96px;
+      }
+
+      #headertext {
+        margin-left: 15px;
+        font-size: 20px;
+      }
+
+      #back {
+        padding-left: 0 !important;
+      }
+
+      #add {
+        background-color: #FFF373;
+        bottom: -20px;
+        z-index: 1;
+        width: 40px;
+        height: 40px;
+        box-shadow: #888 0px 3px 5px;
+      }
+
+      #add[disabled] {
+        background-color: #c9c9c9;
+      }
+
+      #add::shadow core-icon {
+        color: black;
+        width: 20px;
+        height: 20px;
+        top: 10px;
+        left: 10px;
+      }
+
+      #select_all_container {
+        padding-top: 45px;
+        padding-bottom: 20px;
+        width: calc(100% - 48px);
+        margin-left: 24px;
+        border-bottom: 1px solid #afafaf;
+        font-size: 14px;
+      }
+
+      #sources {
+        width: calc(100% - 48px);
+        margin-left: 24px;
+      }
+
+      #sources div {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      #sources div:first-child {
+        padding-top: 14px;
+      }
+
+      #sources core-icon {
+        color: gray;
+        width: 16px;
+        height: 16px;
+      }
+
+      cp-sources-dialog {
+        left: auto;
+        right: auto;
+        width: 200px;
+        height: 150px;
+        margin: auto;
+        display: flex;
+      }
+
+      #add_dialog::shadow #container {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #main {
+        padding: 0;
+        max-height: 100%;
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      #add_dialog::shadow #actions {
+        padding: 0;
+      }
+
+      #add_dialog paper-input {
+        padding: 0;
+        width: 70%;
+        height: 35%;
+        margin: auto;
+        font-size: 70%;
+      }
+
+      #add_dialog::shadow #scroller {
+        overflow: hidden;
+      }
+
+      #add_dialog_button_wrapper {
+        width:70%;
+        height:30%;
+        margin: auto;
+      }
+
+      #add_dialog_button_wrapper paper-button {
+        font-size: 70%;
+        text-align: center;
+        width: 30%;
+        height: 70%;
+        margin: auto;
+      }
+
+      paper-checkbox {
+        margin-right: 32px;
+      }
+
+      paper-checkbox::shadow #checkboxContainer {
+        width: 18px;
+        height: 18px;
+      }
+
+      paper-checkbox::shadow #checkbox.checked {
+        border-color: #B8578C;
+      }
+    </style>
+
     <div id="panel_overlay" class$="{{_computeClass()}}"></div>
 
     <cp-sources-storage id="storage" on-newsources="setSources">

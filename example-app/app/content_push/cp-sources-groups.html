@@ -39,87 +39,91 @@
 <link rel="import" href="./cp-swapper.html">
 
 <dom-module id="cp-sources-groups">
-  <style>
-    :host {
-      display: block;
-      position: relative;
-      height: 100%;
-      width: 100%;
-      overflow-y: auto;
-    }
-
-    #panel {
-      height: 100%;
-    }
-
-    #panel::shadow #dropShadow {
-      box-shadow: none !important;
-    }
-
-    #panel::shadow #mainContainer {
-      padding: 16px;
-    }
-
-    #header {
-      background-color: #B8578C;
-      text-align: left;
-      color: white;
-      padding-top: 14px;
-      height: 96px;
-    }
-
-    #back::shadow core-icon {
-      height: 20px;
-      width: 20px;
-    }
-
-    #toolbar::shadow #bottomBar {
-      padding: 0;
-    }
-
-    #headertext {
-      margin: 0; 
-      font-size: 20px;
-    }
-
-    #subheading {
-      font-size: 14px;
-    }
-
-    #back {
-      margin-left: 0 !important;
-      margin-top: -30px !important;
-    }
-
-    #back::shadow paper-ripple {
-      display: none;
-    }
-
-    #items {
-      padding-top: 12px;
-    }
-
-    core-item {
-      -webkit-user-select: none;
-      cursor: pointer;
-      margin: 5px 0;
-    }
-
-    core-item::shadow #label {
-      font-size: 14px;
-    }
-
-    cp-swapper {
-      width: 100%;
-      height: 100%;
-    }
-
-    cp-swapper, [swapper-fix], [swapper-slide] {
-      background-color: #fafafa;
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      #panel {
+        height: 100%;
+      }
+
+      #panel::shadow #dropShadow {
+        box-shadow: none !important;
+      }
+
+      #panel::shadow #mainContainer {
+        padding: 16px;
+      }
+
+      #header {
+        background-color: #B8578C;
+        text-align: left;
+        color: white;
+        padding-top: 14px;
+        height: 96px;
+      }
+
+      #back::shadow core-icon {
+        height: 20px;
+        width: 20px;
+      }
+
+      #toolbar::shadow #bottomBar {
+        padding: 0;
+      }
+
+      #headertext {
+        margin: 0; 
+        font-size: 20px;
+      }
+
+      #subheading {
+        font-size: 14px;
+      }
+
+      #back {
+        margin-left: 0 !important;
+        margin-top: -30px !important;
+      }
+
+      #back::shadow paper-ripple {
+        display: none;
+      }
+
+      #items {
+        padding-top: 12px;
+      }
+
+      core-item {
+        -webkit-user-select: none;
+        cursor: pointer;
+        margin: 5px 0;
+      }
+
+      core-item::shadow #label {
+        font-size: 14px;
+      }
+
+      cp-swapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      cp-swapper, [swapper-fix], [swapper-slide] {
+        background-color: #fafafa;
+      }
+
+    </style>
+
     <cp-icons id="icons"></cp-icons>
 
     <cp-sources-storage id="storage" on-newsources="onNewSources">

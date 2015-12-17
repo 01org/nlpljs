@@ -33,16 +33,20 @@
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
 <dom-module id="cp-scroll">
-  <style>
-    :host {
-      display: block;
-      position: relative;
-      overflow-x: hidden;
-      overflow-y: scroll;
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: scroll;
+      }
+
+    </style>
+
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*"></content>
   </template>

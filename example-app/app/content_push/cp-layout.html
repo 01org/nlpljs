@@ -31,35 +31,39 @@
 <link rel="import" href="./cp-tile-image.html">
 
 <dom-module id="cp-layout">
-  <style>
-    :host {
-      display: block;
-      margin: 16px 0 16px 10px;
-    }
-
-    #container {
-      position: relative;
-    }
-
-    [data-tile="true"] {
-      position: absolute;
-      transition-property: top, left, opacity;
-      transition-duration: 0.25s, 0.25s, 0.25s;
-      transition-timing-function: ease-out, ease-out, ease-out;
-    }
-
-    #loading {
-      width: 100%;
-      text-align: center;
-      padding-top: 2em;
-    }
-
-    [data-show="false"] {
-      display: none !important;
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+        margin: 16px 0 16px 10px;
+      }
+
+      #container {
+        position: relative;
+      }
+
+      [data-tile="true"] {
+        position: absolute;
+        transition-property: top, left, opacity;
+        transition-duration: 0.25s, 0.25s, 0.25s;
+        transition-timing-function: ease-out, ease-out, ease-out;
+      }
+
+      #loading {
+        width: 100%;
+        text-align: center;
+        padding-top: 2em;
+      }
+
+      [data-show="false"] {
+        display: none !important;
+      }
+
+    </style>
+
     <div id="container" data-show$="{{_computeDataShow(tilesVisible)}}" data-loading-tiles$="{{tilesLoading}}">
     </div>
 

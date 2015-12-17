@@ -38,37 +38,40 @@
  -->
  
 <dom-module id="cp-swapper">
-  <style>
-    :host {
-      display: block;
-    }
-
-    #container {
-      position: relative;
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-    }
-
-    ::content > [swapper-fix], ::content > [swapper-slide] {
-      position: absolute;
-      display: block;
-      height: 100%;
-      width: 100%;
-      transition: transform 0.2s ease-out;
-    }
-
-    ::content > [swapper-slide] {
-      z-index: 1000;
-      transform: translateX(100%);
-    }
-
-    ::content > [swapper-slide][data-open="true"] {
-      transform: translateX(0);
-    }
-  </style>
 
   <template>
+
+    <style>
+
+      :host {
+        display: block;
+      }
+
+      #container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      ::content > [swapper-fix], ::content > [swapper-slide] {
+        position: absolute;
+        display: block;
+        height: 100%;
+        width: 100%;
+        transition: transform 0.2s ease-out;
+      }
+
+      ::content > [swapper-slide] {
+        z-index: 1000;
+        transform: translateX(100%);
+      }
+
+      ::content > [swapper-slide][data-open="true"] {
+        transform: translateX(0);
+      }
+    </style>
+
     <div id="container">
       <content select="[swapper-fix]"></content>
       <content select="[swapper-slide]"></content>

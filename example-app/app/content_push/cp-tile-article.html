@@ -33,77 +33,81 @@
 
 <link rel="import" href="../bower_components/paper-material/paper-material.html">
 
+<link rel="import" href="./cp-tile-style.html">
+
 <dom-module id="cp-tile-article">
-  <link rel="import" type="css" href="styles/cp-tile.css">
-  <style>
-    #mainContainer {
-      border-radius: 2px;
-    }
-
-    #text {
-      height: 100%;
-      width: 100%;
-    }
-
-    #text > * {
-      margin: 12px 14px 0 14px;
-    }
-
-    img {
-      height: 100%;
-      width: 100%;
-      object-fit: cover;
-      object-position: 50% 50%;
-    }
-
-    .text-elide {
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      /* these provide the multi-line ellipsis over 2 lines, but
-         only work in WebKit; as we're dependent on Chrome, I decided it
-         was OK */
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-    }
-
-    .left {
-      width: 36% !important;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .right {
-      width: 64% !important;
-    }
-
-    #meta {
-      position: absolute;
-      bottom: 0px;
-      margin-bottom: -6px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    #image {
-      border-top-left-radius: 2px;
-      border-bottom-left-radius: 2px;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-    }
-
-    #meta p {
-      margin: 0.4em 0 16px 0;
-      white-space: nowrap;
-    }
-
-    #snippet {
-      margin-top: 2px;
-    }
-  </style>
 
   <template>
+
+    <style include="cp-tile-style">
+      #mainContainer {
+        border-radius: 2px;
+      }
+
+      #text {
+        height: 100%;
+        width: 100%;
+      }
+
+      #text > * {
+        margin: 12px 14px 0 14px;
+      }
+
+      img {
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+        object-position: 50% 50%;
+      }
+
+      .text-elide {
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        /* these provide the multi-line ellipsis over 2 lines, but
+           only work in WebKit; as we're dependent on Chrome, I decided it
+           was OK */
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .left {
+        width: 36% !important;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .right {
+        width: 64% !important;
+      }
+
+      #meta {
+        position: absolute;
+        bottom: 0px;
+        margin-bottom: -6px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      #image {
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      #meta p {
+        margin: 0.4em 0 16px 0;
+        white-space: nowrap;
+      }
+
+      #snippet {
+        margin-top: 2px;
+      }
+
+    </style>
+
     <div id="container">
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
