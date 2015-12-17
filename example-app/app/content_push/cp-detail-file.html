@@ -48,7 +48,7 @@
           <paper-fab id="backbutton" mini icon="arrow-back" raisedbutton="true"
                      on-click="onBackButtonClick"></paper-fab>
 
-          <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
+          <h2 id="backcaption" class="flex" data-hide$="{{!caption}}">
             <caption>{{cleanHTML(caption)}}</caption>
           </h2>
         </div>
@@ -56,16 +56,14 @@
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show$="{{!loaded}}">
-            <template is="dom-if" if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
+          <div id="spinner" data-hide$="{{loaded}}">
+            <paper-spinner active$="{{spinSpinner(shown, loaded)}}"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show$="{{loaded}}">
-            <img id="image" src="{{src}}" on-load="onImageLoad" data-show$="{{loaded}}">
+          <div id="imgPlacer" data-hide$="{{!loaded}}">
+            <img id="image" src="{{src}}" on-load="onImageLoad" data-hide$="{{!loaded}}">
           </div>
         </div>
       </div>
@@ -74,31 +72,31 @@
         <div class="imageMeta">
           <div class="imageMetaKey">Source</div>
           <div class="imageMetaValue">
-            <span data-show$="{{!!serviceIcon}}">
+            <span data-hide$="{{!serviceIcon}}">
               <iron-icon icon="{{serviceIcon}}"></iron-icon>
             </span>
             &nbsp;&nbsp;
-            <span data-show$="{{!!service}}">
+            <span data-hide$="{{!service}}">
               <span>{{service}}</span>
             </span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{!!fileType}}">
+        <div class="imageMeta" data-hide$="{{!fileType}}">
           <div class="imageMetaKey">Type</div>
           <div class="imageMetaValue">
             <img src="{{iconLink}}">&nbsp;&nbsp;<span>{{fileType}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{_computeDataShow(size)}}">
+        <div class="imageMeta" data-hide$="{{_computeDataHide(size)}}">
           <div class="imageMetaKey">Size</div>
           <div class="imageMetaValue">
             <span>{{bytesToKb(size)}}</span>Kb
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{!!folder}}">
+        <div class="imageMeta" data-hide$="{{!folder}}">
           <div class="imageMetaKey">Location</div>
           <div class="imageMetaValue">
             <iron-icon icon="folder"></iron-icon>
@@ -106,14 +104,14 @@
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{!!owner}}">
+        <div class="imageMeta" data-hide$="{{!owner}}">
           <div class="imageMetaKey">Owner</div>
           <div class="imageMetaValue">
             <span>{{owner}}</span>
           </div>
         </div>
 
-        <div class="imageMeta" data-show$="{{!!modifiedDate}}">
+        <div class="imageMeta" data-hide$="{{!modifiedDate}}">
           <div class="imageMetaKey">Modified</div>
           <div class="imageMetaValue">
             <span>{{formatDate(modifiedDate)}}</span> by <span>{{lastModifiedByUser}}</span>
@@ -128,7 +126,7 @@
         </div>
       </div>
 
-      <div id="visitSrc" data-show$="{{source}}">
+      <div id="visitSrc" data-hide$="{{!source}}">
         <paper-button class="colored" on-click="visitWebpage"
                       data-source-link$="{{source}}">
           OPEN FILE
@@ -270,6 +268,10 @@
           return Formatter.cleanHTML.apply(Formatter, arguments);
         },
 
+        spinSpinner: function (shown, loaded) {
+          return shown && !loaded;
+        },
+
         formatDate: function () {
           return Formatter.formatDate.apply(Formatter, arguments);
         },
@@ -281,8 +283,8 @@
         /* no clean-up necessary, but needed by the API */
         close: function () {},
 
-        _computeDataShow: function (size) {
-          return size !== null && size !== undefined;
+        _computeDataHide: function (size) {
+          return size === null || size === undefined;
         }
       }); // Polymer()
     }());

@@ -285,6 +285,7 @@
 
         showDetail: function (e) {
           var tile = e.detail;
+
           if (tile.type === 'image') {
             this.$.detailImage.showTile(tile);
             this.$.swapper.slideIn('detailimage');
@@ -295,10 +296,22 @@
             this.$.detailArticle.showTile(tile);
             this.$.swapper.slideIn('detailarticle');
           }
+
         },
 
         closeDetail: function (e) {
           if (this.$.swapper.activeElt) {
+
+            var tile = Polymer.dom(this.root).querySelector('[data-open="true"]');
+
+            if (tile.nodeName === 'CP-DETAIL-IMAGE') {
+              this.$.detailImage.closeTile();
+            } else if (tile.nodeName === 'CP-DETAIL-FILE') {
+              this.$.detailFile.closeTile();
+            } else if (tile.nodeName === 'CP-DETAIL-ARTICLE') {
+              this.$.detailArticle.closeTile();
+            }
+
             this.$.swapper.activeElt.close();
             this.$.swapper.slideOut();
             this.fire('mouseoutimage', e.target.highlights);

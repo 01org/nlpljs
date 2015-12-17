@@ -39,54 +39,61 @@
 
   <template>
 
-    <style include="cp-detail-style"></style>
+    <style include="cp-detail-style">
 
-    <div id="container" class="vertical layout">
+      #container {
+        @apply(--layout-vertical);
+      }
+
+      #back {
+        @apply(--layout-horizontal);
+      }
+
+    </style>
+
+    <div id="container">
       <div class="top-bar toolbar-shadow">
-        <div id="back" class="horizontal layout">
+        <div id="back">
           <paper-fab id="backbutton" mini icon="arrow-back" raisedbutton="true"
                      on-click="onBackButtonClick">
           </paper-fab>
 
-          <h2 id="backcaption" class="flex" data-show$="{{!!caption}}">
+          <h2 id="backcaption" data-hide$="{{!caption}}">
             <span>{{cleanHTML(caption)}}</span>
           </h2>
         </div>
       </div>
 
-      <div id="imgContainer" data-show$="{{imageAvailable}}">
+      <div id="imgContainer" data-hide$="{{!imageAvailable}}">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show$="{{!loaded}}">
-            <template is="dom-if" if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
+          <div id="spinner" data-hide$="{{loaded}}">
+            <paper-spinner active$="{{spinSpinner(shown, loaded)}}"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show$="{{loaded}}">
-            <img id="image" src="{{src}}" on-error="onImageError"
-                 on-load="onImageLoad">
+          <div id="imgPlacer" data-hide$="{{!loaded}}">
+            <img id="image" src="{{src}}" on-load="onImageLoad" on-error="onImageError">
           </div>
         </div>
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-show$="{{!!caption}}">
+        <h2 id="caption" data-hide$="{{!caption}">)
           <caption>{{cleanHTML(caption)}}</caption>
         </h2>
 
-        <p id="articleSource" data-show$="{{!!source}}">
+        <p id="articleSource" data-hide$="{{!source}}">
           <span>{{domainFromURL(source, sourceName)}}</span>
         </p>
 
-        <div id="snippet" data-show$="{{!!snippet}}">
+        <div id="snippet" data-hide$="{{!snippet}}">
           <span>{{cleanHTML(snippet)}}</span>
         </div>
       </div>
     </div>
 
-    <div id="visitSrc" data-show$="{{!!source}}">
+    <div id="visitSrc" data-hide$="{{!source}}">
       <paper-button class="colored" on-click="visitWebpage"
                     data-source-link$="{{source}}">
         GO TO ARTICLE
@@ -165,16 +172,18 @@
         },
 
         srcChanged: function () {
-          var self = this;
+          if (this.src && this.src != null) {
+            var self = this;
 
-          this.loaded = false;
-          this.imageHasLoaded = false;
+            this.loaded = false;
+            this.imageHasLoaded = false;
 
-          /* if the image never loads, record the component as ready
-           anyway, to ensure that it will display */
-          setTimeout(function () {
-            self.loaded = true;
-          }, CP_CONSTANTS.TIMEOUT);
+            /* if the image never loads, record the component as ready
+             anyway, to ensure that it will display */
+            setTimeout(function () {
+              self.loaded = true;
+            }, CP_CONSTANTS.TIMEOUT);
+          }
         },
 
         onImageLoad: function () {
@@ -203,6 +212,14 @@
 
           /* reset scroll to top */
           this.$.detailbody.scrollTop = 0;
+        },
+
+        closeTile: function () {
+          this.shown = false;
+        },
+
+        spinSpinner: function (shown, loaded) {
+          return shown && !loaded;
         },
 
         visitWebpage: function () {

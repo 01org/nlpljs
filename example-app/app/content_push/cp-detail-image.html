@@ -75,21 +75,21 @@
                      on-click="onBackButtonClick">
           </paper-fab>
 
-          <span id="backcaption" class="flex" data-show$="{{boolToString(!!caption)}}">
+          <h2 id="backcaption" data-hide$="{{!caption}}">
             <span>{{cleanHTML(caption)}}</span>
-          </span>
+          </h2>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show$="{{boolToString(!!loaded)}}">
-            <paper-spinner active$="{{!!loaded}}"></paper-spinner>
+          <div id="spinner" MAXMAXMAX data-hide$="{{loaded}}">
+            <paper-spinner active$="{{spinSpinner(shown, loaded)}}"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show$="{{boolToString(loaded)}}">
+          <div id="imgPlacer" data-hide$="{{!loaded}}">
             <template is="dom-if" if="{{loaded}}">
               <img id="image" src="{{src}}" on-load="onImageLoad">
             </template>
@@ -99,18 +99,18 @@
 
       <div id="detailbody">
         <div id="imageInfo">
-          <div class="imageMeta" data-show$="{{_computeDataShow(source, sourceName)}}">
+          <div class="imageMeta" data-hide$="{{_computeDataHide(source, sourceName)}}">
             <div class="imageMetaKey">Source</div>
             <div class="imageMetaValue">{{domainFromURL(source, sourceName)}}</div>
           </div>
 
-          <div class="imageMeta" data-show$="{{_computeDataShow2(height, width)}}">
+          <div class="imageMeta" data-hide$="{{_computeDataHide2(height, width)}}">
             <div class="imageMetaKey">Size</div>
             <div class="imageMetaValue"><span>{{width}}</span>x<span>{{height}}</span></div>
           </div>
         </div>
 
-        <div id="exif" data-show$="{{boolToString(hasEXIF)}}">
+        <div id="exif" data-hide$="{{!hasEXIF}}">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
             <iron-icon id="exifToggle" on-click="exifToggle"
@@ -119,14 +119,14 @@
           </div>
 
           <iron-collapse id="exifDropdown">
-            <div class="imageMeta" data-show$="{{meta.Camera}}">
+            <div class="imageMeta" data-hide$="{{!meta.Camera}}">
               <div class="imageMetaKey">Camera</div>
               <div class="imageMetaValue">
                 <span>{{meta.Camera}}</span>
               </div>
             </div>
 
-            <div class="imageMeta" data-show$="{{meta.DateTime}}">
+            <div class="imageMeta" data-hide$="{{!meta.DateTime}}">
               <div class="imageMetaKey">Date</div>
               <div class="imageMetaValue">
                 <span>{{meta.DateTime}}</span>
@@ -136,7 +136,7 @@
         </div>
       </div>
 
-      <div id="visitSrc" data-show$="{{boolToString(!!source)}}">
+      <div id="visitSrc" data-hide$="{{!source)}}">
         <paper-button class="colored" on-click="visitWebpage"
                       data-source-link$="{{source}}">
           VIEW IMAGE
@@ -190,7 +190,14 @@
 
           onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' },
 
+          // image is loaded
           loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          // tile is shown
+          shown: {
             type: Boolean,
             value: false
           },
@@ -233,7 +240,7 @@
             this.loaded = false;
 
             /* if the image never loads, record the component as ready
-           anyway, to ensure that it will display */
+             anyway, to ensure that it will display */
             setTimeout(function () {
               self.loaded = true;
             }, CP_CONSTANTS.TIMEOUT);
@@ -278,6 +285,8 @@
         },
 
         showTile: function (tile) {
+          this.shown = true;
+
           this.src = tile.image.src;
           this.caption = tile.image.caption;
           this.source = tile.image.source;
@@ -290,6 +299,14 @@
           this.$.detailbody.scrollTop = 0;
         },
 
+        closeTile: function () {
+          this.shown = false;
+        },
+
+        spinSpinner: function (shown, loaded) {
+          return shown && !loaded;
+        },
+
         /* set visibility of EXIF panel by checking metadata */
         metaChanged: function () {
           if (this.meta && this.meta) {
@@ -300,22 +317,12 @@
           }
         },
 
-        boolToString: function (truth) {
-          if (typeof truth === 'boolean') {
-            var retVal = (truth)?'true':'false';
-
-            return retVal;
-          } else {
-            console.error('truth param isn\'t boolean');
-          }
+        _computeDataHide: function (source, sourceName) {
+          return sourceName && source;
         },
 
-        _computeDataShow: function (source, sourceName) {
-          return !!sourceName || !!source;
-        },
-
-        _computeDataShow2: function (height, width) {
-          return width > 0 && height > 0;
+        _computeDataHide2: function (height, width) {
+          return !(width > 0 && height > 0);
         }
       }); // Polymer()
     }());
