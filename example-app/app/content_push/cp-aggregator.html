@@ -91,8 +91,14 @@
       Polymer({
         is: 'cp-aggregator',
 
+        properties: {
+          pendingSearches: {
+            type: Number,
+            value: 0
+          }
+        },
+
         ready: function () {
-          this.pendingSearches = 0;
           this.onNewSources();
         },
 
@@ -138,7 +144,7 @@
          */
         aggregate: function (searchTerms, groupName, sourceName) {
           /* get the services we want to search against, depending on
-           the groupName; or default to all services if no groupName */
+             the groupName; or default to all services if no groupName */
           var i;
           var services = this.services;
           if (groupName) {
@@ -160,71 +166,71 @@
               var thisService = services[serviceIndex].service;
 
               switch (thisService) {
-              case 'Google Image Search':
-              case 'Google Article Search':
-                /* set this to false if at least one search source
-                 is enabled and does a search */
-                var noSourcesUsed = true;
+                case 'Google Image Search':
+                case 'Google Article Search':
+                  /* set this to false if at least one search source
+                     is enabled and does a search */
+                  var noSourcesUsed = true;
 
-                groupName = services[serviceIndex].groupName;
+                  groupName = services[serviceIndex].groupName;
 
-                /* if sourceName isn't set, we'll just search all sources for
-                 this sources group */
-                var thisSources;
-                if (sourceName) {
-                  var source = this.$.storage.retrieveSource(
-                    groupName,
-                    sourceName
-                  );
+                  /* if sourceName isn't set, we'll just search all sources for
+                     this sources group */
+                  var thisSources;
+                  if (sourceName) {
+                    var source = this.$.storage.retrieveSource(
+                      groupName,
+                      sourceName
+                    );
 
-                  if (source) {
-                    var sources = {};
-                    sources[sourceName] = source;
-                    thisSources = {
-                      sources: sources
-                    };
+                    if (source) {
+                      var sources = {};
+                      sources[sourceName] = source;
+                      thisSources = {
+                        sources: sources
+                      };
+                    }
+                  } else {
+                    thisSources = this.$.storage.getSourcesForGroup(groupName);
                   }
-                } else {
-                  thisSources = this.$.storage.getSourcesForGroup(groupName);
-                }
 
-                if (thisSources) {
-                  var keys = Object.keys(thisSources.sources);
+                  if (thisSources) {
+                    var keys = Object.keys(thisSources.sources);
 
-                  for (i = 0; i < keys.length; i++) {
-                    var sourceKey = keys[i];
-                    var thisSource = thisSources.sources[sourceKey];
+                    for (i = 0; i < keys.length; i++) {
+                      var sourceKey = keys[i];
+                      var thisSource = thisSources.sources[sourceKey];
 
-                    if (thisSource.enabled) {
-                      noSourcesUsed = false;
+                      if (thisSource.enabled) {
+                        noSourcesUsed = false;
 
-                      searches.push([
-                        this,
-                        thisSearchTerm,
-                        thisService,
-                        thisSource.url,
-                        sourceKey
-                      ]);
+                        searches.push([
+                          this,
+                          thisSearchTerm,
+                          thisService,
+                          thisSource.url,
+                          sourceKey
+                        ]);
+                      }
                     }
                   }
-                }
 
-                /* none of the sources were enabled/available, so do an
-                 unfiltered search */
-                if (noSourcesUsed) {
+                  /* none of the sources were enabled/available, so do an
+                     unfiltered search */
+                  if (noSourcesUsed) {
+                    searches.push([this, thisSearchTerm, thisService]);
+                  }
+
+                  break;
+                case 'Wikipedia Image Search':
+                case 'Wikipedia Article Search':
+                case 'Google Drive Search':
                   searches.push([this, thisSearchTerm, thisService]);
-                }
+                  break;
 
-                break;
-              case 'Wikipedia Image Search':
-              case 'Wikipedia Article Search':
-              case 'Google Drive Search':
-                searches.push([this, thisSearchTerm, thisService]);
-                break;
-
-              default:
-                console.warn('Unknown service:', thisService);
-                break;
+                default:
+                  console.warn('Unknown service:', thisService);
+                  break;
               }
             }
           }

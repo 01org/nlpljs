@@ -95,6 +95,7 @@
             console.warn('cp-fetcher: Unrecognized preferred service!:', preferredService);
             return Promise.resolve([]);
           }
+
           var promise = service.fetch(query, sourceURL).catch(function (err) {
             return Promise.reject(err);
           }).then(function (results) {
