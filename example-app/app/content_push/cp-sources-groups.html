@@ -52,16 +52,19 @@
         overflow-y: auto;
       }
 
+      .flex {
+        @apply(--layout-flex);
+      }
+
       #panel {
         height: 100%;
-      }
+        --paper-header-panel-shadow: {
+          box-shadow: none !important;
+        };
 
-      #panel::shadow #dropShadow {
-        box-shadow: none !important;
-      }
-
-      #panel::shadow #mainContainer {
-        padding: 16px;
+        --paper-header-panel-standard-container: {
+          padding: 16px;
+        };
       }
 
       #header {
@@ -70,15 +73,6 @@
         color: white;
         padding-top: 14px;
         height: 96px;
-      }
-
-      #back::shadow core-icon {
-        height: 20px;
-        width: 20px;
-      }
-
-      #toolbar::shadow #bottomBar {
-        padding: 0;
       }
 
       #headertext {
@@ -95,22 +89,17 @@
         margin-top: -30px !important;
       }
 
-      #back::shadow paper-ripple {
-        display: none;
-      }
-
       #items {
         padding-top: 12px;
       }
 
-      core-item {
-        -webkit-user-select: none;
-        cursor: pointer;
-        margin: 5px 0;
-      }
-
-      core-item::shadow #label {
-        font-size: 14px;
+      paper-item {
+        --paper-item: {
+          -webkit-user-select: none;
+          cursor: pointer;
+          margin: 5px 0;
+          font-size: 14px;
+        };
       }
 
       cp-swapper {
@@ -133,7 +122,7 @@
       <div swapper-fix>
         <paper-header-panel id="panel" class="flex">
           <paper-toolbar id="header">
-            <paper-icon-button id="back" icon="arrow-back" on-tap="onBackButtonClick">
+            <paper-icon-button id="back" noink icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
             <div class="flex">

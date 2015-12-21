@@ -127,19 +127,11 @@
         margin-right: 5px;
         margin-top: 12px;
         margin-bottom: auto;
-      }
 
-      #backbutton::shadow core-icon {
-        width: 20px;
-        height: 20px;
-      }
-
-      #backbutton::shadow paper-ripple {
-        display: none;
-      }
-
-      #backbutton /deep/ .paper-shadow-bottom-z-1 {
-        box-shadow: none !important;
+        --paper-fab-iron-icon: {
+            width: 20px;
+            height: 20px;
+        }
       }
 
       #visitSrc {
@@ -170,11 +162,6 @@
         width: 60%;
         overflow-x: hidden;
         text-overflow: ellipsis;
-      }
-
-      paper-button[raised].colored {
-        background: #4285f4;
-        color: #fff;
       }
 
       [data-hide] {
@@ -209,9 +196,17 @@
         min-height: 64px;
       }
 
+      p {
+        @apply(--cp-text-mixin);
+      }
+
       #articleSource {
         line-height: 12px;
         font-size: 10px;
+      }
+
+      .toolbar-shadow {
+        @apply(--cp-toolbar-shadow);
       }
 
     </style>

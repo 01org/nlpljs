@@ -81,48 +81,20 @@
         display: none;
       }
 
-      /* fix icon alignment inside core-icon elements; work-around
-         for https://github.com/Polymer/paper-button/issues/7 */
-      :host /deep/ paper-fab::shadow core-icon {
-        vertical-align: baseline;
-      }
+      :host {
+        --cp-text-mixin: {
+          font-size: 14px;
+          line-height: 18px;
+        }
 
-      :host /deep/ core-icon[aria-label="add"] {
-        position: absolute !important;
-      }
+        --cp-small-text-mixin: {
+          font-size: 10px;
+        }
 
-      :host /deep/ p,
-      :host /deep/ h2,
-      :host /deep/ h3,
-      :host /deep/ h4 {
-        color: rgba(0, 0, 0, 0.8);
-      }
-
-      :host /deep/ p {
-        font-size: 14px;
-        line-height: 18px;
-      }
-
-      :host /deep/ p.small {
-        font-size: 10px;
-      }
-
-      /* NB if line-height is 24px, some leftovers of the elided text
-         are visible; adding 2px cleans this up */
-      :host /deep/ h2 {
-        font-size: 24px;
-        line-height: 28px;
-      }
-
-      :host /deep/ h2,
-      :host /deep/ h3,
-      :host /deep/ h4 {
-        font-weight: normal;
-      }
-
-      :host /deep/ .toolbar-shadow {
-        box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.4);
-        z-index: 1000;
+        --cp-toolbar-shadow: {
+          box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.4);
+          z-index: 1000;
+        }
       }
     </style>
 

@@ -54,6 +54,7 @@
 
       :host {
         height: 100%;
+        --cp-toolbar-height: 64px;
       }
 
       #toolbar {
@@ -62,10 +63,9 @@
         --paper-toolbar-content: {
           padding: 0;
         };
-      }
 
-      #toolbar::shadow #bottomBar {
-        width: 100%;
+        --paper-toolbar-height: var(--cp-toolbar-height);
+        --paper-toolbar-sm-height : var(--cp-toolbar-height);
       }
 
       #toolbaricon {
@@ -93,17 +93,9 @@
         opacity: 0;
       }
 
-      #progress::shadow #activeProgress {
-        background-color: rgba(255, 243, 115, 1);
-      }
-
-      #progress::shadow #progressContainer {
-        background-color: rgba(255, 243, 115, 0.5);
-      }
-
       #display {
         padding: 0;
-        height: calc(100% - 64px);
+        height: calc(100% - var(--cp-toolbar-height));
         width: 100%;
         overflow: hidden;
         box-sizing: border-box;
@@ -156,6 +148,10 @@
 
       .horizontal-section {
         text-align: center;
+      }
+
+      .toolbar-shadow {
+        @apply(--cp-toolbar-shadow);
       }
 
     </style>

@@ -58,15 +58,6 @@
         margin-top: 26px;
       }
 
-      #back::shadow core-icon {
-        height: 20px;
-        width: 20px;
-      }
-
-      #back::shadow paper-ripple {
-        display: none;
-      }
-
       #panel_overlay {
         position:absolute;
         top:0px;
@@ -87,8 +78,10 @@
         width: 100%;
       }
 
-      #panel::shadow #dropShadow {
-        box-shadow: none !important;
+      #panel {
+        --paper-header-panel-shadow: {
+          box-shadow: none;
+        };
       }
 
       #header {
@@ -115,18 +108,18 @@
         width: 40px;
         height: 40px;
         box-shadow: #888 0px 3px 5px;
-      }
 
-      #add[disabled] {
-        background-color: #c9c9c9;
-      }
+        --paper-fab-iron-icon: {
+          color: black;
+          width: 20px;
+          height: 20px;
+          top: 10px;
+          left: 10px;
+        }
 
-      #add::shadow core-icon {
-        color: black;
-        width: 20px;
-        height: 20px;
-        top: 10px;
-        left: 10px;
+        --paper-fab-disabled: {
+          background-color: #c9c9c9;
+        }
       }
 
       #select_all_container {
@@ -169,24 +162,31 @@
         display: flex;
       }
 
-      #add_dialog::shadow #container {
-        padding: 0;
-        max-height: 100%;
-        max-width: 100%;
-        width: 100%;
-        height: 100%;
-      }
+      #add_dialog {
+        --cp-sources-dialog-container: {
+          padding: 0;
+          max-height: 100%;
+          max-width: 100%;
+          width: 100%;
+          height: 100%;
+        };
 
-      #add_dialog::shadow #main {
-        padding: 0;
-        max-height: 100%;
-        max-width: 100%;
-        width: 100%;
-        height: 100%;
-      }
+        --cp-sources-dialog-main {
+          padding: 0;
+          max-height: 100%;
+          max-width: 100%;
+          width: 100%;
+          height: 100%;
+        };
 
-      #add_dialog::shadow #actions {
-        padding: 0;
+        --cp-sources-dialog-actions {
+          padding: 0;
+        };
+
+        --cp-sources-dialog-scroller {
+          overflow: hidden;
+        };
+
       }
 
       #add_dialog paper-input {
@@ -195,10 +195,6 @@
         height: 35%;
         margin: auto;
         font-size: 70%;
-      }
-
-      #add_dialog::shadow #scroller {
-        overflow: hidden;
       }
 
       #add_dialog_button_wrapper {
@@ -217,15 +213,7 @@
 
       paper-checkbox {
         margin-right: 32px;
-      }
-
-      paper-checkbox::shadow #checkboxContainer {
-        width: 18px;
-        height: 18px;
-      }
-
-      paper-checkbox::shadow #checkbox.checked {
-        border-color: #B8578C;
+        --paper-checkbox-size: 18px;
       }
     </style>
 
@@ -238,7 +226,7 @@
       <paper-toolbar id="header">
         <div class="vertical layout">
           <div id="title-back" class="horizontal layout center">
-            <paper-icon-button id="back" icon="arrow-back" on-tap="onBackButtonClick">
+            <paper-icon-button id="back" noink icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
             <div class="flex">
@@ -268,7 +256,7 @@
         </template>
       </div>
 
-      <cp-sources-dialog id="add_dialog" container="html /deep/ cp-panel" transition="paper-dialog-transition-center" autoclosedisabled="{{_computeAutoclosedisabled()}}" class="flex">
+      <cp-sources-dialog id="add_dialog" container="[[sourcesDialogContainerSelector]]" transition="paper-dialog-transition-center" autoclosedisabled="{{_computeAutoclosedisabled()}}" class="flex">
         <paper-input-container alwaysFloatLabel="true" error="input is required!">
           <label>Source Name</label>
           <input id="inputName" is="iron-input" required>
@@ -304,6 +292,10 @@
             type: Boolean,
             value: false
           },
+          sourcesDialogContainerSelector: {
+            type: String,
+            value: 'html /deep/ cp-panel'
+          },
           currentGroupName: {
             type: String,
             value: null
@@ -313,7 +305,7 @@
         ready: function () {
           var self = this;
           document.addEventListener('polymer-ready', function () {
-            var cpPanel = Polymer.dom(document).querySelector('html /deep/ cp-panel');
+            var cpPanel = Polymer.dom(document).querySelector(this.sourceDialogContainerSelector);
             var addDialog = self.$.add_dialog;
             Polymer.dom(cpPanel).appendChild(addDialog);
           });

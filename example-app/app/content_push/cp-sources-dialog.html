@@ -33,6 +33,23 @@
  -->
 <dom-module id="cp-sources-dialog">
   <template>
+    <style>
+      #scroller {
+        @apply(--cp-sources-dialog-scroller);
+      }
+
+      #action {
+        @apply(--cp-sources-dialog-main);
+      }
+
+      #main {
+        @apply(--cp-sources-dialog-main);
+      }
+
+      #container {
+        @apply(--cp-sources-dialog-container);
+      }
+    </style>
     <paper-dialog modal></paper-dialog>
   </template>
   <script>
@@ -44,8 +61,7 @@
 
         properties: {
           container: {
-            value: null,
-            notify: true
+            value: null
           }
         },
 
