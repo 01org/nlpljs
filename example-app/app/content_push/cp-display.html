@@ -192,30 +192,18 @@
       paper-slider {
         width: 100%;
         height: var(--cp-slider-height);
-        box-sizing: border-box;
 
-
-        --paper-slider-knob-color: #B8578C;
-        --paper-slider-knob-start-color: #B8578C;
-        --paper-slider-knob-start-border-color: #B8578C;
-        --paper-slider-active-color: #B8578C;
-        --paper-slider-secondary-color: #C8C8C8;
-        --paper-slider-pin-color: #B8578C;
-        --paper-slider-height: 32px;
+        --cp-slider-fg-color: #B8578C; 
+        --cp-slider-bg-color: #C8C8C8;
+        --paper-slider-knob-color: var(--cp-slider-fg-color);
+        --paper-slider-knob-start-color: var(--cp-slider-fg-color);
+        --paper-slider-knob-start-border-color: var(--cp-slider-fg-color);
+        --paper-slider-active-color: var(--cp-slider-fg-color);
+        --paper-slider-secondary-color: var(--cp-slider-bg-color);
+        --paper-slider-pin-color: var(--cp-slider-fg-color);
+        --paper-slider-pin-start-color: var(--cp-slider-fg-color);
         --paper-slider-font-color: white;
-      --paper-progress-container-color: #c8c8c8;
-
-        /*
---paper-progress-container-color	Mixin applied to container	--google-grey-300
---paper-progress-transition-duration	Duration of the transition	0.008s
---paper-progress-transition-timing-function	The timing function for the transition	ease
---paper-progress-transition-delay	delay for the transition	0s
---paper-progress-active-color	The color of the active bar	--google-green-500
---paper-progress-secondary-color	The color of the secondary bar	--google-green-100
---paper-progress-disabled-active-color	The color of the active bar if disabled	--google-grey-500
---paper-progress-disabled-secondary-color	The color of the secondary bar if disabled	--google-grey-300
---paper-progress-height
-*/
+        --paper-progress-container-color: var(--cp-slider-bg-color);
 
       }
 
@@ -321,10 +309,7 @@
            on-mouseout="onSliderMouseOut"
            class$="{{hideIfNotVisible(sliderVisible)}}">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="5" value="1"
-                      pin snaps step="1"
-                      on-change="sliderChanged">
-        </paper-slider>
+        <paper-slider id="slider" min="1" max="5" value="1" pin snaps noink step="1" on-change="sliderChanged"></paper-slider>
       </div>
     </div>
   </template>
