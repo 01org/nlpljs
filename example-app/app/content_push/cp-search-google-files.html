@@ -47,7 +47,7 @@
       var getResultsToReturn = function (self, query) {
         var numResults = self.results[query].length;
         var from = self.cursor[query];
-        var to = Math.min(numResults, self.cursor[query] + self.resultsPerFetch);
+        var to = Math.min(numResults, from + self.resultsperfetch);
         var resultsToReturn = self.results[query].slice(from, to);
         self.cursor[query] += to - from;
         return resultsToReturn;
@@ -153,7 +153,7 @@
       Polymer({
         is: 'cp-search-google-files',
 
-        properties: { resultsPerFetch: { notify: true } },
+        properties: { resultsperfetch: { notify: true } },
 
         init: function () {
           this.access_token = null;
