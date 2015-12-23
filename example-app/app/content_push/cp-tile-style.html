@@ -49,8 +49,8 @@
       }
 
       #imageShadow {
-        height: calc(100% - 4px); /* -margin * 2 + 2 (for correct tile spacing) */
-        width: calc(100% - 4px); /* -margin * 2 + 2 (for correct tile spacing) */
+        height: calc(100% - 4px); /* 4px to allow for shadow */
+        width: calc(100% - 4px);
         box-sizing: border-box;
         border: 3px solid rgba(0, 0, 0, 0);
         border-radius: 2px;
@@ -83,7 +83,7 @@
         to   { opacity: 1; }
       }
 
-      [data-show="false"] {
+      [data-hide] {
         display: none !important;
       }
 

@@ -56,6 +56,13 @@
 
       #title-back {
         margin-top: 26px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+
+      #toolbarcontainer {
+        @apply(--layout-vertical);
       }
 
       #panel_overlay {
@@ -129,11 +136,18 @@
         margin-left: 24px;
         border-bottom: 1px solid #afafaf;
         font-size: 14px;
+
+        @apply(--layout-horizontal);
       }
 
       #sources {
         width: calc(100% - 48px);
         margin-left: 24px;
+        @apply(--layout-vertical);
+      }
+
+      .source_item_container {
+        @apply(--layout-horizontal);
       }
 
       #sources div {
@@ -201,6 +215,9 @@
         width:70%;
         height:30%;
         margin: auto;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
       }
 
       #add_dialog_button_wrapper paper-button {
@@ -224,8 +241,8 @@
 
     <paper-header-panel id="panel">
       <paper-toolbar id="header">
-        <div class="vertical layout">
-          <div id="title-back" class="horizontal layout center">
+        <div id="toolbarcontainer">
+          <div id="title-back">
             <paper-icon-button id="back" noink icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
@@ -238,15 +255,15 @@
         </div>
       </paper-toolbar>
 
-      <div id="select_all_container" class="horizontal layout">
+      <div id="select_all_container">
         <paper-checkbox id="select_all" on-change="{{_computeDisabled(currentGroupName)}}" checked$="{{allEnabled}}" disabled$="{{_computeDisabled(currentGroupName)}}">
         </paper-checkbox>
         <div class="flex">Select All</div>
       </div>
 
-      <div id="sources" class="vertical layout">
+      <div id="sources">
         <template is="dom-repeat" items="{{sources}}">
-          <div class="horizontal layout">
+          <div class="source_item_container">
             <paper-checkbox on-change="toggleSourceEnabled" for-source-name="{{item.name}}" disabled$="{{_computeDisabled(item.currentGroupName)}}" checked$="{{item.enabled}}">
             </paper-checkbox>
             <div class="flex">{{item.name}}</div>
@@ -267,7 +284,7 @@
           <input id="inputUrl" is="iron-input" required>
         </paper-input-container>
 
-        <div id="add_dialog_button_wrapper" class="horizontal justified layout buttons">
+        <div id="add_dialog_button_wrapper" class="buttons">
           <paper-button id="cancel" dialog-dismissive>Cancel</paper-button>
           <paper-button id="done" dialog-affirmative on-click="onAddDoneClick">Done</paper-button>
         </div>

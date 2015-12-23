@@ -77,7 +77,7 @@
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-hide$="{{!caption}">)
+        <h2 id="caption" data-hide$="{{!caption}">
           <caption>{{cleanHTML(caption)}}</caption>
         </h2>
 
@@ -170,7 +170,7 @@
         },
 
         srcChanged: function () {
-          if (this.src && this.src != null) {
+          if (this.src && this.src !== null) {
             var self = this;
 
             this.loaded = false;

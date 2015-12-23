@@ -53,7 +53,7 @@
 
   <script>
     (function () {
-      /* jshint strict:false */
+      'use strict';
 
       /* maximum number of pages for which Wikipedia will return
        extracts in response to a search */
@@ -82,10 +82,9 @@
 
         properties: {
           /* type of search: 'image' or 'article' */
-          searchType: {
+          searchtype: {
             type: String,
-            value: 'image',
-            notify: true
+            required: true
           }
         },
 
@@ -98,13 +97,11 @@
 
         /* get the URL to use for an image search */
         getImageSearchUrl: function (query, resultSet) {
-          'use strict';
           return 'https://commons.wikimedia.org/w/api.php?action=query' + '&generator=search' + '&gsrnamespace=6' + '&prop=imageinfo' + '&iiprop=extmetadata|url|size' + '&gsrsearch=%22' + encodeURIComponent(query) + '%22' + '&gsrlimit=' + MAX_RESULTS_PER_SEARCH + '&gsroffset=' + resultSet.offset + '&format=json' + '&rawcontinue';
         },
 
         /* get the URL to use for an article search */
         getArticleSearchUrl: function (query, resultSet) {
-          'use strict';
           return 'https://en.wikipedia.org/w/api.php?action=query' + '&generator=search' + '&gsrwhat=text' + '&gsrsearch=%22' + encodeURIComponent(query) + '%22' + '&gsrlimit=' + MAX_RESULTS_PER_SEARCH + '&gsroffset=' + resultSet.offset + '&prop=extracts|images' + '&exlimit=' + MAX_RESULTS_PER_SEARCH + '&exintro' + /* only use intros for extracts */
           '&exsentences=3' + /* # sentences per extract */
           '&format=json' + '&rawcontinue' + '&redirects';
@@ -115,7 +112,6 @@
          request for each page, as Wikipedia won't return image
          data for multiple pages at once */
         getImageUrl: function (title) {
-          'use strict';
           var imageSearchUrl = 'https://en.wikipedia.org/w/api.php?' + 'action=query&titles=' + encodeURIComponent(title) + '&prop=images' + '&format=json';
           return new Promise(function (resolve) {
             jsonp({
@@ -174,7 +170,6 @@
          this is wrapped in a Promise as the article results have
          to be returned asynchronously */
         parseImageResult: function (result) {
-          'use strict';
           var data = result.imageinfo[0];
           var meta = data.extmetadata;
           var thumbnailSrc = Thumbnailer.getGoogleURL(data.url);
@@ -195,7 +190,6 @@
         },
 
         parseArticleResult: function (result) {
-          'use strict';
           var thumbnailSrc = '';
           var snippet = '';
           if (result.extract) {
@@ -222,15 +216,14 @@
         /* prepare results for query; returns a promise which resolves
          to a ResultSet for the query */
         searchImpl: function (resultSet, query) {
-          'use strict';
           var self = this;
           var url;
-          if (this.searchType === 'image') {
+          if (this.searchtype === 'image') {
             url = this.getImageSearchUrl(query, resultSet);
           } else {
             url = this.getArticleSearchUrl(query, resultSet);
           }
-          console.log('CP-SEARCH-WIKIPEDIA: search ' + this.searchType + ' URL = ' + url);
+          console.log('CP-SEARCH-WIKIPEDIA: search ' + this.searchtype + ' URL = ' + url);
           return new Promise(function (resolve, reject) {
             jsonp({
               url: url,
@@ -247,7 +240,6 @@
         /* returns the resultSet, populated with the images from
          response */
         handleResponse: function (resultSet, query, response) {
-          'use strict';
           var err;
           if (response.error) {
             err = new Error('CP-SEARCH-WIKIPEDIA: ' + 'ERROR from Wikipedia API: ' + JSON.stringify(response));
@@ -272,7 +264,7 @@
           var parsePromises = [];
           for (var k in pages) {
             if (pages.hasOwnProperty(k)) {
-              if (this.searchType === 'image') {
+              if (this.searchtype === 'image') {
                 parsePromises.push(this.parseImageResult(pages[k]));
               } else {
                 parsePromises.push(this.parseArticleResult(pages[k]));

@@ -42,15 +42,22 @@
     <style include="cp-tile-style">
       #mainContainer {
         border-radius: 2px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-fit);
       }
 
       #text {
         height: 100%;
         width: 100%;
+
+        @apply(--layout-vertical);
       }
 
       #text > * {
-        margin: 12px 14px 0 14px;
+        margin: 0;
+        margin-left: 14px;
+        margin-right: 14px;
       }
 
       img {
@@ -61,15 +68,17 @@
       }
 
       .text-elide {
-        overflow: hidden;
         text-overflow: ellipsis;
 
-        /* these provide the multi-line ellipsis over 2 lines, but
-           only work in WebKit; as we're dependent on Chrome, I decided it
-           was OK */
+        /*
+          these provide the multi-line ellipsis over 2 lines, but only
+          work in WebKit; as we're dependent on Chrome, I decided it
+          was OK
+        */
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+        overflow: hidden;
       }
 
       .left {
@@ -83,9 +92,6 @@
       }
 
       #meta {
-        position: absolute;
-        bottom: 0px;
-        margin-bottom: -6px;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -98,12 +104,21 @@
       }
 
       #meta p {
-        margin: 0.4em 0 16px 0;
         white-space: nowrap;
       }
 
-      #snippet {
-        margin-top: 2px;
+      #caption {
+        margin: 0 0 0 0;
+      }
+
+      #captionContainer {
+      }
+
+      #snippetContainer {
+        @apply(--layout-flex);
+      }
+
+      #metaContainer {
       }
 
       p.small {
@@ -116,24 +131,22 @@
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <div id="mainContainer" class="horizontal layout fit">
-          <div data-show$="{{_computeDataShow(imageLoaded, src)}}" class="left">
+        <div id="mainContainer">
+          <div data-hide$="{{_computeDataHide(imageLoaded, src)}}" class="left">
             <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
           </div>
 
           <div id="text" class$="{{_computeClass(imageLoaded, src)}}">
-            <h2 id="caption" class="text-elide">
-              <span>{{cleanHTML(caption)}}</span>
-            </h2>
+            <div id="captionContainer">
+              <h2 id="caption" class="text-elide">{{cleanHTML(caption)}}</h2>
+            </div>
 
-            <p id="snippet" class="text-elide">
-              <span>{{cleanHTML(snippet)}}</span>
-            </p>
+            <div id="snippetContainer">
+              <div class="text-elide">{{cleanHTML(snippet)}}</div>
+            </div>
 
-            <div id="meta">
-              <p id="source" class="small">
-                <span>{{domainFromURL(source, sourceName)}}</span>
-              </p>
+            <div id="metaContainer">
+              <div id="meta" class="small">{{domainFromURL(source, sourceName)}}</div>
             </div>
           </div>
         </div>
@@ -250,8 +263,8 @@
           return Formatter.cleanHTML.apply(Formatter, arguments);
         },
 
-        _computeDataShow: function (imageLoaded, src) {
-          return src !== null && imageLoaded;
+        _computeDataHide: function (imageLoaded, src) {
+          return src === null || !imageLoaded;
         },
 
         _computeClass: function (imageLoaded, src) {

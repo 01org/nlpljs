@@ -51,12 +51,14 @@
 
       #detailbody {
         margin-bottom: 0;
+
+        @apply(--layout-vertical);
       }
   </style>
 
-    <div id="container" class="vertical layout">
+    <div id="container">
       <div class="top-bar toolbar-shadow">
-        <div id="back" class="horizontal layout">
+        <div id="back">
           <paper-fab id="backbutton" noink mini icon="arrow-back" on-click="onBackButtonClick"></paper-fab>
 
           <h2 id="backcaption" class="flex" data-hide$="{{!caption}}">
@@ -289,6 +291,10 @@
 
         bytesToKb: function (val) {
           return Formatter.round(val / 1024, 2);
+        },
+
+        closeTile: function () {
+          this.shown = false;
         },
 
         /* no clean-up necessary, but needed by the API */
