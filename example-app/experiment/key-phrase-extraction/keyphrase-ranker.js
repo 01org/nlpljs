@@ -32,7 +32,7 @@
    about related articles */
 var libnlp = require('../../../src/libnlp');
 var tester = require('./keyphrase-dbpedia-tester');
-var _ = require('../../app/bower_components/lodash/dist/lodash');
+var _ = require('../../app/bower_components/lodash/lodash.min.js');
 
 /* this is used to set the queriesToRun argument passed to
    tester.getDBpediaStats() */

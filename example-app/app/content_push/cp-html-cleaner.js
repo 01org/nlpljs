@@ -112,5 +112,5 @@
   }
 /* globals require:true */
 })(
-  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _
+  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _
 );

@@ -143,4 +143,4 @@
     window.TileCache = TileCache;
   }
 }(/* globals require:true */
-typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.js') : _));
+typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _));
