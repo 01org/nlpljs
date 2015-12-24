@@ -39,15 +39,13 @@
     /* keyed by tile source; stores Tile instances */
     this.tiles = {};
     /* keyed by tile source; maps to true/false depending
-     on whether the current filter returns true for the tile */
+       on whether the current filter returns true for the tile */
     this.tilesActive = {};
     /* this is set to the real filter as the user selects tile
-     type, keywords change, enabled sources change etc. */
-    this.filter = function ()
-      /*tile*/
-      {
-        return true;
-      };
+       type, keywords change, enabled sources change etc. */
+    this.filter = function () {
+      return true;
+    };
   };
   /**
    * Add a tile to the cache. The current filter is applied to the
@@ -126,7 +124,9 @@
       } else {
         activeAfterFiltering = false;
       }
-      Polymer.dom(tile).setAttribute('data-active', activeAfterFiltering);
+      /* seems like this should be Polymer.dom(tile).setAttribute(), but this function seems not to be ever used, so... */
+      tile.setAttribute('data-active', activeAfterFiltering);
+
       self.tilesActive[tile.source] = activeAfterFiltering;
       if (activeBeforeFiltering !== activeAfterFiltering) {
         activeTilesChanged = true;

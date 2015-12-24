@@ -71,7 +71,7 @@
       }
     }
 
-    return _.map(chunks, cleaner.clean, cleaner);
+    return _.map(chunks, cleaner.clean, HtmlCleaner);
   };
 
   var getImages = function (html, minImageSide, numImages) {
