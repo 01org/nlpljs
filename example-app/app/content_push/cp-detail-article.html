@@ -77,7 +77,7 @@
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-hide$="{{!caption}">
+        <h2 id="caption" data-hide$="{{!caption}}">
           <caption>{{cleanHTML(caption)}}</caption>
         </h2>
 
@@ -148,6 +148,11 @@
           imageAvailable: {
             type: Boolean,
             value: null
+          },
+
+          shown: {
+            type: Boolean,
+            value: false
           },
 
           loaded: {
