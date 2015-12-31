@@ -87,12 +87,12 @@
         <div id="overlay"></div>
 
         <div id="imageContainer">
-          <img id="image" src="{{src}}">
+          <img id="image" src="[[src]]">
         </div>
 
         <div id="meta">
-          <img id="icon" src="{{iconLink}}">
-          <p id="caption">{{caption}}</p>
+          <img id="icon" src="[[iconLink]]">
+          <p id="caption">[[caption]]</p>
         </div>
       </paper-material>
     </div>
@@ -112,8 +112,7 @@
           /* file tiles are always ready */
           done: {
             type: Boolean,
-            value: true,
-            notify: true
+            value: true
           },
           /* hard-code the frame for file tiles */
           frame: {
@@ -126,18 +125,27 @@
            thumbnail loads */
           loaded: {
             type: Boolean,
-            value: true,
-            notify: true
+            value: true
           },
-          src: { notify: true },
+          src: {
+            type: String,
+            value: ''
+          },
           /* type of object used to create the tile */
           type: {
             type: String,
             value: 'file'
           },
 
-          iconLink: { value: null },
-          caption: { value: '' }
+          iconLink: {
+            type: String,
+            value: null
+          },
+
+          caption: {
+            type: String,
+            value: ''
+          }
         },
 
         ready: function () {

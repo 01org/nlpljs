@@ -77,10 +77,10 @@
       <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
+        <img id="image" src="[[src]]" on-load="onImageLoaded" on-error="onImageError">
 
-        <p id="meta" data-revealed$="{{_computeDataRevealed(revealmeta)}}">
-          <span>{{width}}</span>x<span>{{height}}</span>
+        <p id="meta" data-revealed$="[[_computeDataRevealed(revealmeta)]]">
+          <span>[[width]]</span>x<span>[[height]]</span>
         </p>
       </paper-material>
     </div>
@@ -101,51 +101,94 @@
         is: 'cp-tile-image',
 
         properties: {
-          done: { notify: true },
-          height: { observer: 'heightChanged' },
-          loaded: { notify: true },
-          revealmeta: { notify: true },
+
+          /* true if the image is ready, whether it loaded or failed */
+          done: {
+            type: Boolean,
+            value: false
+          },
+
+          /* true if the wrapped image's load event has fired */
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          // set to 'on' to reveal metadata; set to 'off' to hide it;
+          // set to 'always' if metadata should always be visible
+          revealmeta: {
+            type: String,
+            value: 'off'
+          },
+
+          /* URL for the image to be displayed */
           src: {
-            notify: true,
+            type: String,
+            value: null,
             observer: 'srcChanged'
           },
-          width: { observer: 'widthChanged' }
-        },
 
-        ready: function () {
-          var self = this;
-          /* URL for the image to be displayed */
-          this.src = null;
           /* source URL */
-          this.source = null;
-          /* source name */
-          this.sourceName = null;
+          source: {
+            type: String,
+            value: null
+          },
+
+          sourceName: {
+            type: String,
+            value: null
+          },
+
+          /* computed whenever height or width change */
+          ratio: {
+            type: Number,
+            value: 0
+          },
+
           /* width and height are set manually; they do not
            have to correspond with the loaded image's actual
            width and height */
-          this.width = 0;
-          this.height = 0;
-          /* computed whenever height or width change */
-          this.ratio = 0;
-          /* true if the wrapped image's load event has fired */
-          this.loaded = false;
-          /* true if the image is ready, whether it loaded or failed */
-          this.done = false;
+          width: {
+            type: Number,
+            value: 0,
+            observer: 'widthChanged'
+          },
+
+          height: {
+            type: Number,
+            value: 0,
+            observer: 'heightChanged'
+          },
+
           /* keyword associated with the image with structure:
              {
                text: "<keyword text>",
                groupId: "<keyword group ID>"
              }
           */
-          this.keywords = [];
-          // set to 'on' to reveal metadata; set to 'off' to hide it;
-          // set to 'always' if metadata should always be visible
-          this.revealmeta = 'off';
+          keywords: {
+            type: Array,
+            value: []
+          },
+
           /* type of object used to create the tile: 'image' */
-          this.type = 'image';
+          type: {
+            type: String,
+            value: 'image'
+          },
+
           /* the original data used to construct the tile, as
            returned by an image search */
-          this.image = {};
+           image: {
+             type: Object,
+             value: {}
+           },
+
+        },
+
+        ready: function () {
+          var self = this;
+
           // fire a "done" event, even if the image times out
           setTimeout(function () {
             if (!self.done) {

@@ -132,8 +132,8 @@
           </paper-toolbar>
 
           <div id="items">
-            <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-              <paper-item undefined="{{groupName}}" on-click="editSourcesFor"></paper-item>
+            <template is="dom-repeat" items="[[groupNames]]" as="groupName">
+              <paper-item undefined="[[groupName]]" on-click="editSourcesFor"></paper-item>
             </template>
           </div>
         </paper-header-panel>

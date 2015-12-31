@@ -56,44 +56,44 @@
         <div id="back">
           <paper-fab id="backbutton" noink mini icon="arrow-back" on-click="onBackButtonClick"></paper-fab>
 
-          <h2 id="backcaption" data-hide$="{{!caption}}">
-            <span>{{cleanHTML(caption)}}</span>
+          <h2 id="backcaption" data-hide$="[[!caption]]">
+            <span>[[cleanHTML(caption)]]</span>
           </h2>
         </div>
       </div>
 
-      <div id="imgContainer" data-hide$="{{!imageAvailable}}">
+      <div id="imgContainer" data-hide$="[[!imageAvailable]]">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-hide$="{{loaded}}">
-            <paper-spinner active$="{{spinSpinner(shown, loaded)}}"></paper-spinner>
+          <div id="spinner" data-hide$="[[loaded]]">
+            <paper-spinner active$="[[spinSpinner(shown, loaded)]]"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-hide$="{{!loaded}}">
-            <img id="image" src="{{src}}" on-load="onImageLoad" on-error="onImageError">
+          <div id="imgPlacer" data-hide$="[[!loaded]]">
+            <img id="image" src="[[src]]" on-load="onImageLoad" on-error="onImageError">
           </div>
         </div>
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-hide$="{{!caption}}">
-          <caption>{{cleanHTML(caption)}}</caption>
+        <h2 id="caption" data-hide$="[[!caption]]">
+          <caption>[[cleanHTML(caption)]]</caption>
         </h2>
 
-        <p id="articleSource" data-hide$="{{!source}}">
-          <span>{{domainFromURL(source, sourceName)}}</span>
+        <p id="articleSource" data-hide$="[[!source]]">
+          <span>[[domainFromURL(source, sourceName)]]</span>
         </p>
 
-        <div id="snippet" data-hide$="{{!snippet}}">
-          <span>{{cleanHTML(snippet)}}</span>
+        <div id="snippet" data-hide$="[[!snippet]]">
+          <span>[[cleanHTML(snippet)]]</span>
         </div>
       </div>
     </div>
 
-    <div id="visitSrc" data-hide$="{{!source}}">
+    <div id="visitSrc" data-hide$="[[!source]]">
       <paper-button class="colored" on-click="visitWebpage"
-                    data-source-link$="{{source}}">
+                    data-source-link$="[[source]]">
         GO TO ARTICLE
       </paper-button>
     </div>
@@ -113,20 +113,17 @@
           /* source URL of the file thumbnail */
           src: {
             value: null,
-            notify: true,
             observer: 'srcChanged'
           },
 
           /* text describing the file */
           caption: {
-            value: null,
-            notify: true
+            value: null
           },
 
           /* where the file came from */
           source: {
-            value: null,
-            notify: true
+            value: null
           },
 
           /* name of the source */

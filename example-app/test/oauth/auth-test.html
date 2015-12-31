@@ -34,21 +34,21 @@
   <template>
     <section>
       <h5>Google</h5>
-      <button id='google_signin' on-click='{{onGoogleSignInClick}}'>Sign in</button>
-      <!--template if='{{working}}'-->
-      <paper-spinner active?='{{working}}'></paper-spinner>
+      <button id='google_signin' on-click='[[onGoogleSignInClick]]'>Sign in</button>
+      <!--template if='[[working]]'-->
+      <paper-spinner active$='[[working]]'></paper-spinner>
       <!--/template-->
-      <template bind='{{results}}'>
+      <template bind='[[results]]'>
         <h5>List of text/plain files</h5>
-        <p>Number of text/plain files: {{length}}</p>
+        <p>Number of text/plain files: [[length]]</p>
         <ol>
           <template repeat>
             <li>
-              <h5>{{title}}</h5>
-              <p>{{id}}</p>
-              <img src='{{iconLink}}'>
-              <img src='{{thumbnailLink}}'>
-              <pre>{{responseText}}</pre>
+              <h5>[[title]]</h5>
+              <p>[[id]]</p>
+              <img src='[[iconLink]]'>
+              <img src='[[thumbnailLink]]'>
+              <pre>[[responseText]]</pre>
             </li>
           </template>
         </ol>
@@ -66,14 +66,14 @@
     <section id='photos'>
     </section>
 
-    <cp-auth id='authorizer' on-accesstoken='{{onAccessToken}}'></cp-auth>
+    <cp-auth id='authorizer' on-accesstoken='[[onAccessToken]]'></cp-auth>
 
     <google-api-loader
       id='drive'
       name='drive'
       version='v2'
-      on-google-api-load='{{onDriveLoad}}'
-      on-google-api-load-error='{{onDriveLoadError}}'>
+      on-google-api-load='[[onDriveLoad]]'
+      on-google-api-load-error='[[onDriveLoadError]]'>
     </google-api-loader>
   </template>
 

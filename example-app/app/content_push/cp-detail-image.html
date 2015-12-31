@@ -73,23 +73,23 @@
         <div id="back">
           <paper-fab id="backbutton" noink mini icon="arrow-back" on-click="onBackButtonClick"></paper-fab>
 
-          <h2 id="backcaption" data-hide$="{{!caption}}">
-            <span>{{cleanHTML(caption)}}</span>
+          <h2 id="backcaption" data-hide$="[[!caption]]">
+            <span>[[cleanHTML(caption)]]</span>
           </h2>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-hide$="{{loaded}}">
-            <paper-spinner active$="{{spinSpinner(shown, loaded)}}"></paper-spinner>
+          <div id="spinner" data-hide$="[[loaded]]">
+            <paper-spinner active$="[[spinSpinner(shown, loaded)]]"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-hide$="{{!loaded}}">
-            <template is="dom-if" if="{{loaded}}">
-              <img id="image" src="{{src}}" on-load="onImageLoad">
+          <div id="imgPlacer" data-hide$="[[!loaded]]">
+            <template is="dom-if" if="[[loaded]]">
+              <img id="image" src="[[src]]" on-load="onImageLoad">
             </template>
           </div>
         </div>
@@ -97,18 +97,18 @@
 
       <div id="detailbody">
         <div id="imageInfo">
-          <div class="imageMeta" data-hide$="{{_computeDataHide(source, sourceName)}}">
+          <div class="imageMeta" data-hide$="[[_computeDataHide(source, sourceName)]]">
             <div class="imageMetaKey">Source</div>
-            <div class="imageMetaValue">{{domainFromURL(source, sourceName)}}</div>
+            <div class="imageMetaValue">[[domainFromURL(source, sourceName)]]</div>
           </div>
 
-          <div class="imageMeta" data-hide$="{{_computeDataHide2(height, width)}}">
+          <div class="imageMeta" data-hide$="[[_computeDataHide2(height, width)]]">
             <div class="imageMetaKey">Size</div>
-            <div class="imageMetaValue"><span>{{width}}</span>x<span>{{height}}</span></div>
+            <div class="imageMetaValue"><span>[[width]]</span>x<span>[[height]]</span></div>
           </div>
         </div>
 
-        <div id="exif" data-hide$="{{!hasEXIF}}">
+        <div id="exif" data-hide$="[[!hasEXIF]]">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
             <iron-icon id="exifToggle" on-click="exifToggle"
@@ -117,26 +117,26 @@
           </div>
 
           <iron-collapse id="exifDropdown">
-            <div class="imageMeta" data-hide$="{{!meta.Camera}}">
+            <div class="imageMeta" data-hide$="[[!meta.Camera]]">
               <div class="imageMetaKey">Camera</div>
               <div class="imageMetaValue">
-                <span>{{meta.Camera}}</span>
+                <span>[[meta.Camera]]</span>
               </div>
             </div>
 
-            <div class="imageMeta" data-hide$="{{!meta.DateTime}}">
+            <div class="imageMeta" data-hide$="[[!meta.DateTime]]">
               <div class="imageMetaKey">Date</div>
               <div class="imageMetaValue">
-                <span>{{meta.DateTime}}</span>
+                <span>[[meta.DateTime]]</span>
               </div>
             </div>
           </iron-collapse>
         </div>
       </div>
 
-      <div id="visitSrc" data-hide$="{{!source}}">
+      <div id="visitSrc" data-hide$="[[!source]]">
         <paper-button class="colored" on-click="visitWebpage"
-                      data-source-link$="{{source}}">
+                      data-source-link$="[[source]]">
           VIEW IMAGE
         </paper-button>
       </div>
@@ -157,20 +157,17 @@
           /* source URL of the image itself */
           src: {
             value: null,
-            notify: true,
             observer: 'srcChanged'
           },
 
           /* text describing the image */
           caption: {
-            value: null,
-            notify: true
+            value: null
           },
 
           /* where the image came from */
           source: {
-            value: null,
-            notify: true
+            value: null
           },
 
           /* image metadata */

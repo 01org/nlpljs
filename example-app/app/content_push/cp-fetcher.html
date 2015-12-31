@@ -31,6 +31,7 @@
 
 <dom-module id="cp-fetcher">
   <template>
+    <!-- resultsPerFetch has 'notify: true' in cp-search-behaviour.html -->
     <cp-search-google id="searchGoogleImages" resultsperfetch="{{resultsPerFetch}}" searchtype="image">
     </cp-search-google>
 
@@ -58,6 +59,11 @@
         is: 'cp-fetcher',
 
         properties: {
+          /*
+           * [TODO] why is this initialised here to 5, but in
+           * cp-search-behaviour.html it is initialised to 10; these
+           * variables are bound together...which one wins?
+           */
           // number of results to fetch per call to the fetch() method
           resultsPerFetch: {
             type: Number,

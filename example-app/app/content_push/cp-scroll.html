@@ -63,7 +63,12 @@
       Polymer({
         is: 'cp-scroll',
 
-        properties: { scrollgap: { notify: true } },
+        properties: {
+          scrollgap: {
+            type: Number,
+            value: DEFAULT_SCROLL_GAP
+          }
+        },
 
         init: function () {
           /* record the scroll position so we can determine whether

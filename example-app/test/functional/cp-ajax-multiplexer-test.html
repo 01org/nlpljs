@@ -46,11 +46,11 @@ Test for cp-ajax-multiplexter;
       Responses - they should correspond.
     </p>
     <div id="container">
-      <template repeat="{{response, i in responses}}">
+      <template repeat="[[response, i in responses]]">
         <div class="response">
-          <span flex>i:{{i}}</span>
-          <span flex ten>Sent:{{toJSON(response.sent)}}</span>
-          <span flex ten>Received:{{toJSON(response.received)}}</span>
+          <span flex>i:[[i]]</span>
+          <span flex ten>Sent:[[toJSON(response.sent)]]</span>
+          <span flex ten>Received:[[toJSON(response.received)]]</span>
         </div>
       </template>
     </div>

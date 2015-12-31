@@ -132,21 +132,21 @@
         <div id="overlay"></div>
 
         <div id="mainContainer">
-          <div data-hide$="{{_computeDataHide(imageLoaded, src)}}" class="left">
-            <img id="image" src="{{src}}" on-load="onImageLoaded" on-error="onImageError">
+          <div data-hide$="[[_computeDataHide(imageLoaded, src)]]" class="left">
+            <img id="image" src="[[src]]" on-load="onImageLoaded" on-error="onImageError">
           </div>
 
-          <div id="text" class$="{{_computeClass(imageLoaded, src)}}">
+          <div id="text" class$="[[_computeClass(imageLoaded, src)]]">
             <div id="captionContainer">
-              <h2 id="caption" class="text-elide">{{cleanHTML(caption)}}</h2>
+              <h2 id="caption" class="text-elide">[[cleanHTML(caption)]]</h2>
             </div>
 
             <div id="snippetContainer">
-              <div class="text-elide">{{cleanHTML(snippet)}}</div>
+              <div class="text-elide">[[cleanHTML(snippet)]]</div>
             </div>
 
             <div id="metaContainer">
-              <div id="meta" class="small">{{domainFromURL(source, sourceName)}}</div>
+              <div id="meta" class="small">[[domainFromURL(source, sourceName)]]</div>
             </div>
           </div>
         </div>
@@ -167,17 +167,46 @@
 
         properties: {
 
-          done: { notify: true },
-          loaded: { notify: true },
+          done: {
+            type: Boolean,
+            value: false
+          },
+
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
           src: {
-            notify: true,
+            type: String,
+            value: '',
             observer: 'srcChanged'
           },
-          imageLoaded: { value: false },
-          caption: { value: '' },
-          snippet: { value: null },
-          source: { value: null },
-          sourceName: { value: null }
+
+          imageLoaded: {
+            type: Boolean,
+            value: false
+          },
+
+          caption: {
+            type: String,
+            value: ''
+          },
+
+          snippet: {
+            type: String,
+            value: null
+          },
+
+          source: {
+            type: String,
+            value: null
+          },
+
+          sourceName: {
+            type: String,
+            value: null
+          }
         },
 
         ready: function () {

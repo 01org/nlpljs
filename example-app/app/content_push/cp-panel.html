@@ -175,12 +175,12 @@
           <paper-dropdown-menu id="menu" label="All" horizontal-align="left" no-label-float="true">
               <paper-menu class="dropdown-content" valueattr="id" on-iron-select="onMenuClick">
                 <paper-item id="itemAll" data-type-filter="no-filter" data-selected-filter="true">All</paper-item>
-                <template is="dom-repeat" items="{{groupNames}}" as="groupName">
-                  <paper-item id="{{_computeId(groupName)}}" data-type-filter$="{{lowercaseSingular(groupName)}}">{{groupName}}</paper-item>
+                <template is="dom-repeat" items="[[groupNames]]" as="groupName">
+                  <paper-item id="[[_computeId(groupName)]]" data-type-filter$="[[lowercaseSingular(groupName)]]">[[groupName]]</paper-item>
                 </template>
 
-                <template is="dom-if" if="{{_computeIf(searchService)}}">
-                  <paper-item id="itemEditSources" icon="{{editSources}}">EDIT SOURCES</paper-item>
+                <template is="dom-if" if="[[_computeIf(searchService)]]">
+                  <paper-item id="itemEditSources" icon="[[editSources]]">EDIT SOURCES</paper-item>
                 </template>
               </paper-menu>
           </paper-dropdown-menu>

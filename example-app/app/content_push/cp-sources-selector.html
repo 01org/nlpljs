@@ -234,7 +234,7 @@
       }
     </style>
 
-    <div id="panel_overlay" class$="{{_computeClass()}}"></div>
+    <div id="panel_overlay" class$="[[_computeClass()]]"></div>
 
     <cp-sources-storage id="storage" on-newsources="setSources">
     </cp-sources-storage>
@@ -250,30 +250,30 @@
               <div id="headertext">Sources</div>
             </div>
           </div>
-          <paper-fab id="add" icon="add" on-click="{{_computeDisabled(currentGroupName)}}" disabled$="{{_computeDisabled(currentGroupName)}}">
+          <paper-fab id="add" icon="add" on-click="[[_computeDisabled(currentGroupName)]]" disabled$="[[_computeDisabled(currentGroupName)]]">
           </paper-fab>
         </div>
       </paper-toolbar>
 
       <div id="select_all_container">
-        <paper-checkbox id="select_all" on-change="{{_computeDisabled(currentGroupName)}}" checked$="{{allEnabled}}" disabled$="{{_computeDisabled(currentGroupName)}}">
+        <paper-checkbox id="select_all" on-change="[[_computeDisabled(currentGroupName)]]" checked$="[[allEnabled]]" disabled$="[[_computeDisabled(currentGroupName)]]">
         </paper-checkbox>
         <div class="flex">Select All</div>
       </div>
 
       <div id="sources">
-        <template is="dom-repeat" items="{{sources}}">
+        <template is="dom-repeat" items="[[sources]]">
           <div class="source_item_container">
-            <paper-checkbox on-change="toggleSourceEnabled" for-source-name="{{item.name}}" disabled$="{{_computeDisabled(item.currentGroupName)}}" checked$="{{item.enabled}}">
+            <paper-checkbox on-change="toggleSourceEnabled" for-source-name="[[item.name]]" disabled$="[[_computeDisabled(item.currentGroupName)]]" checked$="[[item.enabled]]">
             </paper-checkbox>
-            <div class="flex">{{item.name}}</div>
-            <iron-icon icon="delete" on-click="removeSource" for-source-name="{{item.name}}">
+            <div class="flex">[[item.name]]</div>
+            <iron-icon icon="delete" on-click="removeSource" for-source-name="[[item.name]]">
             </iron-icon>
           </div>
         </template>
       </div>
 
-      <cp-sources-dialog id="add_dialog" container="[[sourcesDialogContainerSelector]]" transition="paper-dialog-transition-center" autoclosedisabled="{{_computeAutoclosedisabled()}}" class="flex">
+      <cp-sources-dialog id="add_dialog" container="[[sourcesDialogContainerSelector]]" transition="paper-dialog-transition-center" autoclosedisabled="[[_computeAutoclosedisabled()]]" class="flex">
         <paper-input-container alwaysFloatLabel="true" error="input is required!">
           <label>Source Name</label>
           <input id="inputName" is="iron-input" required>

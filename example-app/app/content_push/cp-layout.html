@@ -64,11 +64,11 @@
 
     </style>
 
-    <div id="container" data-show$="{{_computeDataShow(tilesVisible)}}" data-loading-tiles$="{{tilesLoading}}">
+    <div id="container" data-show$="[[_computeDataShow(tilesVisible)]]" data-loading-tiles$="[[tilesLoading]]">
     </div>
 
-    <div id="loading" data-show$="{{_computeIf(tilesLoading)}}">
-      <template is="dom-if" if="{{_computeIf(tilesLoading)}}">
+    <div id="loading" data-show$="[[_computeIf(tilesLoading)]]">
+      <template is="dom-if" if="[[_computeIf(tilesLoading)]]">
         <paper-spinner active></paper-spinner>
       </template>
     </div>
