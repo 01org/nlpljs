@@ -13,10 +13,8 @@ see below for configuration).
 1. npm install
 1. bower install
 1. grunt dist
-1  # install by selecting the dist/ directory with the 'Load unpacked
-   extension...' button on the chrome://extensions page.
 
-Then open a document in Google Docs.
+Install by selecting the dist/ directory with the 'Load unpacked extension...' button on the chrome://extensions page. Then open a document in Google Docs.
 
 ## Changing the search service
 
