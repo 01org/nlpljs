@@ -1,6 +1,7 @@
 {
   "name": "Content_Push",
   "version": "0.0.0",
+  "repository": "https://github.com/01org/nlpljs/",
   "devDependencies": {
     "chai": "^1.9.2",
     "gm": "^1.17.0",
