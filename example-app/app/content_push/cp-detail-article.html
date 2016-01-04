@@ -17,73 +17,83 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
-<polymer-element name="cp-detail-article" attributes="src caption source">
+<link rel="import" href="./cp-detail-style.html">
+
+<dom-module id="cp-detail-article">
+
   <template>
-    <link rel="stylesheet" href="./styles/cp-detail.css">
 
-    <div id="container" vertical layout>
+    <style include="cp-detail-style">
+
+      #container {
+        @apply(--layout-vertical);
+      }
+
+      #back {
+        @apply(--layout-horizontal);
+      }
+
+    </style>
+
+    <div id="container">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal layout>
-          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                     on-click="{{onBackButtonClick}}">
-          </paper-fab>
+        <div id="back">
+          <paper-fab id="backbutton" noink mini icon="arrow-back" on-click="onBackButtonClick"></paper-fab>
 
-          <h2 id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|cleanHTML}}</caption>
+          <h2 id="backcaption" data-hide$="[[!caption]]">
+            <span>[[cleanHTML(caption)]]</span>
           </h2>
         </div>
       </div>
 
-      <div id="imgContainer" data-show="{{imageAvailable}}">
+      <div id="imgContainer" data-hide$="[[!imageAvailable]]">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{!loaded}}">
-            <template if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
+          <div id="spinner" data-hide$="[[loaded]]">
+            <paper-spinner active$="[[spinSpinner(shown, loaded)]]"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show="{{loaded}}">
-            <img id="image" src="{{src}}" on-error="{{onImageError}}"
-                 on-load="{{onImageLoad}}">
+          <div id="imgPlacer" data-hide$="[[!loaded]]">
+            <img id="image" src="[[src]]" on-load="onImageLoad" on-error="onImageError">
           </div>
         </div>
       </div>
 
       <div id="detailbody">
-        <h2 id="caption" data-show="{{!!caption}}">
-          <caption>{{caption|cleanHTML}}</caption>
+        <h2 id="caption" data-hide$="[[!caption]]">
+          <caption>[[cleanHTML(caption)]]</caption>
         </h2>
 
-        <p id="articleSource" data-show="{{!!source}}">
-          {{sourceName || source|domainFromURL}}
+        <p id="articleSource" data-hide$="[[!source]]">
+          <span>[[domainFromURL(source, sourceName)]]</span>
         </p>
 
-        <div id="snippet" data-show="{{!!snippet}}">
-          {{snippet|cleanHTML}}
+        <div id="snippet" data-hide$="[[!snippet]]">
+          <span>[[cleanHTML(snippet)]]</span>
         </div>
       </div>
     </div>
 
-    <div id="visitSrc" data-show="{{!!source}}">
-      <paper-button class="colored" on-click="{{visitWebpage}}"
-                    data-source-link="{{source}}">
+    <div id="visitSrc" data-hide$="[[!source]]">
+      <paper-button class="colored" on-click="visitWebpage"
+                    data-source-link$="[[source]]">
         GO TO ARTICLE
       </paper-button>
     </div>
@@ -94,46 +104,86 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        /* source URL of the file thumbnail */
-        src: null,
+        is: 'cp-detail-article',
 
-        /* text describing the file */
-        caption: null,
+        properties: {
+          /* source URL of the file thumbnail */
+          src: {
+            value: null,
+            observer: 'srcChanged'
+          },
 
-        /* where the file came from */
-        source: null,
+          /* text describing the file */
+          caption: {
+            value: null
+          },
 
-        /* name of the source */
-        sourceName: null,
+          /* where the file came from */
+          source: {
+            value: null
+          },
 
-        /* extract from the article */
-        snippet: null,
+          /* name of the source */
+          sourceName: {
+            type: String,
+            value: null
+          },
 
-        /* does this article have an image available (i.e. it
-           has already been loaded in the tile) */
-        imageAvailable: null,
+          /* extract from the article */
+          snippet: {
+            type: String,
+            value: null
+          },
 
-        created: function () {
-          this.loaded = false;
-          this.imageHasLoaded = false;
+          /*
+           * does this article have an image available (i.e. it
+           * has already been loaded in the tile)
+           */
+          imageAvailable: {
+            type: Boolean,
+            value: null
+          },
+
+          shown: {
+            type: Boolean,
+            value: false
+          },
+
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          imageHasLoaded: {
+            type: Boolean,
+            value: false
+          }
         },
 
-        cleanHTML: Formatter.cleanHTML,
+        cleanHTML: function () {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
+        },
 
-        domainFromURL: Formatter.domainFromURL,
+        domainFromURL: function () {
+          return Formatter.domainFromURL.apply(Formatter, arguments);
+        },
 
         srcChanged: function () {
-          var self = this;
+          if (this.src && this.src !== null) {
+            var self = this;
 
-          this.loaded = false;
-          this.imageHasLoaded = false;
+            this.loaded = false;
+            this.imageHasLoaded = false;
 
-          /* if the image never loads, record the component as ready
+            /* if the image never loads, record the component as ready
              anyway, to ensure that it will display */
-          setTimeout(function () {
-            self.loaded = true;
-          }, CP_CONSTANTS.TIMEOUT);
+            setTimeout(function () {
+              self.loaded = true;
+            }, CP_CONSTANTS.TIMEOUT);
+          }
         },
 
         onImageLoad: function () {
@@ -164,6 +214,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           this.$.detailbody.scrollTop = 0;
         },
 
+        closeTile: function () {
+          this.shown = false;
+        },
+
+        spinSpinner: function (shown, loaded) {
+          return shown && !loaded;
+        },
+
         visitWebpage: function () {
           if (this.source) {
             window.open(this.source, '_blank');
@@ -172,7 +230,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
         /* no clean-up necessary, but needed by the API */
         close: function () {}
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

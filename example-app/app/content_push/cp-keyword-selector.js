@@ -30,6 +30,8 @@
    existing results, slider position etc. */
 
 (function () {
+  'use strict';
+
   /* maximum number of keywords to consider each time NLP
      finishes parsing the current context */
   var MAX_KEYWORDS = 5;
@@ -137,7 +139,7 @@
       });
     }
   };
-
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = KeywordSelector;
   }

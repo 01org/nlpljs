@@ -32,7 +32,7 @@
  * Images, Quotations, Text+Images, Files, Videos and All.
  * Each group has more than 1 sources. The groups have the following
  * properties:
- * icon - the icon name for the group (from core-iconset)
+ * icon - the icon name for the group (from iron-iconset)
  * enabled - if the group is enabled
  * sources - the sources in this group
  *
@@ -60,6 +60,8 @@
  */
 
 (function () {
+  'use strict';
+
   var currentItem = {};
 
   /*
@@ -274,10 +276,17 @@
 
   function dumpCurrentItem (documentId) {
     console.log('EP-SOURCES-STORAGE:Sources selection for:' + documentId);
-    for (var key in currentItem[documentId]) {
-      for (var src in currentItem[documentId][key].sources) {
-        console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
-        console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
+    var keys = Object.keys(currentItem[documentId]);
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+
+      if (currentItem[documentId][key].sources) {
+        var srcs = Object.keys(currentItem[documentId][key].sources);
+        for (var j = 0; j < srcs.length; j++) {
+          var src = srcs[j];
+          console.log('EP-SOURCES-STORAGE:source url:' + currentItem[documentId][key].sources[src].url);
+          console.log('EP-SOURCES-STORAGE:source enabled:' + currentItem[documentId][key].sources[src].enabled);
+        }
       }
     }
     return currentItem[documentId];
@@ -338,11 +347,11 @@
                 loadSources(documentId, result, newPort);
               });
             } else {
-              var message = {
+              var messageOut = {
                 component: 'sources',
                 data: currentItem[documentId]
               };
-              newPort.postMessage(message);
+              newPort.postMessage(messageOut);
             }
 
           } else
@@ -360,7 +369,11 @@
    * TODO: take changes made on other machines
    */
   chrome.storage.onChanged.addListener(function (changes, namespace) {
-    for (key in changes) {
+    var keys = Object.keys(changes);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+
       var storageChange = changes[key];
       console.log('Storage key "%s" in namespace "%s" changed. ' +
                   'Old value was "%s", new value is "%s".',

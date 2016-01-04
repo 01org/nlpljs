@@ -26,12 +26,14 @@
  */
 
 (function () {
+  'use strict';
+
   // frames around image-item elements inside a cp-layout;
   // NB the first item in this object will be the default if
   // no other frame is suitable
   var FRAMES = [
     { name: 'small_square', rows: 2, columns: 2, ratio: 1 },
-    //{ name: 'large_square', rows: 4, columns: 4, ratio: 1 },
+    { name: 'large_square', rows: 4, columns: 4, ratio: 1 },
     { name: 'portrait', columns: 2, rows: 4, ratio: 0.5 },
     { name: 'landscape1', columns: 4, rows: 2, ratio: 2 }
     //{ name: 'landscape2', columns: 4, rows: 3, ratio: 1.333333 }
@@ -93,7 +95,7 @@
 
     // the image must be the same height or taller than the frame
     // for the frame to be a candidate
-    var heightGreater;
+    var heightGreaterOrEqual;
 
     for (var i = 0; i < FRAMES.length; i++) {
       candidateFrame = FRAMES[i];
@@ -109,8 +111,8 @@
 
       betterCandidate = !chosenFrame ||
                         (ratioDiff < nearestRatio && heightGreaterOrEqual) ||
-                        (ratioDiff === nearestRatio && sizeDiff < nearestSize
-                         && heightGreaterOrEqual);
+                        (ratioDiff === nearestRatio && sizeDiff < nearestSize &&
+                        heightGreaterOrEqual);
 
       if (betterCandidate) {
         chosenFrame = candidateFrame;
@@ -122,6 +124,7 @@
     return chosenFrame;
   };
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = FrameChooser;
   }

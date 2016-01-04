@@ -33,17 +33,24 @@ Test for cp-ajax-multiplexter;
 <polymer-element name="cp-ajax-multiplexer-test">
   <template>
     <style>
+      #container {
+        @apply(--layout-vertical);
+      }
+
+      .response {
+        @apply(--layout-horizontal);
+      }
     </style>
 
     <p>
       Responses - they should correspond.
     </p>
-    <div id="container" layout vertical>
-      <template repeat="{{response, i in responses}}">
-        <div layout horizontal>
-          <span flex>i:{{i}}</span>
-          <span flex ten>Sent:{{response.sent | toJSON}}</span>
-          <span flex ten>Received:{{response.received | toJSON}}</span>
+    <div id="container">
+      <template repeat="[[response, i in responses]]">
+        <div class="response">
+          <span flex>i:[[i]]</span>
+          <span flex ten>Sent:[[toJSON(response.sent)]]</span>
+          <span flex ten>Received:[[toJSON(response.received)]]</span>
         </div>
       </template>
     </div>

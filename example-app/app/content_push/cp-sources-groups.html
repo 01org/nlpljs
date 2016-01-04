@@ -17,27 +17,33 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-header-panel/core-header-panel.html">
-<link rel="import" href="../bower_components/core-item/core-item.html">
-<link rel="import" href="./cp-icons.html">
-<link rel="import" href="./cp-swapper.html">
-<link rel="import" href="./cp-sources-storage.html">
-<link rel="import" href="./cp-sources-selector.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-sources-groups">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+
+<link rel="import" href="./cp-icons.html">
+<link rel="import" href="./cp-sources-selector.html">
+<link rel="import" href="./cp-sources-storage.html">
+<link rel="import" href="./cp-swapper.html">
+
+<dom-module id="cp-sources-groups">
+
   <template>
+
     <style>
+
       :host {
         display: block;
         position: relative;
@@ -46,16 +52,19 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
         overflow-y: auto;
       }
 
+      .flex {
+        @apply(--layout-flex);
+      }
+
       #panel {
         height: 100%;
-      }
+        --paper-header-panel-shadow: {
+          box-shadow: none !important;
+        };
 
-      #panel::shadow #dropShadow {
-        box-shadow: none !important;
-      }
-
-      #panel::shadow #mainContainer {
-        padding: 16px;
+        --paper-header-panel-standard-container: {
+          padding: 16px;
+        };
       }
 
       #header {
@@ -64,15 +73,6 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
         color: white;
         padding-top: 14px;
         height: 96px;
-      }
-
-      #back::shadow core-icon {
-        height: 20px;
-        width: 20px;
-      }
-
-      #toolbar::shadow #bottomBar {
-        padding: 0;
       }
 
       #headertext {
@@ -89,22 +89,17 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
         margin-top: -30px !important;
       }
 
-      #back::shadow paper-ripple {
-        display: none;
-      }
-
       #items {
         padding-top: 12px;
       }
 
-      core-item {
-        -webkit-user-select: none;
-        cursor: pointer;
-        margin: 5px 0;
-      }
-
-      core-item::shadow #label {
-        font-size: 14px;
+      paper-item {
+        --paper-item: {
+          -webkit-user-select: none;
+          cursor: pointer;
+          margin: 5px 0;
+          font-size: 14px;
+        };
       }
 
       cp-swapper {
@@ -115,48 +110,48 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
       cp-swapper, [swapper-fix], [swapper-slide] {
         background-color: #fafafa;
       }
+
     </style>
 
     <cp-icons id="icons"></cp-icons>
 
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    <cp-sources-storage id="storage" on-newsources="onNewSources">
     </cp-sources-storage>
 
     <cp-swapper id="swapper">
       <div swapper-fix>
-        <core-header-panel id="panel" flex>
-          <core-toolbar id="header">
-            <paper-icon-button id="back" icon="arrow-back"
-                              on-tap="{{onBackButtonClick}}">
+        <paper-header-panel id="panel" class="flex">
+          <paper-toolbar id="header">
+            <paper-icon-button id="back" noink icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
-            <div flex>
+            <div class="flex">
               <div id="headertext">Sources</div>
               <span id="subheading">Select sources for your content</span>
             </div>
-          </core-toolbar>
+          </paper-toolbar>
 
           <div id="items">
-            <template repeat="{{groupName in groupNames}}">
-              <core-item icon="{{$.icons[groupName]}}" label="{{groupName}}"
-                         on-click="{{editSourcesFor}}"></core-item>
+            <template is="dom-repeat" items="[[groupNames]]" as="groupName">
+              <paper-item undefined="[[groupName]]" on-click="editSourcesFor"></paper-item>
             </template>
           </div>
-        </core-header-panel>
+        </paper-header-panel>
       </div>
 
-      <cp-sources-selector id="selector"
-                  on-close="{{closeSelector}}"
-                  swapper-slide swap-id="selector">
+      <cp-sources-selector id="selector" on-close="closeSelector" swapper-slide swap-id="selector">
       </cp-sources-selector>
     </cp-swapper>
   </template>
-
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        domReady: function () {
-          this.onNewSources();
+        is: 'cp-sources-groups',
+
+        properties: {
+          groupNames: { value: [] }
         },
 
         onNewSources: function () {
@@ -169,15 +164,18 @@ href="../bower_components/paper-icon-button/paper-icon-button.html">
 
         editSourcesFor: function (e) {
           var elt = e.toElement;
-
           this.$.selector.setGroup(elt.label);
           this.$.swapper.slideIn('selector');
         },
 
         closeSelector: function () {
           this.$.swapper.slideOut('selector');
+        },
+
+        ready: function () {
+          this.onNewSources();
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

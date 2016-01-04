@@ -17,27 +17,34 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/core-header-panel/core-header-panel.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-input/iron-input.html">
+
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/paper-input/paper-input-decorator.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input-container.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+
 <link rel="import" href="./cp-sources-dialog.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-sources-selector">
+<dom-module id="cp-sources-selector">
+
   <template>
+
     <style>
+
       :host {
         display: block;
         position: relative;
@@ -49,15 +56,13 @@ href="../bower_components/core-header-panel/core-header-panel.html">
 
       #title-back {
         margin-top: 26px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
       }
 
-      #back::shadow core-icon {
-        height: 20px;
-        width: 20px;
-      }
-
-      #back::shadow paper-ripple {
-        display: none;
+      #toolbarcontainer {
+        @apply(--layout-vertical);
       }
 
       #panel_overlay {
@@ -80,8 +85,10 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         width: 100%;
       }
 
-      #panel::shadow #dropShadow {
-        box-shadow: none !important;
+      #panel {
+        --paper-header-panel-shadow: {
+          box-shadow: none;
+        };
       }
 
       #header {
@@ -108,18 +115,18 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         width: 40px;
         height: 40px;
         box-shadow: #888 0px 3px 5px;
-      }
 
-      #add[disabled] {
-        background-color: #c9c9c9;
-      }
+        --paper-fab-iron-icon: {
+          color: black;
+          width: 20px;
+          height: 20px;
+          top: 10px;
+          left: 10px;
+        }
 
-      #add::shadow core-icon {
-        color: black;
-        width: 20px;
-        height: 20px;
-        top: 10px;
-        left: 10px;
+        --paper-fab-disabled: {
+          background-color: #c9c9c9;
+        }
       }
 
       #select_all_container {
@@ -129,11 +136,18 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         margin-left: 24px;
         border-bottom: 1px solid #afafaf;
         font-size: 14px;
+
+        @apply(--layout-horizontal);
       }
 
       #sources {
         width: calc(100% - 48px);
         margin-left: 24px;
+        @apply(--layout-vertical);
+      }
+
+      .source_item_container {
+        @apply(--layout-horizontal);
       }
 
       #sources div {
@@ -162,27 +176,34 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         display: flex;
       }
 
-      #add_dialog::shadow #container {
-        padding: 0;
-        max-height: 100%;
-        max-width: 100%;
-        width: 100%;
-        height: 100%;
+      #add_dialog {
+        --cp-sources-dialog-container: {
+          padding: 0;
+          max-height: 100%;
+          max-width: 100%;
+          width: 100%;
+          height: 100%;
+        };
+
+        --cp-sources-dialog-main {
+          padding: 0;
+          max-height: 100%;
+          max-width: 100%;
+          width: 100%;
+          height: 100%;
+        };
+
+        --cp-sources-dialog-actions {
+          padding: 0;
+        };
+
+        --cp-sources-dialog-scroller {
+          overflow: hidden;
+        };
+
       }
 
-      #add_dialog::shadow #main {
-        padding: 0;
-        max-height: 100%;
-        max-width: 100%;
-        width: 100%;
-        height: 100%;
-      }
-
-      #add_dialog::shadow #actions {
-        padding: 0;
-      }
-
-      #add_dialog paper-input-decorator {
+      #add_dialog paper-input {
         padding: 0;
         width: 70%;
         height: 35%;
@@ -190,14 +211,13 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         font-size: 70%;
       }
 
-      #add_dialog::shadow #scroller {
-        overflow: hidden;
-      }
-
       #add_dialog_button_wrapper {
         width:70%;
         height:30%;
         margin: auto;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
       }
 
       #add_dialog_button_wrapper paper-button {
@@ -210,115 +230,101 @@ href="../bower_components/core-header-panel/core-header-panel.html">
 
       paper-checkbox {
         margin-right: 32px;
-      }
-
-      paper-checkbox::shadow #checkboxContainer {
-        width: 18px;
-        height: 18px;
-      }
-
-      paper-checkbox::shadow #checkbox.checked {
-        border-color: #B8578C;
+        --paper-checkbox-size: 18px;
       }
     </style>
 
-    <div
-      id="panel_overlay"
-      class="{{ {visible: ($.add_dialog.style.display !== 'none')} | tokenList }}"></div>
+    <div id="panel_overlay" class$="[[_computeClass()]]"></div>
 
-    <cp-sources-storage id="storage" on-newsources="{{setSources}}">
+    <cp-sources-storage id="storage" on-newsources="setSources">
     </cp-sources-storage>
 
-    <core-header-panel id="panel">
-      <core-toolbar id="header">
-        <div vertical layout>
-          <div id="title-back" horizontal layout center>
-            <paper-icon-button id="back" icon="arrow-back"
-                              on-tap="{{onBackButtonClick}}">
+    <paper-header-panel id="panel">
+      <paper-toolbar id="header">
+        <div id="toolbarcontainer">
+          <div id="title-back">
+            <paper-icon-button id="back" noink icon="arrow-back" on-tap="onBackButtonClick">
             </paper-icon-button>
 
-            <div flex>
+            <div class="flex">
               <div id="headertext">Sources</div>
             </div>
           </div>
-          <paper-fab
-            id="add"
-            icon="add"
-            disabled?="{{currentGroupName==='Files'}}"
-            on-click="{{onAddClick}}">
+          <paper-fab id="add" icon="add" on-click="[[_computeDisabled(currentGroupName)]]" disabled$="[[_computeDisabled(currentGroupName)]]">
           </paper-fab>
         </div>
-      </core-toolbar>
+      </paper-toolbar>
 
-      <div id="select_all_container" horizontal layout>
-        <paper-checkbox
-          id="select_all"
-          checked?="{{allEnabled}}"
-          disabled?="{{currentGroupName==='Files'}}"
-          on-change="{{toggleAllSourcesEnabled}}">
+      <div id="select_all_container">
+        <paper-checkbox id="select_all" on-change="[[_computeDisabled(currentGroupName)]]" checked$="[[allEnabled]]" disabled$="[[_computeDisabled(currentGroupName)]]">
         </paper-checkbox>
-        <div flex>Select All</div>
+        <div class="flex">Select All</div>
       </div>
 
-      <div id="sources" vertical layout>
-        <template repeat="{{sources}}">
-          <div horizontal layout>
-            <paper-checkbox disabled?="{{currentGroupName === 'Files'}}"
-                            on-change="{{toggleSourceEnabled}}"
-                            for-source-name="{{name}}"
-                            checked?="{{enabled}}">
+      <div id="sources">
+        <template is="dom-repeat" items="[[sources]]">
+          <div class="source_item_container">
+            <paper-checkbox on-change="toggleSourceEnabled" for-source-name="[[item.name]]" disabled$="[[_computeDisabled(item.currentGroupName)]]" checked$="[[item.enabled]]">
             </paper-checkbox>
-            <div flex>{{name}}</div>
-            <core-icon icon="delete" on-click="{{removeSource}}"
-                       for-source-name="{{name}}">
-            </core-icon>
+            <div class="flex">[[item.name]]</div>
+            <iron-icon icon="delete" on-click="removeSource" for-source-name="[[item.name]]">
+            </iron-icon>
           </div>
         </template>
       </div>
 
-      <cp-sources-dialog
-        id="add_dialog"
-        container="html /deep/ cp-panel"
-        flex
-        layered="false"
-        transition="paper-dialog-transition-center"
-        autoCloseDisabled="{{true}}">
-        <paper-input-decorator label="Source Name" floatingLabel error="input is required!">
-          <input id="inputName" is="core-input" required>
-        </paper-input-decorator>
+      <cp-sources-dialog id="add_dialog" container="[[sourcesDialogContainerSelector]]" transition="paper-dialog-transition-center" autoclosedisabled="[[_computeAutoclosedisabled()]]" class="flex">
+        <paper-input-container alwaysFloatLabel="true" error="input is required!">
+          <label>Source Name</label>
+          <input id="inputName" is="iron-input" required>
+        </paper-input-container>
 
-        <paper-input-decorator label="Source URL" floatingLabel error="input is required!">
-          <input id="inputUrl" is="core-input" required>
-        </paper-input-decorator>
+        <paper-input-container alwaysFloatLabel="true" error="input is required!">
+          <label>Source URL</label>
+          <input id="inputUrl" is="iron-input" required>
+        </paper-input-container>
 
-        <div id="add_dialog_button_wrapper" horizontal justified layout>
-          <paper-button id="cancel" dismissive>Cancel</paper-button>
-          <paper-button
-            id="done"
-            affirmative
-            on-click="{{onAddDoneClick}}"
-            >Done</paper-button>
+        <div id="add_dialog_button_wrapper" class="buttons">
+          <paper-button id="cancel" dialog-dismissive>Cancel</paper-button>
+          <paper-button id="done" dialog-affirmative on-click="onAddDoneClick">Done</paper-button>
         </div>
       </cp-sources-dialog>
-    </core-header-panel>
+    </paper-header-panel>
   </template>
-
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        created: function () {
+        is: 'cp-sources-selector',
+
+        properties: {
           /* an array of sources for the selected group */
-          this.sources = [];
-
-          this.allEnabled = false;
-
-          this.currentGroupName = null;
+          sources: {
+            type: Array,
+            value: [],
+            observer: 'sourcesChanged'
+          },
+          allEnabled: {
+            type: Boolean,
+            value: false
+          },
+          sourcesDialogContainerSelector: {
+            type: String,
+            value: 'html /deep/ cp-panel'
+          },
+          currentGroupName: {
+            type: String,
+            value: null
+          }
         },
 
         ready: function () {
           var self = this;
           document.addEventListener('polymer-ready', function () {
-            self.$.add_dialog.parentNode = document.querySelector('html /deep/ cp-panel');
+            var cpPanel = Polymer.dom(document).querySelector(this.sourceDialogContainerSelector);
+            var addDialog = self.$.add_dialog;
+            Polymer.dom(cpPanel).appendChild(addDialog);
           });
         },
 
@@ -344,7 +350,6 @@ href="../bower_components/core-header-panel/core-header-panel.html">
             var disabled = _.find(this.sources, function (source) {
               return source.enabled === false;
             });
-
             this.allEnabled = !disabled;
           } else {
             this.allEnabled = false;
@@ -353,7 +358,6 @@ href="../bower_components/core-header-panel/core-header-panel.html">
 
         removeSource: function (e) {
           var sourceName = e.target.getAttribute('for-source-name');
-
           if (this.$.storage.retrieveSource(this.currentGroupName, sourceName)) {
             this.$.storage.removeSource(this.currentGroupName, sourceName);
           }
@@ -362,31 +366,18 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         toggleSourceEnabled: function (e) {
           var checkbox = e.path[0];
           var sourceName = checkbox.getAttribute('for-source-name');
-          var source = this.$.storage.retrieveSource(
-            this.currentGroupName,
-            sourceName
-          );
-
+          var source = this.$.storage.retrieveSource(this.currentGroupName, sourceName);
           if (source) {
-            this.$.storage.setSourceEnabled(
-              this.currentGroupName,
-              sourceName,
-              !!checkbox.checked
-            );
+            this.$.storage.setSourceEnabled(this.currentGroupName, sourceName, !!checkbox.checked);
           }
         },
 
         toggleAllSourcesEnabled: function (e) {
           var self = this;
-          var enabled = !!(e.path[0].checked);
+          var enabled = !!e.path[0].checked;
           var sourcesGroup = this.$.storage.getSourcesForGroup(this.currentGroupName);
-
           _.each(_.keys(sourcesGroup.sources), function (sourceName) {
-            self.$.storage.setSourceEnabled(
-              self.currentGroupName,
-              sourceName,
-              enabled
-            );
+            self.$.storage.setSourceEnabled(self.currentGroupName, sourceName, enabled);
           });
         },
 
@@ -402,55 +393,35 @@ href="../bower_components/core-header-panel/core-header-panel.html">
         onAddDoneClick: function () {
           var name = this.$.inputName.committedValue;
           var url = this.$.inputUrl.committedValue;
-
-          var valid = this.$.inputName.validity.valid &&
-                      this.$.inputUrl.validity.valid;
-
+          var valid = this.$.inputName.validity.valid && this.$.inputUrl.validity.valid;
           /* matching name? */
-          var source = this.$.storage.retrieveSource(
-            this.currentGroupName,
-            name
-          );
-
+          var source = this.$.storage.retrieveSource(this.currentGroupName, name);
           if (source) {
             valid = false;
           }
-
           /* matching url? */
-          source = this.$.storage.retrieveSourceByUrl(
-            this.currentGroupName,
-            url
-          );
-
+          source = this.$.storage.retrieveSourceByUrl(this.currentGroupName, url);
           if (source) {
             valid = false;
           }
-
           /* everything OK */
           if (valid) {
             this.closeAddDialog();
-
             if (!this.$.storage.groupExists(this.currentGroupName)) {
               this.$.storage.createGroup(this.currentGroupname);
             }
-
-            this.$.storage.createSource(
-              this.currentGroupName,
-              name,
-              {
-                url: url,
-                enabled: true
-              }
-            );
+            this.$.storage.createSource(this.currentGroupName, name, {
+              url: url,
+              enabled: true
+            });
           }
         },
 
         closeAddDialog: function () {
-          var inputFields = this.$.add_dialog.querySelectorAll('paper-input-decorator');
-
+          var inputFields = Polymer.dom(this.$.add_dialog).querySelectorAll('paper-input-container');
           for (var i = 0; i < inputFields.length; i++) {
-            inputFields[i].querySelector('input').value = '';
-            inputFields[i].querySelector('input').commit();
+            Polymer.dom(inputFields[i]).querySelector('input').value = '';
+            Polymer.dom(inputFields[i]).querySelector('input').commit();
             inputFields[i].isInvalid = false;
             inputFields[i].focusedChanged();
           }
@@ -469,8 +440,30 @@ href="../bower_components/core-header-panel/core-header-panel.html">
           } else {
             return [];
           }
+        },
+
+        _computeClass: function () {
+          return this.tokenList({ visible: this.$.add_dialog.style.display !== 'none' });
+        },
+
+        _computeDisabled: function (currentGroupName) {
+          return currentGroupName === 'Files';
+        },
+
+        _computeAutoclosedisabled: function () {
+          return true;
+        },
+
+        tokenList: function (obj) {
+          var pieces = [];
+          for (var key in obj) {
+            if (obj[key]) {
+              pieces.push(key);
+            }
+          }
+          return pieces.join(' ');
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

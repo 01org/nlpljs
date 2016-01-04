@@ -25,7 +25,11 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-onmessage = function (event) {
+/* jshint worker:true */
+
+self.addEventListener('message', function (event) {
+  'use strict';
+
   var request = event.data;
   var requestId = request.id;
   var url = request.url;
@@ -35,8 +39,8 @@ onmessage = function (event) {
   xhr.open('GET', url, true);
 
   xhr.onreadystatechange = function () {
-    if (this.readyState == 4 /* DONE */) {
-      if (!(("" + xhr.status).match(/2\d\d/))) {
+    if (this.readyState === 4 /* DONE */) {
+      if (!(('' + xhr.status).match(/2\d\d/))) {
         postMessage({
           id: requestId,
           response: {
@@ -55,4 +59,4 @@ onmessage = function (event) {
   };
 
   xhr.send();
-};
+});

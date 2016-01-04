@@ -17,29 +17,32 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-
 <!--
-wrapper for a single image from a search result plus related elements for
-metadata; metadata elements are revealed by user interaction
-(mouse hover);
-the smallest image which will display OK is about 50x50px; any smaller
-than this and there's not enough room for the metadata about the image
-size
--->
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+ - wrapper for a single image from a search result plus related elements for
+ - metadata; metadata elements are revealed by user interaction
+ - (mouse hover);
+ - the smallest image which will display OK is about 50x50px; any smaller
+ - than this and there's not enough room for the metadata about the image
+ - size
+ -->
 
-<polymer-element name="cp-tile-image" attributes="src revealmeta loaded done">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="./cp-tile-style.html">
+
+<dom-module id="cp-tile-image">
+
   <template>
-    <link rel="stylesheet" href="styles/cp-tile.css">
-    <style>
+
+    <style include="cp-tile-style">
       [data-revealed="true"] {
         display: block;
         position: absolute;
@@ -63,25 +66,31 @@ size
         max-width: 100%;
         margin: 0;
       }
+
+      p {
+        @apply(--cp-text-mixin);
+      }
+
     </style>
 
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <img id="image" src="{{src}}" on-load="{{onImageLoaded}}" on-error="{{onImageError}}">
+        <img id="image" src="[[src]]" on-load="onImageLoaded" on-error="onImageError">
 
-        <p id="meta" data-revealed="{{revealmeta === 'on' || revealmeta === 'always'}}">
-          {{width}}x{{height}}
+        <p id="meta" data-revealed$="[[_computeDataRevealed(revealmeta)]]">
+          <span>[[width]]</span>x<span>[[height]]</span>
         </p>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
 
   <script src="./cp-constants.js"></script>
-
   <script>
     (function () {
+      'use strict';
+
       var setRatio = function (self) {
         if (self.width > 0 && self.height > 0) {
           self.ratio = self.width / self.height;
@@ -89,32 +98,67 @@ size
       };
 
       Polymer({
-        created: function () {
-          var self = this;
+        is: 'cp-tile-image',
 
-          /* URL for the image to be displayed */
-          this.src = null;
-
-          /* source URL */
-          this.source = null;
-
-          /* source name */
-          this.sourceName = null;
-
-          /* width and height are set manually; they do not
-             have to correspond with the loaded image's actual
-             width and height */
-          this.width = 0;
-          this.height = 0;
-
-          /* computed whenever height or width change */
-          this.ratio = 0;
-
-          /* true if the wrapped image's load event has fired */
-          this.loaded = false;
+        properties: {
 
           /* true if the image is ready, whether it loaded or failed */
-          this.done = false;
+          done: {
+            type: Boolean,
+            value: false
+          },
+
+          /* true if the wrapped image's load event has fired */
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          // set to 'on' to reveal metadata; set to 'off' to hide it;
+          // set to 'always' if metadata should always be visible
+          revealmeta: {
+            type: String,
+            value: 'off'
+          },
+
+          /* URL for the image to be displayed */
+          src: {
+            type: String,
+            value: null,
+            observer: 'srcChanged'
+          },
+
+          /* source URL */
+          source: {
+            type: String,
+            value: null
+          },
+
+          sourceName: {
+            type: String,
+            value: null
+          },
+
+          /* computed whenever height or width change */
+          ratio: {
+            type: Number,
+            value: 0
+          },
+
+          /* width and height are set manually; they do not
+           have to correspond with the loaded image's actual
+           width and height */
+          width: {
+            type: Number,
+            value: 0,
+            observer: 'widthChanged'
+          },
+
+          height: {
+            type: Number,
+            value: 0,
+            observer: 'heightChanged'
+          },
 
           /* keyword associated with the image with structure:
              {
@@ -122,18 +166,28 @@ size
                groupId: "<keyword group ID>"
              }
           */
-          this.keywords = [];
-
-          // set to 'on' to reveal metadata; set to 'off' to hide it;
-          // set to 'always' if metadata should always be visible
-          this.revealmeta = 'off';
+          keywords: {
+            type: Array,
+            value: []
+          },
 
           /* type of object used to create the tile: 'image' */
-          this.type = 'image';
+          type: {
+            type: String,
+            value: 'image'
+          },
 
           /* the original data used to construct the tile, as
-             returned by an image search */
-          this.image = {};
+           returned by an image search */
+           image: {
+             type: Object,
+             value: {}
+           },
+
+        },
+
+        ready: function () {
+          var self = this;
 
           // fire a "done" event, even if the image times out
           setTimeout(function () {
@@ -159,7 +213,6 @@ size
         // set metadata for the image once it's loaded
         onImageLoaded: function () {
           this.loaded = true;
-
           if (!this.done) {
             this.done = true;
             this.fire('done', this);
@@ -169,16 +222,18 @@ size
         // image failed to load for whatever reason
         onImageError: function (e) {
           this.loaded = false;
-
           if (!this.done) {
             this.done = true;
             this.fire('done', this);
           }
-
           // notify the error, in case anyone cares
           this.fire('error', e);
+        },
+
+        _computeDataRevealed: function (revealmeta) {
+          return revealmeta === 'on' || revealmeta === 'always';
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

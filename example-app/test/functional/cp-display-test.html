@@ -49,17 +49,17 @@ test for cp-display
     <p>Display different states of the cp-display element.</p>
 
     <p>
-      <button on-click="{{showPreResults}}">Show pre-results</button>
-      <button on-click="{{showPreResultsThenNoResults}}">Show pre-results -&gt; no-results</button>
-      <button on-click="{{showPreResultsThenResults}}">Show pre-results -&gt; results</button>
-      <button on-click="{{showResultFiltering}}">Load two sets of results with different filters</button>
-      <button on-click="{{showResultFilteringEmpty}}">Load results then empty results</button>
+      <button on-click="[[showPreResults]]">Show pre-results</button>
+      <button on-click="[[showPreResultsThenNoResults]]">Show pre-results -&gt; no-results</button>
+      <button on-click="[[showPreResultsThenResults]]">Show pre-results -&gt; results</button>
+      <button on-click="[[showResultFiltering]]">Load two sets of results with different filters</button>
+      <button on-click="[[showResultFilteringEmpty]]">Load results then empty results</button>
     </p>
 
     <p>Keyword for image: <span id="hoveredkeyword">-</span></p>
 
     <div id="container">
-      <cp-display id="display" on-mouse-over="{{showKeyword}}"></cp-display>
+      <cp-display id="display" on-mouse-over="[[showKeyword]]"></cp-display>
     </div>
   </template>
 

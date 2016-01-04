@@ -17,8 +17,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
@@ -37,27 +35,45 @@
  - ...
  -  console.log('app_id', this.globalData.app_id);
  -->
+
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-globals">
+<dom-module id="cp-globals">
+
+  <template>
+
+    <style>
+
+      :host {
+        display: none;
+      }
+
+    </style>
+
+  </template>
+
   <script>
     (function () {
+      'use strict';
+
       var data = {};
 
       Polymer({
-         ready: function () {
-           this.data = data;
-           // initialize values from attributes (note: strings only)
-           for (var i = 0; i < this.attributes.length; i++) {
-             var attr = this.attributes[i];
-             data[attr.nodeName] = attr.value;
-           }
-         },
+        is: 'cp-globals',
 
-         get documentId () {
-           return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
-         }
-      });
-    })();
+        ready: function () {
+          this.data = data;
+          // initialize values from attributes (note: strings only)
+          for (var i = 0; i < this.attributes.length; i++) {
+            var attr = this.attributes[i];
+            data[attr.nodeName] = attr.value;
+          }
+        },
+
+        get documentId() {
+          return /\/([^/]+)\/edit/.exec(this.data.iframeurl)[1];
+        }
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

@@ -26,6 +26,8 @@
  */
 
 (function (_) {
+  'use strict';
+
   /**
    * @class HtmlCleaner
    *
@@ -102,11 +104,13 @@
     return html;
   };
 
+/* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = HtmlCleaner;
   } else {
     window.HtmlCleaner = HtmlCleaner;
   }
+/* globals require:true */
 })(
-  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _
+  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _
 );

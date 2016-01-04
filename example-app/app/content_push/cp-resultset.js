@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   /* representation of the results for a single query */
   var ResultSet = function (query) {
     /* the key phrase these results relate to */
@@ -98,7 +100,7 @@
   ResultSet.prototype.setExhausted = function () {
     this.isExhausted = true;
   };
-
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = ResultSet;
   }

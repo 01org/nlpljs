@@ -17,36 +17,47 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-
 <!--
-tile for a general web page (article)
--->
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+ - tile for a general web page (article)
+ -->
 
-<polymer-element name="cp-tile-article" attributes="src loaded done">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="./cp-tile-style.html">
+
+<dom-module id="cp-tile-article">
+
   <template>
-    <link rel="stylesheet" href="styles/cp-tile.css">
 
-    <style>
+    <style include="cp-tile-style">
       #mainContainer {
         border-radius: 2px;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-fit);
       }
 
       #text {
         height: 100%;
         width: 100%;
+
+        @apply(--layout-vertical);
       }
 
       #text > * {
-        margin: 12px 14px 0 14px;
+        margin: 0;
+        margin-left: 14px;
+        margin-right: 14px;
       }
 
       img {
@@ -57,15 +68,17 @@ tile for a general web page (article)
       }
 
       .text-elide {
-        overflow: hidden;
         text-overflow: ellipsis;
 
-        /* these provide the multi-line ellipsis over 2 lines, but
-           only work in WebKit; as we're dependent on Chrome, I decided it
-           was OK */
+        /*
+          these provide the multi-line ellipsis over 2 lines, but only
+          work in WebKit; as we're dependent on Chrome, I decided it
+          was OK
+        */
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
+        overflow: hidden;
       }
 
       .left {
@@ -79,9 +92,6 @@ tile for a general web page (article)
       }
 
       #meta {
-        position: absolute;
-        bottom: 0px;
-        margin-bottom: -6px;
         overflow: hidden;
         text-overflow: ellipsis;
       }
@@ -94,78 +104,128 @@ tile for a general web page (article)
       }
 
       #meta p {
-        margin: 0.4em 0 16px 0;
         white-space: nowrap;
       }
 
-      #snippet {
-        margin-top: 2px;
+      #caption {
+        margin: 0 0 0 0;
       }
+
+      #captionContainer {
+      }
+
+      #snippetContainer {
+        @apply(--layout-flex);
+      }
+
+      #metaContainer {
+      }
+
+      p.small {
+        @apply(--cp-small-text-mixin);
+      }
+
     </style>
 
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
-        <div horizontal layout fit id="mainContainer">
-          <div class="left" data-show="{{src !== null && imageLoaded}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoaded}}"
-                 on-error="{{onImageError}}">
+        <div id="mainContainer">
+          <div data-hide$="[[_computeDataHide(imageLoaded, src)]]" class="left">
+            <img id="image" src="[[src]]" on-load="onImageLoaded" on-error="onImageError">
           </div>
 
-          <div id="text"
-               class="{{src === null || !imageLoaded ? '' : 'right'}}">
-            <h2 id="caption" class="text-elide">
-              {{caption|cleanHTML}}
-            </h2>
+          <div id="text" class$="[[_computeClass(imageLoaded, src)]]">
+            <div id="captionContainer">
+              <h2 id="caption" class="text-elide">[[cleanHTML(caption)]]</h2>
+            </div>
 
-            <p id="snippet" class="text-elide">
-              {{snippet|cleanHTML}}
-            </p>
+            <div id="snippetContainer">
+              <div class="text-elide">[[cleanHTML(snippet)]]</div>
+            </div>
 
-            <div id="meta">
-              <p id="source" class="small">
-                {{sourceName || source|domainFromURL}}
-              </p>
+            <div id="metaContainer">
+              <div id="meta" class="small">[[domainFromURL(source, sourceName)]]</div>
             </div>
           </div>
         </div>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
-
   <script src="./cp-constants.js"></script>
-  <script src="./cp-layout-frame-chooser.js"></script>
+  <script src="./cp-layout-frame-chooser.js">
+    /* globals FrameChooser: true */
+  </script>
   <script src="./cp-formatter.js"></script>
-
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        created: function () {
+        is: 'cp-tile-article',
+
+        properties: {
+
+          done: {
+            type: Boolean,
+            value: false
+          },
+
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          src: {
+            type: String,
+            value: '',
+            observer: 'srcChanged'
+          },
+
+          imageLoaded: {
+            type: Boolean,
+            value: false
+          },
+
+          caption: {
+            type: String,
+            value: ''
+          },
+
+          snippet: {
+            type: String,
+            value: null
+          },
+
+          source: {
+            type: String,
+            value: null
+          },
+
+          sourceName: {
+            type: String,
+            value: null
+          }
+        },
+
+        ready: function () {
           var self = this;
-
           /* THESE PROPERTIES SHOULD BE SET WHEN THE TILE IS CREATED */
-
           /* URL for the file thumbnail to be displayed */
           this.src = null;
-
           /* title to show at the bottom of the tile */
           this.caption = '';
-
           /* snippet of the article */
           this.snippet = null;
-
           /* source */
           this.source = null;
-
           /* source name; if not set, defaults to the domain of
-             the source attribute */
+           the source attribute */
           this.sourceName = null;
-
           /* the original data used to construct the tile, as
-             returned by a file search */
+           returned by a file search */
           this.article = {};
-
           /* keyword associated with the image with structure:
              {
                text: "<keyword text>",
@@ -173,29 +233,22 @@ tile for a general web page (article)
              }
           */
           this.keywords = [];
-
           /* PROPERTIES BELOW DON'T NEED TO BE SET */
-
           /* type of object used to create the tile */
           this.type = 'article';
-
           /* always use the landscape frame */
-          this.frame = FrameChooser.FRAMES['landscape1'];
-
+          this.frame = FrameChooser.FRAMES.landscape1;
           /* set to true once the image loads, which enables the
-             image part of the tile to be shown */
+           image part of the tile to be shown */
           this.imageLoaded = false;
-
           /* set to true once the image has either loaded or not;
-             this must be true otherwise the tile won't display at all */
+           this must be true otherwise the tile won't display at all */
           this.loaded = false;
-
           /* article tiles are ready regardless of whether the image
-             loads; we just change how they look if it doesn't */
+           loads; we just change how they look if it doesn't */
           this.done = false;
-
           /* fire a "done" event, even if the image times out (or if
-             there is no image) */
+           there is no image) */
           setTimeout(function () {
             self.markDone();
           }, CP_CONSTANTS.TIMEOUT);
@@ -222,23 +275,31 @@ tile for a general web page (article)
 
         /* image failed to load for whatever reason */
         onImageError: function (e) {
-          console.error('CP-TILE-ARTICLE: image load failed');
-
+          console.info('CP-TILE-ARTICLE: image load failed');
           this.imageLoaded = false;
-
           /* we still mark the tile as "loaded" so it will display */
           this.loaded = true;
-
           this.markDone();
-
           /* notify the error, in case anyone cares */
           this.fire('error', e);
         },
 
-        domainFromURL: Formatter.domainFromURL,
+        domainFromURL: function() {
+          return Formatter.domainFromURL.apply(Formatter, arguments);
+        },
 
-        cleanHTML: Formatter.cleanHTML
-      });
-    })();
+        cleanHTML: function() {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
+        },
+
+        _computeDataHide: function (imageLoaded, src) {
+          return src === null || !imageLoaded;
+        },
+
+        _computeClass: function (imageLoaded, src) {
+          return src === null || !imageLoaded ? '' : 'right';
+        }
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

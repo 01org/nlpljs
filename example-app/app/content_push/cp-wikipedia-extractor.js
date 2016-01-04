@@ -26,6 +26,8 @@
  */
 
 (function (_, HtmlCleaner) {
+  'use strict';
+
   var chunkRegexes = [
     /<p[\s\S]*?>([\s\S]+?)<\/p>/gm,
     /<div[\s\S]*?>([\s\S]+?)<\/div>/gm
@@ -42,8 +44,10 @@
     var matches;
     var chunks = [];
 
-    while (matches = regex.exec(html)) {
+    matches = regex.exec(html);
+    while (matches && matches[1]) {
       chunks.push(matches[1]);
+      matches = regex.exec(html);
     }
 
     return chunks;
@@ -67,7 +71,7 @@
       }
     }
 
-    return _.map(chunks, cleaner.clean);
+    return _.map(chunks, cleaner.clean, HtmlCleaner);
   };
 
   var getImages = function (html, minImageSide, numImages) {
@@ -106,7 +110,7 @@
       }
 
       if (height >= minImageSide && width >= minImageSide) {
-        var srcMatches = imageSourceRegex.exec(img) || [];
+        srcMatches = imageSourceRegex.exec(img) || [];
 
         if (srcMatches) {
           src = srcMatches[1];
@@ -166,12 +170,15 @@
     };
   };
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = WikipediaExtractor;
   } else {
     window.WikipediaExtractor = WikipediaExtractor;
   }
 })(
-  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _,
+  /* globals require:true */
+  /* globals HtmlCleaner:true */
+  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _,
   typeof HtmlCleaner === 'undefined' ? require('./cp-html-cleaner') : HtmlCleaner
 );

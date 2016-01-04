@@ -17,14 +17,11 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
-
 
 <!--
  - cp-sources
@@ -38,19 +35,21 @@
  - }
  -->
 
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
 <link rel="import" href="./cp-globals.html">
 
-<polymer-element name="cp-sources-storage">
+<dom-module id="cp-sources-storage">
   <template>
     <cp-globals id="globals"></cp-globals>
   </template>
-
-  <script src="../bower_components/lodash/dist/lodash.js"></script>
-
+  <script src="../bower_components/lodash/lodash.min.js"></script>
   <script>
     (function () {
+      'use strict';
+
       /* instances of this element; used to fire events across
-         all elements simultaneously */
+       * all elements simultaneously */
       var instances = [];
 
       var fireEvent = function (name, data) {
@@ -68,64 +67,66 @@
       };
 
       Polymer({
-        /* deliberately share state between all cp-sources-storage instances,
-           so they all reference the same object; this has the structure:
+        is: 'cp-sources-storage',
 
-        {
-          "Articles": {
-            "enabled": true,
-            "order": 2,
-            "sources": {
-              "Wikipedia": {
-                "enabled": true,
-                "url": "wikipedia.org"
-              },
-              "Yahoo! news": {
-                "enabled": true,
-                "url": "news.yahoo.com"
-              }
+        properties: {
+          /* deliberately share state between all cp-sources-storage instances,
+           * so they all reference the same object; this has the structure:
+           *
+           *      {
+           *        "Articles": {
+           *          "enabled": true,
+           *          "order": 2,
+           *          "sources": {
+           *            "Wikipedia": {
+           *              "enabled": true,
+           *              "url": "wikipedia.org"
+           *            },
+           *            "Yahoo! news": {
+           *              "enabled": true,
+           *              "url": "news.yahoo.com"
+           *            }
+           *          }
+           *        },
+           *        ...
+           *      }
+           *
+           * (see ep-sources-storage for details)
+           */
+          data: {
+            type: Object,
+            value: function () {
+              return {};
             }
-          },
-          ...
-        }
+          }
+        },
 
-        (see ep-sources-storage for details)
-        */
-        data: {},
-
-        created: function () {
+        init: function () {
           instances.push(this);
         },
 
-        ready: function() {
+        ready: function () {
           console.log('CP-SOURCES-STORAGE:ready');
+
+          this.init();
 
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:ready() called but app_id not set yet');
             return;
           }
-
-          var self = this;
-
-          this.port = chrome.runtime.connect(
-            this.$.globals.data.app_id,
-            {name: 'sources'}
-          );
-
+          this.port = chrome.runtime.connect(this.$.globals.data.app_id, { name: 'sources' });
           this.port.onMessage.addListener(function (detail) {
             if (detail.component === 'sources') {
               console.log('CP-SOURCES-STORAGE:got sources: ', detail.data);
               setData(detail.data);
             }
           });
-
           console.log('CP-SOURCES-STORAGE:getting sources');
           var message = {
             component: 'sources',
             action: 'get',
             documentId: this.$.globals.documentId
           };
-
           // get first set of sources
           this.port.postMessage(message);
         },
@@ -135,12 +136,10 @@
          */
         persist: function () {
           console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage()');
-
           if (!this.$.globals.data.app_id) {
             console.log('CP-SOURCES-STORAGE:notifyEpSourcesStorage() called but app_id not set yet');
             return;
           }
-
           console.log('CP-SOURCES-STORAGE:sending new sources to ep-sources:', this.data);
           var message = {
             component: 'sources',
@@ -148,9 +147,7 @@
             documentId: this.$.globals.documentId,
             data: this.data
           };
-
           this.port.postMessage(message);
-
           setData(this.data);
         },
 
@@ -162,18 +159,13 @@
          */
         createGroup: function (groupName) {
           if (this.data[groupName]) {
-            console.error('CP-SOURCES-STORAGE: group with name ' +
-                          groupName + ' cannot be created as it ' +
-                          'already exists');
+            console.error('CP-SOURCES-STORAGE: group with name ' + groupName + ' cannot be created as it ' + 'already exists');
           }
-
           this.data[groupName] = {
             enabled: true,
             sources: {}
           };
-
           this.persist();
-
           return this.data[groupName];
         },
 
@@ -190,19 +182,14 @@
          */
         createSource: function (groupName, sourceName, sourceConfig) {
           if (!this.data[groupName] && this.data[groupName].sources) {
-            console.error('CP-SOURCES-STORAGE: cannot create source ' +
-                          'in group ' + groupName + ' as group does ' +
-                          'not exist');
+            console.error('CP-SOURCES-STORAGE: cannot create source ' + 'in group ' + groupName + ' as group does ' + 'not exist');
           }
-
           this.data[groupName].sources[sourceName] = sourceConfig;
-
           fireEvent('sourcecreated', {
             groupName: groupName,
             sourceName: sourceName,
             source: sourceConfig
           });
-
           this.persist();
         },
 
@@ -215,14 +202,10 @@
           var source = this.retrieveSource(groupName, sourceName);
           if (source) {
             delete this.data[groupName].sources[sourceName];
-
             fireEvent('sourceremoved', { sourceName: sourceName });
-
             this.persist();
           } else {
-            console.error('CP-SOURCES-STORAGE: cannot remove source ' +
-                          'with name ' + sourceName + ' as group and/or ' +
-                          'source doesn\'t exist');
+            console.error('CP-SOURCES-STORAGE: cannot remove source ' + 'with name ' + sourceName + ' as group and/or ' + 'source doesn\'t exist');
           }
         },
 
@@ -235,24 +218,19 @@
           var source = this.retrieveSource(groupName, sourceName);
           if (source) {
             source.enabled = enabled;
-
             var eventData = {
               groupName: groupName,
               sourceName: sourceName,
               source: source
             };
-
             if (enabled) {
               fireEvent('sourceenabled', eventData);
             } else {
               fireEvent('sourcedisabled', eventData);
             }
-
             this.persist();
           } else {
-            console.error('CP-SOURCES-STORAGE: cannot modify source ' +
-                          'with name ' + sourceName + ' as group and/or ' +
-                          'source doesn\'t exist');
+            console.error('CP-SOURCES-STORAGE: cannot modify source ' + 'with name ' + sourceName + ' as group and/or ' + 'source doesn\'t exist');
           }
         },
 
@@ -270,13 +248,14 @@
         getGroupNames: function () {
           var flattened = _.reduce(this.data, function (memo, config, groupName) {
             if (config.enabled) {
-              memo.push({ groupName: groupName, order: config.order });
+              memo.push({
+                groupName: groupName,
+                order: config.order
+              });
             }
             return memo;
           }, []);
-
           var sorted = _.sortBy(flattened, 'order');
-
           return _.map(sorted, function (item) {
             return item.groupName;
           });
@@ -342,11 +321,9 @@
          * Return the search service.
          */
         getSearchService: function () {
-          return this.data['SearchService'];
-        },
-
+          return this.data.SearchService;
+        }
       }); // Polymer()
-    })();
-
+    }());
   </script>
-</polymer-element>
+</dom-module>

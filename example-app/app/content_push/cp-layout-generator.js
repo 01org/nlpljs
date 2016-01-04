@@ -26,6 +26,8 @@
  */
 
 (function (_, ArrayUtils) {
+  'use strict';
+
   var EMPTY = 0;
   var FULL = 1;
 
@@ -43,7 +45,6 @@
 
   // grid: array representation of a grid
   // width: number of cells in the row
-  var nextRow = 0;
   var addEmptyRow = function (grid, width) {
     var row = [];
 
@@ -70,24 +71,30 @@
       return seq.length === length;
     };
 
+    /* never used
     var incompleteSequences = function (seq) {
       return seq.length < length;
     };
+    */
 
     // sequences currently in progress
     var inProgress = [];
 
+    var makeAppendToSequenceFunction = function (index, item) {
+      return function(seq) {
+        seq.push({index: index, item: item});
+      };
+    };
+
     for (var index = startIndex; index < arr.length; index++) {
-      item = arr[index];
+      var item = arr[index];
 
       if (fn(item)) {
         // start a new sequence
         inProgress.push([]);
 
         // append this item to all existing sequences
-        _.each(inProgress, function (seq) {
-          seq.push({index: index, item: item});
-        });
+        _.each(inProgress, makeAppendToSequenceFunction(index, item));
       }
       else {
         // remove all sequences from inProgress
@@ -151,6 +158,31 @@
     // fit width x height
     var candidates = [];
 
+
+    var makeMappingFunction = function() {
+      return function (item) {
+        return _.map(item, function (subitem) {
+          return subitem.index;
+        });
+      };
+    };
+
+    var makeReduceFunction = function() {
+      return function (memo, val, key) {
+        memo.push(parseInt(key, 10));
+        return memo;
+      };
+    };
+
+    var makeEachFunction = function(candidates, columnSequencesByRow) {
+      return function (seq) {
+        candidates.push({
+          rows: _.reduce(columnSequencesByRow, makeReduceFunction(), []),
+          columns: seq
+        });
+      };
+    };
+
     // for each row sequence, get the column sequences for each of its rows
     for (var i = 0; i < rowSequences.length; i++) {
       var rowSequence = _.map(rowSequences[i], function (item) {
@@ -163,11 +195,7 @@
         var rowNum = rowSequence[j];
         var row = grid[rowNum];
         var columnSequencesForRow = findColumnSequences(row, width);
-        columnSequencesByRow[rowNum] = _.map(columnSequencesForRow, function (item) {
-          return _.map(item, function (subitem) {
-            return subitem.index;
-          });
-        });
+        columnSequencesByRow[rowNum] = _.map(columnSequencesForRow, makeMappingFunction());
       }
 
       // sequences of columns common across all of the rows
@@ -177,15 +205,7 @@
       // { rows: [ 0, 1, 2 ], columns: [ [ 3, 4 ], [ 4, 5 ] ] }
       // meaning "(columns 3 and 4) or (columns 4 and 5) in rows 0, 1 and
       // 2 provide enough space to fit width x height"
-      _.each(commonColumnSequences, function (seq) {
-        candidates.push({
-          rows: _.reduce(columnSequencesByRow, function (memo, val, key) {
-            memo.push(parseInt(key, 10));
-            return memo;
-          }, []),
-          columns: seq
-        });
-      });
+      _.each(commonColumnSequences, makeEachFunction(candidates, columnSequencesByRow));
     }
 
     return candidates;
@@ -265,6 +285,7 @@
   var LayoutGenerator = function () {};
   LayoutGenerator.prototype.generate = findLayout;
 
+  /* globals module:true */
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = LayoutGenerator;
   }
@@ -272,6 +293,8 @@
     window.LayoutGenerator = LayoutGenerator;
   }
 })(
-  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash') : _,
+  /* globals require:true */
+  /* globals ArrayUtils:true */
+  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _,
   typeof ArrayUtils === 'undefined' ? require('./cp-array-utils') : ArrayUtils
 );

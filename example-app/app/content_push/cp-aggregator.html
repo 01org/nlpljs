@@ -17,30 +17,30 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
 <link rel="import" href="./cp-fetcher.html">
 <link rel="import" href="./cp-sources-storage.html">
 
-<polymer-element name="cp-aggregator">
+<dom-module id="cp-aggregator">
   <template>
-    <cp-sources-storage id="storage" on-newsources="{{onNewSources}}">
+    <cp-sources-storage id="storage" on-newsources="onNewSources">
     </cp-sources-storage>
 
-    <cp-fetcher id="fetcher" resultsPerFetch="5"></cp-fetcher>
+    <cp-fetcher id="fetcher" resultsperfetch="5"></cp-fetcher>
   </template>
 
   <script>
     (function () {
-      var searches = [];
+      'use strict';
 
-      var logSearch = function (self, searchInfo) {
+      var logSearch = function (self) {
         self.pendingSearches--;
 
         /* if there are no pending searches, fire event */
@@ -71,7 +71,7 @@
               results: results
             });
           },
-
+            
           function (err) {
             logSearch(self);
 
@@ -89,8 +89,16 @@
       };
 
       Polymer({
-        domReady: function () {
-          this.pendingSearches = 0;
+        is: 'cp-aggregator',
+
+        properties: {
+          pendingSearches: {
+            type: Number,
+            value: 0
+          }
+        },
+
+        ready: function () {
           this.onNewSources();
         },
 
@@ -137,11 +145,12 @@
         aggregate: function (searchTerms, groupName, sourceName) {
           /* get the services we want to search against, depending on
              the groupName; or default to all services if no groupName */
+          var i;
           var services = this.services;
           if (groupName) {
             /* only use services for the specified group name */
             services = [];
-            for (var i = 0; i < this.services.length; i++) {
+            for (i = 0; i < this.services.length; i++) {
               if (this.services[i].groupName === groupName) {
                 services.push(this.services[i]);
               }
@@ -163,7 +172,7 @@
                      is enabled and does a search */
                   var noSourcesUsed = true;
 
-                  var groupName = services[serviceIndex].groupName;
+                  groupName = services[serviceIndex].groupName;
 
                   /* if sourceName isn't set, we'll just search all sources for
                      this sources group */
@@ -186,7 +195,10 @@
                   }
 
                   if (thisSources) {
-                    for (var sourceKey in thisSources.sources) {
+                    var keys = Object.keys(thisSources.sources);
+
+                    for (i = 0; i < keys.length; i++) {
+                      var sourceKey = keys[i];
                       var thisSource = thisSources.sources[sourceKey];
 
                       if (thisSource.enabled) {
@@ -229,7 +241,7 @@
             getResultsFromSource.apply(this, searches[searchesIndex]);
           }
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

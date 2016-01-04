@@ -25,7 +25,7 @@
  *   Plamena Manolova <plamena.manolova@intel.com>
  */
 
-
+/* jshint worker:true */
 
 /*
  * This file is a webworker (https://developer.mozilla.org/en/docs/Web/Guide/Performance/Using_web_workers).
@@ -40,6 +40,7 @@
  *
 */
 
+/* globals require:true */
 this.importScripts('../bower_components/requirejs/require.js');
 
 require.config({
@@ -58,6 +59,8 @@ var groupIds = {};
 var nextGroupId = 0;
 
 var createLine = function (lineId, fromChar, toChar) {
+  'use strict';
+
   return {
     id: lineId,
     fromChar: fromChar,
@@ -68,6 +71,8 @@ var createLine = function (lineId, fromChar, toChar) {
 var currentContext = null;
 
 var createContext = function (requestTabId) {
+  'use strict';
+
   return {
     tabId: requestTabId,
     lines: [],
@@ -81,9 +86,10 @@ var createContext = function (requestTabId) {
       var left = 0;
       var right = this.lines.length - 1;
       var found = false;
+      var line = '';
 
       while (!found) {
-        var line = this.lines[lineIndex];
+        line = this.lines[lineIndex];
 
         if (charIndex >= line.fromChar &&
             charIndex < line.toChar) {
@@ -105,6 +111,8 @@ var createContext = function (requestTabId) {
 };
 
 var eventPageMessage = function (type, data) {
+  'use strict';
+
   return JSON.stringify({ type: type, data: data }, null, 4);
 };
 
@@ -115,6 +123,8 @@ var eventPageMessage = function (type, data) {
  * @return {string} The string with escaped special characters.
  */
 function escapeRegExp(str) {
+  'use strict';
+
   // the first parameter is a list of characters that are special to RegExp()
   // $& is the string matched in the first parameter
   // \\ is a single backslash to escape the character
@@ -122,6 +132,8 @@ function escapeRegExp(str) {
 }
 
 var processMessage = function (message) {
+  'use strict';
+
   switch (message.type) {
     case 'create':
       require(['libnlp'], function (result) {
@@ -148,7 +160,7 @@ var processMessage = function (message) {
       break;
     case 'lineadded':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
@@ -183,7 +195,7 @@ var processMessage = function (message) {
       break;
     case 'processcontext':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
@@ -193,7 +205,7 @@ var processMessage = function (message) {
       var ranges = [];
       var result = libnlp.keyphrase_extractor.extractFrom(textForExtractor);
 
-      for (var i = 0; i < result.keywords.length; i++) {
+      for (i = 0; i < result.keywords.length; i++) {
         var keyword = result.keywords[i];
         var regex = new RegExp(escapeRegExp(keyword), 'gi');
 
@@ -211,8 +223,9 @@ var processMessage = function (message) {
           score: result.scores[i]
         });
 
+        var search;
         while ((search = regex.exec(currentContext.text))) {
-          var startChar = search.index;
+          startChar = search.index;
           var endChar = startChar + keyword.length - 1;
           var startLine = currentContext.findLine(startChar);
           var endLine = currentContext.findLine(endChar);
@@ -237,7 +250,7 @@ var processMessage = function (message) {
       break;
     case 'getkeywords':
       if (currentContext.tabId !== message.tabId) {
-        console.log("NLP-WORKER: Tab id mismatch!");
+        console.log('NLP-WORKER: Tab id mismatch!');
         break;
       }
 
@@ -257,6 +270,8 @@ var processMessage = function (message) {
 };
 
 this.onmessage = function (event) {
+  'use strict';
+
   var message = JSON.parse(event.data);
 
   if (loaded === false && message.type !== 'create') {

@@ -17,22 +17,25 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
 
-<polymer-element name="cp-layout">
+<dom-module id="cp-layout">
+
   <template>
+
     <style>
+
       :host {
         display: block;
         margin: 16px 0 16px 10px;
@@ -58,28 +61,37 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       [data-show="false"] {
         display: none !important;
       }
+
     </style>
 
-    <div id="container" data-show="{{tilesVisible > 0}}"
-         data-loading-tiles="{{tilesLoading}}">
+    <div id="container" data-show$="[[_computeDataShow(tilesVisible)]]" data-loading-tiles$="[[tilesLoading]]">
     </div>
 
-    <div id="loading" data-show="{{tilesLoading > 0}}">
-      <template if="{{tilesLoading > 0}}">
+    <div id="loading" data-show$="[[_computeIf(tilesLoading)]]">
+      <template is="dom-if" if="[[_computeIf(tilesLoading)]]">
         <paper-spinner active></paper-spinner>
       </template>
     </div>
   </template>
 
-  <script src="../bower_components/lodash/dist/lodash.js"></script>
-  <script src="cp-layout-frame-chooser.js"></script>
-  <script src="cp-tile-cache.js"></script>
+  <script src="../bower_components/lodash/lodash.min.js"></script>
+  <script src="cp-layout-frame-chooser.js">
+    /* globals FrameChooser:true */
+  </script>
+  <script src="cp-tile-cache.js">
+    /* globals TileCache:true */
+  </script>
   <script src="cp-array-utils.js"></script>
-  <script src="cp-layout-generator.js"></script>
+  <script src="cp-layout-generator.js">
+    /* globals LayoutGenerator:true */
+  </script>
 
   <script>
     (function () {
+      'use strict';
+
       var NARROW_NUM_COLS = 4;
+
       var WIDE_NUM_COLS = 8;
 
       // when gallery >= this width, switch to WIDE_NUM_COLS
@@ -92,30 +104,37 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       var FRAME_CELL_SIDE = 74;
 
       Polymer({
-        created: function () {
+        is: 'cp-layout',
+
+        properties: {
+          /* count of the visible tiles in the layout */
+          tilesVisible: {
+            type: Number,
+            value: 0
+          },
+
+          /* count of the number of tiles currently loading */
+          tilesLoading: {
+            type: Number,
+            value: 0
+          }
+        },
+
+        init: function () {
           this.frameChooser = new FrameChooser(FRAME_CELL_SIDE, FRAME_CELL_SIDE);
           this.tileCache = new TileCache();
           this.layoutGenerator = new LayoutGenerator();
           this.numColumns = NARROW_NUM_COLS;
-
-          /* count of the visible tiles in the layout */
-          this.tilesVisible = 0;
-
-          /* count of the number of tiles currently loading */
-          this.tilesLoading = 0;
-
           /* layout promise */
           this.layoutInProgress = Promise.resolve();
-
           /* map from tile source to true/false; if a tile is in the layout
-             the value is true, false otherwise */
+           the value is true, false otherwise */
           this.tilesInLayout = {};
         },
 
         /* set number of columns based on the gallery width */
         setLayoutParams: function () {
           var width = this.offsetWidth;
-
           if (width >= WIDE_BREAKPOINT) {
             this.numColumns = WIDE_NUM_COLS;
           } else {
@@ -123,13 +142,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           }
         },
 
-        domReady: function () {
-          this.setLayoutParams();
-        },
-
         setFilter: function (filter) {
           var activeTilesChanged = this.tileCache.setFilter(filter);
-
           if (activeTilesChanged) {
             this.layout();
           }
@@ -146,7 +160,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
          * Return all child cp-tile* elements, including the hidden ones.
          */
         getAllTiles: function () {
-          return this.$.container.querySelectorAll('[data-tile="true"]');
+          return Polymer.dom(this.$.container).querySelectorAll('[data-tile="true"]');
         },
 
         /**
@@ -167,20 +181,15 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         /* add the tile to the layout if it loaded OK */
         tileReady: function (tile) {
           this.tilesLoading -= 1;
-
           /* loaded is false if the image failed to load */
           if (tile.loaded) {
             this.frameTile(tile);
-
-            tile.setAttribute('data-tile', 'true');
-
+            Polymer.dom(tile).setAttribute('data-tile', 'true');
             var activeTilesChanged = this.tileCache.cache(tile);
-
             if (activeTilesChanged) {
               this.layout();
             }
           }
-
           this.fire('tileprocessed', tile);
         },
 
@@ -197,18 +206,14 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         */
         addTile: function (tile) {
           var self = this;
-
           this.tilesLoading += 1;
-
           console.log('CP-LAYOUT: adding tile', tile);
-
           if (tile.done) {
             this.tileReady(tile);
           } else {
             tile.addEventListener('done', function () {
               if (tile.type === 'file') {
-                console.error('CP-LAYOUT: setting "done" handler on ' +
-                              'file tile; handler will never fire');
+                console.error('CP-LAYOUT: setting "done" handler on ' + 'file tile; handler will never fire');
               }
               self.tileReady(tile);
             });
@@ -236,10 +241,9 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           var i;
 
           /* either add existing tiles to layout calculation if active
-             or remove them if no longer active */
+           or remove them if no longer active */
           for (i = 0; i < existingTiles.length; i++) {
             var tile = existingTiles[i];
-
             if (this.tileCache.isActive(tile.source)) {
               /* consider existing tile for layout */
               shapes.push({
@@ -249,8 +253,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
               });
             } else {
               /* tile is inactive and in the layout, so remove it
-                 and return it to the cache */
-              var removedTile = this.$.container.removeChild(tile);
+               and return it to the cache */
+              var removedTile = Polymer.dom(this.$.container).removeChild(tile);
               this.tilesInLayout[tile.source] = false;
               this.tileCache.store(removedTile);
             }
@@ -259,7 +263,6 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           /* append any active tiles which aren't already in the layout */
           for (i = 0; i < activeTiles.length; i++) {
             var activeTile = activeTiles[i];
-
             /* tile is active but not appended yet */
             if (!this.tilesInLayout[activeTile.source]) {
               shapes.push({
@@ -267,68 +270,63 @@ href="../bower_components/paper-spinner/paper-spinner.html">
                 width: activeTile.frame.columns,
                 height: activeTile.frame.rows
               });
-
               this.tilesInLayout[activeTile.source] = true;
-              this.$.container.appendChild(activeTile);
+              Polymer.dom(this.$.container).appendChild(activeTile);
             }
           }
-
           var cellSide = this.offsetWidth / this.numColumns;
           this.setLayoutParams();
-
           var layout = this.layoutGenerator.generate(shapes, this.numColumns);
-
-          var shape, position, firstCol, width, x,
-              firstRow, height, y;
-
+          var shape, position, firstCol, width, x, firstRow, height, y;
           _.each(layout.placements, function (placement) {
             shape = placement.shape;
             position = placement.position;
-
             width = position.columns.length * cellSide;
             firstCol = position.columns[0];
             x = firstCol * cellSide;
-
             height = position.rows.length * cellSide;
             firstRow = position.rows[0];
             y = firstRow * cellSide;
-
             shape.tile.style.left = x + 'px';
             shape.tile.style.top = y + 'px';
-            shape.tile.style.width = width + 'px'
+            shape.tile.style.width = width + 'px';
             shape.tile.style.height = height + 'px';
           });
-
           /* set the container height */
-          var height = layout.grid.length * cellSide;
+          height = layout.grid.length * cellSide;
           this.$.container.style.height = height + 'px';
-
           this.tilesVisible = this.tileCache.getActiveTilesCount();
-
           this.fire('layout');
         },
 
         layout: function () {
           var self = this;
-
-          this.layoutInProgress = this.layoutInProgress.then(
-            function () {
-              return new Promise(function (resolve, reject) {
-                var layoutDoneCb = function () {
-                  resolve();
-                  self.removeEventListener('layout', layoutDoneCb);
-                };
-
-                self.addEventListener('layout', layoutDoneCb);
-
-                self.doLayout();
-              });
-            }
-          );
-
+          this.layoutInProgress = this.layoutInProgress.then(function () {
+            return new Promise(function (resolve) {
+              var layoutDoneCb = function () {
+                resolve();
+                self.removeEventListener('layout', layoutDoneCb);
+              };
+              self.addEventListener('layout', layoutDoneCb);
+              self.doLayout();
+            });
+          });
           return this.layoutInProgress;
+        },
+
+        ready: function () {
+          this.init();
+          this.setLayoutParams();
+        },
+
+        _computeDataShow: function (tilesVisible) {
+          return tilesVisible > 0;
+        },
+
+        _computeIf: function (tilesLoading) {
+          return tilesLoading > 0;
         }
-      })
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

@@ -26,6 +26,8 @@
  */
 
 (function () {
+  'use strict';
+
   var obj = {};
   var handlerId = 1;
   var handlers = {};

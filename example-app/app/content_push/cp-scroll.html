@@ -17,8 +17,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
@@ -26,28 +24,36 @@
 -->
 
 <!--
-wraps a single element in a scrollable area;
-if the wrapped element is the same height or taller than the scroller,
-a vertical scrollbar is added; when the scroll reaches nearly the
-end, a "scrollend" event is fired
--->
-<polymer-element name="cp-scroll" attributes="scrollgap">
+ - wraps a single element in a scrollable area;
+ - if the wrapped element is the same height or taller than the scroller,
+ - a vertical scrollbar is added; when the scroll reaches nearly the
+ - end, a "scrollend" event is fired
+ -->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="cp-scroll">
+
   <template>
+
     <style>
+
       :host {
         display: block;
         position: relative;
         overflow-x: hidden;
         overflow-y: scroll;
       }
+
     </style>
 
     <!-- wrapped content which will become scrollable -->
     <content id="content" select="*"></content>
   </template>
-
   <script>
     (function () {
+      'use strict';
+
       /*
       default number of pixels between the scroll position and the
       end of the container when the "scrollend" event triggers
@@ -55,35 +61,34 @@ end, a "scrollend" event is fired
       var DEFAULT_SCROLL_GAP = 100;
 
       Polymer({
-        created: function () {
-          /* record the scroll position so we can determine whether
-             we are scrolling downwards */
-          this.lastScrollPosition = 0;
+        is: 'cp-scroll',
 
-          /* record whether we are inside the scroll gap; this is
-             reset when we scroll back up out of the scroll gap;
-             the reason for this is to ensure we only fire one
-             scrollend each time we enter the scroll gap */
-          this.inScrollGap = false;
+        properties: {
+          scrollgap: {
+            type: Number,
+            value: DEFAULT_SCROLL_GAP
+          }
         },
 
-        domReady: function () {
-          // event handler for scroll events on the container
-          this.addEventListener('scroll', this.onScroll.bind(this));
+        init: function () {
+          /* record the scroll position so we can determine whether
+           we are scrolling downwards */
+          this.lastScrollPosition = 0;
+          /* record whether we are inside the scroll gap; this is
+           reset when we scroll back up out of the scroll gap;
+           the reason for this is to ensure we only fire one
+           scrollend each time we enter the scroll gap */
+          this.inScrollGap = false;
         },
 
         onScroll: function () {
           var scrollPosition = this.scrollTop;
-
           // we're scrolling down
           if (scrollPosition > this.lastScrollPosition) {
             var gap = this.scrollgap || DEFAULT_SCROLL_GAP;
-
-            var scrolledEnough = (this.scrollTop + this.offsetHeight) >=
-                                     (this.scrollHeight - gap);
-
+            var scrolledEnough = this.scrollTop + this.offsetHeight >= this.scrollHeight - gap;
             /* we've scrolled far enough, and we haven't fired
-               a scrollend event since we entered the gap */
+             a scrollend event since we entered the gap */
             if (scrolledEnough) {
               if (!this.inScrollGap) {
                 this.inScrollGap = true;
@@ -93,10 +98,15 @@ end, a "scrollend" event is fired
               this.inScrollGap = false;
             }
           }
-
           this.lastScrollPosition = scrollPosition;
+        },
+
+        ready: function () {
+          this.init();
+          // event handler for scroll events on the container
+          this.addEventListener('scroll', this.onScroll.bind(this));
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

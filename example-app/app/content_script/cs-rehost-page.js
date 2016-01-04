@@ -26,16 +26,18 @@
  */
 
 (function () {
+  'use strict';
+
   var open = true;
 
-  chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  chrome.runtime.onMessage.addListener(function (message) {
     if (message === 'cp-toggle') {
       document.querySelector('cp-main').setAttribute('toggle', open);
       open = !open;
     }
   });
 
-  chrome.runtime.sendMessage("cp-init");
+  chrome.runtime.sendMessage('cp-init');
 
   rehostPage();
 
@@ -53,7 +55,7 @@
     var head = document.createElement('head');
     var body = document.createElement('body');
     body.setAttribute('unresolved', '');
-    body.setAttribute('fit', '');
+    body.setAttribute('class', 'fit fullbleed');
 
     var base = document.createElement('base');
     base.setAttribute('href', extensionUrl);
@@ -64,8 +66,8 @@
     link.href = cssUrl;
     head.appendChild(link);
 
-    // work around for a google-apis bug
     var script = document.createElement('script');
+    script.src = 'content_push/shadow-dom.js';
     head.appendChild(script);
 
     link = document.createElement('link');
@@ -85,7 +87,7 @@
     body.appendChild(cpGlobals);
 
     var cpMain = document.createElement('cp-main');
-    cpMain.setAttribute('fit', '');
+    cpMain.setAttribute('class', 'fit');
 
     body.appendChild(cpMain);
 

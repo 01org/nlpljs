@@ -17,8 +17,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
@@ -26,25 +24,40 @@
 -->
 
 <!--
-scrolling image search results component; responsible for tracking
-the state of any ongoing search, displaying waiting spinners, and
-pushing new tiles into the wrapped layout
--->
-<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+ - scrolling image search results component; responsible for tracking
+ - the state of any ongoing search, displaying waiting spinners, and
+ - pushing new tiles into the wrapped layout
+ -->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
 <link rel="import" href="../bower_components/paper-slider/paper-slider.html">
-<link rel="import" href="./cp-scroll.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
 <link rel="import" href="./cp-layout.html">
+<link rel="import" href="./cp-scroll.html">
+<link rel="import" href="./cp-tile-article.html">
 <link rel="import" href="./cp-tile-file.html">
 <link rel="import" href="./cp-tile-image.html">
-<link rel="import" href="./cp-tile-article.html">
 
-<polymer-element name="cp-display">
+<dom-module id="cp-display">
+
   <template>
+
     <style>
+
       :host {
         display: block;
         position: relative;
         background-color: #fafafa;
+
+        --cp-slider-height: 32px;
+      }
+
+      p {
+        @apply(--cp-text-mixin);
       }
 
       #preresults p {
@@ -61,8 +74,8 @@ pushing new tiles into the wrapped layout
       }
 
       #scroller {
-        margin: 0 3px 0 3px;
-        width: calc(100% - 6px);
+        margin: 0;
+        width: 100%;
         transition: height 0.2s linear 0.2s;
       }
 
@@ -72,7 +85,7 @@ pushing new tiles into the wrapped layout
 
       #scroller.with-slider-collapsed {
         /* -height of slider_wrapper */
-        height: calc(100% - 32px);
+        height: calc(100% - var(--cp-slider-height));
       }
 
       #scroller.with-slider-expanded {
@@ -82,6 +95,8 @@ pushing new tiles into the wrapped layout
 
       #results {
         display: flex;
+        position: absolute;
+        top: 0;
         flex-direction: column;
         justify-content: flex-start;
         align-items: center;
@@ -96,6 +111,8 @@ pushing new tiles into the wrapped layout
         animation-duration: 0.25s;
         -webkit-animation-timing-function: ease-out;
         animation-timing-function: ease-out;
+        -webkit-animation-fill-mode: both;
+        animation-fill-mode: both;
       }
 
       #waiting.fadein {
@@ -113,10 +130,13 @@ pushing new tiles into the wrapped layout
         bottom: 0;
         width: 100%;
         align-items: center;
-        height: 32px;
+        height: var(--cp-slider-height);
         background-color: #e6e6e6;
         transition: height 0.2s ease-out 0.2s;
         z-index: 10;
+
+        @apply(--layout-vertical);
+        @apply(--layout-justified);
       }
 
       #label_wrapper {
@@ -127,11 +147,13 @@ pushing new tiles into the wrapped layout
         line-height: 22px;
         background-color: #e6e6e6;
         transition: bottom 0.2s ease-out 0.2s;
+
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
       }
 
       #label_wrapper.out {
-        /* slider_wrapper.height) */
-        bottom: 32px;
+        bottom: var(--cp-slider-height);
       }
 
       #label_wrapper * {
@@ -142,13 +164,25 @@ pushing new tiles into the wrapped layout
       }
 
       @-webkit-keyframes fadein {
-        from { opacity: 0; }
-        to   { opacity: 1; }
+        from { 
+          opacity: 0;
+          z-index: 400;
+        }
+        to   {
+          opacity: 1;
+          z-index: 750;
+        }
       }
 
       @-webkit-keyframes fadeout {
-        from { opacity: 1; }
-        to   { opacity: 0; }
+        from {
+          opacity: 1;
+          z-index: 750;
+        }
+        to   {
+          opacity: 0;
+          z-index: 400;
+        }
       }
 
       [data-show="false"] {
@@ -157,31 +191,24 @@ pushing new tiles into the wrapped layout
 
       paper-slider {
         width: 100%;
-        max-height: 24px;
-        min-height: 24px;
-        box-sizing: border-box;
-        margin-bottom: 8px;
-      }
+        height: var(--cp-slider-height);
 
-      /* slider colors (oh dear...) */
-      /* bar */
-      paper-slider::shadow #sliderBar::shadow #activeProgress {
-        background-color: #B8578C !important;
-      }
+        --cp-slider-fg-color: #B8578C; 
+        --cp-slider-bg-color: #C8C8C8;
+        --paper-slider-knob-color: var(--cp-slider-fg-color);
+        --paper-slider-knob-start-color: var(--cp-slider-fg-color);
+        --paper-slider-knob-start-border-color: var(--cp-slider-fg-color);
+        --paper-slider-active-color: var(--cp-slider-fg-color);
+        --paper-slider-secondary-color: var(--cp-slider-bg-color);
+        --paper-slider-pin-color: var(--cp-slider-fg-color);
+        --paper-slider-pin-start-color: var(--cp-slider-fg-color);
+        --paper-slider-font-color: white;
+        --paper-progress-container-color: var(--cp-slider-bg-color);
 
-      /* knob */
-      paper-slider::shadow #sliderKnobInner {
-        background-color: #B8578C !important;
-        border: none !important;
-      }
-
-      /* pin */
-      paper-slider::shadow #sliderKnobInner::before {
-        background-color: #B8578C !important;
       }
 
       .hide {
-        height: 0 !important;
+        /*height: 0 !important;*/
       }
 
       .divider-top {
@@ -199,8 +226,10 @@ pushing new tiles into the wrapped layout
       }
 
       .fill {
-        width: 100%;
-        height: 100%;
+        top:0;
+        left:0;
+        bottom:0;
+        right:0;
         background-color: #fafafa;
       }
 
@@ -220,15 +249,15 @@ pushing new tiles into the wrapped layout
     </style>
 
     <!--
-    states for this component:
-
-    - preresults - no search initiated, displays welcome message
-    - results - slider is shown with results (or empty results)
-    -->
+     - states for this component:
+     -
+     - preresults - no search initiated, displays welcome message
+     - results - slider is shown with results (or empty results)
+     -->
 
     <!-- never searched -->
     <div id="preresults" class="fill vbox"
-         data-show="{{state === 'preresults'}}">
+         data-show$="[[_computeDataShow(state)]]">
       <div class="message-area">
         <div><img src="../images/CP_Icon_large.png"></div>
         <p id="preresults-welcome">Welcome to</p>
@@ -239,7 +268,7 @@ pushing new tiles into the wrapped layout
 
     <!-- no results -->
     <div id="noresults" class="fill vbox"
-         data-show="{{!waiting && state === 'noresults'}}">
+         data-show$="[[_computeDataShow2(state, waiting)]]">
       <div class="message-area">
         <p>Sorry, we couldn't find good results</p>
         <p class="divider-top">You could try writing a little more</p>
@@ -248,10 +277,10 @@ pushing new tiles into the wrapped layout
 
     <!-- full page loader; can overlay image display -->
     <div id="waiting" class="fill vbox"
-         data-show="{{waiting && state !== 'preresults'}}">
+         data-show$="[[_computeIf(state, waiting)]]">
       <div class="message-area">
         <p>Your content is on the way...</p>
-        <template if="{{waiting && state !== 'preresults'}}">
+        <template is="dom-if" if="[[_computeIf(state, waiting)]]">
           <paper-spinner active></paper-spinner>
         </template>
       </div>
@@ -261,68 +290,90 @@ pushing new tiles into the wrapped layout
     <div id="results" class="fill">
       <!-- image display (results) -->
       <cp-scroll id="scroller"
-                 on-scrollend="{{onScrollerScrollend}}"
-                 data-visible="{{state === 'results'}}"
-                 class="{{ {'without-slider': !sliderVisible, 'with-slider-collapsed': sliderVisible}|tokenList }}">
+                 on-scrollend="onScrollerScrollend"
+                 data-visible$="[[_computeDataVisible(state)]]"
+                 class$="[[_computeClass(sliderVisible)]]">
         <!-- results -->
-        <cp-layout id="layout" on-layout="{{checkResultState}}"
-                   on-tileprocessed="{{onLayoutTileProcessed}}"
-                   data-visible="{{state === 'results'}}"></cp-layout>
+        <cp-layout id="layout" on-layout="checkResultState"
+                   on-tileprocessed="onLayoutTileProcessed"
+                   data-visible$="[[_computeDataVisible(state)]]"></cp-layout>
       </cp-scroll>
 
-      <div id="label_wrapper" horizontal justified layout
-           class="{{ {'hide': !sliderVisible}|tokenList }}">
+      <div id="label_wrapper" class$="[[hideIfNotVisible(sliderVisible)]]">
         <div>FOCUS</div>
         <div>WANDER</div>
       </div>
 
-      <div id="slider_wrapper" vertical justified layout
-           class="{{ {'hide': !sliderVisible}|tokenList }}"
-           on-mouseover="{{onSliderMouseOver}}"
-           on-mouseout="{{onSliderMouseOut}}">
+      <div id="slider_wrapper"
+           on-mouseover="onSliderMouseOver"
+           on-mouseout="onSliderMouseOut"
+           class$="[[hideIfNotVisible(sliderVisible)]]">
         <!-- "widen the search" slider -->
-        <paper-slider id="slider" min="1" max="5" value="1"
-                      pin snaps step="1"
-                      on-change="{{sliderChanged}}">
-        </paper-slider>
+        <paper-slider id="slider" min="1" max="5" value="1" pin snaps noink step="1" on-change="sliderChanged"></paper-slider>
       </div>
     </div>
   </template>
 
-  <script src="../bower_components/lodash/dist/lodash.js"></script>
+  <script src="../bower_components/lodash/lodash.min.js"></script>
   <script src="./cp-constants.js"></script>
   <script src="./cp-filter-deduplicate.js"></script>
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        /* state of the results; 'preresults', 'noresults' or 'results' */
-        state: 'preresults',
+        is: 'cp-display',
 
-        /* whether we are waiting for a tile to load or not */
-        waiting: false,
+        properties: {
+          /* state of the results; 'preresults', 'noresults' or 'results' */
+          state: {
+            type: String,
+            value: 'preresults'
+          },
 
-        created: function () {
-          this.urlDeduplicator = new FilterDeduplicate();
+          /* whether we are waiting for a tile to load or not */
+          waiting: {
+            type: Boolean,
+            value: false
+          },
 
           /* true if a set of searches is pending, false otherwise */
-          this.searchesPending = false;
+          searchesPending: {
+            type: Boolean,
+            value: false,
+            observer: 'searchesPendingChanged'
+          },
+
+          slider: { observer: 'sliderChanged' },
 
           /* tiles we're still waiting for */
-          this.tilesExpected = 0;
+          tilesExpected: {
+            type: Number,
+            value: 0,
+            observer: 'tilesExpectedChanged'
+          },
 
           /* whether or not to show the slider */
-          this.sliderVisible = false;
+          sliderVisible: {
+            type: Boolean,
+            value: false
+          },
+
+          urlDeduplicator: {
+            type: Object,
+            value: new FilterDeduplicate()
+          }
         },
 
         ready: function () {
           /* timeout to clear the waiting element if no tile is loaded
-             successfully */
+           successfully */
           this.waitTimeout = null;
         },
 
         /* when the layout processes a tile, remove it from the array
-           of tiles we're waiting for */
+         of tiles we're waiting for */
         onLayoutTileProcessed: function () {
           this.tilesExpected--;
         },
@@ -348,8 +399,6 @@ pushing new tiles into the wrapped layout
          * must match, e.g. ['file', 'image']
          */
         setFilter: function (criteria) {
-          var self = this;
-
           if (!criteria.currentKeywords) {
             return;
           }
@@ -384,9 +433,9 @@ pushing new tiles into the wrapped layout
             var sourcesForTileType = null;
             if (criteria.sources) {
               if (tile.type === 'image') {
-                sourcesForTileType = criteria.sources['Images'].sources;
+                sourcesForTileType = criteria.sources.Images.sources;
               } else if (tile.type === 'article') {
-                sourcesForTileType = criteria.sources['Articles'].sources;
+                sourcesForTileType = criteria.sources.Articles.sources;
               }
             }
 
@@ -397,8 +446,8 @@ pushing new tiles into the wrapped layout
               });
 
               /* if there are no enabled sources, we continue;
-                 otherwise we check whether the tile's source exists
-                 and is enabled */
+               otherwise we check whether the tile's source exists
+               and is enabled */
               if (enabledSource) {
                 var tileSource = sourcesForTileType[tile.sourceName];
                 if (!tileSource || !tileSource.enabled) {
@@ -408,7 +457,6 @@ pushing new tiles into the wrapped layout
             }
 
             /* type */
-            var typeMatches;
             if (criteria.types.length === 0) {
               /* no types criteria, so always matches */
               return true;
@@ -466,7 +514,7 @@ pushing new tiles into the wrapped layout
           var self = this;
 
           /* is a tile with this source already in the layout?
-             if it is, we just want to add a new keyword to it */
+           if it is, we just want to add a new keyword to it */
           var existingTile = this.$.layout.getTileBySource(tile.source);
 
           if (existingTile) {
@@ -477,8 +525,8 @@ pushing new tiles into the wrapped layout
               existingTile.keywords.push(keyword);
             }
           } else if (this.urlDeduplicator.test(tile.source)) {
-            console.log('CP-DISPLAY: tile source ' + tile.source +
-                        ' is not a duplicate');
+          console.log('CP-DISPLAY: tile source ' + tile.source +
+                      ' is not a duplicate');
             this.urlDeduplicator.addComparisonValue(tile.source);
 
             tile.keywords = [keyword];
@@ -505,13 +553,18 @@ pushing new tiles into the wrapped layout
         /* when a layout happens, check whether any tiles are visible
            and stop waiting indicator if they are */
         checkResultState: function () {
-          if (this.$.layout.getCountVisibleTiles() > 0) {
+          var numVisibleTiles = this.$.layout.getCountVisibleTiles();
+
+          if (numVisibleTiles > 0) {
             this.state = 'results';
             this.stopWaiting();
 
-            if (!this.searchesPending &&
-                this.tilesExpected === 0 &&
-                this.$.layout.tilesLoading === 0) {
+            var displayTheSlider = 
+              !this.searchesPending &&
+              this.tilesExpected === 0 &&
+              this.$.layout.tilesLoading === 0;
+
+            if (displayTheSlider) {
               this.sliderVisible = true;
             }
           } else if (!this.searchesPending && this.tilesExpected === 0) {
@@ -521,15 +574,15 @@ pushing new tiles into the wrapped layout
         },
 
         onSliderMouseOver: function () {
-          this.$.scroller.classList.remove('with-slider-collapsed');
-          this.$.scroller.classList.add('with-slider-expanded');
-          this.$.label_wrapper.classList.add('out');
+          Polymer.dom(this.$.scroller).classList.remove('with-slider-collapsed');
+          Polymer.dom(this.$.scroller).classList.add('with-slider-expanded');
+          Polymer.dom(this.$.label_wrapper).classList.add('out');
         },
 
         onSliderMouseOut: function () {
-          this.$.scroller.classList.remove('with-slider-expanded');
-          this.$.scroller.classList.add('with-slider-collapsed');
-          this.$.label_wrapper.classList.remove('out');
+          Polymer.dom(this.$.scroller).classList.remove('with-slider-expanded');
+          Polymer.dom(this.$.scroller).classList.add('with-slider-collapsed');
+          Polymer.dom(this.$.label_wrapper).classList.remove('out');
         },
 
         /**
@@ -661,8 +714,8 @@ pushing new tiles into the wrapped layout
           }
 
           this.waiting = true;
-          this.$.waiting.classList.remove('fadeout');
-          this.$.waiting.classList.add('fadein');
+          Polymer.dom(this.$.waiting).classList.remove('fadeout');
+          Polymer.dom(this.$.waiting).classList.add('fadein');
 
           /* ensure that the waiting indicator is removed even if
              no new tiles are added */
@@ -696,11 +749,11 @@ pushing new tiles into the wrapped layout
           this.$.waiting.addEventListener('animationend', animationEndCb);
           this.$.waiting.addEventListener('webkitAnimationEnd', animationEndCb);
 
-          this.$.waiting.classList.remove('fadein');
-          this.$.waiting.classList.add('fadeout');
+          Polymer.dom(this.$.waiting).classList.remove('fadein');
+          Polymer.dom(this.$.waiting).classList.add('fadeout');
         },
 
-        sliderChanged: function (e) {
+        sliderChanged: function () {
           this.fire('slider-change');
         },
 
@@ -711,15 +764,54 @@ pushing new tiles into the wrapped layout
         },
 
         /* returns true if the layout has a visible result for
-           the source with name sourceName, false otherwise */
+         the source with name sourceName, false otherwise */
         hasResultForSourceName: function (sourceName) {
           var visibleTiles = this.$.layout.getVisibleTiles();
           var tileForSourceName = _.find(visibleTiles, function (tile) {
             return tile.sourceName === sourceName;
           });
           return !!tileForSourceName;
+        },
+
+        _computeDataShow: function (state) {
+          return state === 'preresults';
+        },
+
+        _computeDataShow2: function (state, waiting) {
+          return !waiting && state === 'noresults';
+        },
+
+        _computeIf: function (state, waiting) {
+          return waiting && state !== 'preresults';
+        },
+
+        _computeDataVisible: function (state) {
+          return state === 'results';
+        },
+
+        _computeClass: function (sliderVisible) {
+          return this._tokenList({
+            'without-slider': !sliderVisible,
+            'with-slider-collapsed': sliderVisible
+          });
+        },
+
+        hideIfNotVisible: function (sliderVisible) {
+          return this._tokenList({
+            'hide': !sliderVisible
+          });
+        },
+
+        _tokenList: function (obj) {
+          var pieces = [];
+          for (var key in obj) {
+            if (obj[key]) {
+              pieces.push(key);
+            }
+          }
+          return pieces.join(' ');
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

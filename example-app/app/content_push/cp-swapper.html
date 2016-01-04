@@ -17,29 +17,32 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
 <!--
-slides elements over a base element which remains underneath
-all of the other elements as a background (to implement the
-detail panel sliding over the result display in the first instance);
-expects one fixed element then one or more elements which slide
-over the top of it
+ - slides elements over a base element which remains underneath
+ - all of the other elements as a background (to implement the
+ - detail panel sliding over the result display in the first instance);
+ - expects one fixed element then one or more elements which slide
+ - over the top of it
+ -
+ - mark the fixed element with "swapper-fix" then the slide-able
+ - elements with "swapper-slide"; any slide-able elements should also be
+ - marked with swap-id="<ID>"
+ -->
+ 
+<dom-module id="cp-swapper">
 
-mark the fixed element with "swapper-fix" then the slide-able
-elements with "swapper-slide"; any slide-able elements should also be
-marked with swap-id="<ID>"
--->
-<polymer-element name="cp-swapper">
   <template>
+
     <style>
+
       :host {
         display: block;
       }
@@ -77,53 +80,43 @@ marked with swap-id="<ID>"
 
   <script>
     (function () {
+      'use strict';
+
       var applyTransition = function (self, swapId) {
         var elt;
-
         if (swapId) {
           var selector = '[swapper-slide][swap-id="' + swapId + '"]';
-          elt = self.querySelector(selector);
+          elt = Polymer.dom(self).querySelector(selector);
         } else {
           /* no swapId specified, so default to the active slide
-             or fallback to the first swapper-slide element */
+           or fallback to the first swapper-slide element */
           if (self.activeElt) {
             elt = self.activeElt;
           } else {
-            elt = self.querySelector('[swapper-slide]');
+            elt = Polymer.dom(self).querySelector('[swapper-slide]');
           }
         }
-
         if (!elt) {
           console.error('could not apply transition: element not found');
           return false;
         }
-
         /* slide any active element back in */
         if (self.activeElt) {
-          self.activeElt.setAttribute('data-open', !self.open);
+          Polymer.dom(self.activeElt).setAttribute('data-open', !self.open);
         }
-
         self.activeElt = elt;
-        self.activeElt.setAttribute('data-open', self.open);
-
+        Polymer.dom(self.activeElt).setAttribute('data-open', self.open);
         return true;
       };
 
       Polymer({
-        domReady: function () {
-          this.open = false;
-
-          /* active slide element */
-          this.activeElt = null;
-        },
+        is: 'cp-swapper',
 
         slideIn: function (swapId) {
           if (this.open) {
             return false;
           }
-
           this.open = true;
-
           return applyTransition(this, swapId);
         },
 
@@ -131,12 +124,16 @@ marked with swap-id="<ID>"
           if (!this.open) {
             return false;
           }
-
           this.open = false;
-
           return applyTransition(this, swapId);
+        },
+
+        ready: function () {
+          this.open = false;
+          /* active slide element */
+          this.activeElt = null;
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

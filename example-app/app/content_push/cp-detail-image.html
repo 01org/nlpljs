@@ -17,26 +17,31 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/paper-spinner/paper-spinner.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../bower_components/core-icon/core-icon.html">
-<link rel="import" href="../bower_components/core-icons/core-icons.html">
-<link rel="import" href="../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../bower_components/core-collapse/core-collapse.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-detail-image" attributes="src caption source">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
+
+<link rel="import" href="./cp-detail-style.html">
+
+<dom-module id="cp-detail-image">
+
   <template>
-    <link rel="stylesheet" href="./styles/cp-detail.css">
-    <style>
+
+    <style include="cp-detail-style">
+
       core-collapse {
         display: block;
       }
@@ -52,79 +57,86 @@ href="../bower_components/paper-spinner/paper-spinner.html">
       #exifDropdown {
         margin-top: 20px;
       }
+
+      #container {
+        @apply(--layout-vertical);
+      }
+
+      #back {
+        @apply(--layout-horizontal);
+      }
+
     </style>
 
-    <div id="container" vertical layout>
+    <div id="container">
       <div class="top-bar toolbar-shadow">
-        <div id="back" horizontal layout>
-          <paper-fab id="backbutton" mini icon="arrow-back" raisedButton="true"
-                     on-click="{{onBackButtonClick}}">
-          </paper-fab>
+        <div id="back">
+          <paper-fab id="backbutton" noink mini icon="arrow-back" on-click="onBackButtonClick"></paper-fab>
 
-          <span id="backcaption" data-show="{{!!caption}}" flex>
-            <caption>{{caption|cleanHTML}}</caption>
-          </span>
+          <h2 id="backcaption" data-hide$="[[!caption]]">
+            <span>[[cleanHTML(caption)]]</span>
+          </h2>
         </div>
       </div>
 
       <div id="imgContainer">
         <div id="aspectRatioFrame">
-          <div id="spinner" data-show="{{!loaded}}">
-            <template if="{{!loaded}}">
-              <paper-spinner active></paper-spinner>
-            </template>
+          <div id="spinner" data-hide$="[[loaded]]">
+            <paper-spinner active$="[[spinSpinner(shown, loaded)]]"></paper-spinner>
           </div>
 
           <div id="aspectRatioSpacer"></div>
 
-          <div id="imgPlacer" data-show="{{loaded}}">
-            <img id="image" src="{{src}}" on-load="{{onImageLoad}}">
+          <div id="imgPlacer" data-hide$="[[!loaded]]">
+            <template is="dom-if" if="[[loaded]]">
+              <img id="image" src="[[src]]" on-load="onImageLoad">
+            </template>
           </div>
         </div>
       </div>
 
       <div id="detailbody">
         <div id="imageInfo">
-          <div class="imageMeta" data-show="{{!!sourceName || !!source}}">
+          <div class="imageMeta" data-hide$="[[_computeDataHide(source, sourceName)]]">
             <div class="imageMetaKey">Source</div>
-            <div class="imageMetaValue">{{sourceName || source|domainFromURL}}</div>
+            <div class="imageMetaValue">[[domainFromURL(source, sourceName)]]</div>
           </div>
 
-          <div class="imageMeta" data-show="{{width > 0 && height > 0}}">
+          <div class="imageMeta" data-hide$="[[_computeDataHide2(height, width)]]">
             <div class="imageMetaKey">Size</div>
-            <div class="imageMetaValue">{{width}}x{{height}}</div>
+            <div class="imageMetaValue"><span>[[width]]</span>x<span>[[height]]</span></div>
           </div>
         </div>
 
-        <div id="exif" data-show="{{hasEXIF}}">
+        <div id="exif" data-hide$="[[!hasEXIF]]">
           <div id="exifHeader">
             <p id="exifTitle">More Info</p>
-            <core-icon id="exifToggle" on-click="{{exifToggle}}"
+            <iron-icon id="exifToggle" on-click="exifToggle"
                        icon="expand-more">
-            </core-icon>
+            </iron-icon>
           </div>
 
-          <core-collapse id="exifDropdown">
-            <div class="imageMeta" data-show="{{meta.Camera}}">
+          <iron-collapse id="exifDropdown">
+            <div class="imageMeta" data-hide$="[[!meta.Camera]]">
               <div class="imageMetaKey">Camera</div>
               <div class="imageMetaValue">
-                {{meta.Camera}}
+                <span>[[meta.Camera]]</span>
               </div>
             </div>
 
-            <div class="imageMeta" data-show="{{meta.DateTime}}">
+            <div class="imageMeta" data-hide$="[[!meta.DateTime]]">
               <div class="imageMetaKey">Date</div>
               <div class="imageMetaValue">
-                {{meta.DateTime}}
+                <span>[[meta.DateTime]]</span>
               </div>
             </div>
-          </core-collapse>
+          </iron-collapse>
         </div>
       </div>
 
-      <div id="visitSrc" data-show="{{!!source}}">
-        <paper-button class="colored" on-click="{{visitWebpage}}"
-                      data-source-link="{{source}}">
+      <div id="visitSrc" data-hide$="[[!source]]">
+        <paper-button class="colored" on-click="visitWebpage"
+                      data-source-link$="[[source]]">
           VIEW IMAGE
         </paper-button>
       </div>
@@ -136,31 +148,69 @@ href="../bower_components/paper-spinner/paper-spinner.html">
 
   <script>
     (function () {
+      'use strict';
+
       Polymer({
-        /* source URL of the image itself */
-        src: null,
+        is: 'cp-detail-image',
 
-        /* text describing the image */
-        caption: null,
+        properties: {
+          /* source URL of the image itself */
+          src: {
+            value: null,
+            observer: 'srcChanged'
+          },
 
-        /* where the image came from */
-        source: null,
+          /* text describing the image */
+          caption: {
+            value: null
+          },
 
-        /* image metadata */
-        meta: null,
+          /* where the image came from */
+          source: {
+            value: null
+          },
 
-        /* true if the loaded image has EXIF metadata */
-        hasEXIF: null,
+          /* image metadata */
+          meta: {
+            type: Object,
+            value: {},
+            observer: 'metaChanged'
+          },
 
-        created: function () {
-          this.width = null;
-          this.height = null;
-          this.loaded = false;
-          this.meta = {};
-          this.hasEXIF = false;
+          /* true if the loaded image has EXIF metadata */
+          hasEXIF: {
+            type: Boolean,
+            value: null
+          },
+
+          onExifDropdownOpened: { observer: 'onExifDropdownOpenedChanged' },
+
+          // image is loaded
+          loaded: {
+            type: Boolean,
+            value: false
+          },
+
+          // tile is shown
+          shown: {
+            type: Boolean,
+            value: false
+          },
+
+          sourceName: { value: null },
+
+          width: {
+            type: Number,
+            value: null
+          },
+
+          height: {
+            type: Number,
+            value: null
+          }
         },
 
-        domReady: function () {
+        ready: function () {
           var self = this;
 
           this.$.exifDropdown.addEventListener('core-collapse-open', function (e) {
@@ -169,21 +219,27 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         },
 
         /* clean HTML tags out of the caption */
-        cleanHTML: Formatter.cleanHTML,
+        cleanHTML: function () {
+          return Formatter.cleanHTML.apply(Formatter, arguments);
+        },
 
         /* get the domain from a URL */
-        domainFromURL: Formatter.domainFromURL,
+        domainFromURL: function () {
+          return Formatter.domainFromURL.apply(Formatter, arguments);
+        },
 
         srcChanged: function () {
-          var self = this;
+          if (this.src && this.src !== null) {
+            var self = this;
 
-          this.loaded = false;
+            this.loaded = false;
 
-          /* if the image never loads, record the component as ready
+            /* if the image never loads, record the component as ready
              anyway, to ensure that it will display */
-          setTimeout(function () {
-            self.loaded = true;
-          }, CP_CONSTANTS.TIMEOUT);
+            setTimeout(function () {
+              self.loaded = true;
+            }, CP_CONSTANTS.TIMEOUT);
+          }
         },
 
         onImageLoad: function () {
@@ -196,7 +252,7 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           this.fire('back');
         },
 
-        onExifDropdownOpenedChanged: function (e) {
+        onExifDropdownOpenedChanged: function (_, e) {
           var open = e.detail;
 
           if (open) {
@@ -224,6 +280,8 @@ href="../bower_components/paper-spinner/paper-spinner.html">
         },
 
         showTile: function (tile) {
+          this.shown = true;
+
           this.src = tile.image.src;
           this.caption = tile.image.caption;
           this.source = tile.image.source;
@@ -236,16 +294,32 @@ href="../bower_components/paper-spinner/paper-spinner.html">
           this.$.detailbody.scrollTop = 0;
         },
 
+        closeTile: function () {
+          this.shown = false;
+        },
+
+        spinSpinner: function (shown, loaded) {
+          return shown && !loaded;
+        },
+
         /* set visibility of EXIF panel by checking metadata */
         metaChanged: function () {
           if (this.meta && this.meta) {
             this.hasEXIF = !!this.meta.ExifVersion;
-          }
-          else {
+            }
+            else {
             this.hasEXIF = false;
           }
+        },
+
+        _computeDataHide: function (source, sourceName) {
+          return sourceName && source;
+        },
+
+        _computeDataHide2: function (height, width) {
+          return !(width > 0 && height > 0);
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>

@@ -17,62 +17,85 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-<link rel="import" 
-href="../bower_components/paper-dialog/paper-action-dialog.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-sources-dialog" attributes="container" extends="paper-action-dialog">
-<template>
-  <shadow>
-  </shadow>
-</template>
-<script>
-(function () {
-  Polymer({
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
-    container: null,
-
-    /*
-    onAddCancelClick: function (e) {
-      this.fire('addCancelClick',e);
-    },
-
-    onAddDoneClick: function (e) {
-      this.fire('addDoneClick',e);
-    },
-    */
-
-    // vertically and horizontally center if not positioned
-    repositionTarget: function () {
-      // only center if position fixed.      
-      if (this.dimensions.position.css !== 'fixed') {
-        return; 
+<!--
+    TODO(polyup): Inheriting from other custom elements is not yet supported.
+    See: https://www.polymer-project.org/1.0/docs/migration.html#inheritance
+ -->
+<dom-module id="cp-sources-dialog">
+  <template>
+    <style>
+      #scroller {
+        @apply(--cp-sources-dialog-scroller);
       }
 
-      var containerElement = (this.container)?document.querySelector(this.container):null;
-
-      if (!this.dimensions.position.v) {
-        var containerHeight = (containerElement)?containerElement.offsetHeight:window.innerHeight;
-        var t = (containerHeight - this.target.offsetHeight) / 2;
-        t -= this.dimensions.margin.top;
-        this.target.style.top = t + 'px';
+      #action {
+        @apply(--cp-sources-dialog-main);
       }
 
-      if (!this.dimensions.position.h) {
-        var containerWidth = (containerElement)?containerElement.offsetWidth:window.innerWidth;
-        var l = (containerWidth - this.target.offsetWidth) / 2;
-        l -= this.dimensions.margin.left;
-        this.target.style.left = l + 'px';
+      #main {
+        @apply(--cp-sources-dialog-main);
       }
-    },
-  });
-})();
-</script>
-</polymer-element>
+
+      #container {
+        @apply(--cp-sources-dialog-container);
+      }
+    </style>
+    <paper-dialog modal></paper-dialog>
+  </template>
+  <script>
+    (function () {
+      'use strict';
+
+      Polymer({
+        is: 'cp-sources-dialog',
+
+        properties: {
+          container: {
+            value: null
+          }
+        },
+
+        /*
+         * onAddCancelClick: function (e) {
+         *   this.fire('addCancelClick',e);
+         * },
+         *
+         * onAddDoneClick: function (e) {
+         *   this.fire('addDoneClick',e);
+         * },
+         **/
+
+        // vertically and horizontally center if not positioned
+        repositionTarget: function () {
+          // only center if position fixed.      
+          if (this.dimensions.position.css !== 'fixed') {
+            return;
+          }
+          var containerElement = this.container ? Polymer.dom(document).querySelector(this.container) : null;
+          if (!this.dimensions.position.v) {
+            var containerHeight = containerElement ? containerElement.offsetHeight : window.innerHeight;
+            var t = (containerHeight - this.target.offsetHeight) / 2;
+            t -= this.dimensions.margin.top;
+            this.target.style.top = t + 'px';
+          }
+          if (!this.dimensions.position.h) {
+            var containerWidth = containerElement ? containerElement.offsetWidth : window.innerWidth;
+            var l = (containerWidth - this.target.offsetWidth) / 2;
+            l -= this.dimensions.margin.left;
+            this.target.style.left = l + 'px';
+          }
+        }
+      }); // Polymer()
+    }());
+  </script>
+</dom-module>

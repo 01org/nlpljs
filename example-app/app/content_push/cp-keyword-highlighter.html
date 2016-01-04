@@ -17,64 +17,66 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-
 <!--
-  implements keyword highlighting functionality
-
-  attributes:
-    onStyle: the style to set when the highlighting is 'on'
-    default:
-      background-color: lightpink;
-
-    offStyle: the style to set when the highlighting is 'off'
-    default: none
-
-  targetElement:
-    set to the element containing the google doc, eg :
-    this.$.highlighter.targetElement = this.$.iframe.contentDocument;
-
-  prepare(ranges):
-    insert the html for the given ranges (in 'off' mode)
-    ranges is (first line/char is '0'):
-    [
-      {
-        groupId: 1,
-        start: {
-          lineId: '2',
-          charNo: 5
-        },
-        end: {
-          lineId: '2',
-          charNo: 15
-        }
-      },
-      ...
-    ]
-
-  turn(groupId, 'on'|'off'):
-    turns the highlighing on or off for the specific groupId
-
-  clear([groupId]);
-    removes the html for the given groupId, or if no groupId given, all of them.
--->
+ - implements keyword highlighting functionality
+ -
+ - attributes:
+ -   onStyle: the style to set when the highlighting is 'on'
+ -   default:
+ -     background-color: lightpink;
+ -
+ -   offStyle: the style to set when the highlighting is 'off'
+ -   default: none
+ -
+ - targetElement:
+ -   set to the element containing the google doc, eg :
+ -   this.$.highlighter.targetElement = this.$.iframe.contentDocument;
+ -
+ - prepare(ranges):
+ -   insert the html for the given ranges (in 'off' mode)
+ -   ranges is (first line/char is '0'):
+ -   [
+ -     {
+ -       groupId: 1,
+ -       start: {
+ -         lineId: '2',
+ -         charNo: 5
+ -       },
+ -       end: {
+ -         lineId: '2',
+ -         charNo: 15
+ -       }
+ -     },
+ -     ...
+ -   ]
+ -
+ - turn(groupId, 'on'|'off'):
+ -   turns the highlighing on or off for the specific groupId
+ -
+ - clear([groupId]);
+ -   removes the html for the given groupId, or if no groupId given, all of them.
+ -->
 
 <link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-keyword-highlighter" attributes="onStyle offStyle">
+<dom-module id="cp-keyword-highlighter">
   <script>
     (function () {
+      'use strict';
       // private properties
       var hl = {
-        open: function (groupId, tag) { return '<keyword-highlight debugTag="' + tag + '" group-id="' + groupId + '">'; },
-        close: function () { return '</keyword-highlight>'; }
+        open: function (groupId, tag) {
+          return '<keyword-highlight debugTag="' + tag + '" group-id="' + groupId + '">';
+        },
+        close: function () {
+          return '</keyword-highlight>';
+        }
       };
 
       var NBSP = '&nbsp;';
@@ -87,13 +89,11 @@
        * returns - the position after the last '>'
        */
       var skipTags = function (chars, start) {
-        var retVal = (start)?start:0;
-
+        var retVal = start ? start : 0;
         while (chars[retVal] === '<' && retVal < chars.length) {
           var endOfTag = chars.indexOf('>', retVal);
           retVal = endOfTag + 1;
         }
-
         return retVal;
       };
 
@@ -111,91 +111,78 @@
           before: null,
           after: null
         };
-
         // replace nbsp with char 160 to make life simpler
         var re = new RegExp(NBSP, 'g');
         var fakeSpace = String.fromCharCode(160);
         chars = chars.replace(re, fakeSpace);
-
         var currentPosition = 0;
-
+        var nextTag;
+        var keywordChars;
         // TODO: examine the two endian cases and combine
         if (endian === 'begin') {
           var endOfTag = skipTags(chars);
           currentPosition = endOfTag;
-          var keywordChars = 0;
-          var nextTag = chars.indexOf('<', currentPosition);
+          keywordChars = 0;
+          nextTag = chars.indexOf('<', currentPosition);
           while (nextTag !== -1 && nextTag <= currentPosition + position - keywordChars) {
             // update current count of keyword characters
             keywordChars += nextTag - currentPosition;
-
             // move to next tag
             currentPosition = nextTag;
-
             // skip past tag(s)
             currentPosition = skipTags(chars, currentPosition);
-
             nextTag = chars.indexOf('<', currentPosition);
           }
-          currentPosition += position - keywordChars; // *before* position
-        } else
+          currentPosition += position - keywordChars;
+        } else // *before* position
         if (endian === 'end') {
-          var nextTag = chars.indexOf('<');
+          nextTag = chars.indexOf('<');
           if (nextTag === -1) {
             currentPosition = chars.length;
           } else {
             var endOfTags = skipTags(chars);
             currentPosition = endOfTags;
-            var keywordChars = 0;
-            var nextTag = chars.indexOf('<', currentPosition);
-            var sanityCheck = 0;
+            keywordChars = 0;
+            nextTag = chars.indexOf('<', currentPosition);
             while (nextTag !== -1 && nextTag < currentPosition + position - keywordChars + 1) {
               // update current count of keyword characters
               keywordChars += nextTag - currentPosition;
-
               // move to next tag
               currentPosition = nextTag;
-
               if (keywordChars <= position) {
                 // skip past tag(s)
                 currentPosition = skipTags(chars, currentPosition);
-
                 // find next tag
                 nextTag = chars.indexOf('<', currentPosition);
               } else {
                 break;
               }
             }
-            currentPosition += position - keywordChars + 1; // *after* position
+            currentPosition += position - keywordChars + 1;
           }
         }
-
+        // *after* position
         // replace char 160 with nbsp again
-        var re = new RegExp(fakeSpace, 'g');
+        re = new RegExp(fakeSpace, 'g');
         retVal.before = chars.substr(0, currentPosition).replace(re, NBSP);
         retVal.after = chars.substr(currentPosition).replace(re, NBSP);
-
         return retVal;
       };
 
       var getLine = function (self, lineId) {
-        return self.targetElement.querySelector('[cp_line_id="' + lineId + '"] .kix-lineview-content');
+        return Polymer.dom(self.targetElement).querySelector('[cp_line_id="' + lineId + '"] .kix-lineview-content');
       };
 
       // tries to behave like html parser does
       // wrt to white space
       var compressWhiteSpace = function (html) {
         var retVal = html;
-
         // compress multiple white space into one
         retVal = retVal.replace(/\s+/, ' ');
-
         // remove white space at the beginning of line
         retVal = retVal.replace(/^\s+/, '');
-
         // remove white space at the end of line
         retVal = retVal.replace(/\s+$/, '');
-
         return retVal;
       };
 
@@ -203,187 +190,106 @@
         var start = rangeToHighlight.start;
         var end = rangeToHighlight.end;
         var groupId = rangeToHighlight.groupId;
-
         var tag = [
-          [start.lineId, start.charNo].join(':'),
-          [end.lineId, end.charNo].join(':'),
+          [
+            start.lineId,
+            start.charNo
+          ].join(':'),
+          [
+            end.lineId,
+            end.charNo
+          ].join(':')
         ].join('-');
-
         // 1. get start line object
         var line = getLine(self, start.lineId);
-
         // abort if no line
         if (!line) {
           console.log('HL:ERROR, line#%d not found.', start.lineId);
           return;
         }
-
         // 2. split the lines html at start char
-        var bits0 = splitAtPosition(
-          start.charNo,
-          compressWhiteSpace(line.innerHTML),
-          'begin'
-        );
-
+        var bits0 = splitAtPosition(start.charNo, compressWhiteSpace(Polymer.dom(line).innerHTML), 'begin');
         // 3. add close hl before first '<' in .after0
         var closePosition = bits0.after.indexOf('<');
         if (end.lineId === start.lineId) {
           // use splitAtPosition to find
           // if the split would be before the '<'
-          var tmpBits = splitAtPosition(
-            end.charNo - start.charNo,
-            bits0.after,
-            'end');
+          var tmpBits = splitAtPosition(end.charNo - start.charNo, bits0.after, 'end');
           if (tmpBits.before.length < closePosition) {
             closePosition = tmpBits.before.length;
           }
         }
-        bits0.after =
-          bits0.after.substr(0, closePosition) +
-          hl.close() +
-          bits0.after.substr(closePosition);
-
+        bits0.after = bits0.after.substr(0, closePosition) + hl.close() + bits0.after.substr(closePosition);
         // 4. if end char is on same line as start char
         if (end.lineId === start.lineId) {
           // 4.1 in .after0, split line at (end char - start char)
-          var bits1 = splitAtPosition(
-            end.charNo - start.charNo,
-            bits0.after,
-            'end'
-          );
-
+          var bits1 = splitAtPosition(end.charNo - start.charNo, bits0.after, 'end');
           // 4.2 in .before1, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
-          bits1.before = bits1.before.replace(
-            />([^<]+)</g,
-            '>' +
-            hl.open(groupId, tag) +
-            '$1' +
-            hl.close() +
-            '<'
-          );
-
+          bits1.before = bits1.before.replace(/>([^<]+)</g, '>' + hl.open(groupId, tag) + '$1' + hl.close() + '<');
           // 4.2a in .before1, surround any plain text at the end of the line with hl
-          bits1.before = bits1.before.replace(
-            />([^>]+)$/,
-            '>' +
-            hl.open(groupId, tag) +
-            '$1' +
-            hl.close()
-          );
-
+          bits1.before = bits1.before.replace(/>([^>]+)$/, '>' + hl.open(groupId, tag) + '$1' + hl.close());
           // 4.3 join the .before1, .after1 together
           // 4.4 assign to .after0
-          bits0.after =
-            bits1.before +
-            bits1.after;
+          bits0.after = bits1.before + bits1.after;
+        } else
           // # done close on same line
-        } else {
-          // 5. if end char is not on start line
-
-          // 5.1 in .after0, replace />([^<]+)</ with hl.open(groupId) $1 hl.close()
-          bits0.after = bits0.after.replace(
-            />([^<]+)</g,
-            '>' +
-            hl.open(groupId, tag) +
-            '$1' +
-            hl.close() +
-            '<'
-          );
-        }
-
+          {
+            // 5. if end char is not on start line
+            // 5.1 in .after0, replace />([^<]+)</ with hl.open(groupId) $1 hl.close()
+            bits0.after = bits0.after.replace(/>([^<]+)</g, '>' + hl.open(groupId, tag) + '$1' + hl.close() + '<');
+          }
         // 6. join the .before0, open hl, .after0 together
         // 7. assign the line to start line object
-        line.innerHTML =
-          bits0.before +
-          hl.open(groupId, tag) +
-          bits0.after;
+        Polymer.dom(line).innerHTML = bits0.before + hl.open(groupId, tag) + bits0.after;
         // # done first line including hl.close() if it's on the same line
-
-
         // 7. if end line > start line
         if (end.lineId !== start.lineId) {
           // # process intermediate lines
-
           var startLineNo = self.lineIds.indexOf(start.lineId);
           var endLineNo = self.lineIds.indexOf(end.lineId);
-
-          if (startLineNo === -1 || endLineNo === -1 ) {
+          if (startLineNo === -1 || endLineNo === -1) {
             console.log('HL:Error: lineId not in lineIds array!');
             console.log('HL:Error: startLineId:', start.lineId);
             console.log('HL:Error: startLineNo:', startLineNo);
             console.log('HL:Error: endLineId:', end.lineId);
             console.log('HL:Error: endLineNo:', endLineNo);
           }
-
           // 7.1 loop over intermediate lines
-          for (var lineNo = startLineNo+1; lineNo < endLineNo; lineNo++) {
+          for (var lineNo = startLineNo + 1; lineNo < endLineNo; lineNo++) {
             // 7.2.1 get line object
             var thisLine = getLine(self, self.lineIds[lineNo]);
-
             // 7.2.2 replace all >(*)< with >hl.open(groupId).*.hl.close()<
-            var thisHTML = compressWhiteSpace(thisLine.innerHTML).replace(
-              />([^<]+)</g,
-              '>' +
-              hl.open(groupId, tag) +
-              '$1' +
-              hl.close() +
-              '<'
-            );
-            
+            var thisHTML = compressWhiteSpace(Polymer.dom(thisLine).innerHTML).replace(/>([^<]+)</g, '>' + hl.open(groupId, tag) + '$1' + hl.close() + '<');
             // 7.2.3 assign to the line object
-            thisLine.innerHTML = thisHTML;
+            Polymer.dom(thisLine).innerHTML = thisHTML;
           }
-
           // # process last line
           // 7.3 get last line object
           var endLine = getLine(self, end.lineId);
-
           // 7.4 split it at the end char
-          var bits = splitAtPosition(
-            end.charNo,
-            compressWhiteSpace(endLine.innerHTML),
-            'end'
-          );
-
+          var bits = splitAtPosition(end.charNo, compressWhiteSpace(Polymer.dom(endLine).innerHTML), 'end');
           // 7.5 in .before, replace />([^<]+)</ with hl.open(groupId) \1 hl.close()
-          bits.before = bits.before.replace(
-            />([^<]+)</g,
-            '>' +
-            hl.open(groupId, tag) +
-            '$1' +
-            hl.close() +
-            '<'
-          );
-          
+          bits.before = bits.before.replace(/>([^<]+)</g, '>' + hl.open(groupId, tag) + '$1' + hl.close() + '<');
           // 7.5a in .before add hl.open(groupId) after final '>'
           var gtPosition = bits.before.lastIndexOf('>');
-          if (gtPosition!=-1) {
-            var insertAtPos=gtPosition+1;
-            bits.before = 
-              bits.before.substr(0, insertAtPos) +
-              hl.open(groupId, tag) +
-              bits.before.substr(insertAtPos);
+          if (gtPosition !== -1) {
+            var insertAtPos = gtPosition + 1;
+            bits.before = bits.before.substr(0, insertAtPos) + hl.open(groupId, tag) + bits.before.substr(insertAtPos);
           }
-
           // 7.6 join the .before, close hl, .after together
           // 7.7 assign to the last line object
-          endLine.innerHTML =
-            bits.before +
-            hl.close() +
-            bits.after;
+          Polymer.dom(endLine).innerHTML = bits.before + hl.close() + bits.after;
         }
-
-
         // dump the contents of the range highlighted
-        var elements = self.targetElement.querySelectorAll('keyword-highlight[debugTag="' + tag + '"]');
+        var elements = Polymer.dom(self.targetElement).querySelectorAll('keyword-highlight[debugTag="' + tag + '"]');
         var result = [];
         for (var i = 0; i < elements.length; i++) {
           result.push(elements[i].innerText);
         }
-        var concatResult=[result.join('')].join('');
-        if (start.lineId===end.lineId && concatResult.length!=(end.charNo-start.charNo+1)) {
+        var concatResult = [result.join('')].join('');
+        if (start.lineId === end.lineId && concatResult.length !== end.charNo - start.charNo + 1) {
           console.log('HL:Result: ', '/' + concatResult + '/');
-          console.log('HL:Tag:',tag);
+          console.log('HL:Tag:', tag);
           // only checking when the same line
           console.log('HL:Error: concatResult length=', concatResult.length);
           console.log('HL:Error: end.charNo-start.charNo+1=', end.charNo - start.charNo + 1);
@@ -391,76 +297,82 @@
       };
 
       /*
-         Injects the css for the on and off style into the head.
+       * Injects the css for the on and off style into the head.
        */
       var injectCss = function (self, targetDocument) {
         var css = [
           'keyword-highlight,',
           'cp-keyword-highlighter-test::shadow keyword-highlight {',
-            self.offStyle,
+          self.offStyle,
           '}',
           'keyword-highlight.on,',
           'cp-keyword-highlighter-test::shadow keyword-highlight.on {',
-            self.onStyle,
-          '}',
+          self.onStyle,
+          '}'
         ].join('\n');
-
-        head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
-        style = targetDocument.createElement('style');
+        var head = targetDocument.head || targetDocument.getElementsByTagName('head')[0];
+        var style = targetDocument.createElement('style');
         style.type = 'text/css';
         if (style.styleSheet) {
           style.styleSheet.cssText = css;
         } else {
-          style.appendChild(document.createTextNode(css));
+          Polymer.dom(style).appendChild(document.createTextNode(css));
         }
-
-        head.appendChild(style);
+        Polymer.dom(head).appendChild(style);
       };
 
       Polymer({
-        created: function () {
-          this.lineIds = [];
-          this.offStyle = '';
-          this.onStyle = 'background-color: #FFB2F0';
+        is: 'cp-keyword-highlighter',
+
+        properties: {
+          offStyle: { 
+            type: String,
+            value: ''
+          },
+          onStyle: {
+            type: String,
+            value: 'background-color: #FFB2F0'
+          },
+          lineIds: {
+            type: Array,
+            value: []
+          },
+          targetElement: { observer: 'targetElementChanged' }
         },
 
-        targetElementChanged: function (oldValue, newValue) {
-          var targetDocument = this.targetElement.ownerDocument ||
-            this.targetElement.body.ownerDocument;
-
+        targetElementChanged: function () {
+          var targetDocument = this.targetElement.ownerDocument || this.targetElement.body.ownerDocument;
           injectCss(this, targetDocument);
         },
 
         prepare: function (ranges) {
-          var lines = this.targetElement.querySelectorAll('[cp_line_id]');
-          for (var i = 0; i < lines.length; i++) {
+          var lines = Polymer.dom(this.targetElement).querySelectorAll('[cp_line_id]');
+          var i;
+          for (i = 0; i < lines.length; i++) {
             this.lineIds[i] = lines[i].getAttribute('cp_line_id');
           }
-
-          for (var i = 0; i < ranges.length; i++) {
+          for (i = 0; i < ranges.length; i++) {
             highlightRange(this, ranges[i]);
           }
-
           // finished with lineIds, so remove array
           this.lineIds = [];
         },
 
         turn: function (groupId, state) {
+          var elements, element, numElements, i;
           if (state === 'on') {
-            var elements = this.targetElement.querySelectorAll(
-              'keyword-highlight[group-id="' + groupId + '"]:not(.on)'
-            );
-
-            for (var i = 0, element; element = elements[i]; i++) {
-              element.classList.add('on');
+            elements = Polymer.dom(this.targetElement).querySelectorAll('keyword-highlight[group-id="' + groupId + '"]:not(.on)');
+            numElements = elements.length;
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
+              Polymer.dom(element).classList.add('on');
             }
           } else {
-            var elements = this.targetElement.querySelectorAll(
-              'keyword-highlight.on[group-id="' + groupId + '"]'
-            );
-
-            for (var i = 0, element; element = elements[i]; i++) {
-              element.classList.remove('on');
+            elements = Polymer.dom(this.targetElement).querySelectorAll('keyword-highlight.on[group-id="' + groupId + '"]');
+            numElements = elements.length;
+            for (i = 0; i < numElements; i++) {
+              element = elements[i];
+              Polymer.dom(element).classList.remove('on');
             }
           }
         },
@@ -468,33 +380,26 @@
         clear: function (groupId) {
           // get the elements with the given groupId,
           // or all if non given
-          var elements=this.targetElement.querySelectorAll(
-            'keyword-highlight' +
-            (groupId) ? '[group-id="' + groupId + '"]' : '');
-
+          var elements = Polymer.dom(this.targetElement).querySelectorAll('keyword-highlight' + groupId ? '[group-id="' + groupId + '"]' : '');
           // remove each element in turn
           for (var elementIndex = 0; elementIndex < elements.length; elementIndex++) {
             var thisElement = elements[elementIndex];
-            var parent = thisElement.parentNode;
-
+            var parent = Polymer.dom(thisElement).parentNode;
             // move children to before thisElement
-            while (thisElement.firstChild) {
-              var child = thisElement.firstChild;
-              parent.insertBefore(child, thisElement);
+            while (Polymer.dom(thisElement).firstChild) {
+              var child = Polymer.dom(thisElement).firstChild;
+              Polymer.dom(parent).insertBefore(child, thisElement);
             }
-
             // remove thisElement
-            parent.removeChild(thisElement);
+            Polymer.dom(parent).removeChild(thisElement);
           }
         },
 
         // for testing only
         testSplitAtPosition: function (position, chars, endian) {
           return splitAtPosition(position, chars, endian);
-        },
-
+        }
       }); // Polymer()
-    })();
-
+    }());
   </script>
-</polymer-element>
+</dom-module>

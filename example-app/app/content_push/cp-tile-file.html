@@ -17,25 +17,27 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-
-
   Authors:
     Elliot Smith <elliot.smith@intel.com>
     Max Waterman <max.waterman@intel.com>
     Plamena Manolova <plamena.manolova@intel.com>
 -->
 
-
 <!--
-wrapper for a Google Drive file thumbnail
--->
+ - wrapper for a Google Drive file thumbnail
+ -->
 
-<link rel="import" href="../bower_components/paper-shadow/paper-shadow.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
 
-<polymer-element name="cp-tile-file" attributes="src loaded done">
+<link rel="import" href="../bower_components/paper-material/paper-material.html">
+
+<link rel="import" href="./cp-tile-style.html">
+
+<dom-module id="cp-tile-file">
+
   <template>
-    <link rel="stylesheet" href="styles/cp-tile.css">
-    <style>
+
+    <style include="cp-tile-style">
       #imageContainer {
         height: calc(100% - 46px);
         width: 100%;
@@ -77,59 +79,86 @@ wrapper for a Google Drive file thumbnail
         min-width: 16px;
         min-height: 16px;
       }
+
     </style>
 
     <div id="container">
-      <paper-shadow z="1" id="imageShadow">
+      <paper-material elevation="1" id="imageShadow">
         <div id="overlay"></div>
 
         <div id="imageContainer">
-          <img id="image" src="{{src}}">
+          <img id="image" src="[[src]]">
         </div>
 
         <div id="meta">
-          <img id="icon" src="{{iconLink}}">
-          <p id="caption">{{caption}}</p>
+          <img id="icon" src="[[iconLink]]">
+          <p id="caption">[[caption]]</p>
         </div>
-      </paper-shadow>
+      </paper-material>
     </div>
   </template>
 
-  <script src="./cp-layout-frame-chooser.js"></script>
-
+  <script src="./cp-layout-frame-chooser.js">
+    /* globals FrameChooser: true */
+  </script>
   <script>
     (function () {
-      Polymer({
-        /* file tiles are always ready */
-        done: true,
+      'use strict';
 
-        /* we always set loaded to true, so that file tiles are
+      Polymer({
+        is: 'cp-tile-file',
+
+        properties: {
+          /* file tiles are always ready */
+          done: {
+            type: Boolean,
+            value: true
+          },
+          /* hard-code the frame for file tiles */
+          frame: {
+            value: function () {
+              return FrameChooser.FRAMES.small_square;
+            }
+          },
+          /* we always set loaded to true, so that file tiles are
            loaded into cp-display regardless of whether their related
            thumbnail loads */
-        loaded: true,
+          loaded: {
+            type: Boolean,
+            value: true
+          },
+          src: {
+            type: String,
+            value: ''
+          },
+          /* type of object used to create the tile */
+          type: {
+            type: String,
+            value: 'file'
+          },
 
-        /* type of object used to create the tile */
-        type: 'file',
+          iconLink: {
+            type: String,
+            value: null
+          },
 
-        /* hard-code the frame for file tiles */
-        frame: FrameChooser.FRAMES['small_square'],
+          caption: {
+            type: String,
+            value: ''
+          }
+        },
 
-        created: function () {
+        ready: function () {
           /* THESE PROPERTIES SHOULD BE SET */
-
           /* URL for the file thumbnail to be displayed */
           this.src = null;
-
           /* title to show at the bottom of the tile */
           this.caption = '';
-
           /* URL of icon to display, showing the file type */
           this.iconLink = null;
-
           /* the original data used to construct the tile, as
-             returned by a file search */
+           returned by a file search */
           this.file = {};
-
           /* keywords associated with the tile with structure:
              [{
                text: "<keyword text>",
@@ -138,7 +167,7 @@ wrapper for a Google Drive file thumbnail
           */
           this.keywords = [];
         }
-      });
-    })();
+      }); // Polymer()
+    }());
   </script>
-</polymer-element>
+</dom-module>
