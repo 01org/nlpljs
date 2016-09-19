@@ -295,6 +295,6 @@
 })(
   /* globals require:true */
   /* globals ArrayUtils:true */
-  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _,
+  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.min.js') : _,
   typeof ArrayUtils === 'undefined' ? require('./cp-array-utils') : ArrayUtils
 );

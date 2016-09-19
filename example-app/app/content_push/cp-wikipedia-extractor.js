@@ -179,6 +179,6 @@
 })(
   /* globals require:true */
   /* globals HtmlCleaner:true */
-  typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _,
+  typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.min.js') : _,
   typeof HtmlCleaner === 'undefined' ? require('./cp-html-cleaner') : HtmlCleaner
 );

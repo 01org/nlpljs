@@ -71,7 +71,7 @@
    */
   TileCache.prototype.getActiveTiles = function () {
     var self = this;
-    return _.select(this.tiles, function (tile) {
+    return _.filter(this.tiles, function (tile) {
       return self.tilesActive[tile.source];
     });
   };
@@ -143,4 +143,4 @@
     window.TileCache = TileCache;
   }
 }(/* globals require:true */
-typeof _ === 'undefined' ? require('../bower_components/lodash/lodash.min.js') : _));
+typeof _ === 'undefined' ? require('../bower_components/lodash/dist/lodash.min.js') : _));

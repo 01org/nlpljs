@@ -1,5 +1,5 @@
 {
-  "name": "Content Push",
+  "name": "content-push",
   "version": "0.0.0",
   "dependencies": {
     "polymer": "Polymer/polymer",

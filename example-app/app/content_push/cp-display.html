@@ -314,7 +314,7 @@
     </div>
   </template>
 
-  <script src="../bower_components/lodash/lodash.min.js"></script>
+  <script src="../bower_components/lodash/dist/lodash.min.js"></script>
   <script src="./cp-constants.js"></script>
   <script src="./cp-filter-deduplicate.js"></script>
 
@@ -461,7 +461,7 @@
               /* no types criteria, so always matches */
               return true;
             } else {
-              return _.contains(criteria.types, tile.type);
+              return _.includes(criteria.types, tile.type);
             }
           });
         },
@@ -521,7 +521,7 @@
             console.log('CP-DISPLAY: existing tile with source ' +
                         tile.source);
 
-            if (!_.include(existingTile.keywords, keyword)) {
+            if (!_.includes(existingTile.keywords, keyword)) {
               existingTile.keywords.push(keyword);
             }
           } else if (this.urlDeduplicator.test(tile.source)) {
